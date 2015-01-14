@@ -36,7 +36,7 @@ ecmarkup spec.html out.html
 
     <h2>Attributes</h2>
     <p><b>id:</b> Clause id. Must be unique.</p>
-    <p><b>aaid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause.</p>
+    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause.</p>
   </emu-clause>
 
   <emu-clause id="emu-annex">
@@ -49,18 +49,18 @@ ecmarkup spec.html out.html
   </emu-clause>
 </emu-clause>
 
-<emu-clause id="emu-alg" aaid="EmuAlg">
+<emu-clause id="emu-alg" aoid="EmuAlg">
   <h1>emu-alg</h1>
-  <p>Algorithm steps. Should not contain any HTML. The node's textContent is processed using Ecmarkdown. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aaid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
+  <p>Algorithm steps. Should not contain any HTML. The node's textContent is processed using Ecmarkdown. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
 
   <h2>Attributes</h2>
-  <p><b>aaid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this algorithm.</p>
+  <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this algorithm.</p>
 
   <h2>Example</h2>
-  <emu-note>The emu-alg clause has an aaid of "EmuAlg".</emu-note>
+  <emu-note>The emu-alg clause has an aoid of "EmuAlg".</emu-note>
   <h3>Element</h3>
   <pre>
-&lt;emu-alg aaid="EmuAlgExample">
+&lt;emu-alg aoid="EmuAlgExample">
   1. let _clauseAbstractOp_ be the result of calling EmuAlg()
   2. Step 2
     1. let _recurse_ be the result of calling EmuAlgExample(`true`)
@@ -68,7 +68,7 @@ ecmarkup spec.html out.html
 &lt;/emu-alg>
   </pre>
   <h3>Result</h3>
-  <emu-alg aaid="EmuAlgExample">
+  <emu-alg aoid="EmuAlgExample">
     1. let _clauseAbstractOp_ be the result of calling EmuAlg()
     2. Step 2
       1. let _recurse_ be the result of calling EmuAlgExample(`true`)
@@ -97,12 +97,12 @@ ecmarkup spec.html out.html
   <b>biblio.js</b>
   <pre>
 {
-"http://people.mozilla.org/~jorendorff/es6-draft.html": {
-  "abstract operations": {
-    "ReturnIfAbrupt": "#sec-returnifabrupt",
-    "Get": "#sec-get-o-p"
+  "http://people.mozilla.org/~jorendorff/es6-draft.html": {
+    "abstract operations": {
+      "ReturnIfAbrupt": "#sec-returnifabrupt",
+      "Get": "#sec-get-o-p"
+    }
   }
-}
 }
   </pre>
   <b>spec.js</b>
