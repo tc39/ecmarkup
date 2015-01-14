@@ -1,0 +1,270 @@
+<!doctype html>
+<meta charset="utf8">
+<title>Ecmarkup</title>
+<link rel="stylesheet" href="./elements.css">
+<emu-biblio href="./biblio.json"></emu-biblio>
+<h1>Ecmarkup Documentation</h1>
+<emu-intro id="intro">
+  <h1>Introduction</h1>
+  <p>This document defines a number of custom elements suitable for formally specifying semantics for ECMAScript proposals. In many contexts, <a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax is processed allowing a number of convenient shorthands similar to markdown.</p>
+  <p>This document also provides instruction for getting started with the Node toolchain.</p>
+  <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/bterlson/ecmarkup/blob/master/spec/index.html">on github</a>.</p>
+</emu-intro>
+
+<emu-clause id="getting-started">
+  <h1>Getting Started</h1>
+  <pre>
+npm install -g ecmarkup
+ecmarkup spec.html out.html
+  </pre>
+</emu-clause>
+<emu-clause id="clauses">
+  <h1>Clauses</h1>
+  <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in all descendent text nodes other than in children of other ecmarkup elements.</p>
+
+  <emu-clause id="emu-intro">
+    <h1>emu-intro</h1>
+    <p>Non-normative introductory information.</p>
+
+    <h2>Attributes</h2>
+    <p><b>id:</b> Clause id. Must be unique.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-clause">
+    <h1>emu-clause</h1>
+    <p>Normative clause.</p>
+
+    <h2>Attributes</h2>
+    <p><b>id:</b> Clause id. Must be unique.</p>
+    <p><b>aaid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-annex">
+    <h1>emu-annex</h1>
+    <p>Annex clause.</p>
+
+    <h2>Attributes</h2>
+    <p><b>normative:</b> If present, annex is normative. Default is non-normative.</p>
+    <p><b>id:</b> Clause id. Must be unique.</p>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="emu-alg" aaid="EmuAlg">
+  <h1>emu-alg</h1>
+  <p>Algorithm steps. Should not contain any HTML. The node's textContent is processed using Ecmarkdown. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aaid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
+
+  <h2>Attributes</h2>
+  <p><b>aaid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this algorithm.</p>
+
+  <h2>Example</h2>
+  <emu-note>The emu-alg clause has an aaid of "EmuAlg".</emu-note>
+  <h3>Element</h3>
+  <pre>
+&lt;emu-alg aaid="EmuAlgExample">
+  1. let _clauseAbstractOp_ be the result of calling EmuAlg()
+  2. Step 2
+    1. let _recurse_ be the result of calling EmuAlgExample(`true`)
+    2. Return the result of evaluating this |NonTerminalProduction|
+&lt;/emu-alg>
+  </pre>
+  <h3>Result</h3>
+  <emu-alg aaid="EmuAlgExample">
+    1. let _clauseAbstractOp_ be the result of calling EmuAlg()
+    2. Step 2
+      1. let _recurse_ be the result of calling EmuAlgExample(`true`)
+      2. Return the result of evaluating this |NonTerminalProduction|
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="emu-note">
+  <h1>emu-note</h1>
+  <p>Non-normative explanatory text.</p>
+
+  <h2>Example</h2>
+  <p>For authentication only, servers and clients MUST support SASL Salted Challenge Response Authentication Mechanism [SCRAM].</p>
+  <emu-note>But we know you won't.</emu-note>
+</emu-clause>
+
+
+<emu-clause id="emu-biblio">
+  <h1>emu-biblio</h1>
+  <p>Links a bibliography file. The bibliography file is a JSON document containing URLs for referenced documents along with any algorithms they define.</p>
+
+  <h2>Attributes</h2>
+  <p><b>href:</b> Required: URL to the biblio file.</p>
+
+  <h2>Example</h2>
+  <b>biblio.js</b>
+  <pre>
+{
+"http://people.mozilla.org/~jorendorff/es6-draft.html": {
+  "abstract operations": {
+    "ReturnIfAbrupt": "#sec-returnifabrupt",
+    "Get": "#sec-get-o-p"
+  }
+}
+}
+  </pre>
+  <b>spec.js</b>
+  <pre>
+&lt;emu-biblio href="./spec.js">&lt;/emu-biblio>
+&lt;emu-alg>
+1. let _res_ be some value.
+2. ReturnIfAbrupt(_res_)
+&lt;/emu-alg>
+  </pre>
+
+  <b>Result</b>
+  <emu-alg>
+    1. let _res_ be Get(_obj_, _key_).
+    2. ReturnIfAbrupt(_res_);
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="grammar">
+  <h1>Specifying Grammar</h1>
+  <p>Specifying ECMAScript grammars is the most complex aspect of Ecmarkup. A number of elements and attributes are required to precisely specify productions. These are explained in the following subclauses.</p>
+  <emu-note>It is my hope that one day we will have a nice, clearly readable, easily parsible, unambiguous plaintext format for the grammar. That day is, sadly, not today.</emu-note>
+  <h2>Examples</h2>
+
+  <b>WhileStatement</b>
+  <pre>&lt;emu-production name="WhileStatement">
+  &lt;emu-rhs>while ( &lt;emu-nt>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
+&lt;/emu-production></pre>
+
+  <emu-production name="WhileStatement">
+    <emu-rhs>while ( <emu-nt>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
+  </emu-production>
+
+  <b>ArgumentList</b>
+  <pre>&lt;emu-production name="ArgumentList">
+  &lt;emu-rhs>&lt;emu-nt>AssignmentExpression&lt;/emu-nt>&lt;/emu-rhs>
+  &lt;emu-rhs>&lt;emu-nt>ArgumentList&lt;/emu-nt> , &lt;emu-nt>AssignmentExpression&lt;/emu-nt>&lt;/emu-rhs>
+&lt;/emu-production></pre>
+
+  <emu-production name="ArgumentList">
+    <emu-rhs><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+
+    <emu-rhs><emu-nt>ArgumentList</emu-nt> , <emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+  </emu-production>
+
+  <b>IterationStatement</b>
+  <pre>&lt;emu-production name="IterationStatement">
+  &lt;emu-rhs>for ( &lt;emu-nt>LexicalDeclaration&lt;/emu-nt> ; &lt;emu-nt optional>Expression&lt;/emu-nt> ;
+  &lt;emu-nt optional>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
+&lt;/emu-production></pre>
+  <emu-production name="IterationStatement">
+    <emu-rhs>for ( <emu-nt>LexicalDeclaration</emu-nt> ; <emu-nt optional>Expression</emu-nt> ;
+    <emu-nt optional>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
+  </emu-production>
+
+  <b>Identifier</b>
+  <pre>&lt;emu-production name="Identifier" type="lexical">
+  &lt;emu-rhs>&lt;emu-nt>IdentifierName&lt;/emu-nt> &lt;emu-gmod>but not
+  &lt;emu-nt>ReservedWord&lt;/emu-nt>&lt;/emu-gmod>&lt;/emu-rhs>
+&lt;/emu-production></pre>
+  <emu-production name="Identifier" type="lexical">
+    <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
+    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
+  </emu-production>
+
+  <b>SourceCharacter</b>
+  <pre>&lt;emu-production name="SourceCharacter" type="lexical">
+  &lt;emu-rhs>&lt;emu-gprose>any Unicode code point&lt;/emu-gprose>&lt;/emu-rhs>
+&lt;/emu-production></pre>
+  <emu-production name="SourceCharacter" type="lexical">
+    <emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
+  </emu-production>
+
+  <b>ExpressionStatement</b>
+  <pre>&lt;emu-production name="ExpressionStatement" params="Yield">
+  &lt;emu-rhs>
+    &lt;emu-gann>lookahead ∉ {
+      &lt;emu-t>{&lt;/emu-t>,
+      &lt;emu-t>function&lt;/emu-t>,
+      &lt;emu-t>class&lt;/emu-t>,
+      &lt;emu-t>let [&lt;/emu-t>
+    }&lt;/emu-gann>
+  &lt;/emu-rhs>
+&lt;/emu-production></pre>
+  <emu-production name="ExpressionStatement" params="Yield">
+    <emu-rhs>
+      <emu-gann>lookahead ∉ {
+        <emu-t>{</emu-t>,
+        <emu-t>function</emu-t>,
+        <emu-t>class</emu-t>,
+        <emu-t>let [</emu-t>
+      }</emu-gann>
+    </emu-rhs>
+  </emu-production>
+
+  <b>DecimalDigit</b>
+  <pre>&lt;emu-production name="DecimalDigit" type="lexical" oneof>
+  &lt;emu-rhs>0 1 2 3 4 5 6 7 8 9&lt;/emu-rhs>
+&lt;/emu-production></pre>
+  <emu-production name="DecimalDigit" type="lexical" oneof>
+    <emu-rhs>0 1 2 3 4 5 6 7 8 9</emu-rhs>
+  </emu-production>
+
+  <b>StatementList</b>
+  <pre>&lt;emu-production name="StatementList" params="Return, In">
+  &lt;emu-rhs constraints="~Return">&lt;emu-nt>ReturnStatement&lt;/emu-nt>&lt;/emu-rhs>
+  &lt;emu-rhs>&lt;emu-nt>ExpressionStatement&lt;/emu-nt>&lt;/emu-rhs>
+&lt;/emu-production></pre>
+  <emu-production name="StatementList" params="Return, In">
+    <emu-rhs constraints="~Return"><emu-nt>ReturnStatement</emu-nt></emu-rhs>
+    <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
+  </emu-production>
+
+  <emu-clause id="emu-production">
+    <h1>emu-production</h1>
+    <p>This is the top level element that contains all grammar productions. Each production MUST include at least one right-hand side (see <a href="#emu-rhs">emu-rhs</a></p>
+    <h2>Attributes</h2>
+    <p><b>Name:</b> Required. Name of the production (i.e. the non-terminal on the LHS).</p>
+    <p><b>Params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
+    <p><b>Type:</b> Type of production, either "lexical" or "regexp". Default is blank (normal).</p>
+    <p><b>oneof:</b> If present, production is a one-of production. See DecimalDigit example above.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-rhs">
+    <h1>emu-rhs</h1>
+    <p>Describes one right-hand-side alternative of a production. Text nodes inside of an rhs are split on each space and turned into terminals. For example, <pre>&lt;emu-rhs>a b c&lt;/emu-rhs></pre> is semantically equivalent to <pre>&lt;emu-rhs>&lt;emu-t>a&lt;/emu-t> &lt;emu-t>b&lt;/emu-t> &lt;emu-t>c&lt;/emu-t></pre></p>
+    <h2>Attributes</h2>
+    <p><b>constraints:</b> any constraints for this RHS. Multiple constraints separated by commas. See StatementList example above.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-nt">
+    <h1>emu-nt</h1>
+    <p>Non-terminal. Alpha characters only.</p>
+    <h2>Attributes</h2>
+    <p><b>Params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
+    <p><b>oneof:</b> If present, production is a one-of production (see DecimalDigit example above).</p>
+  </emu-clause>
+
+  <emu-clause id="emu-t">
+    <h1>emu-t</h1>
+    <p>Terminal. No attributes available. Mostly don't need to create these elements manually as <a href="#emu-rhs">they are created automatically inside emu-rhs elements</a>.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-gmod">
+    <h1>emu-gmod</h1>
+
+    <p>Contains well-known modifiers to a right-hand side of a production. The only well-known modifier at present is the "but not" modifier. See the Identifier example above.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-gann">
+    <h1>emu-gann</h1>
+
+    <p>Contains well-known annotations to to a right-hand side of a production. The only well-known modifiers at present are "lookahead" and "empty". See the ExpressionStatement example above. Any text inside a gann element is wrapped in square brackets.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-gprose">
+    <h1>emu-gprose</h1>
+    <p>Contains any prose text that describes a production. See SourceCharacter example above.</p>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="imports">
+  <h1>Imports</h1>
+  <p>HTML Imports are treated specially in an ecmarkup document. Every import is inlined into its parent document at the location of the import tag. This is useful for breaking your spec document up into many smaller pieces.</p>
+</emu-clause>
