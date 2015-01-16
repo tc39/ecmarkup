@@ -1,8 +1,8 @@
 script: bash ./deploy.sh
 env:
   global:
-  - GH_REF: github.com/<your name>/<your repo>.git
+  - GH_REF: github.com/bterlson/ecmarkup.git
   - secure: "kt6HhdMS6xqce6NaWammyNCo/vfpqyq917WLY6pPKBFZpV9cAWNTYHdFTPhHVRmyYwN0N0q0cHSAjizDQwxbqL787KQl3KY3aVrigjugDhtNaV3MPddh2Sh9huWETllWyc29vvyPyxPt9fdw2cZXmeRaFRqxYgNtGANBKsSIeZE="
-language: none_js
+language: node_js
 node_js:
 - "0.10"
