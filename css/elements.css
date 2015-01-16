@@ -36,7 +36,9 @@ ol.toc ol.toc {
     list-style: none;
 }
 
-
+emu-val {
+  font-weight: bold;
+}
 emu-alg ol, emu-alg ol ol ol ol {
     list-style-type: decimal;
 }
