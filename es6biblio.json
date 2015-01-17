@@ -1,5 +1,5 @@
 {
-  "https://people.mozilla.org/~jorendorff/es6-draft.html": {  
+  "https://people.mozilla.org/~jorendorff/es6-draft.html": {
     "NormalCompletion":"#sec-normalcompletion",
     "Type":"#sec-ecmascript-data-types-and-values",
     "ReturnIfAbrupt":"#sec-returnifabrupt",
