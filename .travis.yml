@@ -1,4 +1,4 @@
-script: bash ./deploy.sh
+script: npm test && bash ./deploy.sh
 env:
   global:
   - GH_REF: github.com/bterlson/ecmarkup.git
