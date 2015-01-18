@@ -1,0 +1,70 @@
+<!doctype html>
+<link rel="stylesheet" href="https://bterlson.github.com/ecmarkup/elements.css"
+<emu-intro>
+  <h1>Intro</h1>
+  <emu-intro>
+    <h1>Sub Intro</h1>
+  </emu-intro>
+</emu-intro>
+
+<emu-clause>
+  <h1>Clause</h1>
+  <emu-clause id="Foo" aoid="Foo">
+    <h1>Sub Clause</h1>
+  </emu-clause>
+
+  <emu-clause id="Bar" aoid>
+    <h1>Sub Clause</h1>
+  </emu-clause>
+
+  <link rel="import" href="import1.html">
+
+  <emu-alg>
+    1. Call Foo(_a_).
+    2. Call Bar(`toString`).
+    3. Call Baz(*true*).
+      1. Do something else.
+      2. And again.
+  </emu-alg>
+
+  <emu-note>Note!</emu-note>
+
+  <emu-production name="WhileStatement">
+    <emu-rhs>while ( <emu-nt>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
+  </emu-production>
+
+  <emu-production name="ArgumentList">
+    <emu-rhs><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+
+    <emu-rhs><emu-nt>ArgumentList</emu-nt> , <emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+  </emu-production>
+
+  <emu-production name="SourceCharacter" type="lexical">
+    <emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
+  </emu-production>
+
+  <emu-production name="ExpressionStatement" params="Yield">
+    <emu-rhs>
+      <emu-gann>lookahead ∉ {
+        <emu-t>{</emu-t>,
+        <emu-t>function</emu-t>,
+        <emu-t>class</emu-t>,
+        <emu-t>let [</emu-t>
+      }</emu-gann>
+    </emu-rhs>
+  </emu-production>
+
+  <emu-production name="StatementList" params="Return, In">
+    <emu-rhs constraints="~Return"><emu-nt>ReturnStatement</emu-nt></emu-rhs>
+    <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
+  </emu-production>
+
+  <emu-production name="Identifier" type="lexical">
+    <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
+    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
+  </emu-production>
+</emu-clause>
+
+<emu-annex>
+  <h1>Annex</h1>
+</emu-annex>
