@@ -26,6 +26,14 @@ code {
     white-space: pre;
 }
 
+pre code {
+  font-weight: inherit;
+}
+
+pre code.hljs {
+  background-color: #fff;
+}
+
 ol.toc {
     list-style: none;
     padding-left: 0;
