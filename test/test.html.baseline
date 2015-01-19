@@ -32,8 +32,8 @@
 
   <emu-alg><ol>
   <li>Call <a href="#Foo">Foo</a>(<var>a</var>).</li>
-  <li>Call Bar(<code>toString</code>).</li>
-  <li>Call Baz(<emu-val>true</emu-val>).
+  <li>Call <a href="#Bar">Bar</a>(<code>toString</code>).</li>
+  <li>Call <a href="#Baz">Baz</a>(<emu-val>true</emu-val>).
     <ol>
       <li>Do something else.</li>
       <li>And again.</li>

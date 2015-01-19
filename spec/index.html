@@ -6,7 +6,16 @@
 <h1>Ecmarkup Documentation</h1>
 <emu-intro id="intro">
   <h1>Introduction</h1>
-  <p><a href="https://github.com/bterlson/ecmarkup">Ecmarkup</a> is a number of custom elements and a toolchain suitable for formally specifying semantics for ECMAScript proposals. In many contexts, <a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax allows a number of convenient shorthands similar to markdown.</p>
+  <p><a href="https://github.com/bterlson/ecmarkup">Ecmarkup</a> is a number of custom elements and a toolchain suitable for formally specifying semantics for ECMAScript proposals.</p>
+  <p>Ecmarkup offers the following conveniences:</p>
+  <ul>
+    <li><a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax in most elements.</li>
+    <li>Terse markup for most authoring conventions used in ECMAScript specifications.</li>
+    <li>Generates table of contents.</li>
+    <li>Generates clause ids based on document position.</li>
+    <li>Auto-links abstract operations based on name with support for external bibliographies for cross-referencing between specs.</li>
+    <li>Source code syntax highlighting inside `&lt;pre>&lt;code class="language-*">` blocks.</li>
+  </ul>
   <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/bterlson/ecmarkup/blob/master/spec/index.html">on github</a>. Additionally, you can view the <a href="https://bterlson.github.io/Array.prototype.includes/">Array.prototype.includes proposal</a> in Ecmarkup format.</p>
 </emu-intro>
 
@@ -36,7 +45,7 @@ ecmarkup spec.html out.html
 
     <h2>Attributes</h2>
     <p><b>id:</b> Clause id. Must be unique.</p>
-    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause.</p>
+    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
   </emu-clause>
 
   <emu-clause id="emu-annex">
@@ -59,14 +68,14 @@ ecmarkup spec.html out.html
   <h2>Example</h2>
   <emu-note>The emu-alg clause has an aoid of "EmuAlg".</emu-note>
   <h3>Element</h3>
-  <pre>
+  <pre><code class="language-html">
 &lt;emu-alg aoid="EmuAlgExample">
   1. let _clauseAbstractOp_ be the result of calling EmuAlg()
   2. Step 2
     1. let _recurse_ be the result of calling EmuAlgExample(`true`)
     2. Return the result of evaluating this |NonTerminalProduction|
 &lt;/emu-alg>
-  </pre>
+  </code></pre>
   <h3>Result</h3>
   <emu-alg aoid="EmuAlgExample">
     1. let _clauseAbstractOp_ be the result of calling EmuAlg()
@@ -95,24 +104,22 @@ ecmarkup spec.html out.html
 
   <h2>Example</h2>
   <b>biblio.js</b>
-  <pre>
-{
+  <pre><code class="language-json">{
   "http://people.mozilla.org/~jorendorff/es6-draft.html": {
     "abstract operations": {
       "ReturnIfAbrupt": "#sec-returnifabrupt",
       "Get": "#sec-get-o-p"
     }
   }
-}
-  </pre>
+}</code></pre>
   <b>spec.js</b>
-  <pre>
+  <pre><code class="language-html">
 &lt;emu-biblio href="./spec.js">&lt;/emu-biblio>
 &lt;emu-alg>
 1. let _res_ be some value.
 2. ReturnIfAbrupt(_res_)
 &lt;/emu-alg>
-  </pre>
+  </code></pre>
 
   <b>Result</b>
   <emu-alg>
@@ -128,19 +135,19 @@ ecmarkup spec.html out.html
   <h2>Examples</h2>
 
   <b>WhileStatement</b>
-  <pre>&lt;emu-production name="WhileStatement">
+  <pre><code class="language-html">&lt;emu-production name="WhileStatement">
   &lt;emu-rhs>while ( &lt;emu-nt>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
-&lt;/emu-production></pre>
+&lt;/emu-production></code></pre>
 
   <emu-production name="WhileStatement">
     <emu-rhs>while ( <emu-nt>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
   </emu-production>
 
   <b>ArgumentList</b>
-  <pre>&lt;emu-production name="ArgumentList">
+  <pre><code class="language-html">&lt;emu-production name="ArgumentList">
   &lt;emu-rhs>&lt;emu-nt>AssignmentExpression&lt;/emu-nt>&lt;/emu-rhs>
   &lt;emu-rhs>&lt;emu-nt>ArgumentList&lt;/emu-nt> , &lt;emu-nt>AssignmentExpression&lt;/emu-nt>&lt;/emu-rhs>
-&lt;/emu-production></pre>
+&lt;/emu-production></code></pre>
 
   <emu-production name="ArgumentList">
     <emu-rhs><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
@@ -149,35 +156,35 @@ ecmarkup spec.html out.html
   </emu-production>
 
   <b>IterationStatement</b>
-  <pre>&lt;emu-production name="IterationStatement">
+  <pre><code class="language-html">&lt;emu-production name="IterationStatement">
   &lt;emu-rhs>for ( &lt;emu-nt>LexicalDeclaration&lt;/emu-nt> ; &lt;emu-nt optional>Expression&lt;/emu-nt> ;
   &lt;emu-nt optional>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
-&lt;/emu-production></pre>
+&lt;/emu-production></code></pre>
   <emu-production name="IterationStatement">
     <emu-rhs>for ( <emu-nt>LexicalDeclaration</emu-nt> ; <emu-nt optional>Expression</emu-nt> ;
     <emu-nt optional>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
   </emu-production>
 
   <b>Identifier</b>
-  <pre>&lt;emu-production name="Identifier" type="lexical">
+  <pre><code class="language-html">&lt;emu-production name="Identifier" type="lexical">
   &lt;emu-rhs>&lt;emu-nt>IdentifierName&lt;/emu-nt> &lt;emu-gmod>but not
   &lt;emu-nt>ReservedWord&lt;/emu-nt>&lt;/emu-gmod>&lt;/emu-rhs>
-&lt;/emu-production></pre>
+&lt;/emu-production></code></pre>
   <emu-production name="Identifier" type="lexical">
     <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
     <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
   </emu-production>
 
   <b>SourceCharacter</b>
-  <pre>&lt;emu-production name="SourceCharacter" type="lexical">
+  <pre><code class="language-html">&lt;emu-production name="SourceCharacter" type="lexical">
   &lt;emu-rhs>&lt;emu-gprose>any Unicode code point&lt;/emu-gprose>&lt;/emu-rhs>
-&lt;/emu-production></pre>
+&lt;/emu-production></code></pre>
   <emu-production name="SourceCharacter" type="lexical">
     <emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
   </emu-production>
 
   <b>ExpressionStatement</b>
-  <pre>&lt;emu-production name="ExpressionStatement" params="Yield">
+  <pre><code class="language-html">&lt;emu-production name="ExpressionStatement" params="Yield">
   &lt;emu-rhs>
     &lt;emu-gann>lookahead ∉ {
       &lt;emu-t>{&lt;/emu-t>,
@@ -186,7 +193,7 @@ ecmarkup spec.html out.html
       &lt;emu-t>let [&lt;/emu-t>
     }&lt;/emu-gann>
   &lt;/emu-rhs>
-&lt;/emu-production></pre>
+&lt;/emu-production></code></pre>
   <emu-production name="ExpressionStatement" params="Yield">
     <emu-rhs>
       <emu-gann>lookahead ∉ {
@@ -199,18 +206,18 @@ ecmarkup spec.html out.html
   </emu-production>
 
   <b>DecimalDigit</b>
-  <pre>&lt;emu-production name="DecimalDigit" type="lexical" oneof>
+  <pre><code class="language-html">&lt;emu-production name="DecimalDigit" type="lexical" oneof>
   &lt;emu-rhs>0 1 2 3 4 5 6 7 8 9&lt;/emu-rhs>
-&lt;/emu-production></pre>
+&lt;/emu-production></code></pre>
   <emu-production name="DecimalDigit" type="lexical" oneof>
     <emu-rhs>0 1 2 3 4 5 6 7 8 9</emu-rhs>
   </emu-production>
 
   <b>StatementList</b>
-  <pre>&lt;emu-production name="StatementList" params="Return, In">
+  <pre><code class="language-html">&lt;emu-production name="StatementList" params="Return, In">
   &lt;emu-rhs constraints="~Return">&lt;emu-nt>ReturnStatement&lt;/emu-nt>&lt;/emu-rhs>
   &lt;emu-rhs>&lt;emu-nt>ExpressionStatement&lt;/emu-nt>&lt;/emu-rhs>
-&lt;/emu-production></pre>
+&lt;/emu-production></code></pre>
   <emu-production name="StatementList" params="Return, In">
     <emu-rhs constraints="~Return"><emu-nt>ReturnStatement</emu-nt></emu-rhs>
     <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
