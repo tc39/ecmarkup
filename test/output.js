@@ -12,7 +12,7 @@ describe('output of test.html', function() {
     return build(testPath, function(file) {
       return readFile(file, 'utf-8');
     }).then(function(contents) {
-      assert.equal(contents, fs.readFileSync(testPath + '.baseline'));
+      assert.equal(contents, fs.readFileSync(testPath + '.baseline', 'utf-8'));
     });
   });
 });
