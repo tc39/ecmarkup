@@ -34,7 +34,7 @@
     "bluebird": "^2.6.4",
     "ecmarkdown": "^1.0.0",
     "highlight.js": "^8.4.0",
-    "jsdom": "^2.0.0"
+    "jsdom": "^5.0.1"
   },
   "devDependencies": {
     "mocha": "^1.21.4"
