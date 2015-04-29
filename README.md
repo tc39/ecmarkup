@@ -5,6 +5,9 @@ A web component-based source format for ECMAScript and related specifications. S
 
 
 ### Installing & Using
+
+Requires [iojs](http://iojs.org/), not Node.js.
+
 ```
 npm install ecmarkup
 ecmarkup in.html out.html
