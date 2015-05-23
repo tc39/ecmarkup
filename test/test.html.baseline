@@ -11,6 +11,9 @@
   <h1><span class="secnum">1</span>Clause</h1>
   <emu-clause id="Foo" aoid="Foo">
     <h1><span class="secnum">1.1</span>Sub Clause</h1>
+
+    <emu-note><span class="note">Note 1</span>Note 1!</emu-note>
+    <emu-note><span class="note">Note 2</span>Note 2!</emu-note>
   </emu-clause>
 
   <emu-clause id="Bar" aoid="">
