@@ -2,6 +2,7 @@ var fs = require('fs');
 var assert = require('assert');
 var Promise = require('bluebird');
 var readFile = Promise.promisify(fs.readFile);
+var diff = require('diff');
 
 var build = require('../lib/ecmarkup').build;
 
@@ -12,8 +13,10 @@ describe('output of test.html', function() {
     return build(testPath, function(file) {
       return readFile(file, 'utf-8');
     }).then(function(contents) {
-      assert.equal(contents,
-          fs.readFileSync(testPath + '.baseline', 'utf-8').toString());
+      var str = fs.readFileSync(testPath + '.baseline', 'utf-8').toString() + "a";
+      if(contents !== str) {
+        throw new Error(diff.createPatch("test.html", contents, str))
+      }
     });
   });
 });

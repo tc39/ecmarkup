@@ -37,6 +37,7 @@
     "jsdom": "^5.0.1"
   },
   "devDependencies": {
+    "diff": "^1.4.0",
     "mocha": "^1.21.4"
   }
 }
