@@ -13,7 +13,7 @@ describe('output of test.html', function() {
     return build(testPath, function(file) {
       return readFile(file, 'utf-8');
     }).then(function(contents) {
-      var str = fs.readFileSync(testPath + '.baseline', 'utf-8').toString() + "a";
+      var str = fs.readFileSync(testPath + '.baseline', 'utf-8').toString();
       if(contents !== str) {
         throw new Error(diff.createPatch("test.html", contents, str))
       }

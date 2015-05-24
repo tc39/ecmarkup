@@ -33,7 +33,7 @@
   "dependencies": {
     "bluebird": "^2.6.4",
     "ecmarkdown": "^2.0.2",
-    "highlight.js": "^8.4.0",
+    "highlight.js": "^8.6.0",
     "jsdom": "^5.0.1"
   },
   "devDependencies": {
