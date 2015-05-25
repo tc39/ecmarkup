@@ -32,6 +32,8 @@ pre code {
 
 pre code.hljs {
   background-color: #fff;
+  margin: 0;
+  padding: 0;
 }
 
 ol.toc {
@@ -228,6 +230,14 @@ ins {
     border-bottom: 1px solid #396;
 }
 
+ins.block {
+    display: block;
+}
+
 del {
     background-color: #fee;
+}
+
+del.block {
+    display: block;
 }

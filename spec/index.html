@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf8">
 <title>Ecmarkup</title>
-<link rel="stylesheet" href="./elements.css">
+<link rel="stylesheet" href="elements.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
 <emu-biblio href="./biblio.json"></emu-biblio>
 <h1>Ecmarkup Documentation</h1>
@@ -10,12 +10,12 @@
   <p><a href="https://github.com/bterlson/ecmarkup">Ecmarkup</a> is a number of custom elements and a toolchain suitable for formally specifying semantics for ECMAScript proposals.</p>
   <p>Ecmarkup offers the following conveniences:</p>
   <ul>
-    <li><a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax in most elements.</li>
-    <li>Terse markup for most authoring conventions used in ECMAScript specifications.</li>
-    <li>Generates table of contents.</li>
-    <li>Generates clause ids based on document position.</li>
-    <li>Auto-links abstract operations based on name with support for external bibliographies for cross-referencing between specs.</li>
-    <li>Source code syntax highlighting inside pre code blocks.</li>
+    <li><a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax</li>
+    <li>Terse markup for the authoring conventions used in ECMAScript specifications</li>
+    <li>Generates table of contents</li>
+    <li>Generates clause ids based on document position</li>
+    <li>Auto-links abstract operations based on name with support for external bibliographies for cross-referencing between specs</li>
+    <li>Source code syntax highlighting inside pre code blocks</li>
   </ul>
   <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/bterlson/ecmarkup/blob/master/spec/index.html">on github</a>. Additionally, you can view the <a href="https://bterlson.github.io/Array.prototype.includes/">Array.prototype.includes proposal</a> in Ecmarkup format.</p>
 </emu-intro>
@@ -275,4 +275,34 @@ ecmarkup spec.html out.html
 <emu-clause id="imports">
   <h1>Imports</h1>
   <p>HTML Imports are treated specially in an ecmarkup document. Every import is inlined into its parent document at the location of the import tag. This is useful for breaking your spec document up into many smaller pieces.</p>
+</emu-clause>
+
+<emu-clause id="css">
+  <h1>Other Styles &amp; Conventions</h1>
+  <emu-clause id="ins-del">
+    <h1>ins &amp; del</h1>
+    <p>The `ins` and `del` HTML tags can be used to mark insertions and deletions respectively. When adding or removing block content (such as entire list items, paragrpahs, clauses, grammar RHSes, etc.), use a class of "block".</p>
+
+    <h2>Inline Example:</h2>
+    <pre><code class="language-html">ECMAScript &lt;del>6&lt;/del>&lt;ins>2015&lt;/ins> &lt;del>will be ratified&lt;/del>&lt;ins>was ratified&lt;/ins> in June, 2015.</code></pre>
+    <h3>Result:</h3>
+    <p>ECMAScript <del>6</del><ins>2015</ins> <del>will be ratified</del><ins>was ratified</ins> in June, 2015.</p>
+
+    <h2>Block Example:</h2>
+    <pre><code class="language-html">
+&lt;p>|HoistableDeclaration| is modified as follows:&lt;/p>
+&lt;emu-production name="HoistableDeclaration">
+  &lt;emu-rhs>&lt;emu-nt>FunctionDeclaration&lt;/emu-nt>&lt;/emu-rhs>
+  &lt;emu-rhs>&lt;emu-nt>GeneratorDeclaration&lt;/emu-nt>&lt;/emu-rhs>
+  &lt;ins class="block">&lt;emu-rhs>&lt;emu-nt>AsyncFunctionDeclaration&lt;/emu-nt>&lt;/emu-rhs>&lt;/ins>
+&lt;/emu-production>
+    </code></pre>
+    <h3>Result:</h3>
+    <p>|HoistableDeclaration| is modified as follows:</p>
+    <emu-production name="HoistableDeclaration">
+      <emu-rhs><emu-nt>FunctionDeclaration</emu-nt></emu-rhs>
+      <emu-rhs><emu-nt>GeneratorDeclaration</emu-nt></emu-rhs>
+      <ins class="block"><emu-rhs><emu-nt>AsyncFunctionDeclaration</emu-nt></emu-rhs></ins>
+    </emu-production>
+  </emu-clause>
 </emu-clause>
