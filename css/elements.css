@@ -130,7 +130,8 @@ emu-t {
 
 emu-rhs {
     display: block;
-    padding-left: 50px;
+    padding-left: 75px;
+    text-indent: -25px;
 }
 
 emu-mods {
