@@ -116,6 +116,7 @@ emu-oneof {
 
 emu-nt {
     font-style: italic;
+    white-space: nowrap;
 }
 
 emu-rhs emu-nt {
