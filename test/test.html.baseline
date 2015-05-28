@@ -51,9 +51,9 @@
   </emu-production>
 
   <emu-production name="ArgumentList">
-    <emu-nt>ArgumentList<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-nt>AssignmentExpression<emu-mods></emu-mods></emu-nt></emu-rhs>
+    <emu-nt>ArgumentList<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression<emu-mods></emu-mods></emu-nt></emu-rhs>
 
-    <emu-rhs><emu-nt>ArgumentList<emu-mods></emu-mods></emu-nt><emu-t>,</emu-t><emu-nt>AssignmentExpression<emu-mods></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="b"><emu-nt>ArgumentList<emu-mods></emu-mods></emu-nt><emu-t>,</emu-t><emu-nt>AssignmentExpression<emu-mods></emu-mods></emu-nt></emu-rhs>
   </emu-production>
 
   <emu-production name="SourceCharacter" type="lexical">
@@ -78,6 +78,13 @@
     <emu-nt>Identifier<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt>IdentifierName<emu-mods></emu-mods></emu-nt><emu-gmod>but not
     <emu-nt>ReservedWord<emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
   </emu-production>
+
+  <emu-production name="Identifier" type="lexical">
+    <emu-nt>Identifier<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt>IdentifierName<emu-mods></emu-mods></emu-nt><emu-gmod>but not
+    <emu-nt>ReservedWord<emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
+  </emu-production>
+  <emu-production name="ArgumentList" a="a">
+    <emu-nt>ArgumentList<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression<emu-mods></emu-mods></emu-nt></emu-rhs></emu-production>
 
   <pre><code class="language-javascript hljs">
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };

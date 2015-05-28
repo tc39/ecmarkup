@@ -239,6 +239,7 @@ ecmarkup spec.html out.html
     <p>Describes one right-hand-side alternative of a production. Text nodes inside of an rhs are split on each space and turned into terminals. For example, <pre>&lt;emu-rhs>a b c&lt;/emu-rhs></pre> is semantically equivalent to <pre>&lt;emu-rhs>&lt;emu-t>a&lt;/emu-t> &lt;emu-t>b&lt;/emu-t> &lt;emu-t>c&lt;/emu-t></pre></p>
     <h2>Attributes</h2>
     <p><b>constraints:</b> any constraints for this RHS. Multiple constraints separated by commas. See StatementList example above.</p>
+    <p><b>a:</b> Optional alternative id used to reference a particular RHS via `emu-prodref`. Must be unique for all `emu-rhs` elements inside an emu-production. Example might be `<emu-rhs a='1'>`.</p>
   </emu-clause>
 
   <emu-clause id="emu-nt">
@@ -269,6 +270,15 @@ ecmarkup spec.html out.html
   <emu-clause id="emu-gprose">
     <h1>emu-gprose</h1>
     <p>Contains any prose text that describes a production. See SourceCharacter example above.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-prodref">
+    <h1>emu-prodref</h1>
+    <p>References a production defined elsewhere in the document. Ecmarkup will insert either the entire production or a particular RHS depending on attributes.</p>
+
+    <h2>Attributes</h2>
+    <p><b>name:</b> Required. Name of the production to reference.</p>
+    <p><b>a:</b> Optional. If present, specified a particular alternative ID to reference.</p>
   </emu-clause>
 </emu-clause>
 

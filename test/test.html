@@ -37,9 +37,9 @@
   </emu-production>
 
   <emu-production name="ArgumentList">
-    <emu-rhs><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+    <emu-rhs a="a"><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
 
-    <emu-rhs><emu-nt>ArgumentList</emu-nt> , <emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+    <emu-rhs a="b"><emu-nt>ArgumentList</emu-nt> , <emu-nt>AssignmentExpression</emu-nt></emu-rhs>
   </emu-production>
 
   <emu-production name="SourceCharacter" type="lexical">
@@ -66,6 +66,9 @@
     <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
     <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
   </emu-production>
+
+  <emu-prodref name="Identifier"></emu-prodref>
+  <emu-prodref name="ArgumentList" a="a"></emu-prodref>
 
   <pre><code class="language-javascript">
     function test() { };
