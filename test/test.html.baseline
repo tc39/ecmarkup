@@ -47,21 +47,21 @@
   <emu-note><span class="note">Note</span>Note!</emu-note>
 
   <emu-production name="WhileStatement">
-    <emu-nt>WhileStatement<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>while</emu-t><emu-t>(</emu-t><emu-nt>Expression<emu-mods></emu-mods></emu-nt><emu-t>)</emu-t><emu-nt>Statement<emu-mods></emu-mods></emu-nt></emu-rhs>
+    <emu-nt>WhileStatement</emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>while</emu-t><emu-t>(</emu-t><emu-nt>Expression</emu-nt><emu-t>)</emu-t><emu-nt>Statement</emu-nt></emu-rhs>
   </emu-production>
 
   <emu-production name="ArgumentList">
-    <emu-nt>ArgumentList<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression<emu-mods></emu-mods></emu-nt></emu-rhs>
+    <emu-nt>ArgumentList</emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
 
-    <emu-rhs a="b"><emu-nt>ArgumentList<emu-mods></emu-mods></emu-nt><emu-t>,</emu-t><emu-nt>AssignmentExpression<emu-mods></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="b"><emu-nt>ArgumentList</emu-nt><emu-t>,</emu-t><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
   </emu-production>
 
   <emu-production name="SourceCharacter" type="lexical">
-    <emu-nt>SourceCharacter<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
+    <emu-nt>SourceCharacter</emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
   </emu-production>
 
   <emu-production name="ExpressionStatement" params="Yield">
-    <emu-nt>ExpressionStatement<emu-mods> [Yield]</emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-gann>[lookahead ∉ {
+    <emu-nt params="Yield">ExpressionStatement<emu-mods> [Yield]</emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-gann>[lookahead ∉ {
         <emu-t>{</emu-t>,
         <emu-t>function</emu-t>,
         <emu-t>class</emu-t>,
@@ -70,21 +70,21 @@
   </emu-production>
 
   <emu-production name="StatementList" params="Return, In">
-    <emu-nt>StatementList<emu-mods> [Return, In]</emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt>ReturnStatement<emu-mods></emu-mods></emu-nt></emu-rhs>
-    <emu-rhs><emu-nt>ExpressionStatement<emu-mods></emu-mods></emu-nt></emu-rhs>
+    <emu-nt params="Return, In">StatementList<emu-mods> [Return, In]</emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt>ReturnStatement</emu-nt></emu-rhs>
+    <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
   </emu-production>
 
   <emu-production name="Identifier" type="lexical">
-    <emu-nt>Identifier<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt>IdentifierName<emu-mods></emu-mods></emu-nt><emu-gmod>but not
-    <emu-nt>ReservedWord<emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
+    <emu-nt>Identifier</emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt>IdentifierName</emu-nt><emu-gmod>but not
+    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
   </emu-production>
 
   <emu-production name="Identifier" type="lexical">
-    <emu-nt>Identifier<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt>IdentifierName<emu-mods></emu-mods></emu-nt><emu-gmod>but not
-    <emu-nt>ReservedWord<emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
+    <emu-nt>Identifier</emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt>IdentifierName</emu-nt><emu-gmod>but not
+    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
   </emu-production>
   <emu-production name="ArgumentList" a="a">
-    <emu-nt>ArgumentList<emu-mods></emu-mods><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression<emu-mods></emu-mods></emu-nt></emu-rhs></emu-production>
+    <emu-nt>ArgumentList</emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression</emu-nt></emu-rhs></emu-production>
 
   <pre><code class="language-javascript hljs">
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };
