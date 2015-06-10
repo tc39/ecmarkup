@@ -67,6 +67,11 @@
     <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
   </emu-production>
 
+  <!-- added for testing that prodref references first occurance -->
+  <emu-production name="Identifier" type="lexical">
+    <emu-rhs>DummyIdentifier</emu-rhs>
+  </emu-production>
+
   <emu-prodref name="Identifier"></emu-prodref>
   <emu-prodref name="ArgumentList" a="a"></emu-prodref>
 
