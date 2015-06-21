@@ -142,9 +142,23 @@ emu-rhs {
 }
 
 emu-mods {
-    font-size: .75em;
+    font-size: .85em;
     vertical-align: sub;
     font-style: normal;
+    font-weight: normal;
+}
+
+emu-params, emu-opt {
+  margin-right: 1ex;
+  font-family: monospace;
+}
+
+emu-params, emu-constraints {
+  color: #2aa198;
+}
+
+emu-opt {
+  color: #b58900;
 }
 
 emu-gprose {

@@ -1,5 +1,6 @@
 <!doctype html>
-<head><link rel="stylesheet" href="https://bterlson.github.com/ecmarkup/elements.css">
+<head><meta charset="utf-8">
+<link rel="stylesheet" href="https://bterlson.github.com/ecmarkup/elements.css">
 </head><body><div><h2>Table of Contents</h2><ol class="toc"><li><a href="#"><span class="secnum"></span> Intro</a><ol class="toc"><li><a href="#"><span class="secnum"></span> Sub Intro</a></li></ol></li><li><a href="#"><span class="secnum">1</span> Clause Foo(<var>a</var>, <var>b</var>)</a><ol class="toc"><li><a href="#Foo"><span class="secnum">1.1</span> Sub Clause</a></li><li><a href="#Bar"><span class="secnum">1.2</span> Sub Clause</a></li><li><a href="#Baz"><span class="secnum">1.3</span> Header</a><ol class="toc"><li><a href="#import3"><span class="secnum">1.3.1</span> Import 3</a></li></ol></li></ol></li><li><a href="#"><span class="secnum">A</span> Annex</a></li></ol></div><emu-intro>
   <h1><span class="secnum"></span>Intro</h1>
   <emu-intro>
@@ -61,7 +62,7 @@
   </emu-production>
 
   <emu-production name="ExpressionStatement" params="Yield">
-    <emu-nt params="Yield">ExpressionStatement<emu-mods> [Yield]</emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-gann>[lookahead ∉ {
+    <emu-nt params="Yield">ExpressionStatement<emu-mods><emu-params>[Yield]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-gann>[lookahead ∉ {
         <emu-t>{</emu-t>,
         <emu-t>function</emu-t>,
         <emu-t>class</emu-t>,
@@ -70,7 +71,7 @@
   </emu-production>
 
   <emu-production name="StatementList" params="Return, In">
-    <emu-nt params="Return, In">StatementList<emu-mods> [Return, In]</emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt>ReturnStatement</emu-nt></emu-rhs>
+    <emu-nt params="Return, In">StatementList<emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt>ReturnStatement</emu-nt></emu-rhs>
     <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
   </emu-production>
 
@@ -80,7 +81,7 @@
   </emu-production>
 
   <emu-production name="EnumDeclaration">
-    <emu-nt>EnumDeclaration</emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t optional="">const<emu-mods> opt</emu-mods></emu-t><emu-t>enum</emu-t><emu-nt>Identifier</emu-nt><emu-t>{</emu-t><emu-nt optional="">EnumBody<emu-mods> opt</emu-mods></emu-nt><emu-t>}</emu-t></emu-rhs>
+    <emu-nt>EnumDeclaration</emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t optional="">const<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-t><emu-t>enum</emu-t><emu-nt>Identifier</emu-nt><emu-t>{</emu-t><emu-nt optional="">EnumBody<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt><emu-t>}</emu-t></emu-rhs>
   </emu-production>
   
   <!-- added for testing that prodref references first occurance -->
