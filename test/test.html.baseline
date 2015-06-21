@@ -79,6 +79,10 @@
     <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
   </emu-production>
 
+  <emu-production name="EnumDeclaration">
+    <emu-nt>EnumDeclaration</emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t optional="">const<emu-mods> opt</emu-mods></emu-t><emu-t>enum</emu-t><emu-nt>Identifier</emu-nt><emu-t>{</emu-t><emu-nt optional="">EnumBody<emu-mods> opt</emu-mods></emu-nt><emu-t>}</emu-t></emu-rhs>
+  </emu-production>
+  
   <!-- added for testing that prodref references first occurance -->
   <emu-production name="Identifier" type="lexical">
     <emu-nt>Identifier</emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-t>DummyIdentifier</emu-t></emu-rhs>
