@@ -12,19 +12,20 @@ body {
     margin: 0 auto;
 }
 
-a:link {
+a {
     text-decoration: none;
-    color: #3333bb;
+    color: #206ca7;
+}
+
+a:visited {
+  color: #206ca7;
 }
 
 a:hover {
     text-decoration: underline;
-    color: blue;
+    color: #239dee;
 }
 
-a:visited {
-    color: inherit;
-}
 
 code {
     font-weight: bold;
