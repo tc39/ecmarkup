@@ -87,6 +87,14 @@
   <emu-prodref name="Identifier"></emu-prodref>
   <emu-prodref name="ArgumentList" a="a"></emu-prodref>
 
+  <emu-grammar>
+    FooBar(Yeild) ::
+      [+Default] `foo` Bar(?Yield) #a
+      `baz`                        #b
+  </emu-grammar>
+
+  <emu-prodref name="FooBar" a="a"></emu-prodref>
+
   <pre><code class="language-javascript">
     function test() { };
     test();

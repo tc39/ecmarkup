@@ -10,7 +10,8 @@
   <p><a href="https://github.com/bterlson/ecmarkup">Ecmarkup</a> is a number of custom elements and a toolchain suitable for formally specifying semantics for ECMAScript proposals.</p>
   <p>Ecmarkup offers the following conveniences:</p>
   <ul>
-    <li><a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax</li>
+    <li><a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax for paragraphs and algorithms</li>
+    <li><a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a> for specifying grammar</li>
     <li>Terse markup for the authoring conventions used in ECMAScript specifications</li>
     <li>Generates table of contents</li>
     <li>Generates clause ids based on document position</li>
@@ -223,6 +224,11 @@ ecmarkup spec.html out.html
     <emu-rhs constraints="~Return"><emu-nt>ReturnStatement</emu-nt></emu-rhs>
     <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
   </emu-production>
+
+  <emu-clause id="emu-grammar">
+    <h1>emu-grammar</h1>
+    <p>Text inside emu-grammar elements is parsed using <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a>. The syntax is essentially identical to the notational conventions in ECMAScript (minus formatting). See the <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown readme</a>.</p>
+  </emu-clause>
 
   <emu-clause id="emu-production">
     <h1>emu-production</h1>

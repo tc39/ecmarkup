@@ -96,6 +96,14 @@
   <emu-production name="ArgumentList" a="a">
     <emu-nt>ArgumentList</emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression</emu-nt></emu-rhs></emu-production>
 
+  <emu-grammar><emu-production name="FooBar" params="Yeild" type="lexical">
+    <emu-nt params="Yeild">FooBar<emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs a="b"><emu-t>baz</emu-t></emu-rhs>
+</emu-production></emu-grammar>
+
+  <emu-production name="FooBar" params="Yeild" type="lexical" a="a">
+    <emu-nt params="Yeild">FooBar<emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production>
+
   <pre><code class="language-javascript hljs">
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };
     test();
