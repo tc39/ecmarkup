@@ -1,5 +1,5 @@
 {
-  "https://people.mozilla.org/~jorendorff/es6-draft.html": {
+  "http://www.ecma-international.org/ecma-262/6.0/index.html": {
     "NormalCompletion":"#sec-normalcompletion",
     "Type":"#sec-ecmascript-data-types-and-values",
     "ReturnIfAbrupt":"#sec-returnifabrupt",
