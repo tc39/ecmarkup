@@ -96,6 +96,25 @@ ecmarkup spec.html out.html
   <emu-note>But we know you won't.</emu-note>
 </emu-clause>
 
+<emu-clause id="emu-xref">
+  <h1>emu-xref</h1>
+  <p>Cross-reference another clause. If the text content of this element is empty, the target clause's section number or title will be used.</p>
+  <h2>Attributes</h2>
+  <p><b>href:</b> Required: URL of the target clause to cross-reference. May simply be a fragment identifier (see examples below).</p>
+  <p><b>title:</b> Optional: If present, xref will be filled in with the referenced clause's title. Otherwise, the clause's section number is used.</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html">
+    &lt;p>The clause element is specified in &lt;emu-xref href="#emu-clause">&lt;/emu-xref>.&lt;/p>
+    &lt;p>See &lt;emu-xref href="#emu-note" title>&lt;/emu-xref> for information on the emu-note element.&lt;/p>
+    &lt;p>The &lt;emu-xref href="#emu-biblio">biblio element&lt;/emu-xref> will eventually support xref to external specs.&lt;/p>
+  </code></pre>
+
+  <b>Result</b>
+  <p>The clause element is specified in <emu-xref href="#emu-clause"></emu-xref>.</p>
+  <p>See <emu-xref href="#emu-note" title></emu-xref> for information on the emu-note element.</p>
+  <p>The <emu-xref href="#emu-biblio">biblio element</emu-xref> will eventually support xref to external specs.</p>
+</emu-clause>
 
 <emu-clause id="emu-biblio">
   <h1>emu-biblio</h1>

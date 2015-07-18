@@ -108,6 +108,10 @@
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };
     test();
   </code></pre>
+
+  <emu-xref href="#Bar"><a href="#Bar">With link text</a></emu-xref>
+  <emu-xref href="#Bar"><a href="#Bar">1.2</a></emu-xref>
+  <emu-xref href="#Bar" title=""><a href="#Bar">Sub Clause</a></emu-xref>
 </emu-clause>
 
 <emu-annex>
