@@ -34,16 +34,7 @@
 </emu-clause>
 
 
-  <emu-alg><ol>
-  <li>Call <a href="#Foo">Foo</a>(<var>a</var>).</li>
-  <li>Call <a href="#Bar">Bar</a>(<code>toString</code>).</li>
-  <li>Call <a href="#Baz">Baz</a>(<emu-val>true</emu-val>).
-    <ol>
-      <li>Do something else.</li>
-      <li>And again.</li>
-    </ol>
-  </li>
-</ol></emu-alg>
+  <emu-alg><ol><li>Call <a href="#Foo">Foo</a>(<var>a</var>).</li><li>Call <a href="#Bar">Bar</a>(<code>toString</code>).</li><li>Call <a href="#Baz">Baz</a>(<emu-val>true</emu-val>).<ol><li>Do something else.</li><li>And again.</li></ol></li></ol></emu-alg>
 
   <emu-note><span class="note">Note</span>Note!</emu-note>
 
