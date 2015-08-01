@@ -27,7 +27,9 @@
 npm install -g ecmarkup
 ecmarkup spec.html out.html
   </pre>
-  <p>It's likely you will want to use Ecmarkup's `elements.css` file as well, which is under the css folder in the Ecmarkup's root directory. You could also link to https://bterlson.github.io/ecmarkup/elements.css which will contain the latest styles for the forseeable future.</p>
+
+  <h2>Stylesheet</h2>
+  <p>Styles are provided by `elements.css` under the `css` directory. You may also link to https://bterlson.github.io/ecmarkup/elements.css which will contain the latest styles for the forseeable future.</p>
 </emu-clause>
 <emu-clause id="clauses">
   <h1>Clauses</h1>
@@ -151,10 +153,9 @@ ecmarkup spec.html out.html
 
 <emu-clause id="grammar">
   <h1>Specifying Grammar</h1>
-  <p>Specifying ECMAScript grammars is the most complex aspect of Ecmarkup. A number of elements and attributes are required to precisely specify productions. These are explained in the following subclauses.</p>
-  <emu-note>It is my hope that one day we will have a nice, clearly readable, easily parsible, unambiguous plaintext format for the grammar. That day is, sadly, not today.</emu-note>
-  <h2>Examples</h2>
+  <p>There are two ways to specify grammar in Ecmarkup: using the <a href="#emu-production">emu-production</a> element and related elements, or by using the <a href="#emu-grammar">emu-grammar</a> element which allows specifying grammar using a plaintext format.</p>
 
+  <h2>Examples</h2>
   <b>WhileStatement</b>
   <pre><code class="language-html">&lt;emu-production name="WhileStatement">
   &lt;emu-rhs>while ( &lt;emu-nt>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
