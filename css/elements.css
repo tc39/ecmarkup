@@ -185,6 +185,34 @@ h4 { font-size: 1.25em; }
 h5 { font-size: 1.11em; }
 h6 { font-size: 1em; }
 
+h1 span.utils,
+h2 span.utils,
+h3 span.utils,
+h4 span.utils,
+h5 span.utils,
+h6 span.utils {
+  padding-left: 1em;
+}
+
+h1 span.utils span.anchor a,
+h2 span.utils span.anchor a,
+h3 span.utils span.anchor a,
+h4 span.utils span.anchor a,
+h5 span.utils span.anchor a,
+h6 span.utils span.anchor a {
+  color: #ccc;
+  text-decoration: none;
+}
+
+h1 span.utils span.anchor a:hover,
+h2 span.utils span.anchor a:hover,
+h3 span.utils span.anchor a:hover,
+h4 span.utils span.anchor a:hover,
+h5 span.utils span.anchor a:hover,
+h6 span.utils span.anchor a:hover {
+  color: #333;
+}
+
 emu-intro h1, emu-clause h1, emu-annex h1 { font-size: 2em; }
 emu-intro h2, emu-clause h2, emu-annex h2 { font-size: 1.56em; }
 emu-intro h3, emu-clause h3, emu-annex h3 { font-size: 1.25em; }
