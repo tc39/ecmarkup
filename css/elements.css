@@ -137,6 +137,9 @@ emu-rhs emu-nt {
 emu-t {
     font-family: monospace;
     font-weight: bold;
+}
+
+emu-production emu-t {
     margin-right: 1ex;
 }
 
