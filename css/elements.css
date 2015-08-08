@@ -53,6 +53,10 @@ ol.toc ol.toc {
     list-style: none;
 }
 
+emu-const {
+  font-family: sans-serif;
+}
+
 emu-val {
   font-weight: bold;
 }
