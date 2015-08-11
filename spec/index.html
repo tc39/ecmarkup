@@ -33,7 +33,7 @@ ecmarkup spec.html out.html
 </emu-clause>
 <emu-clause id="clauses">
   <h1>Clauses</h1>
-  <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in descendent text nodes as well.</p>
+  <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in descendent text nodes as well. Text nodes are parsed as Ecmarkdown Fragments.</p>
 
   <emu-clause id="emu-intro">
     <h1>emu-intro</h1>
@@ -64,7 +64,7 @@ ecmarkup spec.html out.html
 
 <emu-clause id="emu-alg" aoid="EmuAlg">
   <h1>emu-alg</h1>
-  <p>Algorithm steps. Should not contain any HTML. The node's textContent is processed using Ecmarkdown. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
+  <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
 
   <h2>Attributes</h2>
   <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this algorithm.</p>
