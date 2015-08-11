@@ -130,6 +130,10 @@ emu-nt {
     white-space: nowrap;
 }
 
+emu-nt a {
+  color: #333;
+}
+
 emu-rhs emu-nt {
     margin-right: 1ex;
 }

@@ -38,22 +38,22 @@
 
   <emu-note><span class="note">Note</span>Note!</emu-note>
 
-  <emu-production name="WhileStatement">
-    <emu-nt>WhileStatement</emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>while</emu-t><emu-t>(</emu-t><emu-nt>Expression</emu-nt><emu-t>)</emu-t><emu-nt>Statement</emu-nt></emu-rhs>
+  <emu-production name="WhileStatement" id="prod-WhileStatement">
+    <emu-nt><a href="#prod-WhileStatement">WhileStatement</a><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>while</emu-t><emu-t>(</emu-t><emu-nt><a href="#prod-Expression">Expression</a><emu-mods></emu-mods></emu-nt><emu-t>)</emu-t><emu-nt><a href="#prod-Statement">Statement</a><emu-mods></emu-mods></emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="ArgumentList">
-    <emu-nt>ArgumentList</emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+  <emu-production name="ArgumentList" id="prod-ArgumentList">
+    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="#prod-AssignmentExpression">AssignmentExpression</a><emu-mods></emu-mods></emu-nt></emu-rhs>
 
-    <emu-rhs a="b"><emu-nt>ArgumentList</emu-nt><emu-t>,</emu-t><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+    <emu-rhs a="b"><emu-nt><a href="#prod-ArgumentList">ArgumentList</a><emu-mods></emu-mods></emu-nt><emu-t>,</emu-t><emu-nt><a href="#prod-AssignmentExpression">AssignmentExpression</a><emu-mods></emu-mods></emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="SourceCharacter" type="lexical">
-    <emu-nt>SourceCharacter</emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
+  <emu-production name="SourceCharacter" type="lexical" id="prod-SourceCharacter">
+    <emu-nt><a href="#prod-SourceCharacter">SourceCharacter</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
   </emu-production>
 
-  <emu-production name="ExpressionStatement" params="Yield">
-    <emu-nt params="Yield">ExpressionStatement<emu-mods><emu-params>[Yield]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-gann>[lookahead ∉ {
+  <emu-production name="ExpressionStatement" params="Yield" id="prod-ExpressionStatement">
+    <emu-nt params="Yield"><a href="#prod-ExpressionStatement">ExpressionStatement</a><emu-mods><emu-params>[Yield]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-gann>[lookahead ∉ {
         <emu-t>{</emu-t>,
         <emu-t>function</emu-t>,
         <emu-t>class</emu-t>,
@@ -61,39 +61,39 @@
       }]</emu-gann></emu-rhs>
   </emu-production>
 
-  <emu-production name="StatementList" params="Return, In">
-    <emu-nt params="Return, In">StatementList<emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt>ReturnStatement</emu-nt></emu-rhs>
-    <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
+  <emu-production name="StatementList" params="Return, In" id="prod-StatementList">
+    <emu-nt params="Return, In"><a href="#prod-StatementList">StatementList</a><emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt><a href="#prod-ReturnStatement">ReturnStatement</a><emu-mods></emu-mods></emu-nt></emu-rhs>
+    <emu-rhs><emu-nt><a href="#prod-ExpressionStatement">ExpressionStatement</a><emu-mods></emu-mods></emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="Identifier" type="lexical">
-    <emu-nt>Identifier</emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt>IdentifierName</emu-nt><emu-gmod>but not
-    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
+  <emu-production name="Identifier" type="lexical" id="prod-Identifier">
+    <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="#prod-IdentifierName">IdentifierName</a><emu-mods></emu-mods></emu-nt><emu-gmod>but not
+    <emu-nt><a href="#prod-ReservedWord">ReservedWord</a><emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
   </emu-production>
 
-  <emu-production name="EnumDeclaration">
-    <emu-nt>EnumDeclaration</emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t optional="">const<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-t><emu-t>enum</emu-t><emu-nt>Identifier</emu-nt><emu-t>{</emu-t><emu-nt optional="">EnumBody<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt><emu-t>}</emu-t></emu-rhs>
+  <emu-production name="EnumDeclaration" id="prod-EnumDeclaration">
+    <emu-nt><a href="#prod-EnumDeclaration">EnumDeclaration</a><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t optional="">const<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-t><emu-t>enum</emu-t><emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-t>{</emu-t><emu-nt optional=""><a href="#prod-EnumBody">EnumBody</a><emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt><emu-t>}</emu-t></emu-rhs>
   </emu-production>
   
   <!-- added for testing that prodref references first occurance -->
   <emu-production name="Identifier" type="lexical">
-    <emu-nt>Identifier</emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-t>DummyIdentifier</emu-t></emu-rhs>
+    <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-t>DummyIdentifier</emu-t></emu-rhs>
   </emu-production>
 
-  <emu-production name="Identifier" type="lexical">
-    <emu-nt>Identifier</emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt>IdentifierName</emu-nt><emu-gmod>but not
-    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
+  <emu-production name="Identifier" type="lexical" id="prod-Identifier">
+    <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="#prod-IdentifierName">IdentifierName</a><emu-mods></emu-mods></emu-nt><emu-gmod>but not
+    <emu-nt><a href="#prod-ReservedWord">ReservedWord</a><emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
   </emu-production>
-  <emu-production name="ArgumentList" a="a">
-    <emu-nt>ArgumentList</emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt>AssignmentExpression</emu-nt></emu-rhs></emu-production>
+  <emu-production name="ArgumentList" id="prod-ArgumentList" a="a">
+    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="#prod-AssignmentExpression">AssignmentExpression</a><emu-mods></emu-mods></emu-nt></emu-rhs></emu-production>
 
-  <emu-grammar><emu-production name="FooBar" params="Yeild" type="lexical">
-    <emu-nt params="Yeild">FooBar<emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs>
+  <emu-grammar><emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar">
+    <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield"><a href="#prod-Bar">Bar</a><emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs>
     <emu-rhs a="b"><emu-t>baz</emu-t></emu-rhs>
 </emu-production></emu-grammar>
 
-  <emu-production name="FooBar" params="Yeild" type="lexical" a="a">
-    <emu-nt params="Yeild">FooBar<emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production>
+  <emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar" a="a">
+    <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield"><a href="#prod-Bar">Bar</a><emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production>
 
   <pre><code class="language-javascript hljs">
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };
