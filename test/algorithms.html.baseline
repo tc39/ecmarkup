@@ -1,0 +1,9 @@
+<!doctype html>
+<head></head><body>
+<emu-biblio href="./algorithmsBiblio.json"></emu-biblio>
+<emu-alg><ol><li>Can call abstract operations in this spec: <a href="#sec-internal">Internal</a>();</li><li>Can call abstract operations in ES6: <a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-returnifabrupt">ReturnIfAbrupt</a>(<var>completion</var>);</li><li>Can call abstract operations in a biblio file: <a href="http://example.com/fooSite.html#sec-biblio">Biblio</a>();</li><li>Unfound abstract operations just don't link: Unfound();</li></ol></emu-alg>
+
+<emu-clause id="sec-internal" aoid="Internal">
+  <h1><span class="secnum">1</span>Internal Function<span class="utils"><span class="anchor"><a href="#sec-internal">#</a></span></span></h1>
+</emu-clause>
+</body>

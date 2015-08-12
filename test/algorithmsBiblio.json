@@ -1,0 +1,9 @@
+{
+  "http://example.com/fooSite.html": {
+    "ops": {
+      "Biblio": {
+        "id": "sec-biblio"
+      }
+    }
+  }
+}
