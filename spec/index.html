@@ -61,6 +61,7 @@ toc: false
 
     <h2>Attributes</h2>
     <p><b>id:</b> Clause id. Must be unique.</p>
+    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
   </emu-clause>
 
   <emu-clause id="emu-clause">
@@ -79,15 +80,13 @@ toc: false
     <h2>Attributes</h2>
     <p><b>normative:</b> If present, annex is normative. Default is non-normative.</p>
     <p><b>id:</b> Clause id. Must be unique.</p>
+    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
   </emu-clause>
 </emu-clause>
 
 <emu-clause id="emu-alg" aoid="EmuAlg">
   <h1>emu-alg</h1>
   <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
-
-  <h2>Attributes</h2>
-  <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this algorithm.</p>
 
   <h2>Example</h2>
   <emu-note>The emu-alg clause has an aoid of "EmuAlg".</emu-note>
