@@ -1,0 +1,11 @@
+{
+  "http://example.com/fooSite.html": {
+    "clauses": {
+      "sec-foo": {
+        "title": "Foo Section",
+        "number": "1",
+        "id": "bar"
+      }
+    }
+  }
+}

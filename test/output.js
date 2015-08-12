@@ -4,20 +4,28 @@ var Promise = require('bluebird');
 var readFile = Promise.promisify(fs.readFile);
 var diff = require('diff');
 
-var build = require('../lib/ecmarkup').build;
+var emu = require('../lib/ecmarkup');
 
-var testPath = 'test/test.html';
+var files = fs.readdirSync('test').filter(function (f) { return f.slice(f.length - 5) === ".html" });
 
-describe('output of test.html', function() {
-  it("is correct", function() {
-    return build(testPath, function(file) {
-      return readFile(file, 'utf-8');
-    }).then(function(spec) {
-      var contents = spec.toHTML();
-      var str = fs.readFileSync(testPath + '.baseline', 'utf-8').toString();
-      if(contents !== str) {
-        throw new Error(diff.createPatch("test.html", contents, str))
-      }
-    });
+function build(file) {
+  return emu.build(file, function (file) {
+    return readFile(file, 'utf-8');
   });
+}
+
+describe('baselines', function() {
+  files.forEach(function(file) {
+    file = "test/" + file;
+    it(file, function() {
+      return build(file)
+        .then(function (spec) {
+          var contents = spec.toHTML();
+          var str = fs.readFileSync(file + '.baseline', 'utf-8').toString();
+          if(contents !== str) {
+            throw new Error(diff.createPatch(file, contents, str))
+          }
+        });
+    })
+  })
 });

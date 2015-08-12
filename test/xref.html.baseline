@@ -1,0 +1,22 @@
+<!doctype html>
+<head></head><body>
+<emu-biblio href="./xrefTestBiblio.json"></emu-biblio>
+<emu-clause id="sec-clause-id">
+  <h1><span class="secnum">1</span>Clause Title<span class="utils"><span class="anchor"><a href="#sec-clause-id">#</a></span></span></h1>
+
+  <!-- local refs to clause -->
+  <emu-xref href="#sec-clause-id"><a href="#sec-clause-id">with link text</a></emu-xref>
+  <emu-xref href="#sec-clause-id"><a href="#sec-clause-id">1</a></emu-xref>
+  <emu-xref href="#sec-clause-id" title=""><a href="#sec-clause-id">Clause Title</a></emu-xref>
+
+  <!-- refs to ES6 clause -->
+  <emu-xref href="#sec-notational-conventions"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-notational-conventions">with link text</a></emu-xref>
+  <emu-xref href="#sec-scope"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-scope">1</a></emu-xref>
+  <emu-xref href="#sec-additional-syntax" title=""><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-additional-syntax">Additional Syntax</a></emu-xref>
+
+  <!-- refs to imported biblio clause -->
+  <emu-xref href="#sec-foo"><a href="http://example.com/fooSite.html#bar">with link text</a></emu-xref>
+  <emu-xref href="#sec-foo"><a href="http://example.com/fooSite.html#bar">1</a></emu-xref>
+  <emu-xref href="#sec-foo" title=""><a href="http://example.com/fooSite.html#bar">Foo Section</a></emu-xref>
+</emu-clause>
+</body>

@@ -18,7 +18,7 @@ function fetch(path) {
 
 ecmarkup.build(args.infile, fetch, args).then(function (spec) {
   if(args.biblio) {
-    fs.writeFileSync(args.biblio, JSON.stringify(spec.biblio), 'utf8');
+    fs.writeFileSync(args.biblio, JSON.stringify(spec.exportBiblio()), 'utf8');
   }
 
   if(args.outfile) {

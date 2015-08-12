@@ -21,7 +21,7 @@
     <h1><span class="secnum">1.2</span>Sub Clause<span class="utils"><span class="anchor"><a href="#Bar">#</a></span></span></h1>
   </emu-clause>
 
-  <emu-clause id="Baz" aoid="">
+  <emu-clause id="Baz" aoid="Baz">
   <h1><span class="secnum">1.3</span>Header<span class="utils"><span class="anchor"><a href="#Baz">#</a></span></span></h1>
   <p>text</p>
   <p><emu-nt>nonterminal</emu-nt> <code>code</code> <emu-val>value</emu-val>.</p>

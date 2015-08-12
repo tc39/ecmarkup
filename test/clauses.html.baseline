@@ -1,0 +1,27 @@
+<!doctype html>
+<head></head><body><div><h2>Table of Contents</h2><ol class="toc"><li><a href="#"><span class="secnum"></span> Intro</a><ol class="toc"><li><a href="#"><span class="secnum"></span> Sub Intro</a></li></ol></li><li><a href="#"><span class="secnum">1</span> Clause Foo(<var>a</var>, <var>b</var>)</a><ol class="toc"><li><a href="#Foo"><span class="secnum">1.1</span> Sub Clause</a></li></ol></li><li><a href="#"><span class="secnum">A</span> Annex</a><ol class="toc"><li><a href="#"><span class="secnum">A.1</span> Sub-annex</a></li></ol></li></ol></div><emu-intro>
+  <h1><span class="secnum"></span>Intro<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
+  <emu-intro>
+    <h1><span class="secnum"></span>Sub Intro<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
+  </emu-intro>
+</emu-intro>
+
+<emu-clause>
+  <!-- check for emd in headers and toc -->
+  <h1><span class="secnum">1</span>Clause Foo(<var>a</var>, <var>b</var>)<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
+
+  <emu-clause id="Foo" aoid="Foo">
+    <h1><span class="secnum">1.1</span>Sub Clause<span class="utils"><span class="anchor"><a href="#Foo">#</a></span></span></h1>
+
+  </emu-clause>
+</emu-clause>
+
+<emu-annex>
+  <h1><span class="secnum">A</span>Annex<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
+
+  <emu-annex>
+    <h1><span class="secnum">A.1</span>Sub-annex<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
+
+  </emu-annex>
+</emu-annex>
+</body>
