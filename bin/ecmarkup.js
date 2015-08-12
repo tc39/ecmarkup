@@ -1,39 +1,27 @@
 #!/usr/bin/env node
 
-var ecmarkup = require('../lib/ecmarkup');
-var Promise = require('bluebird');
-var path = require('path');
-var fs = require('fs');
-var readFile = Promise.promisify(fs.readFile);
-
-if(process.argv[2] === "-v") {
-  printVersion();
+var args = require('./args').parse();
+if(!args.biblio && !args.outfile) {
+  console.log("No outfile specified. See --help for more details.");
   process.exit();
 }
 
-var infile = process.argv[2];
-var outfile = process.argv[3];
+// requires after arg checking to avoid expensive load times
+var ecmarkup = require('../lib/ecmarkup');
+var Promise = require('bluebird');
+var fs = require('fs');
+var readFile = Promise.promisify(fs.readFile);
 
-if(!infile || !outfile) {
-  printUsage();
-  process.exit(1);
-}
-
-ecmarkup.build(infile, function fetch(path) {
+function fetch(path) {
   return readFile(path, 'utf8');
-}).then(function(out) {
-  fs.writeFileSync(outfile, out, 'utf8');
+}
+
+ecmarkup.build(args.infile, fetch).then(function (spec) {
+  if(args.biblio) {
+    fs.writeFileSync(args.biblio, JSON.stringify(spec.biblio), 'utf8');
+  }
+
+  if(args.outfile) {
+    fs.writeFileSync(args.outfile, spec.toHTML(), 'utf8');
+  }
 });
-
-function printUsage() {
-  printVersion();
-  console.log("Usage: ecmarkup source_file target_file");
-  console.log("");
-  console.log("Options:");
-  console.log(" -v\tPrint ecmarkup version")
-}
-
-function printVersion() {
-  var p = require(path.resolve(__dirname, "..", "package.json"));
-  console.log("ecmarkup v" + p.version);
-}

@@ -21,8 +21,8 @@ describe('ecmarkup#build', function() {
           res(fetch(file));
         });
       });
-    }).then(function(c) {
-      assert.equal(c,out);
+    }).then(function(spec) {
+      assert.equal(spec.toHTML(),out);
     });
   });
 })

@@ -12,7 +12,8 @@ describe('output of test.html', function() {
   it("is correct", function() {
     return build(testPath, function(file) {
       return readFile(file, 'utf-8');
-    }).then(function(contents) {
+    }).then(function(spec) {
+      var contents = spec.toHTML();
       var str = fs.readFileSync(testPath + '.baseline', 'utf-8').toString();
       if(contents !== str) {
         throw new Error(diff.createPatch("test.html", contents, str))
