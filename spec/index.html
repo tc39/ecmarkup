@@ -3,6 +3,10 @@
 <title>Ecmarkup</title>
 <link rel="stylesheet" href="elements.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/solarized_light.min.css">
+<pre class=metadata>
+title: Ecmarkup Documentation
+repository: https://github.com/bterlson/ecmarkup
+</pre>
 <emu-biblio href="./biblio.json"></emu-biblio>
 <h1>Ecmarkup Documentation</h1>
 <emu-intro id="intro">
@@ -30,6 +34,22 @@ ecmarkup spec.html out.html
 
   <h2>Stylesheet</h2>
   <p>Styles are provided by `elements.css` under the `css` directory. You may also link to https://bterlson.github.io/ecmarkup/elements.css which will contain the latest styles for the forseeable future.</p>
+</emu-clause>
+<emu-clause id="metadata">
+  <h1>Metadata</h1>
+  <p>There are a number of settings that allow customizations or enable generation of boilerplate. Metadata can be included in the document and passed on the command line, for example `--no-toc --title "Document 1"`. Metadata given on the command line takes precedence.</p>
+  <p>To add metadata to your document, use yaml syntax inside a `<pre class=metadata>` element somewhere in the root of your document.</p>
+  <p>The following table lists the currently supported metadata:</p>
+  <table>
+    <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
+  </table>
+  <h2>Example document with metadata</h2>
+<pre><code class="language-html">
+&lt;pre class=metadata>
+Title: Document 1
+toc: false
+&lt;/pre>
+</pre></code>
 </emu-clause>
 <emu-clause id="clauses">
   <h1>Clauses</h1>
