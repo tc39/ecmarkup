@@ -16,7 +16,7 @@ function fetch(path) {
   return readFile(path, 'utf8');
 }
 
-ecmarkup.build(args.infile, fetch).then(function (spec) {
+ecmarkup.build(args.infile, fetch, args).then(function (spec) {
   if(args.biblio) {
     fs.writeFileSync(args.biblio, JSON.stringify(spec.biblio), 'utf8');
   }

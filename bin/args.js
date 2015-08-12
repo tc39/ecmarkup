@@ -6,6 +6,7 @@ module.exports = require('nomnom')
   .options({
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
     biblio: { abbr: 'b', metavar: 'FILE', help: 'Write a biblio file to FILE' },
+    toc: { flag: true, default: true, help: 'Don\'t include the table of contents' },
     version: {
       abbr: 'v',
       flag: true,
