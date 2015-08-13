@@ -24,7 +24,7 @@
   <emu-xref href="#prod-TestProduction"><a href="#prod-TestProduction">with link text</a></emu-xref>
 
   <!-- refs to ES6 nonterminal -->
-  <emu-xref href="#prod-PrimaryExpression"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-PrimaryExpression"><emu-nt>undefined</emu-nt></a></emu-xref>
+  <emu-xref href="#prod-PrimaryExpression"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-PrimaryExpression"><emu-nt>PrimaryExpression</emu-nt></a></emu-xref>
 
   <!-- refs to local abstract op -->
   <emu-xref aoid="AbstractOp"><a href="#sec-abstract-op">AbstractOp</a></emu-xref>

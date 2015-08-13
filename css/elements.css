@@ -130,7 +130,7 @@ emu-nt {
     white-space: nowrap;
 }
 
-emu-nt a {
+emu-nt a, emu-nt a:visited {
   color: #333;
 }
 

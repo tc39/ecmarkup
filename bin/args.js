@@ -7,6 +7,7 @@ module.exports = require('nomnom')
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
     biblio: { abbr: 'b', metavar: 'FILE', help: 'Write a biblio file to FILE' },
     toc: { flag: true, help: 'Don\'t include the table of contents' },
+    verbose: { flag: true, default: false, help: 'Display document build progress' },
     version: {
       abbr: 'v',
       flag: true,
