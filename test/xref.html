@@ -17,4 +17,31 @@
   <emu-xref href="#sec-foo">with link text</emu-xref>
   <emu-xref href="#sec-foo"></emu-xref>
   <emu-xref href="#sec-foo" title></emu-xref>
+
+  <!-- refs to local nonterminal -->
+  <emu-xref href="#prod-TestProduction"></emu-xref>
+  <emu-xref href="#prod-TestProduction">with link text</emu-xref>
+
+  <!-- refs to ES6 nonterminal -->
+  <emu-xref href="#prod-PrimaryExpression"></emu-xref>
+
+  <!-- refs to local abstract op -->
+  <emu-xref aoid="AbstractOp"></emu-xref>
+  <emu-xref aoid="AbstractOp">the AbstractOp abstract operation</emu-xref>
+
+  <!-- refs to es6 abstract op -->
+  <emu-xref aoid="ReturnIfAbrupt"></emu-xref>
+  <emu-xref aoid="ReturnIfAbrupt">Return if abrupt</emu-xref>
+
+  <emu-clause id="sec-abstract-op" aoid="AbstractOp">
+    <h1>AbstractOp</h1>
+    <emu-alg>
+      1. Return.
+    </emu-alg>
+  </emu-clause>
 </emu-clause>
+
+<emu-grammar>
+  TestProduction ::
+    `np` `np` #1
+</emu-grammar>

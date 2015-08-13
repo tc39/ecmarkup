@@ -18,5 +18,29 @@
   <emu-xref href="#sec-foo"><a href="http://example.com/fooSite.html#bar">with link text</a></emu-xref>
   <emu-xref href="#sec-foo"><a href="http://example.com/fooSite.html#bar">1</a></emu-xref>
   <emu-xref href="#sec-foo" title=""><a href="http://example.com/fooSite.html#bar">Foo Section</a></emu-xref>
+
+  <!-- refs to local nonterminal -->
+  <emu-xref href="#prod-TestProduction"><a href="#prod-TestProduction"><emu-nt>TestProduction</emu-nt></a></emu-xref>
+  <emu-xref href="#prod-TestProduction"><a href="#prod-TestProduction">with link text</a></emu-xref>
+
+  <!-- refs to ES6 nonterminal -->
+  <emu-xref href="#prod-PrimaryExpression"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-PrimaryExpression"><emu-nt>undefined</emu-nt></a></emu-xref>
+
+  <!-- refs to local abstract op -->
+  <emu-xref aoid="AbstractOp"><a href="#sec-abstract-op">AbstractOp</a></emu-xref>
+  <emu-xref aoid="AbstractOp"><a href="#sec-abstract-op">the AbstractOp abstract operation</a></emu-xref>
+
+  <!-- refs to es6 abstract op -->
+  <emu-xref aoid="ReturnIfAbrupt"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-returnifabrupt">ReturnIfAbrupt</a></emu-xref>
+  <emu-xref aoid="ReturnIfAbrupt"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-returnifabrupt">Return if abrupt</a></emu-xref>
+
+  <emu-clause id="sec-abstract-op" aoid="AbstractOp">
+    <h1><span class="secnum">1.1</span>AbstractOp<span class="utils"><span class="anchor"><a href="#sec-abstract-op">#</a></span></span></h1>
+    <emu-alg><ol><li>Return.</li></ol></emu-alg>
+  </emu-clause>
 </emu-clause>
+
+<emu-grammar><emu-production name="TestProduction" type="lexical" id="prod-TestProduction">
+    <emu-nt><a href="#prod-TestProduction">TestProduction</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="1"><emu-t>np</emu-t><emu-t>np</emu-t></emu-rhs>
+</emu-production></emu-grammar>
 </body>
