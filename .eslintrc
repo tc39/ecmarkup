@@ -1,0 +1,43 @@
+{
+  "ecmaFeatures": {
+    "binaryLiterals": true,
+    "blockBindings": true,
+    "classes": true,
+    "forOf": true,
+    "generators": true,
+    "objectLiteralShorthandMethods": true,
+    "objectLiteralShorthandProperties": true,
+    "octalLiterals": true,
+    "templateStrings": true
+  },
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "no-extra-parens": [2, "functions"],
+    "no-inner-declarations": 0,
+    "consistent-return": 0,
+    "no-eq-null": 2,
+    "no-floating-decimal": 2,
+    "no-self-compare": 2,
+    "no-throw-literal": 2,
+    "no-void": 2,
+    "wrap-iife": [2, "outside"],
+    "strict": [2, "global"],
+    "no-use-before-define": [2, "nofunc"],
+    "generator-star-spacing": [2, "after"],
+    "quotes": [2, "single"],
+    "no-underscore-dangle": 0,
+    "no-constant-condition": 0,
+    "camelcase": [2, { "properties": "never" }],
+    "space-after-keywords": [2, "always"],
+    "indent": [2, 2],
+    "no-empty": 2,
+    "no-extra-semi": 2,
+    "no-extra-parens": 2,
+    "curly": [2, "multi-line"],
+    "array-bracket-spacing": [2, "never"],
+    "brace-style": [2, "1tbs", { "allowSingleLine": true }],
+    "semi": [2, "always"]
+  }
+}

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+'use strict';
 
 var args = require('./args').parse();
-if(!args.biblio && !args.outfile) {
-  console.log("No outfile specified. See --help for more details.");
+if (!args.biblio && !args.outfile) {
+  console.log('No outfile specified. See --help for more details.');
   process.exit();
 }
 
@@ -17,11 +18,11 @@ function fetch(path) {
 }
 
 ecmarkup.build(args.infile, fetch, args).then(function (spec) {
-  if(args.biblio) {
+  if (args.biblio) {
     fs.writeFileSync(args.biblio, JSON.stringify(spec.exportBiblio()), 'utf8');
   }
 
-  if(args.outfile) {
+  if (args.outfile) {
     fs.writeFileSync(args.outfile, spec.toHTML(), 'utf8');
   }
 });

@@ -1,7 +1,8 @@
+'use strict';
 var path = require('path');
 
 module.exports = require('nomnom')
-  .script("ecmarkup")
+  .script('ecmarkup')
   .help('Compile ecmarkup documents to html by passing your input file and output file.')
   .options({
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
@@ -26,6 +27,6 @@ module.exports = require('nomnom')
   });
 
 function printVersion() {
-  var p = require(path.resolve(__dirname, "..", "package.json"));
-  return "ecmarkup v" + p.version;
+  var p = require(path.resolve(__dirname, '..', 'package.json'));
+  return 'ecmarkup v' + p.version;
 }

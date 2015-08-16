@@ -1,3 +1,4 @@
+'use strict';
 var fs = require('fs');
 var assert = require('assert');
 var Promise = require('bluebird');
@@ -6,7 +7,8 @@ var diff = require('diff');
 
 var emu = require('../lib/ecmarkup');
 
-var files = fs.readdirSync('test').filter(function (f) { return f.slice(f.length - 5) === ".html" });
+var files = fs.readdirSync('test')
+    .filter(function (f) { return f.slice(f.length - 5) === '.html'; });
 
 function build(file) {
   return emu.build(file, function (file) {
@@ -16,16 +18,16 @@ function build(file) {
 
 describe('baselines', function() {
   files.forEach(function(file) {
-    file = "test/" + file;
+    file = 'test/' + file;
     it(file, function() {
       return build(file)
         .then(function (spec) {
           var contents = spec.toHTML();
           var str = fs.readFileSync(file + '.baseline', 'utf-8').toString();
-          if(contents !== str) {
-            throw new Error(diff.createPatch(file, contents, str))
+          if (contents !== str) {
+            throw new Error(diff.createPatch(file, contents, str));
           }
         });
-    })
-  })
+    });
+  });
 });
