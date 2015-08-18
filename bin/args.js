@@ -1,12 +1,12 @@
 'use strict';
-var path = require('path');
+const path = require('path');
 
 module.exports = require('nomnom')
   .script('ecmarkup')
   .help('Compile ecmarkup documents to html by passing your input file and output file.')
   .options({
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
-    biblio: { abbr: 'b', metavar: 'FILE', help: 'Write a biblio file to FILE' },
+    biblio: { abbr: 'b', metaconst: 'FILE', help: 'Write a biblio file to FILE' },
     toc: { flag: true, help: 'Don\'t include the table of contents' },
     verbose: { flag: true, default: false, help: 'Display document build progress' },
     version: {
@@ -27,6 +27,6 @@ module.exports = require('nomnom')
   });
 
 function printVersion() {
-  var p = require(path.resolve(__dirname, '..', 'package.json'));
+  const p = require(path.resolve(__dirname, '..', 'package.json'));
   return 'ecmarkup v' + p.version;
 }

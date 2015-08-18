@@ -38,6 +38,7 @@
     "curly": [2, "multi-line"],
     "array-bracket-spacing": [2, "never"],
     "brace-style": [2, "1tbs", { "allowSingleLine": true }],
-    "semi": [2, "always"]
+    "semi": [2, "always"],
+    "no-var": 2
   }
 }

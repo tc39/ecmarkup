@@ -1,13 +1,13 @@
 'use strict';
-var fs = require('fs');
-var assert = require('assert');
-var Promise = require('bluebird');
-var readFile = Promise.promisify(fs.readFile);
-var diff = require('diff');
+const fs = require('fs');
+const assert = require('assert');
+const Promise = require('bluebird');
+const readFile = Promise.promisify(fs.readFile);
+const diff = require('diff');
 
-var emu = require('../lib/ecmarkup');
+const emu = require('../lib/ecmarkup');
 
-var files = fs.readdirSync('test')
+const files = fs.readdirSync('test')
     .filter(function (f) { return f.slice(f.length - 5) === '.html'; });
 
 function build(file) {
@@ -22,8 +22,8 @@ describe('baselines', function() {
     it(file, function() {
       return build(file)
         .then(function (spec) {
-          var contents = spec.toHTML();
-          var str = fs.readFileSync(file + '.baseline', 'utf-8').toString();
+          const contents = spec.toHTML();
+          const str = fs.readFileSync(file + '.baseline', 'utf-8').toString();
           if (contents !== str) {
             throw new Error(diff.createPatch(file, contents, str));
           }

@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 'use strict';
 
-var args = require('./args').parse();
+const args = require('./args').parse();
 if (!args.biblio && !args.outfile) {
   console.log('No outfile specified. See --help for more details.');
   process.exit();
 }
 
 // requires after arg checking to avoid expensive load times
-var ecmarkup = require('../lib/ecmarkup');
-var Promise = require('bluebird');
-var fs = require('fs');
-var readFile = Promise.promisify(fs.readFile);
+const ecmarkup = require('../lib/ecmarkup');
+const Promise = require('bluebird');
+const fs = require('fs');
+const readFile = Promise.promisify(fs.readFile);
 
 function fetch(path) {
   return readFile(path, 'utf8');
