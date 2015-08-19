@@ -2,10 +2,6 @@
 'use strict';
 
 const args = require('./args').parse();
-if (!args.biblio && !args.outfile) {
-  console.log('No outfile specified. See --help for more details.');
-  process.exit();
-}
 
 // requires after arg checking to avoid expensive load times
 const ecmarkup = require('../lib/ecmarkup');
@@ -24,5 +20,7 @@ ecmarkup.build(args.infile, fetch, args).then(function (spec) {
 
   if (args.outfile) {
     fs.writeFileSync(args.outfile, spec.toHTML(), 'utf8');
+  } else {
+    process.stdout.write(spec.toHTML());
   }
 });
