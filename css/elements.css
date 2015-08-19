@@ -83,15 +83,25 @@ emu-eqn div:first-child {
 
 emu-note {
     display: block;
-    margin-left: 5em;
+    margin-left: 6em;
     color: #666;
 }
 
 emu-note span.note {
     text-transform: uppercase;
-    margin-left: -5em;
+    margin-left: -6em;
     display: block;
     float: left;
+}
+
+emu-example {
+  display: block;
+  margin: 1em 3em;
+}
+
+emu-example figure figcaption {
+  margin-top: 0.5em;
+  text-align: left;
 }
 
 emu-production {

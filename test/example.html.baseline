@@ -1,0 +1,26 @@
+<!doctype html>
+<head></head><body>
+<p>Examples outside of clauses aren't processed specially.</p>
+<emu-example>
+  This is an example.
+</emu-example>
+
+<emu-clause id="sec-example">
+  <h1><span class="secnum">1</span>Example Section<span class="utils"><span class="anchor"><a href="#sec-example">#</a></span></span></h1>
+  <emu-example><figure>
+    Examples inside clauses are numbered and have captions. Captions are optional.
+  <figcaption>Example (Informative)</figcaption></figure></emu-example>
+
+  <emu-clause id="sec-example-subclause">
+    <h1><span class="secnum">1.1</span>Example Subclause<span class="utils"><span class="anchor"><a href="#sec-example-subclause">#</a></span></span></h1>
+    <emu-example caption="An example"><figure>
+      Multiple examples are numbered similar to notes
+    <figcaption>Example 1 (Informative): An example</figcaption></figure></emu-example>
+
+    <emu-example caption="A second example"><figure>
+      So this becomes example 2.
+    <figcaption>Example 2 (Informative): A second example</figcaption></figure></emu-example>
+  </emu-clause>
+</emu-clause>
+
+</body>

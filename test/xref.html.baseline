@@ -34,10 +34,28 @@
   <emu-xref aoid="ReturnIfAbrupt"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-returnifabrupt">ReturnIfAbrupt</a></emu-xref>
   <emu-xref aoid="ReturnIfAbrupt"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-returnifabrupt">Return if abrupt</a></emu-xref>
 
+  <!-- refs to examples -->
+  <emu-xref href="#example-2"><a href="#example-2">1.1 Example 1</a></emu-xref>
+  <emu-xref href="#example-1" title=""><a href="#example-1">Clause Title Example 1</a></emu-xref>
+  <emu-xref href="#example-3" title=""><a href="#example-3">AbstractOp Example 2</a></emu-xref>
+  <emu-xref href="#example-2"><a href="#example-2">with link text</a></emu-xref>
+
   <emu-clause id="sec-abstract-op" aoid="AbstractOp">
     <h1><span class="secnum">1.1</span>AbstractOp<span class="utils"><span class="anchor"><a href="#sec-abstract-op">#</a></span></span></h1>
     <emu-alg><ol><li>Return.</li></ol></emu-alg>
+
+    <emu-example id="example-2" caption="Foo Caption"><figure>
+      This is an example
+    <figcaption>Example 1 (Informative): Foo Caption</figcaption></figure></emu-example>
+
+    <emu-example id="example-3" caption="Foo Caption"><figure>
+      This is an example
+    <figcaption>Example 2 (Informative): Foo Caption</figcaption></figure></emu-example>
   </emu-clause>
+
+  <emu-example id="example-1" caption="Foo Caption"><figure>
+    This is an example
+  <figcaption>Example (Informative): Foo Caption</figcaption></figure></emu-example>
 </emu-clause>
 
 <emu-grammar><emu-production name="TestProduction" type="lexical" id="prod-TestProduction">

@@ -41,6 +41,7 @@ ecmarkup spec.html out.html
   <p>To add metadata to your document, use yaml syntax inside a `&lt;pre class=metadata>` element somewhere in the root of your document.</p>
   <p>The following table lists the currently supported metadata:</p>
   <table>
+    <tr><th>Option</th><th>Description</th></tr>
     <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
   </table>
   <h2>Example document with metadata</h2>
@@ -126,24 +127,56 @@ toc: false
 
 <emu-clause id="emu-xref">
   <h1>emu-xref</h1>
-  <p>Cross-reference another clause. If the text content of this element is empty, the target clause's section number or title will be used.</p>
+  <p>Cross-reference another clause, production, example, or abstract operation. If the text content of this element is empty, a suitable default is used. The `title` attribute controls this default - when present, clauses are referred to using their title rather than number. This also applies to examples which are indexed first by their containing clause and then their example number.</p>
+  <p>Cross-references to an id check for clauses, productions, and examples in this order. For each type, the local document is consulted before looking for external sources including the default ES6 biblio.</p>
+
   <h2>Attributes</h2>
-  <p><b>href:</b> Required: URL of the target clause to cross-reference. May simply be a fragment identifier (see examples below).</p>
+  <p><b>href:</b> Optional: URL of the target clause, production, or example to cross-reference.</p>
   <p><b>title:</b> Optional: If present, xref will be filled in with the referenced clause's title. Otherwise, the clause's section number is used.</p>
+  <p><b>aoid:</b> Optional: aoid of an abstract operation to reference.</p>
+
+  <p>One of aoid or href must be specified.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
     &lt;p>The clause element is specified in &lt;emu-xref href="#emu-clause">&lt;/emu-xref>.&lt;/p>
     &lt;p>See &lt;emu-xref href="#emu-note" title>&lt;/emu-xref> for information on the emu-note element.&lt;/p>
-    &lt;p>The &lt;emu-xref href="#emu-biblio">biblio element&lt;/emu-xref> will eventually support xref to external specs.&lt;/p>
+    &lt;p>The &lt;emu-xref href="#emu-biblio">biblio element&lt;/emu-xref> supports xref to external specs.&lt;/p>
+    &lt;p>&lt;emu-xref aoid="Get">&lt;/emu-xref> is an abstract operation from ES6&lt;/p>
   </code></pre>
 
   <b>Result</b>
   <p>The clause element is specified in <emu-xref href="#emu-clause"></emu-xref>.</p>
   <p>See <emu-xref href="#emu-note" title></emu-xref> for information on the emu-note element.</p>
   <p>The <emu-xref href="#emu-biblio">biblio element</emu-xref> will eventually support xref to external specs.</p>
+  <p><emu-xref aoid="Get"></emu-xref> is an abstract operation from ES6</p>
 </emu-clause>
 
+<emu-clause id="emu-example">
+  <h1>emu-example</h1>
+  <p>Creates an informative example. Examples are numbered based on how many are present in the example's containing clause. Can be xrefed by ID using `emu-xref`.</p>
+
+  <h2>Attributes</h2>
+  <p><b>caption:</b> Optional: Caption for the example</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html">
+&lt;emu-example caption="Example Example">
+  This is an example.
+&lt;/emu-example>
+
+&lt;emu-example caption="Another Example Example">
+  This is also an example.
+&lt;/emu-example>
+  </code></pre>
+  <emu-example caption="Example Example">
+    This is an example.
+  </emu-example>
+
+  <emu-example caption="Another Example Example">
+    This is also an example.
+  </emu-example>
+</emu-clause>
 <emu-clause id="emu-biblio">
   <h1>emu-biblio</h1>
   <p>Links a bibliography file. The bibliography file is a JSON document containing URLs for referenced documents along with any algorithms they define.</p>
