@@ -72,6 +72,15 @@ emu-alg ol ol ol, ol ol ol ol ol ol {
     list-style-type: lower-roman;
 }
 
+emu-eqn {
+  display: block;
+  margin-left: 4em;
+}
+
+emu-eqn div:first-child {
+  margin-left: -2em;
+}
+
 emu-note {
     display: block;
     margin-left: 5em;

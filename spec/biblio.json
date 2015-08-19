@@ -1,8 +1,14 @@
 {
   "http://people.mozilla.org/~jorendorff/es6-draft.html": {
-    "abstract operations": {
-      "ReturnIfAbrupt": "#sec-returnifabrupt",
-      "Get": "#sec-get-o-p"
+    "ops": {
+      "ReturnIfAbrupt": {
+        "id": "sec-returnifabrupt",
+        "aoid": "ReturnIfAbrupt"
+      },
+      "Get": {
+        "id": "sec-get-o-p",
+        "aoid": "Get"
+      }
     }
   }
 }

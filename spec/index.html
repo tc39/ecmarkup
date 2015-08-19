@@ -38,7 +38,7 @@ ecmarkup spec.html out.html
 <emu-clause id="metadata">
   <h1>Metadata</h1>
   <p>There are a number of settings that allow customizations or enable generation of boilerplate. Metadata can be included in the document and passed on the command line, for example `--no-toc --title "Document 1"`. Metadata given on the command line takes precedence.</p>
-  <p>To add metadata to your document, use yaml syntax inside a `<pre class=metadata>` element somewhere in the root of your document.</p>
+  <p>To add metadata to your document, use yaml syntax inside a `&lt;pre class=metadata>` element somewhere in the root of your document.</p>
   <p>The following table lists the currently supported metadata:</p>
   <table>
     <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
@@ -108,6 +108,13 @@ toc: false
   </emu-alg>
 </emu-clause>
 
+<emu-clause id="emu-eqn">
+  <h1>emu-eqn</h1>
+  <p>An equation, similar to those found in ES6 <emu-xref href="#sec-year-number"></emu-xref>.</p>
+
+  <h2>Attributes</h2>
+  <p><b>aoid:</b> Required: the abstract operation id that this equation defines.</p>
+</emu-clause>
 <emu-clause id="emu-note">
   <h1>emu-note</h1>
   <p>Non-normative explanatory text.</p>
