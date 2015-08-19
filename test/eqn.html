@@ -1,28 +1,31 @@
 <link rel=stylesheet href="./css/elements.css">
 <pre class=metadata>toc: false</pre>
-<emu-alg>
-  1. Return Value(_val_);
-</emu-alg>
+<emu-clause id="#sec-example">
+  <h1>Header</h1>
+  <emu-alg>
+    1. Return Value(_val_);
+  </emu-alg>
 
-<emu-eqn aoid="Value2">
-  Value2(t)
-    = DateValue(t) if Type(t) is string
-    = t
-</emu-eqn>
+  <emu-eqn aoid="Value2">
+    Value2(_t_)
+      = DateValue(_t_) if Type(_t_) is string
+      = _t_
+  </emu-eqn>
 
-<emu-eqn aoid="DateValue">
-  DateValue(t)
-    = 0 if t = 0
-    = 1 if t = 1
-    = 2
-</emu-eqn>
+  <emu-eqn aoid="DateValue">
+    DateValue(t)
+      = 0 if _t_ = 0
+      = 1 if _t_ = 1
+      = 2
+  </emu-eqn>
 
-<emu-eqn aoid="Value">
-  Value(t)
-    = DateValue(t) if Type(t) is string
-    = t
-</emu-eqn>
+  <emu-eqn aoid="Value">
+    Value(_t_)
+      = DateValue(_t_) if Type(_t_) is string
+      = _t_
+  </emu-eqn>
 
-<emu-alg>
-  1. Return Value(_val_);
-</emu-alg>
+  <emu-alg>
+    1. Return Value(_val_);
+  </emu-alg>
+</emu-clause>

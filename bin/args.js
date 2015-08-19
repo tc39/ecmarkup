@@ -6,7 +6,7 @@ module.exports = require('nomnom')
   .help('Compile ecmarkup documents to html by passing your input file and output file.')
   .options({
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
-    biblio: { abbr: 'b', metaconst: 'FILE', help: 'Write a biblio file to FILE' },
+    biblio: { abbr: 'b', metavar: 'FILE', help: 'Write a biblio file to FILE' },
     toc: { flag: true, help: 'Don\'t include the table of contents' },
     verbose: { flag: true, default: false, help: 'Display document build progress' },
     version: {
