@@ -7,6 +7,8 @@ module.exports = require('nomnom')
   .options({
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
     biblio: { abbr: 'b', metavar: 'FILE', help: 'Write a biblio file to FILE' },
+    css: { metavar: 'FILE', help: 'Write Emu CSS dependencies to FILE' },
+    js: { metavar: 'FILE', help: 'Write Emu JS dependencies to FILE' },
     toc: { flag: true, help: 'Don\'t include the table of contents' },
     verbose: { flag: true, default: false, help: 'Display document build progress' },
     version: {
