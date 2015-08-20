@@ -40,6 +40,13 @@
   <emu-xref href="#example-3" title></emu-xref>
   <emu-xref href="#example-2">with link text</emu-xref>
 
+  <!-- refs to notes -->
+  <emu-xref href="#note-1"></emu-xref>
+  <emu-xref href="#note-1" title></emu-xref>
+  <emu-xref href="#note-2"></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#note-2" title></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#note-2">with link text</emu-xref>
+
   <emu-clause id="sec-abstract-op" aoid="AbstractOp">
     <h1>AbstractOp</h1>
     <emu-alg>
@@ -53,11 +60,19 @@
     <emu-example id="example-3" caption="Foo Caption">
       This is an example
     </emu-example>
+
+    <emu-note id="note-1">
+      This is another note
+    </emu-note>
   </emu-clause>
 
   <emu-example id="example-1" caption="Foo Caption">
     This is an example
   </emu-example>
+
+  <emu-note id="note-2">
+    This is a note!
+  </emu-note>
 </emu-clause>
 
 <emu-grammar>

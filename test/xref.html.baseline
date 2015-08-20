@@ -41,6 +41,13 @@
   <emu-xref href="#example-3" title=""><a href="#example-3">AbstractOp Example 2</a></emu-xref>
   <emu-xref href="#example-2"><a href="#example-2">with link text</a></emu-xref>
 
+  <!-- refs to notes -->
+  <emu-xref href="#note-1"><a href="#note-1">1.1 Note 1</a></emu-xref>
+  <emu-xref href="#note-1" title=""><a href="#note-1">AbstractOp Note 1</a></emu-xref>
+  <emu-xref href="#note-2"><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#note-2" title=""><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#note-2"><a href="#note-2">with link text</a></emu-xref>
+
   <emu-clause id="sec-abstract-op" aoid="AbstractOp">
     <h1><span class="secnum">1.1</span>AbstractOp<span class="utils"><span class="anchor"><a href="#sec-abstract-op">#</a></span></span></h1>
     <emu-alg><ol><li>Return.</li></ol></emu-alg>
@@ -52,11 +59,19 @@
     <emu-example id="example-3" caption="Foo Caption"><figure>
       This is an example
     <figcaption>Example 2 (Informative): Foo Caption</figcaption></figure></emu-example>
+
+    <emu-note id="note-1"><span class="note">Note</span>
+      This is another note
+    </emu-note>
   </emu-clause>
 
   <emu-example id="example-1" caption="Foo Caption"><figure>
     This is an example
   <figcaption>Example (Informative): Foo Caption</figcaption></figure></emu-example>
+
+  <emu-note id="note-2"><span class="note">Note</span>
+    This is a note!
+  </emu-note>
 </emu-clause>
 
 <emu-grammar><emu-production name="TestProduction" type="lexical" id="prod-TestProduction">
