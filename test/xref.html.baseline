@@ -48,30 +48,50 @@
   <emu-xref href="#note-2" title=""><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
   <emu-xref href="#note-2"><a href="#note-2">with link text</a></emu-xref>
 
+  <!-- refs to figures and tables -->
+  <emu-xref href="#table-1"><a href="#table-1">Table 1</a></emu-xref>
+  <emu-xref href="#figure-1"><a href="#figure-1">Figure 1</a></emu-xref>
+
   <emu-clause id="sec-abstract-op" aoid="AbstractOp">
     <h1><span class="secnum">1.1</span>AbstractOp<span class="utils"><span class="anchor"><a href="#sec-abstract-op">#</a></span></span></h1>
     <emu-alg><ol><li>Return.</li></ol></emu-alg>
 
-    <emu-example id="example-2" caption="Foo Caption"><figure>
+    <emu-example id="example-2" caption="Foo Caption"><figure><figcaption>Example 1 (Informative): Foo Caption</figcaption>
       This is an example
-    <figcaption>Example 1 (Informative): Foo Caption</figcaption></figure></emu-example>
+    </figure></emu-example>
 
-    <emu-example id="example-3" caption="Foo Caption"><figure>
+    <emu-example id="example-3" caption="Foo Caption"><figure><figcaption>Example 2 (Informative): Foo Caption</figcaption>
       This is an example
-    <figcaption>Example 2 (Informative): Foo Caption</figcaption></figure></emu-example>
+    </figure></emu-example>
 
     <emu-note id="note-1"><span class="note">Note</span>
       This is another note
     </emu-note>
   </emu-clause>
 
-  <emu-example id="example-1" caption="Foo Caption"><figure>
+  <emu-example id="example-1" caption="Foo Caption"><figure><figcaption>Example (Informative): Foo Caption</figcaption>
     This is an example
-  <figcaption>Example (Informative): Foo Caption</figcaption></figure></emu-example>
+  </figure></emu-example>
 
   <emu-note id="note-2"><span class="note">Note</span>
     This is a note!
   </emu-note>
+
+  <emu-figure id="figure-1"><figure><figcaption>Figure 1</figcaption>
+    this is a figure!
+  </figure></emu-figure>
+
+  <emu-table id="table-1" caption="An example table"><figure><figcaption>Table 1: An example table</figcaption>
+    <table>
+      <thead>
+        <tr><td>Column 1</td><td>Column 2</td></tr>
+      </thead>
+      <tbody><tr><td>Value</td><td>Value 2</td></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+    </tbody></table>
+  </figure></emu-table>
 </emu-clause>
 
 <emu-grammar><emu-production name="TestProduction" type="lexical" id="prod-TestProduction">

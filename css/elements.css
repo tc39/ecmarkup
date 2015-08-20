@@ -280,15 +280,20 @@ figure figcaption {
     text-align: center;
 }
 
-table.real-table {
+emu-table table {
+  margin: 0 auto;
+}
+
+emu-table table, table.real-table {
     border-collapse: collapse;
 }
-table.real-table td, table.real-table th {
+
+emu-table td, emu-table th, table.real-table td, table.real-table th {
     border: 1px solid black;
     padding: 0.4em;
     vertical-align: baseline;
 }
-table.real-table th {
+emu-table th, emu-table thead td, table.real-table th {
     background-color: #eeeeee;
 }
 
