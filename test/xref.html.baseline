@@ -36,7 +36,8 @@
 
   <!-- refs to examples -->
   <emu-xref href="#example-2"><a href="#example-2">1.1 Example 1</a></emu-xref>
-  <emu-xref href="#example-1" title=""><a href="#example-1">Clause Title Example 1</a></emu-xref>
+  <emu-xref href="#example-1"><a href="#example-1">Example 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#example-1" title=""><a href="#example-1">Example 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
   <emu-xref href="#example-3" title=""><a href="#example-3">AbstractOp Example 2</a></emu-xref>
   <emu-xref href="#example-2"><a href="#example-2">with link text</a></emu-xref>
 
