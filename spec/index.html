@@ -16,7 +16,8 @@ repository: https://github.com/bterlson/ecmarkup
   <ul>
     <li><a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax for paragraphs and algorithms</li>
     <li><a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a> for specifying grammar</li>
-    <li>Terse markup for the authoring conventions used in ECMAScript specifications</li>
+    <li>Terse markup for the authoring conventions used in ECMAScript specifications including clauses, notes, examples, figures, tables, and more.</li>
+    <li>Easy cross-references by element ID to clauses, abstract operations, examples, figures, tables, and etc. in the current document, ES6, and other specs.</li>
     <li>Generates table of contents</li>
     <li>Generates clause ids based on document position</li>
     <li>Auto-links abstract operations and terms based on name with support for external bibliographies for cross-referencing between specs</li>
@@ -29,11 +30,12 @@ repository: https://github.com/bterlson/ecmarkup
   <h1>Getting Started</h1>
   <pre>
 npm install -g ecmarkup
+ecmarkup --help
 ecmarkup spec.html out.html
   </pre>
 
   <h2>Stylesheet</h2>
-  <p>Styles are provided by `elements.css` under the `css` directory. You may also link to https://bterlson.github.io/ecmarkup/elements.css which will contain the latest styles for the forseeable future.</p>
+  <p>Styles are provided by `elements.css` under the `css` directory. The --css command line option will emit the CSS file to a location of your choosing. You may also link to https://bterlson.github.io/ecmarkup/elements.css which will contain the latest styles for the forseeable future (though I don't promise this won't break you if you're not tracking the latest version).</p>
 </emu-clause>
 <emu-clause id="metadata">
   <h1>Metadata</h1>
