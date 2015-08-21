@@ -10,6 +10,7 @@ module.exports = require('nomnom')
     css: { metavar: 'FILE', help: 'Write Emu CSS dependencies to FILE' },
     js: { metavar: 'FILE', help: 'Write Emu JS dependencies to FILE' },
     toc: { flag: true, help: 'Don\'t include the table of contents' },
+    oldToc: { full: 'old-toc', name: 'old-toc', flag: true, help: 'Use the old table of contents styling' },
     verbose: { flag: true, default: false, help: 'Display document build progress' },
     version: {
       abbr: 'v',

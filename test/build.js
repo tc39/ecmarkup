@@ -4,8 +4,8 @@ const Promise = require('bluebird');
 
 const build = require('../lib/ecmarkup').build;
 
-const doc = '<!doctype html><emu-clause><h1>hi</h1></emu-clause>';
-const out = '<!doctype html>\n<head></head><body><div><h2>Table of Contents</h2><ol class="toc"><li><a href="#"><span class="secnum">1</span> hi</a></li></ol></div><emu-clause><h1><span class="secnum">1</span>hi<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1></emu-clause></body>';
+const doc = '<!doctype html><pre class=metadata>toc: false</pre><emu-clause><h1>hi</h1></emu-clause>';
+const out = '<!doctype html>\n<head></head><body><emu-clause><h1><span class="secnum">1</span>hi<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1></emu-clause></body>';
 function fetch(file) {
   if (file.match(/\.json$/)) {
     return '{}';

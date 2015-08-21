@@ -1,5 +1,6 @@
 <!doctype html>
-<head></head><body><div><h2>Table of Contents</h2><ol class="toc"><li><a href="#"><span class="secnum"></span> Intro</a><ol class="toc"><li><a href="#"><span class="secnum"></span> Sub Intro</a></li></ol></li><li><a href="#"><span class="secnum">1</span> Clause Foo(<var>a</var>, <var>b</var>)</a><ol class="toc"><li><a href="#Foo"><span class="secnum">1.1</span> Sub Clause</a></li></ol></li><li><a href="#"><span class="secnum">A</span> Annex</a><ol class="toc"><li><a href="#"><span class="secnum">A.1</span> Sub-annex</a></li></ol></li></ol></div><emu-intro>
+<head></head><body class=" oldtoc">
+<div><h2>Table of Contents</h2><ol class="toc"><li><a href="#" title="Intro"><span class="secnum"></span> Intro</a><ol class="toc"><li><a href="#" title="Sub Intro"><span class="secnum"></span> Sub Intro</a></li></ol></li><li><a href="#" title="Clause Foo(_a_, _b_)"><span class="secnum">1</span> Clause Foo(<var>a</var>, <var>b</var>)</a><ol class="toc"><li><a href="#Foo" title="Sub Clause"><span class="secnum">1.1</span> Sub Clause</a></li></ol></li><li><a href="#" title="Annex"><span class="secnum">A</span> Annex</a><ol class="toc"><li><a href="#" title="Sub-annex"><span class="secnum">A.1</span> Sub-annex</a></li></ol></li></ol></div><emu-intro>
   <h1><span class="secnum"></span>Intro<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
   <emu-intro>
     <h1><span class="secnum"></span>Sub Intro<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>

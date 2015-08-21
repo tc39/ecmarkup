@@ -30,6 +30,6 @@ ecmarkup.build(args.infile, fetch, args).then(function (spec) {
   }
 
   if (args.js) {
-    fs.writeFileSync(args.js, fs.readFileSync(Path.join(__dirname, '../js/ecmarkup.js')));
+    fs.writeFileSync(args.js, fs.readFileSync(Path.join(__dirname, '../js/menu.js')));
   }
 });
