@@ -1,0 +1,9 @@
+<!doctype html>
+<head></head><body>
+<emu-clause id="blah">
+<h1><span class="secnum">1</span>blah<span class="utils"><span class="anchor"><a href="#blah">#</a></span></span></h1>
+<p>U+200C (ZERO WIDTH NON-JOINER) is abbreviated "&lt;ZWNJ&gt;"</p>
+<p>&lt;b&gt;also doesn't escape when <emu-val>emd</emu-val> and autolinks to <emu-xref href="#sec-returnifabrupt"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-returnifabrupt">ReturnIfAbrupt</a></emu-xref> are present.</p>
+<p>Escpaing inside xref is preserved:  <emu-xref id="#blah">&lt;b&gt;</emu-xref>.</p>
+</emu-clause>
+</body>
