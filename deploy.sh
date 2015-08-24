@@ -6,8 +6,7 @@ rm -rf out || exit 0;
 mkdir out;
 
 # run our compile script, discussed above
-node bin/ecmarkup spec/index.html out/index.html
-cp css/elements.css out/elements.css
+node bin/ecmarkup spec/index.html out/index.html --css out/elements.css --js out/ecmarkup.js
 
 # go to the out directory and create a *new* Git repo
 cd out
