@@ -86,7 +86,7 @@ emu-eqn div:first-child {
 
 emu-note {
     display: block;
-    margin-left: 6em;
+    margin: 1em 0 1em 6em;
     color: #666;
 }
 
