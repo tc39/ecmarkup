@@ -6,6 +6,7 @@ module.exports = require('nomnom')
   .help('Compile ecmarkup documents to html by passing your input file and output file.')
   .options({
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
+    watch: { abbr: 'w', flag: true, help: 'Rebuild when files change' },
     biblio: { abbr: 'b', metavar: 'FILE', help: 'Write a biblio file to FILE' },
     css: { metavar: 'FILE', help: 'Write Emu CSS dependencies to FILE' },
     js: { metavar: 'FILE', help: 'Write Emu JS dependencies to FILE' },

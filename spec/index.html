@@ -35,6 +35,18 @@ ecmarkup --help
 ecmarkup spec.html out.html
   </pre>
 
+  <h2>Useful Options</h2>
+  <table>
+    <tr><th>Option</th><th>Description</th></tr>
+    <tr><td>watch</td><td>Rebuild when files change</td></tr>
+    <tr><td>verbose</td><td>Print verbose logging info</td></tr>
+    <tr><td>biblio</td><td>Emit a biblio file to the specified location</td></tr>
+    <tr><td>css</td><td>Emit the Ecmarkup CSS file to the specified location</td></tr>
+    <tr><td>js</td><td>Emit the Ecmarkup JS file to the specified location</td></tr>
+    <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
+    <tr><td>old-toc</td><td>Emit the old style of table of contents. Boolean, default false.</td></tr>
+  </table>
+
   <h2>Stylesheet</h2>
   <p>Styles are provided by `elements.css` under the `css` directory. The --css command line option will emit the CSS file to a location of your choosing. You may also link to https://bterlson.github.io/ecmarkup/elements.css which will contain the latest styles for the forseeable future (though I don't promise this won't break you if you're not tracking the latest version).</p>
 </emu-clause>
@@ -42,11 +54,7 @@ ecmarkup spec.html out.html
   <h1>Metadata</h1>
   <p>There are a number of settings that allow customizations or enable generation of boilerplate. Metadata can be included in the document and passed on the command line, for example `--no-toc --title "Document 1"`. Metadata given on the command line takes precedence.</p>
   <p>To add metadata to your document, use yaml syntax inside a `&lt;pre class=metadata>` element somewhere in the root of your document.</p>
-  <p>The following table lists the currently supported metadata:</p>
-  <table>
-    <tr><th>Option</th><th>Description</th></tr>
-    <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
-  </table>
+  <p>All of the command line options can be provided in the metadata block. See the table above for a list (or consult `--help`).</p>
   <h2>Example document with metadata</h2>
 <pre><code class="language-html">
 &lt;pre class=metadata>
