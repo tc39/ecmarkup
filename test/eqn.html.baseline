@@ -1,8 +1,9 @@
 <!doctype html>
 <head><link rel="stylesheet" href="./css/elements.css">
 </head><body>
-<emu-clause id="#sec-example">
-  <h1><span class="secnum">1</span>Header<span class="utils"><span class="anchor"><a href="##sec-example">#</a></span></span></h1>
+<emu-clause id="sec-example">
+  <h1><span class="secnum">1</span>Header<span class="utils"><span class="anchor"><a href="#sec-example">#</a></span></span></h1>
+  <p>Can refer to eqns inside paragraph text via autolinking: <emu-xref aoid="DateValue"><a href="#DateValue">DateValue</a></emu-xref>.</p>
   <emu-alg><ol><li>Return <a href="#Value">Value</a>(<var>val</var>);</li></ol></emu-alg>
 
   <emu-eqn aoid="Value2"><div><a href="#Value2">Value2</a>(<var>t</var>)</div><div>      = <a href="#DateValue">DateValue</a>(<var>t</var>) if <a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-data-types-and-values">Type</a>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
