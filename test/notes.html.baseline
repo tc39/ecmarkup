@@ -1,5 +1,5 @@
 <!doctype html>
-<head></head><body>
+<head><meta charset="utf-8"></head><body>
 <emu-note>This is a note. Since it is outside a clause it is unstyled.</emu-note>
 
 <emu-clause id="sec-this">

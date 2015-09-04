@@ -1,5 +1,5 @@
 <!doctype html>
-<head></head><body>
+<head><meta charset="utf-8"></head><body>
 <emu-intro id="sec-intro">
   <h1><span class="secnum"></span>Intro<span class="utils"><span class="anchor"><a href="#sec-intro">#</a></span></span></h1>
   <p>Forward references to <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> work.</p>

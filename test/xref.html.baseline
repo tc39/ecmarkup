@@ -1,5 +1,5 @@
 <!doctype html>
-<head></head><body>
+<head><meta charset="utf-8"></head><body>
 <emu-biblio href="./xrefTestBiblio.json"></emu-biblio>
 <emu-clause id="sec-clause-id">
   <h1><span class="secnum">1</span>Clause Title<span class="utils"><span class="anchor"><a href="#sec-clause-id">#</a></span></span></h1>

@@ -1,5 +1,5 @@
 <!doctype html>
-<head></head><body>
+<head><meta charset="utf-8"></head><body>
 <link rel="stylesheet" href="css/elements.css">
 <emu-figure id="figure-1"><figure><figcaption>Figure 1</figcaption>
   this is a figure!

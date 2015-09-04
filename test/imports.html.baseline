@@ -1,5 +1,5 @@
 <!doctype html>
-<head></head><body>
+<head><meta charset="utf-8"></head><body>
 <emu-import href="imports/import1.html"><emu-clause id="Baz" aoid="Baz">
   <h1><span class="secnum">1</span>Header<span class="utils"><span class="anchor"><a href="#Baz">#</a></span></span></h1>
   <p>text</p>

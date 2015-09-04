@@ -1,6 +1,6 @@
 <!doctype html>
 <head><link rel="stylesheet" href="./css/elements.css">
-</head><body>
+<meta charset="utf-8"></head><body>
 <emu-clause id="sec-example">
   <h1><span class="secnum">1</span>Header<span class="utils"><span class="anchor"><a href="#sec-example">#</a></span></span></h1>
   <p>Can refer to eqns inside paragraph text via autolinking: <emu-xref aoid="DateValue"><a href="#DateValue">DateValue</a></emu-xref>.</p>
