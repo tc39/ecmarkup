@@ -5,6 +5,13 @@
 
 <emu-clause id="sec-internal" aoid="Internal">
   <h1><span class="secnum">1</span>Internal Function<span class="utils"><span class="anchor"><a href="#sec-internal">#</a></span></span></h1>
-  <p>Can refer to functions in prose, eg. Internal.</p>
+</emu-clause>
+<emu-clause id="sec-ref">
+  <h1><span class="secnum">2</span>Refs<span class="utils"><span class="anchor"><a href="#sec-ref">#</a></span></span></h1>
+  <p>Can refer to functions in prose, eg. <emu-xref aoid="Internal"><a href="#sec-internal">Internal</a></emu-xref>.</p>
+  <p><emu-xref aoid="Internal"><a href="#sec-internal">Internal</a></emu-xref> works if <emu-xref aoid="Internal"><a href="#sec-internal">Internal</a></emu-xref> is in the middle of the prose.</p>
+  <p>Don't autolink references inside square brackets, eg: [[Internal]].
+  Likewise, percent things: %%Internal%%.
+  Likewise, mentions of Internal.foo.</p>
 </emu-clause>
 </body>
