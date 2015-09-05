@@ -4,6 +4,7 @@
   this is a figure!
 </emu-figure>
 
+<!-- deprecated: caption element -->
 <emu-figure id="figure-2" informative caption="Informative figure">
   this is a figure!
 </emu-figure>
@@ -21,6 +22,35 @@
 </emu-table>
 
 <emu-table id="table-2" caption="An example table 2" informative>
+  <table>
+    <tr><th>Column 1</th><th>Column 2</th></tr>
+    <tr><td>Value</td><td>Value 2</td></tr>
+    <tr><td>Value</td><td>Value 2</td></tr>
+    <tr><td>Value</td><td>Value 2</td></tr>
+    <tr><td>Value</td><td>Value 2</td></tr>
+  </table>
+</emu-table>
+
+<emu-figure id="figure-2" informative>
+  <emu-caption>This is the caption</emu-caption>
+  this is a figure!
+</emu-figure>
+
+<emu-table id="table-1">
+  <emu-caption>This is a table</emu-caption>
+  <table>
+    <thead>
+      <tr><td>Column 1</td><td>Column 2</td></tr>
+    </thead>
+    <tr><td>Value</td><td>Value 2</td></tr>
+    <tr><td>Value</td><td>Value 2</td></tr>
+    <tr><td>Value</td><td>Value 2</td></tr>
+    <tr><td>Value</td><td>Value 2</td></tr>
+  </table>
+</emu-table>
+
+<emu-table id="table-2" informative>
+  <emu-caption>This is a <b>second</b> table</emu-caption>
   <table>
     <tr><th>Column 1</th><th>Column 2</th></tr>
     <tr><td>Value</td><td>Value 2</td></tr>

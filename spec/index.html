@@ -165,32 +165,34 @@ toc: false
 
 <emu-clause id="emu-figure">
   <h1>emu-figure</h1>
-  <p>Creates a figure that can be xrefed by ID using the `emu-xref` element.</p>
+  <p>Creates a figure that can be xrefed by ID using the `emu-xref` element. Add a caption using a child `emu-caption` element.</p>
   <h2>Attributes</h2>
-  <p><b>caption:</b> Optional: Caption for the example</p>
   <p><b>informative:</b> Optional: If present, the figure is informative. Otherwise it is normative.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
-  &lt;emu-figure caption="Example figure">
+  &lt;emu-figure>
+    &lt;emu-caption>Example figure&lt;emu-caption>
     [[insert some awesome graphic here, maybe something like figure 2]]
   &lt;/emu-figure>
   </code></pre>
-  <emu-figure caption="Example figure">
+  <emu-figure>
+    <emu-caption>Example figure<emu-caption>
     [[insert some awesome graphic here, maybe something like figure 2]]
   </emu-figure>
 </emu-clause>
 
 <emu-clause id="emu-table">
   <h1>emu-table</h1>
-  <p>Creates a table that can be xrefed by ID using the `emu-xref` element.</p>
+  <p>Creates a table that can be xrefed by ID using the `emu-xref` element. Add a caption using a child `emu-caption` element.</p>
   <h2>Attributes</h2>
   <p><b>caption:</b> Optional: Caption for the example</p>
   <p><b>informative:</b> Optional: If present, the table is informative. Otherwise it is normative.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
-  &lt;emu-table caption="Example table">
+  &lt;emu-table>
+    &lt;emu-caption>Example table&lt;emu-caption>
     &lt;table>
       &lt;tr>&lt;th>Column 1&lt;/th>&lt;th>Column 2&lt;/th>&lt;/tr>
       &lt;tr>&lt;td>Value&lt;/td>&lt;td>Value 2&lt;/td>&lt;/tr>
@@ -200,7 +202,8 @@ toc: false
     &lt;/table>
   &lt;/emu-table>
   </code></pre>
-  <emu-table caption="Example table">
+  <emu-table>
+    <emu-caption>Example table<emu-caption>
     <table>
       <tr><th>Column 1</th><th>Column 2</th></tr>
       <tr><td>Value</td><td>Value 2</td></tr>
