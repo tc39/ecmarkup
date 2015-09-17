@@ -63,7 +63,7 @@ ecmarkup spec.html out.html
     <p>There are a large number of features in Ecmarkup. Detailed documentation can be found in later sections. This section provides a high-level overview of what capabilities are available and when to use them.</p>
 
     <emu-table>
-      <emu-caption>Structuring your Ecmarkup Document</emu-caption>
+      <emu-caption>Structuring your Ecmarkup document</emu-caption>
       <table>
         <tr><th>Notational Convention</th><th>Ecmarkup Functionality</th></tr>
         <tr><td>Clauses</td><td><emu-xref href="#emu-clause" title></emu-xref>, <emu-xref href="#emu-intro" title></emu-xref>, and <emu-xref href="#emu-annex" title></emu-xref></td></tr>
@@ -81,12 +81,36 @@ ecmarkup spec.html out.html
     <emu-table id="emd-overview">
       <emu-caption>Inline styles/conventions</emu-caption>
       <table>
-        <tr><th style="width:50%">Notational Convention</th><th>Ecmarkup Functionality</th><th>Ecmarkdown Syntax</th></tr>
-        <tr><td>Variables, such as those in defined in algorithms, parameters in abstract operations, etc.</td><td>`&lt;var>variable&lt;/var>`</td><td>`_variable_`</td></tr>
-        <tr><td>ECMAScript Language Type Values, eg. *undefined*, *true*, *1*, *"string"*, *TypeError*, etc.</td><td>`&lt;emu-val>TypeError&lt;/emu-val>`</td><td>`*TypeError*`</td></tr>
-        <tr><td>Specification types and their instances, eg. ~throw~ and ~empty~.</td><td>`&lt;emu-const>throw&lt;emu-const>`</td><td>`~throw~`</td></tr>
-        <tr><td>Source Code</td><td>`&lt;code>code&lt;/code>`</td><td>`\`code\``</td></tr>
-        <tr><td>Non-terminal references, eg. as |FunctionDeclaration| and |FunctionExpression|.</td><td>`&lt;emu-xref`<br>`id="#prod-FunctionExpression">`<br>`&lt;/emu-xref>`</td><td>`|FunctionExpression|`</td></tr>
+        <tr>
+          <th>Notational Convention</th>
+          <th>Ecmarkdown Syntax</th>
+          <th>Ecmarkup Functionality</th>
+        </tr>
+        <tr>
+          <td>Variables, such as those in defined in algorithms, parameters in abstract operations, etc.</td>
+          <td>`_variable_`</td>
+          <td>`&lt;var>variable&lt;/var>`</td>
+        </tr>
+        <tr>
+          <td>ECMAScript Language Type Values, eg. *undefined*, *true*, *1*, *"string"*, *TypeError*, etc.</td>
+          <td>`*TypeError*`</td>
+          <td>`&lt;emu-val>TypeError&lt;/emu-val>`</td>
+        </tr>
+        <tr>
+          <td>Specification types and their instances, eg. ~throw~ and ~empty~.</td>
+          <td>`~throw~`</td>
+          <td>`&lt;emu-const>throw&lt;emu-const>`</td>
+        </tr>
+        <tr>
+          <td>Source Code, eg. `Function.prototype`.</td>
+          <td>`\`code\``</td>
+          <td>`&lt;code>code&lt;/code>`</td>
+        </tr>
+        <tr>
+          <td>Non-terminal references, eg. as |FunctionDeclaration| and |FunctionExpression|.</td>
+          <td>`|FunctionExpression|`</td>
+          <td>`&lt;emu-xref`<br>`id="#prod-FunctionExpression">`<br>`&lt;/emu-xref>`</td>
+        </tr>
       </table>
     </emu-table>
   </emu-clause>
