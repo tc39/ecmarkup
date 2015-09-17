@@ -54,31 +54,38 @@
 
   <emu-clause id="sec-abstract-op" aoid="AbstractOp">
     <h1><span class="secnum">1.1</span>AbstractOp<span class="utils"><span class="anchor"><a href="#sec-abstract-op">#</a></span></span></h1>
-    <emu-alg><ol><li>Return.</li></ol></emu-alg>
+    <emu-alg><ol><li>Return.
+    </li></ol></emu-alg>
 
     <emu-example id="example-2" caption="Foo Caption"><figure><figcaption>Example 1 (Informative): Foo Caption</figcaption>
       This is an example
+    
     </figure></emu-example>
 
     <emu-example id="example-3" caption="Foo Caption"><figure><figcaption>Example 2 (Informative): Foo Caption</figcaption>
       This is an example
+    
     </figure></emu-example>
 
     <emu-note id="note-1"><span class="note">Note</span>
       This is another note
+    
     </emu-note>
   </emu-clause>
 
   <emu-example id="example-1" caption="Foo Caption"><figure><figcaption>Example (Informative): Foo Caption</figcaption>
     This is an example
+  
   </figure></emu-example>
 
   <emu-note id="note-2"><span class="note">Note</span>
     This is a note!
+  
   </emu-note>
 
   <emu-figure id="figure-1"><figure><figcaption>Figure 1</figcaption>
     this is a figure!
+  
   </figure></emu-figure>
 
   <emu-table id="table-1" caption="An example table"><figure><figcaption>Table 1: An example table</figcaption>

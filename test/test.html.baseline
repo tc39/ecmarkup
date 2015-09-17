@@ -29,12 +29,14 @@
   <emu-import href="sub/import3.html"><emu-clause id="import3">
   <h1><span class="secnum">1.3.1</span>Import 3<span class="utils"><span class="anchor"><a href="#import3">#</a></span></span></h1>
   wtf??
+
 </emu-clause>
 </emu-import>
 </emu-clause>
 </emu-import>
 
-  <emu-alg><ol><li>Call <a href="#Foo">Foo</a>(<var>a</var>).</li><li>Call <a href="#Bar">Bar</a>(<code>toString</code>).</li><li>Call <a href="#Baz">Baz</a>(<emu-val>true</emu-val>).<ol><li>Do something else.</li><li>And again.</li></ol></li></ol></emu-alg>
+  <emu-alg><ol><li>Call <a href="#Foo">Foo</a>(<var>a</var>).</li><li>Call <a href="#Bar">Bar</a>(<code>toString</code>).</li><li>Call <a href="#Baz">Baz</a>(<emu-val>true</emu-val>).<ol><li>Do something else.</li><li>And again.
+  </li></ol></li></ol></emu-alg>
 
   <emu-note><span class="note">Note</span>Note!</emu-note>
 

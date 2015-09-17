@@ -18,7 +18,8 @@
 
   <p>Also terms are auto-linked in algorithms. But not naked abstract ops!</p>
 
-  <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.</li></ol></emu-alg>
+  <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.
+  </li></ol></emu-alg>
 </emu-clause>
 
 <p>dfn is not auto-linked outside of clauses. Nor are terms created, such as <dfn>linking</dfn>.</p>
