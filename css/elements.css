@@ -149,8 +149,10 @@ emu-oneof {
 }
 
 emu-nt {
+    display: inline-block;
     font-style: italic;
     white-space: nowrap;
+    text-indent: 0;
 }
 
 emu-nt a, emu-nt a:visited {
@@ -162,8 +164,11 @@ emu-rhs emu-nt {
 }
 
 emu-t {
+    display: inline-block;
     font-family: monospace;
     font-weight: bold;
+    white-space: nowrap;
+    text-indent: 0;
 }
 
 emu-production emu-t {
