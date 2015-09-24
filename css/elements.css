@@ -164,6 +164,7 @@ emu-rhs emu-nt {
 emu-t {
     font-family: monospace;
     font-weight: bold;
+    white-space: nowrap;
 }
 
 emu-production emu-t {
