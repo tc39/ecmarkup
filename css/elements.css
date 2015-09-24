@@ -422,7 +422,7 @@ del.block {
 }
 
 #menu-toc li.active > .item-toggle {
-  transform: rotate(0);
+  transform: rotate(45deg) translate(-5px, -5px);
 }
 
 #menu-toc li > ol {
