@@ -206,6 +206,20 @@ emu-gprose {
     font-family: Helvetica, Arial, sans-serif;
 }
 
+h1.shortname {
+  color: #f60;
+  font-size: 1.5em;
+  margin: 0;
+}
+h1.version {
+  color: #f60;
+  font-size: 1.5em;
+  margin: 0;
+}
+h1.title {
+  margin-top: 0;
+  color: #f60;
+}
 h1, h2, h3, h4, h5, h6 {
     position: relative;
 }

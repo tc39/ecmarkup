@@ -5,7 +5,6 @@
 <link rel="stylesheet" href="elements.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/solarized_light.min.css">
 <pre class=metadata>
-title: Ecmarkup Documentation
 repository: https://github.com/bterlson/ecmarkup
 </pre>
 <emu-biblio href="./biblio.json"></emu-biblio>
@@ -37,9 +36,9 @@ ecmarkup spec.html out.html
 
   <emu-clause id="useful-options">
     <h1>Useful Options</h1>
-    <p>These options can be passed in via the command line or specified in the front-matter of your document.</p>
-    <emu-table>
-      <emu-caption>Listing of available options</emu-caption>
+    <p>Build options and document options can be passed in via the command line or specified in the front-matter of your document.</p>
+    <emu-table id="build-options">
+      <emu-caption>Build options</emu-caption>
       <table>
         <tr><th>Option</th><th>Description</th></tr>
         <tr><td>watch</td><td>Rebuild when files change</td></tr>
@@ -47,6 +46,18 @@ ecmarkup spec.html out.html
         <tr><td>biblio</td><td>Emit a biblio file to the specified location</td></tr>
         <tr><td>css</td><td>Emit the Ecmarkup CSS file to the specified location</td></tr>
         <tr><td>js</td><td>Emit the Ecmarkup JS file to the specified location</td></tr>
+      </table>
+    </emu-table>
+
+    <emu-table id="document-options">
+      <emu-caption>Document options</emu-caption>
+      <table>
+        <tr><th>Option</th><th>Description</th></tr>
+        <tr><td>title</td><td>Title of specification, for example `ECMAScript 2016` or `Async Functions`.</td></tr>
+        <tr><td>status</td><td>Status of specification. Can be `proposal`, `draft`, or `standard`. Default is `proposal`.</td></tr>
+        <tr><td>stage</td><td>Stage of proposal. Must be a number if provided, but is optional. Sets `version` to `Stage N Draft`, but can be overridden.</td></tr>
+        <tr><td>version</td><td>Version of specification, for example `6<sup>th</sup> Edition` or `Draft 1`. Optional.</td></tr>
+        <tr><td>shortname</td><td>Shortname of specification, for example `ECMA-262` or `ECMA-402`.</td></tr>
         <tr><td>location</td><td>Href of this specification. Use in conjunction with the biblio file to enable external specs to reference this one.</td></tr>
         <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
         <tr><td>old-toc</td><td>Emit the old style of table of contents. Boolean, default false.</td></tr>
@@ -119,7 +130,7 @@ ecmarkup spec.html out.html
   <h1>Metadata</h1>
   <p>There are a number of settings that allow customizations or enable generation of boilerplate. Metadata can be included in the document and passed on the command line, for example `--no-toc --title "Document 1"`. Metadata given on the command line takes precedence.</p>
   <p>To add metadata to your document, use yaml syntax inside a `&lt;pre class=metadata>` element somewhere in the root of your document.</p>
-  <p>All of the command line options can be provided in the metadata block. See the table above for a list (or consult `--help`).</p>
+  <p>All of the command line options can be provided in the metadata block. See <emu-xref href="#build-options"></emu-xref> and <emu-xref href="#document-options"></emu-xref> for a list (or consult `--help`).</p>
   <h2>Example document with metadata</h2>
 <pre><code class="language-html">
 &lt;pre class=metadata>
