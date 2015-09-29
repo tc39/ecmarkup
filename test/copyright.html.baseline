@@ -1,6 +1,8 @@
 <!doctype html>
 <head><title>test title!</title><meta charset="utf-8"></head><body><h1 class="version">Draft 1 / September 26, 2014</h1><h1 class="title">test title!</h1>
-<emu-annex id="sec-copyright-and-software-license">
+<emu-clause>
+  <h1><span class="secnum">1</span>Test Clause<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
+</emu-clause><emu-annex id="sec-copyright-and-software-license">
       <h1><span class="secnum">A</span>Copyright &amp; Software License<span class="utils"><span class="anchor"><a href="#sec-copyright-and-software-license">#</a></span></span></h1>
       <h2>Copyright Notice</h2>
       <p>© 2014 Ecma International</p>
@@ -26,4 +28,5 @@
 
 <p>THIS SOFTWARE IS PROVIDED BY THE ECMA INTERNATIONAL "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ECMA INTERNATIONAL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 
-    </emu-annex></body>
+    </emu-annex>
+</body>
