@@ -1,5 +1,5 @@
 <!doctype html>
-<head><title>test title!</title><meta charset="utf-8"></head><body><h1 class="version">Draft 1 / September 26, 2015</h1><h1 class="title">test title!</h1>
+<head><meta charset="utf-8"><title>test title!</title></head><body><h1 class="version">Draft 1 / September 26, 2015</h1><h1 class="title">test title!</h1>
 
 <p>Some body content</p>
 </body>
