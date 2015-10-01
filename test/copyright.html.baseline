@@ -4,6 +4,13 @@
   <h1><span class="secnum">1</span>Test Clause<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
 </emu-clause><emu-annex id="sec-copyright-and-software-license">
       <h1><span class="secnum">A</span>Copyright &amp; Software License<span class="utils"><span class="anchor"><a href="#sec-copyright-and-software-license">#</a></span></span></h1>
+      <p class="ECMAaddress">Ecma International</p>
+<p class="ECMAaddress">Rue du Rhone 114</p>
+<p class="ECMAaddress">CH-1204 Geneva</p>
+<p class="ECMAaddress">Tel: +41 22 849 6000</p>
+<p class="ECMAaddress">Fax: +41 22 849 6001</p>
+<p class="ECMAaddress">Web:  <a href="http://www.ecma-international.org">http://www.ecma-international.org</a></p>
+
       <h2>Copyright Notice</h2>
       <p>© 2014 Ecma International</p>
 
