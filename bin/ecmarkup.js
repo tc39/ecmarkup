@@ -43,7 +43,7 @@ const build = debounce(function build() {
 
     if (args.js) {
       if (args.verbose) {
-        utils.logVerbose('Writing css file to ' + args.css);
+        utils.logVerbose('Writing js file to ' + args.js);
       }
       fs.writeFileSync(args.js, fs.readFileSync(Path.join(__dirname, '../js/menu.js')));
     }
