@@ -1,6 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
-<link rel="stylesheet" href="./ecmarkup.css">
+<link rel="stylesheet" href="css/elements.css">
 <script src="ecmarkup.js"></script>
 <pre class="metadata">
 title:     Ecmarkup Test Document
@@ -71,10 +71,13 @@ copyright: false
     <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="Identifier" type="lexical">
-    <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
-    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
-  </emu-production>
+  <p>
+    Inline production:
+    <emu-production name="Identifier" type="lexical" collapsed>
+      <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
+      <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
+    </emu-production>
+  </p>
 
   <emu-production name="EnumDeclaration">
     <emu-rhs>
@@ -102,6 +105,7 @@ copyright: false
   </emu-grammar>
 
   <emu-prodref name="FooBar" a="a"></emu-prodref>
+  <p>Inline prodref: <emu-prodref name="FooBar" a="a" collapsed></emu-prodref></p>
 
   <pre><code class="language-javascript">
     function test() { };
@@ -111,6 +115,9 @@ copyright: false
   <emu-xref href="#Bar">With link text</emu-xref>
   <emu-xref href="#Bar"></emu-xref>
   <emu-xref href="#Bar" title></emu-xref>
+
+  <!-- test block collapsed emu-grammar -->
+  <emu-grammar>FunctionDeclaration : `function` BindingIdentifier `(` FormalParameters `)` `{` FunctionBody `}`</emu-grammar>
 </emu-clause>
 
 <emu-annex>

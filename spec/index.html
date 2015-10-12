@@ -448,16 +448,23 @@ toc: false
   <emu-clause id="emu-grammar">
     <h1>emu-grammar</h1>
     <p>Text inside emu-grammar elements is parsed using <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a>. The syntax is essentially identical to the notational conventions in ECMAScript (minus formatting). See the <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown readme</a>.</p>
+    <p>Grammar will be displayed as an "inline" element flowing with text unless it is the immediate child of an emu-clause-like element.</p>
+    <h2>Attributes</h2>
+    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
   </emu-clause>
 
   <emu-clause id="emu-production">
     <h1>emu-production</h1>
     <p>This is the top level element that contains all grammar productions. Each production MUST include at least one right-hand side (see <a href="#emu-rhs">emu-rhs</a>).</p>
+    <p>The production will be displayed as an "inline" element flowing with text unless it is the immediate child of an emu-clause-like element or if its containing emu-grammar element is an immediate child of an emu-clause-like element.</p>
+    <h2>Attributes</h2>
     <h2>Attributes</h2>
     <p><b>Name:</b> Required. Name of the production (i.e. the non-terminal on the LHS).</p>
     <p><b>Params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
     <p><b>Type:</b> Type of production, either "lexical" or "regexp". Default is blank (normal).</p>
     <p><b>oneof:</b> If present, production is a one-of production. See DecimalDigit example above.</p>
+    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
   </emu-clause>
 
   <emu-clause id="emu-rhs">

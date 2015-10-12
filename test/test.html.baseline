@@ -1,6 +1,6 @@
 <!doctype html>
 <head><meta charset="utf-8">
-<link rel="stylesheet" href="./ecmarkup.css">
+<link rel="stylesheet" href="css/elements.css">
 <script src="ecmarkup.js"></script>
 <title>Ecmarkup Test Document</title></head><body><div id="menu-toggle">☰</div><div id="menu"><div id="menu-toc"><ol class="toc"><li><span class="item-toggle">◢</span><a href="#" title="Intro"><span class="secnum"></span> Intro</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#" title="Sub Intro"><span class="secnum"></span> Sub Intro</a></li></ol></li><li><span class="item-toggle">◢</span><a href="#" title="Clause Foo(_a_, _b_)"><span class="secnum">1</span> Clause Foo(<var>a</var>, <var>b</var>)</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#Foo" title="Sub Clause"><span class="secnum">1.1</span> Sub Clause</a></li><li><span class="item-toggle-none"></span><a href="#Bar" title="Sub Clause"><span class="secnum">1.2</span> Sub Clause</a></li><li><span class="item-toggle">◢</span><a href="#Baz" title="Header"><span class="secnum">1.3</span> Header</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#import3" title="Import 3"><span class="secnum">1.3.1</span> Import 3</a></li></ol></li></ol></li><li><span class="item-toggle-none"></span><a href="#" title="Annex"><span class="secnum">A</span> Annex</a></li></ol></div></div><h1 class="version">Draft 1 / September 26, 2015</h1><h1 class="title">Ecmarkup Test Document</h1>
 <emu-intro>
@@ -70,10 +70,14 @@
     <emu-rhs><emu-nt><a href="#prod-ExpressionStatement">ExpressionStatement</a><emu-mods></emu-mods></emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="Identifier" type="lexical" id="prod-Identifier">
-    <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-IdentifierName">IdentifierName</a><emu-mods></emu-mods></emu-nt><emu-gmod>but not
-    <emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-ReservedWord">ReservedWord</a><emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
-  </emu-production>
+  <p>
+    Inline production:
+    
+    <emu-production name="Identifier" type="lexical" collapsed="" id="prod-Identifier" class=" inline">
+      <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-IdentifierName">IdentifierName</a><emu-mods></emu-mods></emu-nt><emu-gmod>but not
+      <emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-ReservedWord">ReservedWord</a><emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
+    </emu-production>
+  </p>
 
   <emu-production name="EnumDeclaration" id="prod-EnumDeclaration">
     <emu-nt><a href="#prod-EnumDeclaration">EnumDeclaration</a><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t optional="">const<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-t><emu-t>enum</emu-t><emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-t>{</emu-t><emu-nt optional="">EnumBody<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt><emu-t>}</emu-t></emu-rhs>
@@ -84,10 +88,10 @@
     <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-t>DummyIdentifier</emu-t></emu-rhs>
   </emu-production>
 
-  <emu-production name="Identifier" type="lexical" id="prod-Identifier">
-    <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-IdentifierName">IdentifierName</a><emu-mods></emu-mods></emu-nt><emu-gmod>but not
-    <emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-ReservedWord">ReservedWord</a><emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
-  </emu-production>
+  <emu-production name="Identifier" type="lexical" collapsed="" id="prod-Identifier" class=" inline">
+      <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-IdentifierName">IdentifierName</a><emu-mods></emu-mods></emu-nt><emu-gmod>but not
+      <emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-ReservedWord">ReservedWord</a><emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
+    </emu-production>
   <emu-production name="ArgumentList" id="prod-ArgumentList" a="a">
     <emu-nt><a href="#prod-ArgumentList">ArgumentList</a><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-AssignmentExpression">AssignmentExpression</a><emu-mods></emu-mods></emu-nt></emu-rhs></emu-production>
 
@@ -98,6 +102,8 @@
 
   <emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar" a="a">
     <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production>
+  <p>Inline prodref:  <emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar" a="a" collapsed="" class=" inline">
+    <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production></p>
 
   <pre><code class="language-javascript hljs">
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };
@@ -107,6 +113,11 @@
   <emu-xref href="#Bar"><a href="#Bar">With link text</a></emu-xref>
   <emu-xref href="#Bar"><a href="#Bar">1.2</a></emu-xref>
   <emu-xref href="#Bar" title=""><a href="#Bar">Sub Clause</a></emu-xref>
+
+  <!-- test block collapsed emu-grammar -->
+  <emu-grammar collapsed=""><emu-production name="FunctionDeclaration" id="prod-FunctionDeclaration">
+    <emu-nt><a href="#prod-FunctionDeclaration">FunctionDeclaration</a><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="81739a57"><emu-t>function</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-BindingIdentifier">BindingIdentifier</a><emu-mods></emu-mods></emu-nt><emu-t>(</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-FormalParameters">FormalParameters</a><emu-mods></emu-mods></emu-nt><emu-t>)</emu-t><emu-t>{</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-FunctionBody">FunctionBody</a><emu-mods></emu-mods></emu-nt><emu-t>}</emu-t></emu-rhs>
+</emu-production></emu-grammar>
 </emu-clause>
 
 <emu-annex>

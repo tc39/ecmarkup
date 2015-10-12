@@ -115,15 +115,20 @@ emu-production {
 }
 
 
-emu-grammar.inline emu-production, emu-production.inline {
-    display: inline;
+emu-grammar.inline, emu-production.inline,
+emu-grammar.inline emu-production emu-rhs, emu-production.inline emu-rhs {
+  display: inline;
+}
+
+emu-grammar[collapsed] emu-production, emu-production[collapsed] {
     margin: 0;
 }
 
-emu-grammar.inline emu-production emu-rhs, emu-production.inline emu-rhs {
+emu-grammar[collapsed] emu-production emu-rhs, emu-production[collapsed] emu-rhs {
     display: inline;
     padding-left: 1ex;
 }
+
 emu-constraints {
     font-size: .75em;
     margin-right: 1ex;
