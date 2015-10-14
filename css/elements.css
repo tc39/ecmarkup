@@ -56,6 +56,10 @@ ol.toc ol.toc {
     list-style: none;
 }
 
+var {
+  color: #2aa198;
+}
+
 emu-const {
   font-family: sans-serif;
 }
