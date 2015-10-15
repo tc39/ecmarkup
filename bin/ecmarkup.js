@@ -12,8 +12,16 @@ const readFile = Promise.promisify(fs.readFile);
 const utils = require('../lib/utils');
 const debounce = require('promise-debounce');
 
+const jsDependencies = ['menu.js', 'findLocalReferences.js'];
+
 function fetch(path) {
   return readFile(path, 'utf8');
+}
+
+function concatJs() {
+  return jsDependencies.reduce(function (js, dependency) {
+    return js + fs.readFileSync(Path.join(__dirname, '../js/' + dependency));
+  }, '');
 }
 
 const build = debounce(function build() {
@@ -45,7 +53,7 @@ const build = debounce(function build() {
       if (args.verbose) {
         utils.logVerbose('Writing js file to ' + args.js);
       }
-      fs.writeFileSync(args.js, fs.readFileSync(Path.join(__dirname, '../js/menu.js')));
+      fs.writeFileSync(args.js, concatJs());
     }
 
     return spec;
