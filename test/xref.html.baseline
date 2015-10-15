@@ -102,6 +102,6 @@
 </emu-clause>
 
 <emu-grammar><emu-production name="TestProduction" type="lexical" id="prod-TestProduction">
-    <emu-nt><a href="#prod-TestProduction">TestProduction</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="1"><emu-t>np</emu-t><emu-t>np</emu-t></emu-rhs>
+    <emu-nt><a href="#prod-TestProduction">TestProduction</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="1"><emu-t>np</emu-t><emu-t>np</emu-t></emu-rhs>
 </emu-production></emu-grammar>
 </body>
