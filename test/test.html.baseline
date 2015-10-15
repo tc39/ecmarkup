@@ -92,7 +92,7 @@
       <emu-nt><a href="#prod-Identifier">Identifier</a><emu-mods></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-IdentifierName">IdentifierName</a><emu-mods></emu-mods></emu-nt><emu-gmod>but not
       <emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-ReservedWord">ReservedWord</a><emu-mods></emu-mods></emu-nt></emu-gmod></emu-rhs>
     </emu-production>
-  <emu-production name="ArgumentList" id="prod-ArgumentList" a="a">
+  <emu-production name="ArgumentList" id="prod-ArgumentList" a="a" collapsed="">
     <emu-nt><a href="#prod-ArgumentList">ArgumentList</a><emu-mods></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-AssignmentExpression">AssignmentExpression</a><emu-mods></emu-mods></emu-nt></emu-rhs></emu-production>
 
   <emu-grammar><emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar">
@@ -100,7 +100,7 @@
     <emu-rhs a="b"><emu-t>baz</emu-t></emu-rhs>
 </emu-production></emu-grammar>
 
-  <emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar" a="a">
+  <emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar" a="a" collapsed="">
     <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production>
   <p>Inline prodref:  <emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar" a="a" collapsed="" class=" inline">
     <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production></p>
