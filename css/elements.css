@@ -472,6 +472,36 @@ del.block {
   color: #B6C8E4;
 }
 
+#menu-search {
+  color: #B6C8E4;
+}
+
+#menu-search-box {
+  display: block;
+  width: 90%;
+  margin: 5px auto;
+  font-size: 1em;
+  padding: 2px;
+}
+
+#menu-search-results.inactive {
+  display: none;
+}
+
+#menu-search-results ul {
+  list-style-type: square;
+  padding: 0 0 0 35px;
+  margin: 0;
+}
+
+#menu-search-results li {
+  white-space: nowrap;
+}
+
+#menu-search-results a {
+  color: #b6c8e4;
+}
+
 @media (max-width: 1366px) {
   body {
     margin: 0 0 0 150px;
@@ -479,7 +509,7 @@ del.block {
 
   #menu {
     display: none;
-    padding-top: 2em;
+    padding-top: 3em;
     width: 323px;
   }
 
