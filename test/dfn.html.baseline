@@ -18,9 +18,18 @@
 
   <p>Also terms are auto-linked in algorithms. But not naked abstract ops!</p>
 
+  <!-- these shouldn't autolink as they are under the same clause that defines the dfn -->
   <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.
   </li></ol></emu-alg>
+
+  <emu-clause id="sec-dfn-autolink">
+    <h1><span class="secnum">1.2</span>dfn autolink<span class="utils"><span class="anchor"><a href="#sec-dfn-autolink">#</a></span></span></h1>
+
+    <!-- these should autolink -->
+    <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.
+    </li></ol></emu-alg>
+  </emu-clause>
 </emu-clause>
 
-<p>dfn is not auto-linked outside of clauses. Nor are terms created, such as <dfn>linking</dfn>.</p>
+<p><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is not auto-linked outside of clauses. Nor are terms created, such as <dfn>linking</dfn>.</p>
 </body>

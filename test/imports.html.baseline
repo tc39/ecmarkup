@@ -18,5 +18,5 @@
 </emu-clause>
 </emu-import>
 
-<emu-alg><ol><li>Ensure we can auto-link to imported aoids: <a href="#Baz">Baz</a>()</li></ol></emu-alg>
+<emu-alg><ol><li>Ensure we can auto-link to imported aoids: <emu-xref aoid="Baz"><a href="#Baz">Baz</a></emu-xref>()</li></ol></emu-alg>
 </body>

@@ -20,11 +20,23 @@ copyright: false
 
   <p>Also terms are auto-linked in algorithms. But not naked abstract ops!</p>
 
+  <!-- these shouldn't autolink as they are under the same clause that defines the dfn -->
   <emu-alg>
     1. Call the dfn algorithm.
     2. Do something great with dfn.
     3. dfn is now awesome.
   </emu-alg>
+
+  <emu-clause id="sec-dfn-autolink">
+    <h1>dfn autolink</h1>
+
+    <!-- these should autolink -->
+    <emu-alg>
+      1. Call the dfn algorithm.
+      2. Do something great with dfn.
+      3. dfn is now awesome.
+    </emu-alg>
+  </emu-clause>
 </emu-clause>
 
 <p>dfn is not auto-linked outside of clauses. Nor are terms created, such as <dfn>linking</dfn>.</p>

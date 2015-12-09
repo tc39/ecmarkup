@@ -37,7 +37,7 @@
 </emu-clause>
 </emu-import>
 
-  <emu-alg><ol><li>Call <a href="#Foo">Foo</a>(<var>a</var>).</li><li>Call <a href="#Bar">Bar</a>(<code>toString</code>).</li><li>Call <a href="#Baz">Baz</a>(<emu-val>true</emu-val>).<ol><li>Do something else.</li><li>And again.
+  <emu-alg><ol><li>Call <emu-xref aoid="Foo"><a href="#Foo">Foo</a></emu-xref>(<var>a</var>).</li><li>Call <emu-xref aoid="Bar"><a href="#Bar">Bar</a></emu-xref>(<code>toString</code>).</li><li>Call <emu-xref aoid="Baz"><a href="#Baz">Baz</a></emu-xref>(<emu-val>true</emu-val>).<ol><li>Do something else.</li><li>And again.
   </li></ol></li></ol></emu-alg>
 
   <emu-note><span class="note">Note</span>Note!</emu-note>

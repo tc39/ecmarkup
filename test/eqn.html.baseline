@@ -4,16 +4,16 @@
 <emu-clause id="sec-example">
   <h1><span class="secnum">1</span>Header<span class="utils"><span class="anchor"><a href="#sec-example">#</a></span></span></h1>
   <p>Can refer to eqns inside paragraph text via autolinking: <emu-xref aoid="DateValue"><a href="#DateValue">DateValue</a></emu-xref>.</p>
-  <emu-alg><ol><li>Return <a href="#Value">Value</a>(<var>val</var>);
+  <emu-alg><ol><li>Return <emu-xref aoid="Value"><a href="#Value">Value</a></emu-xref>(<var>val</var>);
   </li></ol></emu-alg>
 
-  <emu-eqn aoid="Value2"><div><a href="#Value2">Value2</a>(<var>t</var>)</div><div>      = <a href="#DateValue">DateValue</a>(<var>t</var>) if <a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-data-types-and-values">Type</a>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
+  <emu-eqn aoid="Value2"><div><emu-xref aoid="Value2"><a href="#Value2">Value2</a></emu-xref>(<var>t</var>)</div><div>      = <emu-xref aoid="DateValue"><a href="#DateValue">DateValue</a></emu-xref>(<var>t</var>) if <emu-xref aoid="Type"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-data-types-and-values">Type</a></emu-xref>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
 
-  <emu-eqn aoid="DateValue"><div><a href="#DateValue">DateValue</a>(t)</div><div>      = 0 if <var>t</var> = 0</div><div>      = 1 if <var>t</var> = 1</div><div>      = 2</div></emu-eqn>
+  <emu-eqn aoid="DateValue"><div><emu-xref aoid="DateValue"><a href="#DateValue">DateValue</a></emu-xref>(t)</div><div>      = 0 if <var>t</var> = 0</div><div>      = 1 if <var>t</var> = 1</div><div>      = 2</div></emu-eqn>
 
-  <emu-eqn aoid="Value"><div><a href="#Value">Value</a>(<var>t</var>)</div><div>      = <a href="#DateValue">DateValue</a>(<var>t</var>) if <a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-data-types-and-values">Type</a>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
+  <emu-eqn aoid="Value"><div><emu-xref aoid="Value"><a href="#Value">Value</a></emu-xref>(<var>t</var>)</div><div>      = <emu-xref aoid="DateValue"><a href="#DateValue">DateValue</a></emu-xref>(<var>t</var>) if <emu-xref aoid="Type"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-data-types-and-values">Type</a></emu-xref>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
 
-  <emu-alg><ol><li>Return <a href="#Value">Value</a>(<var>val</var>);
+  <emu-alg><ol><li>Return <emu-xref aoid="Value"><a href="#Value">Value</a></emu-xref>(<var>val</var>);
   </li></ol></emu-alg>
 </emu-clause>
 </body>
