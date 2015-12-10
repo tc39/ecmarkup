@@ -90,6 +90,12 @@ emu-eqn div:first-child {
   margin-left: -2em;
 }
 
+emu-eqn.inline {
+  display: inline;
+  margin: 0;
+  white-space: nowrap;
+}
+
 emu-note {
     display: block;
     margin: 1em 0 1em 6em;
