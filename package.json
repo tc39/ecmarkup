@@ -4,18 +4,13 @@
   "description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
   "main": "lib/ecmarkup.js",
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha",
+    "test": "mocha",
     "lint": "eslint bin && eslint lib && eslint test",
     "update-pages": "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
     "update-baselines": "echo for f in test/*.html; do node bin/ecmarkup.js $f $f.baseline; done | bash"
   },
-  "bin": {
-    "ecmarkup": "bin/ecmarkup.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bterlson/ecmarkup.git"
-  },
+  "bin": "bin/ecmarkup.js",
+  "repository": "bterlson/ecmarkup",
   "keywords": [
     "ecmascript",
     "javascript",
@@ -28,10 +23,6 @@
   ],
   "author": "Brian Terlson",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/bterlson/ecmarkup/issues"
-  },
-  "homepage": "https://github.com/bterlson/ecmarkup",
   "dependencies": {
     "bluebird": "^3.0.6",
     "chalk": "^1.1.1",
