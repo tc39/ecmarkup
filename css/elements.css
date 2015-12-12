@@ -266,24 +266,25 @@ h4 span.utils,
 h5 span.utils,
 h6 span.utils {
   padding-left: 1em;
+  position: relative;
 }
 
-h1 span.utils span.anchor a,
-h2 span.utils span.anchor a,
-h3 span.utils span.anchor a,
-h4 span.utils span.anchor a,
-h5 span.utils span.anchor a,
-h6 span.utils span.anchor a {
+h1 span.utils a.anchor,
+h2 span.utils a.anchor,
+h3 span.utils a.anchor,
+h4 span.utils a.anchor,
+h5 span.utils a.anchor,
+h6 span.utils a.anchor {
   color: #ccc;
   text-decoration: none;
 }
 
-h1 span.utils span.anchor a:hover,
-h2 span.utils span.anchor a:hover,
-h3 span.utils span.anchor a:hover,
-h4 span.utils span.anchor a:hover,
-h5 span.utils span.anchor a:hover,
-h6 span.utils span.anchor a:hover {
+h1 span.utils a.anchor:hover,
+h2 span.utils a.anchor:hover,
+h3 span.utils a.anchor:hover,
+h4 span.utils a.anchor:hover,
+h5 span.utils a.anchor:hover,
+h6 span.utils a.anchor:hover {
   color: #333;
 }
 
@@ -370,6 +371,36 @@ del {
 
 del.block {
     display: block;
+}
+
+/* ID references */
+
+.id-references {
+  font-size: 13px;
+  position: absolute;
+  width: auto;
+  height: auto;
+  display: inline;
+  padding: 0.5em;
+  background: #EEE;
+  border: 2px solid black;
+}
+
+.id-references * {
+  margin: 0;
+  padding: 0;
+}
+
+.id-references p {
+  font-weight: bold;
+}
+
+.id-references * + p {
+  margin-top: 0.25em;
+}
+
+.id-references li {
+  list-style-position: inside;
 }
 
 /* Menu Styles */
