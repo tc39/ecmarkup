@@ -14,15 +14,13 @@ function fetch(file) {
   }
 }
 
-describe('ecmarkup#build', function () {
-  it('takes a fetch callback that returns a promise', function () {
-    return build('root.html', function (file) {
-      return new Promise(function (res) {
-        process.nextTick(function () {
-          res(fetch(file));
-        });
+describe('ecmarkup#build', () => {
+  it('takes a fetch callback that returns a promise', () => {
+    return build('root.html', file => {
+      return new Promise(res => {
+        process.nextTick(() => res(fetch(file)));
       });
-    }).then(function (spec) {
+    }).then(spec => {
       assert.equal(spec.toHTML(), out);
     });
   });
