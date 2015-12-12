@@ -10,7 +10,9 @@ copyright: false
 <emu-clause id="sec-dfn">
   <h1>dfn</h1>
 
-  <p>The term <dfn>dfn</dfn> means the dfn tag. Other mentions of dfn in this clause should not be auto-linked.</p>
+  <p>The term <dfn>dfn</dfn> means the dfn tag. Other mentions of dfn in this clause should be auto-linked as of v2.8.2.</p>
+
+  <p>The term <dfn id="dfn2">dfn2</dfn> should have any links go directly to it.</p>
 
   <emu-clause id="sec-dfn-subclause">
     <h1>dfn subclause</h1>
@@ -20,11 +22,12 @@ copyright: false
 
   <p>Also terms are auto-linked in algorithms. But not naked abstract ops!</p>
 
-  <!-- these shouldn't autolink as they are under the same clause that defines the dfn -->
+  <!-- these should autolink even though they are under the same clause that defines the dfn -->
   <emu-alg>
     1. Call the dfn algorithm.
     2. Do something great with dfn.
     3. dfn is now awesome.
+    4. dfn2 goes to the ID directly.
   </emu-alg>
 
   <emu-clause id="sec-dfn-autolink">
@@ -35,6 +38,7 @@ copyright: false
       1. Call the dfn algorithm.
       2. Do something great with dfn.
       3. dfn is now awesome.
+      4. dfn2 goes to the ID directly.
     </emu-alg>
   </emu-clause>
 </emu-clause>

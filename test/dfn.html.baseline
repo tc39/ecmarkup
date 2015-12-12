@@ -8,7 +8,9 @@
 <emu-clause id="sec-dfn">
   <h1><span class="secnum">1</span>dfn<span class="utils"><span class="anchor"><a href="#sec-dfn">#</a></span></span></h1>
 
-  <p>The term  <dfn>dfn</dfn> means the dfn tag. Other mentions of dfn in this clause should not be auto-linked.</p>
+  <p>The term  <dfn>dfn</dfn> means the dfn tag. Other mentions of dfn in this clause should be auto-linked as of v2.8.2.</p>
+
+  <p>The term  <dfn id="dfn2">dfn2</dfn> should have any links go directly to it.</p>
 
   <emu-clause id="sec-dfn-subclause">
     <h1><span class="secnum">1.1</span>dfn subclause<span class="utils"><span class="anchor"><a href="#sec-dfn-subclause">#</a></span></span></h1>
@@ -18,15 +20,15 @@
 
   <p>Also terms are auto-linked in algorithms. But not naked abstract ops!</p>
 
-  <!-- these shouldn't autolink as they are under the same clause that defines the dfn -->
-  <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.
+  <!-- these should autolink even though they are under the same clause that defines the dfn -->
+  <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.</li><li><emu-xref href="#dfn2"><a href="#dfn2">dfn2</a></emu-xref> goes to the ID directly.
   </li></ol></emu-alg>
 
   <emu-clause id="sec-dfn-autolink">
     <h1><span class="secnum">1.2</span>dfn autolink<span class="utils"><span class="anchor"><a href="#sec-dfn-autolink">#</a></span></span></h1>
 
     <!-- these should autolink -->
-    <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.
+    <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.</li><li><emu-xref href="#dfn2"><a href="#dfn2">dfn2</a></emu-xref> goes to the ID directly.
     </li></ol></emu-alg>
   </emu-clause>
 </emu-clause>
