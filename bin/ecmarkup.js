@@ -12,7 +12,7 @@ const readFile = Promise.promisify(fs.readFile);
 const utils = require('../lib/utils');
 const debounce = require('promise-debounce');
 
-const jsDependencies = ['menu.js', 'findLocalReferences.js'];
+const jsDependencies = ['menu.js', 'findLocalReferences.js', 'idReferences.js'];
 
 function fetch(path) {
   return readFile(path, 'utf8');
