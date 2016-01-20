@@ -7,11 +7,11 @@
   <emu-alg><ol><li>Return <emu-xref aoid="Value"><a href="#sec-example">Value</a></emu-xref>(<var>val</var>);
   </li></ol></emu-alg>
 
-  <emu-eqn aoid="Value2"><div><emu-xref aoid="Value2"><a href="#sec-example">Value2</a></emu-xref>(<var>t</var>)</div><div>      = <emu-xref aoid="DateValue"><a href="#sec-example">DateValue</a></emu-xref>(<var>t</var>) if <emu-xref aoid="Type"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-data-types-and-values">Type</a></emu-xref>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
+  <emu-eqn aoid="Value2"><div><emu-xref aoid="Value2"><a href="#sec-example">Value2</a></emu-xref>(<var>t</var>)</div><div>      = <emu-xref aoid="DateValue"><a href="#sec-example">DateValue</a></emu-xref>(<var>t</var>) if <emu-xref aoid="Type"><a href="https://tc39.github.io/ecma262#sec-ecmascript-data-types-and-values">Type</a></emu-xref>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
 
   <emu-eqn aoid="DateValue"><div><emu-xref aoid="DateValue"><a href="#sec-example">DateValue</a></emu-xref>(t)</div><div>      = 0 if <var>t</var> = 0</div><div>      = 1 if <var>t</var> = 1</div><div>      = 2</div></emu-eqn>
 
-  <emu-eqn aoid="Value"><div><emu-xref aoid="Value"><a href="#sec-example">Value</a></emu-xref>(<var>t</var>)</div><div>      = <emu-xref aoid="DateValue"><a href="#sec-example">DateValue</a></emu-xref>(<var>t</var>) if <emu-xref aoid="Type"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-data-types-and-values">Type</a></emu-xref>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
+  <emu-eqn aoid="Value"><div><emu-xref aoid="Value"><a href="#sec-example">Value</a></emu-xref>(<var>t</var>)</div><div>      = <emu-xref aoid="DateValue"><a href="#sec-example">DateValue</a></emu-xref>(<var>t</var>) if <emu-xref aoid="Type"><a href="https://tc39.github.io/ecma262#sec-ecmascript-data-types-and-values">Type</a></emu-xref>(<var>t</var>) is string</div><div>      = <var>t</var></div></emu-eqn>
 
   <emu-alg><ol><li>Return <emu-xref aoid="Value"><a href="#sec-example">Value</a></emu-xref>(<var>val</var>);
   </li></ol></emu-alg>

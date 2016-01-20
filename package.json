@@ -31,7 +31,7 @@
     "highlight.js": "^9.0.0",
     "html-escape": "^1.0.2",
     "js-yaml": "^3.4.6",
-    "jsdom": "^7.2.1",
+    "jsdom": "^5.0.1",
     "nomnom": "^1.8.1",
     "promise-debounce": "^1.0.1"
   },

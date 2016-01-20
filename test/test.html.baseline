@@ -43,13 +43,13 @@
   <emu-note><span class="note">Note</span>Note!</emu-note>
 
   <emu-production name="WhileStatement" id="prod-WhileStatement">
-    <emu-nt><a href="#prod-WhileStatement">WhileStatement</a></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>while</emu-t><emu-t>(</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-Expression">Expression</a></emu-nt><emu-t>)</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-Statement">Statement</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-WhileStatement">WhileStatement</a></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>while</emu-t><emu-t>(</emu-t><emu-nt><a href="https://tc39.github.io/ecma262#prod-Expression">Expression</a></emu-nt><emu-t>)</emu-t><emu-nt><a href="https://tc39.github.io/ecma262#prod-Statement">Statement</a></emu-nt></emu-rhs>
   </emu-production>
 
   <emu-production name="ArgumentList" id="prod-ArgumentList">
-    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="https://tc39.github.io/ecma262#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
 
-    <emu-rhs a="b"><emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-t>,</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
+    <emu-rhs a="b"><emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-t>,</emu-t><emu-nt><a href="https://tc39.github.io/ecma262#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
   </emu-production>
 
   <emu-production name="SourceCharacter" type="lexical" id="prod-SourceCharacter">
@@ -66,7 +66,7 @@
   </emu-production>
 
   <emu-production name="StatementList" params="Return, In" id="prod-StatementList">
-    <emu-nt params="Return, In"><a href="#prod-StatementList">StatementList</a><emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-ReturnStatement">ReturnStatement</a></emu-nt></emu-rhs>
+    <emu-nt params="Return, In"><a href="#prod-StatementList">StatementList</a><emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt><a href="https://tc39.github.io/ecma262#prod-ReturnStatement">ReturnStatement</a></emu-nt></emu-rhs>
     <emu-rhs><emu-nt><a href="#prod-ExpressionStatement">ExpressionStatement</a></emu-nt></emu-rhs>
   </emu-production>
 
@@ -74,8 +74,8 @@
     Inline production:
     
     <emu-production name="Identifier" type="lexical" collapsed="" id="prod-Identifier" class=" inline">
-      <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-IdentifierName">IdentifierName</a></emu-nt><emu-gmod>but not
-      <emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-ReservedWord">ReservedWord</a></emu-nt></emu-gmod></emu-rhs>
+      <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="https://tc39.github.io/ecma262#prod-IdentifierName">IdentifierName</a></emu-nt><emu-gmod>but not
+      <emu-nt><a href="https://tc39.github.io/ecma262#prod-ReservedWord">ReservedWord</a></emu-nt></emu-gmod></emu-rhs>
     </emu-production>
   </p>
 
@@ -89,11 +89,11 @@
   </emu-production>
 
   <emu-production name="Identifier" type="lexical" collapsed="" id="prod-Identifier" class=" inline">
-      <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-IdentifierName">IdentifierName</a></emu-nt><emu-gmod>but not
-      <emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-ReservedWord">ReservedWord</a></emu-nt></emu-gmod></emu-rhs>
+      <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="https://tc39.github.io/ecma262#prod-IdentifierName">IdentifierName</a></emu-nt><emu-gmod>but not
+      <emu-nt><a href="https://tc39.github.io/ecma262#prod-ReservedWord">ReservedWord</a></emu-nt></emu-gmod></emu-rhs>
     </emu-production>
   <emu-production name="ArgumentList" id="prod-ArgumentList" a="a" collapsed="">
-    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs></emu-production>
+    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="https://tc39.github.io/ecma262#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs></emu-production>
 
   <emu-grammar><emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar">
     <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs>
@@ -121,7 +121,7 @@
 
   <!-- test block collapsed emu-grammar -->
   <emu-grammar collapsed=""><emu-production name="FunctionDeclaration" id="prod-FunctionDeclaration">
-    <emu-nt><a href="#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="81739a57"><emu-t>function</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-BindingIdentifier">BindingIdentifier</a></emu-nt><emu-t>(</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-FormalParameters">FormalParameters</a></emu-nt><emu-t>)</emu-t><emu-t>{</emu-t><emu-nt><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#prod-FunctionBody">FunctionBody</a></emu-nt><emu-t>}</emu-t></emu-rhs>
+    <emu-nt><a href="#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="81739a57"><emu-t>function</emu-t><emu-nt><a href="https://tc39.github.io/ecma262#prod-BindingIdentifier">BindingIdentifier</a></emu-nt><emu-t>(</emu-t><emu-nt><a href="https://tc39.github.io/ecma262#prod-FormalParameters">FormalParameters</a></emu-nt><emu-t>)</emu-t><emu-t>{</emu-t><emu-nt><a href="https://tc39.github.io/ecma262#prod-FunctionBody">FunctionBody</a></emu-nt><emu-t>}</emu-t></emu-rhs>
 </emu-production></emu-grammar>
 
   <p>Test <emu-nt params="WithParams">NonTerminal<emu-mods><emu-params>[WithParams]</emu-params></emu-mods></emu-nt> and <emu-nt optional="">NonTerminal<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt>.</p>
