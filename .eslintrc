@@ -11,7 +11,8 @@
     "templateStrings": true
   },
   "env": {
-    "node": true
+    "node": true,
+    "es6": true
   },
   "rules": {
     "no-extra-parens": [2, "functions"],
