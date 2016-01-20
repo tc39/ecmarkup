@@ -1,10 +1,9 @@
 {
-  "http://example.com/fooSite.html": {
-    "ops": {
-      "Biblio": {
-        "aoid": "Biblio",
-        "id": "sec-biblio"
-      }
+  "http://example.com/fooSite.html": [
+    {
+      "type": "op",
+      "aoid": "Biblio",
+      "refId": "sec-biblio"
     }
-  }
+  ]
 }

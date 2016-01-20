@@ -1,11 +1,10 @@
 {
-  "http://example.com/fooSite.html": {
-    "clauses": {
-      "sec-foo": {
-        "title": "Foo Section",
-        "number": "1",
-        "id": "bar"
-      }
+  "http://example.com/fooSite.html": [
+    {
+      "type": "clause",
+      "title": "Foo Section",
+      "number": "1",
+      "id": "sec-foo"
     }
-  }
+  ]
 }

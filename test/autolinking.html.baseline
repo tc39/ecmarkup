@@ -1,0 +1,15 @@
+<!doctype html>
+<head><meta charset="utf-8"></head><body>
+<emu-clause id="sec-foo">
+  <h1><span class="secnum">1</span>Autolinking<span class="utils"><span class="anchor"><a href="#sec-foo">#</a></span></span></h1>
+  <p>Type, type, <emu-xref aoid="Type"><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-data-types-and-values">Type</a></emu-xref>(), type()</p>
+
+  <p><dfn>Lowercase</dfn></p>
+  <p><dfn>strict mode</dfn></p>
+</emu-clause>
+<emu-clause id="sec-bar">
+  <h1><span class="secnum">2</span>Autolinking 2<span class="utils"><span class="anchor"><a href="#sec-bar">#</a></span></span></h1>
+  <p>lowercase should not autolink. But <emu-xref href="#sec-foo"><a href="#sec-foo">Lowercase</a></emu-xref> should. But not LowerCase.</p>
+  <p><emu-xref href="#sec-foo"><a href="#sec-foo">Strict mode</a></emu-xref> shoud link. But Scrict Mode should not.</p>
+</emu-clause>
+</body>

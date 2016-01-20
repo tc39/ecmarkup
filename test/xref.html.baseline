@@ -15,9 +15,9 @@
   <emu-xref href="#sec-additional-syntax" title=""><a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-additional-syntax">Additional Syntax</a></emu-xref>
 
   <!-- refs to imported biblio clause -->
-  <emu-xref href="#sec-foo"><a href="http://example.com/fooSite.html#bar">with link text</a></emu-xref>
-  <emu-xref href="#sec-foo"><a href="http://example.com/fooSite.html#bar">1</a></emu-xref>
-  <emu-xref href="#sec-foo" title=""><a href="http://example.com/fooSite.html#bar">Foo Section</a></emu-xref>
+  <emu-xref href="#sec-foo"><a href="http://example.com/fooSite.html#sec-foo">with link text</a></emu-xref>
+  <emu-xref href="#sec-foo"><a href="http://example.com/fooSite.html#sec-foo">1</a></emu-xref>
+  <emu-xref href="#sec-foo" title=""><a href="http://example.com/fooSite.html#sec-foo">Foo Section</a></emu-xref>
 
   <!-- refs to local nonterminal -->
   <emu-xref href="#prod-TestProduction"><a href="#prod-TestProduction"><emu-nt>TestProduction</emu-nt></a></emu-xref>
