@@ -135,7 +135,7 @@ Menu.prototype.displayResults = function (results) {
     var html = '<ul>';
 
     results.ops.forEach(function (op) {
-      html += '<li class=menu-search-result-op><a href="#' + op.id + '">' + op.aoid + '</a></li>'
+      html += '<li class=menu-search-result-op><a href="#' + op.refId + '">' + op.aoid + '</a></li>'
     });
 
     results.productions.forEach(function (prod) {
