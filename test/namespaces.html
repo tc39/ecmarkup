@@ -1,0 +1,69 @@
+<pre class=metadata>
+toc: false
+copyright: false
+</pre>
+<emu-intro namespace=intro aoid=SomeAlg>
+  <h1>Intro</h1>
+  <emu-grammar>
+    Foo ::
+      `bar` MainProd `baz`
+  </emu-grammar>
+</emu-intro>
+<emu-clause id=c1>
+  <h1>Clause 1</h1>
+  <emu-grammar>
+    Foo ::
+      `bar` MainProd `baz`
+
+    MainProd ::
+      Foo
+  </emu-grammar>
+  <emu-clause id=c11 namespace=clause>
+    <h1>Clause 1.1</h1>
+
+    <emu-grammar>
+      Foo ::
+        `bar` MainProd `baz`
+    </emu-grammar>
+
+    <emu-clause id=c111 aoid=SomeAlg>
+      <h1>SomeAlg</h1>
+    </emu-clause>
+
+    <p>SomeAlg does things.</p>
+    <p>Can still xref clauses inside of namespaces: <emu-xref href="#annex11"></emu-xref>.</p>
+    <p>Can xref prods in namespaces: <emu-xref href="#prod-annex-Foo"></emu-xref>.</p>
+  </emu-clause>
+</emu-clause>
+<emu-annex id=annex1 namespace=annex>
+  <h1>Annex</h1>
+  <emu-grammar>
+    Foo ::
+      `bar` MainProd `baz`
+  </emu-grammar>
+  <emu-annex id=annex11 aoid=SomeAlg>
+    <h1>SomeAlg</h1>
+  </emu-annex>
+
+  <emu-annex id=annex12 aoid=SomeAlg namespace=annex2>
+    <h1>Annex 1.2</h1>
+    <p>SomeAlg should link to #annex12. |Foo| should link to the production in #annex1.</p>
+  </emu-annex>
+
+  <p>SomeAlg does things.</p>
+  <emu-alg>
+    1. Let _x_ be the result of SomeAlg.
+  </emu-alg>
+</emu-annex>
+
+<emu-annex id=annex2 namespace=annex>
+  <h1>Annex 2</h1>
+  <emu-annex id=annex21 aoid=SomeAlg>
+    <h1>SomeAlg</h1>
+  </emu-annex>
+  <emu-grammar>
+    MainProd ::
+      Foo
+  </emu-grammar>
+  <p>SomeAlg does things.</p>
+</emu-annex>

@@ -1,0 +1,28 @@
+<pre class=metadata>
+toc: false
+copyright: false
+</pre>
+<emu-intro id=intro namespace=intro>
+  <h1>Intro</h1>
+  <emu-grammar>
+    Foo ::
+      `bar`
+      `baz`
+  </emu-grammar>
+  <emu-grammar>Foo :: `bar`</emu-grammar>
+  <emu-prodref name="Foo"></emu-prodref>
+</emu-intro>
+
+<emu-clause id=c>
+  <h1>C</h1>
+  <emu-grammar>
+    Foo ::
+      `bar`
+      `qux`
+
+    Statement ::
+      `overridden statement`
+  </emu-grammar>
+  <emu-grammar>Foo :: `bar`</emu-grammar>
+  <emu-prodref name="Foo"></emu-prodref>
+</emu-clause>
