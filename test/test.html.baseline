@@ -120,7 +120,7 @@
   <emu-xref href="#Bar" title=""><a href="#Bar">Sub Clause</a></emu-xref>
 
   <!-- test block collapsed emu-grammar -->
-  <emu-grammar collapsed=""><emu-production name="FunctionDeclaration" id="prod-FunctionDeclaration">
+  <emu-grammar><emu-production name="FunctionDeclaration" collapsed="" id="prod-FunctionDeclaration">
     <emu-nt><a href="#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="81739a57"><emu-t>function</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-BindingIdentifier">BindingIdentifier</a></emu-nt><emu-t>(</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-FormalParameters">FormalParameters</a></emu-nt><emu-t>)</emu-t><emu-t>{</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-FunctionBody">FunctionBody</a></emu-nt><emu-t>}</emu-t></emu-rhs>
 </emu-production></emu-grammar>
 

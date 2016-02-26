@@ -1,6 +1,6 @@
 {
   "name": "ecmarkup",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
   "main": "lib/ecmarkup.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "bluebird": "^3.0.6",
     "chalk": "^1.1.1",
     "ecmarkdown": "^3.0.9",
-    "grammarkdown": "^0.2.0",
+    "grammarkdown": "^1.0.1",
     "highlight.js": "^9.0.0",
     "html-escape": "^1.0.2",
     "js-yaml": "^3.4.6",
