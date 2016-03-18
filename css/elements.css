@@ -354,7 +354,7 @@ table.lightweight-table td, table.lightweight-table th {
 }
 
 /* diff styles */
-ins, tr.ins > td {
+ins, tr.ins > td, li.ins {
     background-color: #e0f8e0;
     text-decoration: none;
     border-bottom: 1px solid #396;
@@ -364,7 +364,7 @@ ins.block {
     display: block;
 }
 
-del, tr.del > td {
+del, tr.del > td, li.del {
     background-color: #fee;
     text-decoration: line-through;
 }
