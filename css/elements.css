@@ -373,6 +373,10 @@ del.block {
     display: block;
 }
 
+tr.ins > td > ins, li.ins > ins {
+  border: 0;
+}
+
 /* Menu Styles */
 #menu-toggle {
   font-size: 2em;
