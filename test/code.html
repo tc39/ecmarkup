@@ -1,0 +1,19 @@
+<pre class=metadata>
+toc: false
+copyright: false
+</pre>
+<link rel=stylesheet href="css/elements.css">
+<emu-clause id=foo>
+  <h1>Test Clause</h1>
+  <p>Increases indentaion level.</p>
+  <pre><code class="lang-javascript">
+    global1.Zone.current; // succeeds
+    global2.Zone.current; // throws: <var>currentRealm</var> = <var>realm1</var>; <var>thisRealm</var> = <var>functionRealm</var> = <var>realm2</var>
+
+    const getter1 = Object.getOwnPropertyDescriptor(global1.Zone, "current").get;
+    const getter2 = Object.getOwnPropertyDescriptor(global2.Zone, "current").get;
+
+    getter1.call(global2.Zone); // throws: <var>currentRealm</var> = <var>functionRealm</var> = <var>realm1</var>; <var>thisRealm</var> = <var>realm2</var>
+    getter2.call(global1.Zone); // throws: <var>currentRealm</var> = <var>thisRealm</var> = <var>realm1</var>; <var>functionRealm</var> = <var>realm2</var>
+  </code></pre>
+</emu-clause>

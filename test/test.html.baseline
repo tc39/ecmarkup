@@ -110,10 +110,8 @@
   <p>Inline prodref:  <emu-production name="FooBar" params="Yeild" type="lexical" a="a" collapsed="" class=" inline">
     <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production></p>
 
-  <pre><code class="language-javascript hljs">
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };
-    test();
-  </code></pre>
+  <pre><code class="language-javascript hljs"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };
+test();</code></pre>
 
   <emu-xref href="#Bar"><a href="#Bar">With link text</a></emu-xref>
   <emu-xref href="#Bar"><a href="#Bar">1.2</a></emu-xref>
