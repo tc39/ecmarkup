@@ -14,5 +14,6 @@
   <p>lowercase should not autolink. But <emu-xref href="#sec-foo"><a href="#sec-foo">Lowercase</a></emu-xref> should. But not LowerCase.</p>
   <p><emu-xref href="#sec-foo"><a href="#sec-foo">Strict mode</a></emu-xref> shoud link. But Scrict Mode should not.</p>
   <p><emu-xref href="#sec-foo"><a href="#sec-foo">%Percent%</a></emu-xref> should autolink.</p>
+  <p>Vars to dfns should be vars not dfns: <var>Lowercase</var>.</p>
 </emu-clause>
 </body>
