@@ -353,7 +353,7 @@ table.lightweight-table td, table.lightweight-table th {
 }
 
 /* diff styles */
-ins {
+ins, tr.ins > td, li.ins {
     background-color: #e0f8e0;
     text-decoration: none;
     border-bottom: 1px solid #396;
@@ -363,12 +363,17 @@ ins.block {
     display: block;
 }
 
-del {
+del, tr.del > td, li.del {
     background-color: #fee;
+    text-decoration: line-through;
 }
 
 del.block {
     display: block;
+}
+
+tr.ins > td > ins, li.ins > ins {
+  border: 0;
 }
 
 /* Menu Styles */
