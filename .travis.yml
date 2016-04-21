@@ -5,4 +5,5 @@ env:
   - secure: "kt6HhdMS6xqce6NaWammyNCo/vfpqyq917WLY6pPKBFZpV9cAWNTYHdFTPhHVRmyYwN0N0q0cHSAjizDQwxbqL787KQl3KY3aVrigjugDhtNaV3MPddh2Sh9huWETllWyc29vvyPyxPt9fdw2cZXmeRaFRqxYgNtGANBKsSIeZE="
 language: node_js
 node_js:
-- iojs
+  - "5"
+  - "5.1"
