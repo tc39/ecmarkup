@@ -548,3 +548,41 @@ tr.ins > td > ins, li.ins > ins {
     margin: 0; padding: 0;
   }
 }
+
+/* extra styles for oldtoc */
+body.oldtoc .anchor {
+  display: none;
+}
+
+body.oldtoc emu-annex h1 {
+  text-align: center;
+  font-size: 1.6em;
+}
+
+body.oldtoc emu-annex h1 .secnum {
+  display: block;
+  left: 0;
+  text-align: center;
+  position: relative;
+}
+
+body.oldtoc emu-annex h1 .secnum::before {
+  content: "Annex ";
+}
+
+body.oldtoc emu-annex h1 .secnum::after {
+  display: block;
+}
+
+/* extra styles for printer */
+emu-annex h1,
+emu-intro h1,
+emu-toc div {
+  page-break-before: always;
+}
+
+h1, h2, h3, h4, h5,
+emu-figure > figure,
+emu-table > figure {
+  page-break-inside: avoid;
+}
