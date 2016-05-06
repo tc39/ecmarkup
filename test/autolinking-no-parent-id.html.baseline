@@ -1,0 +1,4 @@
+<!doctype html>
+<head><meta charset="utf-8"></head><body>
+<p><emu-xref href="#sec-array-constructor"><a href="https://tc39.github.io/ecma262/#sec-array-constructor">%Array%</a></emu-xref> and <emu-xref href="#sec-properties-of-the-array-prototype-object"><a href="https://tc39.github.io/ecma262/#sec-properties-of-the-array-prototype-object">%ArrayPrototype%</a></emu-xref> from ES6 should link (but not %Arrayprototype%).</p>
+</body>
