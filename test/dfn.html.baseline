@@ -10,7 +10,8 @@
 
   <p>The term  <dfn>dfn</dfn> means the dfn tag. Other mentions of dfn in this clause should not be auto-linked.</p>
 
-  <p>Terms with ids are called  <dfn id="identifiers">id dfns</dfn>.</p>
+  <p>Terms with ids are called  <dfn id="identifiers">id dfns</dfn>. Since this dfn has an id, other occurences
+  of <emu-xref href="#identifiers"><a href="#identifiers">id dfns</a></emu-xref> may autolink.</p>
 
   <emu-clause id="sec-dfn-subclause">
     <h1><span class="secnum">1.1</span>dfn subclause<span class="utils"><span class="anchor"><a href="#sec-dfn-subclause">#</a></span></span></h1>
