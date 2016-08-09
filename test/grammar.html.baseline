@@ -10,6 +10,9 @@
 </emu-production><ins>
 <emu-production name="NewTerminal" id="prod-NewTerminal">
     <emu-nt><a href="#prod-NewTerminal">NewTerminal</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="b1b8622b"><emu-t>t</emu-t></emu-rhs>
-</emu-production></ins></emu-grammar>
-
-</body>
+</emu-production></ins>
+<emu-production name="LookaheadExample" type="lexical" id="prod-LookaheadExample">
+    <emu-nt><a href="#prod-LookaheadExample">LookaheadExample</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="f0e1865a"><emu-t>n</emu-t><emu-gann>[lookahead ∉ 
+        <emu-t>1</emu-t>]</emu-gann></emu-rhs>
+    <emu-rhs a="195cbc6c"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-DecimalDigit">DecimalDigit</a></emu-nt><emu-gann>[lookahead ∉ <emu-nt><a href="https://tc39.github.io/ecma262/#prod-DecimalDigit">DecimalDigit</a></emu-nt>]</emu-gann></emu-rhs>
+</emu-production></emu-grammar></body>
