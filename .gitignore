@@ -1,2 +1,4 @@
 node_modules
 index.html
+lib/*.d.ts
+lib/*.js.map

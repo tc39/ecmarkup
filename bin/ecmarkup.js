@@ -57,7 +57,7 @@ const build = debounce(function build() {
     }
 
     return spec;
-  });
+  }, err => process.stderr.write(err.stack));
 });
 
 if (args.watch) {
