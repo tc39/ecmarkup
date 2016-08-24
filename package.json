@@ -1,10 +1,11 @@
 {
   "name": "ecmarkup",
-  "version": "3.2.6",
+  "version": "3.3.2",
   "description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
   "main": "lib/ecmarkup.js",
   "scripts": {
     "build": "tsc -p src",
+    "pretest": "npm run build",
     "test": "mocha",
     "lint": "eslint bin && eslint lib && eslint test",
     "update-pages": "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
@@ -28,7 +29,7 @@
     "bluebird": "^3.0.6",
     "chalk": "^1.1.1",
     "ecmarkdown": "^3.0.9",
-    "grammarkdown": "^1.0.1",
+    "grammarkdown": "^1.0.2",
     "highlight.js": "^9.0.0",
     "html-escape": "^1.0.2",
     "js-yaml": "^3.4.6",

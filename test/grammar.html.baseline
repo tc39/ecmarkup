@@ -1,0 +1,18 @@
+<!doctype html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../css/elements.css">
+</head><body>
+
+<emu-grammar><emu-production name="FooTerminal" id="prod-FooTerminal">
+    <emu-nt><a href="#prod-FooTerminal">FooTerminal</a></emu-nt><emu-geq>:</emu-geq><ins><emu-rhs a="5422ad14"><emu-nt>Inserting</emu-nt><emu-t>anRHS</emu-t></emu-rhs></ins>
+    <del><emu-rhs a="34727095"><emu-nt>Deleting</emu-nt><emu-t>anRHS</emu-t></emu-rhs></del>
+    <emu-rhs a="18458a59"><emu-nt>Modifying</emu-nt><ins>
+        <emu-nt>Existing</emu-nt></ins><del><emu-nt>Old</emu-nt></del><emu-nt>Production</emu-nt></emu-rhs>
+</emu-production><ins>
+<emu-production name="NewTerminal" id="prod-NewTerminal">
+    <emu-nt><a href="#prod-NewTerminal">NewTerminal</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="b1b8622b"><emu-t>t</emu-t></emu-rhs>
+</emu-production></ins>
+<emu-production name="LookaheadExample" type="lexical" id="prod-LookaheadExample">
+    <emu-nt><a href="#prod-LookaheadExample">LookaheadExample</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="cada3c85"><emu-t>&amp;&amp;</emu-t><emu-t>n</emu-t><emu-gann>[lookahead ∉ 
+        <emu-t>1</emu-t>]</emu-gann></emu-rhs>
+    <emu-rhs a="195cbc6c"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-DecimalDigit">DecimalDigit</a></emu-nt><emu-gann>[lookahead ∉ <emu-nt><a href="https://tc39.github.io/ecma262/#prod-DecimalDigit">DecimalDigit</a></emu-nt>]</emu-gann></emu-rhs>
+</emu-production></emu-grammar></body>
