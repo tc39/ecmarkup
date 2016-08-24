@@ -3,8 +3,11 @@
   "version": "3.3.2",
   "description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
   "main": "lib/ecmarkup.js",
+  "typings": "lib/ecmarkup.d.ts",
   "scripts": {
-    "build": "tsc -p src",
+    "build": "tsc -p src -sourceMap",
+    "build-release": "tsc -p src",
+    "prepublish": "npm run build-release",
     "pretest": "npm run build",
     "test": "mocha",
     "lint": "eslint bin && eslint lib && eslint test",

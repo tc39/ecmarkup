@@ -1,0 +1,9 @@
+.vscode
+.editorconfig
+.eslintrc
+.gitignore
+.travis.yml
+lib/**/*.js.map
+src
+test
+deploy.sh

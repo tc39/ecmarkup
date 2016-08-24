@@ -1,5 +1,15 @@
-import Spec = require('./Spec');
+import Spec_ = require('./Spec');
 import utils = require('./utils');
+
+export interface Spec {
+  spec: this;
+  opts: Options;
+  rootPath: string;
+  rootDir: string;
+  namespace: string;
+  toHTML(): string;
+  exportBiblio(): any;
+}
 
 export interface Options {
     status?: "proposal" | "draft" | "standard";
@@ -16,10 +26,10 @@ export interface Options {
     verbose?: boolean;
 }
 
-export function build(path: string, fetch: (path: string) => PromiseLike<string>, opts?: Options) {
+export function build(path: string, fetch: (path: string) => PromiseLike<string>, opts?: Options): PromiseLike<Spec> {
   return fetch(path)
     .then(utils.htmlToDoc)
     .then(doc => {
-      return new Spec(path, fetch, doc, opts).build();
+      return new Spec_(path, fetch, doc, opts).build();
     });
 }

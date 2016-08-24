@@ -29,16 +29,6 @@ import autolinker = require('./autolinker');
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 
-interface Spec {
-  spec: this;
-  opts: Options;
-  rootPath: string;
-  rootDir: string;
-  namespace: string;
-  toHTML(): string;
-  exportBiblio(): Biblio.BiblioData;
-}
-
 /*@internal*/
 class Spec {
   spec: this;
