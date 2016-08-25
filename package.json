@@ -47,6 +47,7 @@
     "@types/js-yaml": "^3.5.27",
     "@types/jsdom": "^2.0.28",
     "@types/node": "^6.0.37",
+    "@types/nomnom": "0.0.27",
     "diff": "^2.2.1",
     "eslint": "^1.10.3",
     "mocha": "^2.3.4",

@@ -29,20 +29,19 @@ import autolinker = require('./autolinker');
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 
-/*@internal*/
 class Spec {
   spec: this;
   opts: Options;
   rootPath: string;
   rootDir: string;
   namespace: string;
-  biblio: Biblio;
-  doc: Document;
-  imports: string[];
-  node: HTMLElement;
-  fetch: (file: string) => PromiseLike<string>;
-  subclauses: Clause[];
-  _figureCounts: { [type: string]: number };
+  /*@internal*/ biblio: Biblio;
+  /*@internal*/ doc: Document;
+  /*@internal*/ imports: string[];
+  /*@internal*/ node: HTMLElement;
+  /*@internal*/ fetch: (file: string) => PromiseLike<string>;
+  /*@internal*/ subclauses: Clause[];
+  /*@internal*/ _figureCounts: { [type: string]: number };
   private _numberer: ClauseNumbers.ClauseNumberIterator;
 
   constructor (rootPath: string, fetch: (file: string) => PromiseLike<string>, doc: HTMLDocument, opts?: Options) {
@@ -100,6 +99,7 @@ class Spec {
     this.biblio = new Biblio(this.opts.location);
   }
 
+  /*@internal*/
   buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any): PromiseLike<any> {
     type Builder = _Builder;
     opts = opts || {};
@@ -134,6 +134,7 @@ class Spec {
     return Promise.all(ps);
   }
 
+  /*@internal*/
   build() {
     let p: PromiseLike<any> = this.buildAll('emu-import', Import)
       .then(this.buildBoilerplate.bind(this))
@@ -175,7 +176,7 @@ class Spec {
     return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
   }
 
-  processMetadata() {
+  private processMetadata() {
     const block = this.doc.querySelector('pre.metadata');
     if (!block) {
       return;
@@ -194,14 +195,14 @@ class Spec {
     Object.assign(this.opts, data);
   }
 
-  loadES6Biblio() {
+  private loadES6Biblio() {
     this._log('Loading biblios...');
 
     return this.fetch(Path.join(__dirname, '../es6biblio.json'))
       .then(es6bib => this.biblio.addExternalBiblio(JSON.parse(es6bib)));
   }
 
-  loadBiblios() {
+  private loadBiblios() {
     const spec = this;
 
     const bibs: HTMLElement[] = Array.prototype.slice.call(this.doc.querySelectorAll('emu-biblio'));
@@ -228,11 +229,12 @@ class Spec {
     return biblio;
   }
 
+  /*@internal*/
   getNextClauseNumber(depth: number, isAnnex: boolean) {
     return this._numberer.next(depth, isAnnex).value;
   }
 
-  highlightCode() {
+  private highlightCode() {
     this._log('Highlighting syntax...');
     const codes = this.doc.querySelectorAll('pre code');
     for (let i = 0; i < codes.length; i++) {
@@ -256,7 +258,7 @@ class Spec {
     }
   }
 
-  buildBoilerplate() {
+  private buildBoilerplate() {
     const status = this.opts.status!;
     const version = this.opts.version;
     const title = this.opts.title;
@@ -318,7 +320,7 @@ class Spec {
     }
   }
 
-  buildCopyrightBoilerplate() {
+  private buildCopyrightBoilerplate() {
     let copyright: string;
     let address: string;
 
@@ -374,11 +376,13 @@ class Spec {
 
   }
 
+  /*@internal*/
   autolink() {
     this._log('Autolinking terms and abstract ops...');
     autolinker.link(this);
   }
 
+  /*@internal*/
   setCharset() {
     let current = this.spec.doc.querySelector('meta[charset]');
 

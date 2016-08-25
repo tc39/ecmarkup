@@ -1,15 +1,9 @@
-import Spec_ = require('./Spec');
+import Spec = require('./Spec');
+import Biblio = require('./Biblio');
+import BiblioEntry = Biblio.BiblioEntry;
 import utils = require('./utils');
 
-export interface Spec {
-  spec: this;
-  opts: Options;
-  rootPath: string;
-  rootDir: string;
-  namespace: string;
-  toHTML(): string;
-  exportBiblio(): any;
-}
+export { Spec, BiblioEntry };
 
 export interface Options {
     status?: "proposal" | "draft" | "standard";
@@ -30,6 +24,6 @@ export function build(path: string, fetch: (path: string) => PromiseLike<string>
   return fetch(path)
     .then(utils.htmlToDoc)
     .then(doc => {
-      return new Spec_(path, fetch, doc, opts).build();
+      return new Spec(path, fetch, doc, opts).build();
     });
 }
