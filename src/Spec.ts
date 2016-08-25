@@ -100,7 +100,7 @@ class Spec {
     this.biblio = new Biblio(this.opts.location);
   }
 
-  /*@internal*/ buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any): PromiseLike<any> {
+  buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any): PromiseLike<any> {
     type Builder = _Builder;
     opts = opts || {};
 
@@ -134,7 +134,7 @@ class Spec {
     return Promise.all(ps);
   }
 
-  /*@internal*/ build() {
+  build() {
     let p: PromiseLike<any> = this.buildAll('emu-import', Import)
       .then(this.buildBoilerplate.bind(this))
       .then(this.loadES6Biblio.bind(this))
@@ -175,7 +175,7 @@ class Spec {
     return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
   }
 
-  /*@internal*/ processMetadata() {
+  processMetadata() {
     const block = this.doc.querySelector('pre.metadata');
     if (!block) {
       return;
@@ -194,14 +194,14 @@ class Spec {
     Object.assign(this.opts, data);
   }
 
-  /*@internal*/ loadES6Biblio() {
+  loadES6Biblio() {
     this._log('Loading biblios...');
 
     return this.fetch(Path.join(__dirname, '../es6biblio.json'))
       .then(es6bib => this.biblio.addExternalBiblio(JSON.parse(es6bib)));
   }
 
-  /*@internal*/ loadBiblios() {
+  loadBiblios() {
     const spec = this;
 
     const bibs: HTMLElement[] = Array.prototype.slice.call(this.doc.querySelectorAll('emu-biblio'));
@@ -228,11 +228,11 @@ class Spec {
     return biblio;
   }
 
-  /*@internal*/ getNextClauseNumber(depth: number, isAnnex: boolean) {
+  getNextClauseNumber(depth: number, isAnnex: boolean) {
     return this._numberer.next(depth, isAnnex).value;
   }
 
-  /*@internal*/ highlightCode() {
+  highlightCode() {
     this._log('Highlighting syntax...');
     const codes = this.doc.querySelectorAll('pre code');
     for (let i = 0; i < codes.length; i++) {
@@ -256,7 +256,7 @@ class Spec {
     }
   }
 
-  /*@internal*/ buildBoilerplate() {
+  buildBoilerplate() {
     const status = this.opts.status!;
     const version = this.opts.version;
     const title = this.opts.title;
@@ -318,7 +318,7 @@ class Spec {
     }
   }
 
-  /*@internal*/ buildCopyrightBoilerplate() {
+  buildCopyrightBoilerplate() {
     let copyright: string;
     let address: string;
 
@@ -374,12 +374,12 @@ class Spec {
 
   }
 
-  /*@internal*/ autolink() {
+  autolink() {
     this._log('Autolinking terms and abstract ops...');
     autolinker.link(this);
   }
 
-  /*@internal*/ setCharset() {
+  setCharset() {
     let current = this.spec.doc.querySelector('meta[charset]');
 
     if (!current) {
