@@ -29,19 +29,30 @@ import autolinker = require('./autolinker');
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 
+interface Spec {
+  spec: this;
+  opts: Options;
+  rootPath: string;
+  rootDir: string;
+  namespace: string;
+  toHTML(): string;
+  exportBiblio(): any;
+}
+
+/*@internal*/
 class Spec {
   spec: this;
   opts: Options;
   rootPath: string;
   rootDir: string;
   namespace: string;
-  /*@internal*/ biblio: Biblio;
-  /*@internal*/ doc: Document;
-  /*@internal*/ imports: string[];
-  /*@internal*/ node: HTMLElement;
-  /*@internal*/ fetch: (file: string) => PromiseLike<string>;
-  /*@internal*/ subclauses: Clause[];
-  /*@internal*/ _figureCounts: { [type: string]: number };
+  biblio: Biblio;
+  doc: Document;
+  imports: string[];
+  node: HTMLElement;
+  fetch: (file: string) => PromiseLike<string>;
+  subclauses: Clause[];
+  _figureCounts: { [type: string]: number };
   private _numberer: ClauseNumbers.ClauseNumberIterator;
 
   constructor (rootPath: string, fetch: (file: string) => PromiseLike<string>, doc: HTMLDocument, opts?: Options) {
@@ -99,8 +110,7 @@ class Spec {
     this.biblio = new Biblio(this.opts.location);
   }
 
-  /*@internal*/
-  buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any): PromiseLike<any> {
+  public buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any): PromiseLike<any> {
     type Builder = _Builder;
     opts = opts || {};
 
@@ -134,8 +144,7 @@ class Spec {
     return Promise.all(ps);
   }
 
-  /*@internal*/
-  build() {
+  public build() {
     let p: PromiseLike<any> = this.buildAll('emu-import', Import)
       .then(this.buildBoilerplate.bind(this))
       .then(this.loadES6Biblio.bind(this))
@@ -217,7 +226,7 @@ class Spec {
     );
   }
 
-  public exportBiblio() {
+  public exportBiblio(): any {
     if (!this.opts.location) {
       utils.logWarning('No spec location specified. Biblio not generated. Try --location or setting the location in the document\'s metadata block.');
       return {};
@@ -229,7 +238,6 @@ class Spec {
     return biblio;
   }
 
-  /*@internal*/
   getNextClauseNumber(depth: number, isAnnex: boolean) {
     return this._numberer.next(depth, isAnnex).value;
   }
@@ -376,14 +384,12 @@ class Spec {
 
   }
 
-  /*@internal*/
-  autolink() {
+  public autolink() {
     this._log('Autolinking terms and abstract ops...');
     autolinker.link(this);
   }
 
-  /*@internal*/
-  setCharset() {
+  public setCharset() {
     let current = this.spec.doc.querySelector('meta[charset]');
 
     if (!current) {

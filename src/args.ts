@@ -34,4 +34,5 @@ function printVersion() {
   return 'ecmarkup v' + p.version;
 }
 
+/*@internal*/
 export = args;
