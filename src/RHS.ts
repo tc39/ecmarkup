@@ -1,7 +1,15 @@
-'use strict';
+import Spec = require("./Spec");
+import Production = require("./Production");
 
-module.exports = class RHS {
-  constructor(spec, prod, node) {
+/*@internal*/
+class RHS {
+  spec: Spec;
+  production: Production;
+  node: Element;
+  constraints: string | null;
+  alternativeId: string | null;
+
+  constructor(spec: Spec, prod: Production, node: Element) {
     this.spec = spec;
     this.production = prod;
     this.node = node;
@@ -26,12 +34,12 @@ module.exports = class RHS {
     this.terminalify(this.node);
   }
 
-  terminalify(parentNode) {
+  terminalify(parentNode: Element) {
     for (let i = 0; i < parentNode.childNodes.length; i++) {
       const node = parentNode.childNodes[i];
 
       if (node.nodeType === 3) {
-        const text = node.textContent.trim();
+        const text = node.textContent!.trim();
         const pieces = text.split(/\s/);
 
         pieces.forEach(function (p) {
@@ -48,4 +56,7 @@ module.exports = class RHS {
       }
     }
   }
-};
+}
+
+/*@internal*/
+export = RHS;

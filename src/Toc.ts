@@ -1,9 +1,15 @@
-'use strict';
+import Builder = require('./Builder');
+import emd = require('ecmarkdown');
+import Spec = require('./Spec');
+import Clause = require('./Clause');
 
-const Builder = require('./Builder');
-const emd = require('ecmarkdown');
+/*@internal*/
+class Toc {
+  spec: Spec;
+  constructor(spec: Spec) {
+    this.spec = spec;
+  }
 
-module.exports = class Toc extends Builder {
   build() {
     if (this.spec.subclauses.length === 0) {
       return;
@@ -19,7 +25,7 @@ module.exports = class Toc extends Builder {
     this.spec.doc.body.setAttribute('class', bodyClass + ' oldtoc');
   }
 
-  static build(level, expandy) {
+  static build(level: Spec | Clause, expandy?: boolean) {
     let html = '<ol class="toc">';
 
     level.subclauses.forEach(sub => {
@@ -44,7 +50,10 @@ module.exports = class Toc extends Builder {
   }
 };
 
-function shorten(title) {
+function shorten(title: string) {
   return title.replace('Static Semantics:', 'SS:')
               .replace('Runtime Semantics:', 'RS:');
 }
+
+/*@internal*/
+export = Toc;

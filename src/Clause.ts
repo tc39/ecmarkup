@@ -1,15 +1,28 @@
-'use strict';
+import Note = require('./Note');
+import Example = require('./Example');
+import emd = require('ecmarkdown');
+import utils = require('./utils');
+import Builder = require('./Builder');
+import Spec = require("./Spec");
+import Biblio = require("./Biblio");
 
-const Note = require('./Note');
-const Example = require('./Example');
-const emd = require('ecmarkdown');
-const utils = require('./utils');
-const Builder = require('./Builder');
+/*@internal*/
+class Clause extends Builder {
+  id: string;
+  namespace: string;
+  header: HTMLHeadingElement;
+  parentClause: Clause | null;
+  title: string;
+  subclauses: Clause[];
+  depth: number;
+  number: string;
+  aoid: string | null;
+  notes: Note[];
+  examples: Example[];
 
-module.exports = class Clause extends Builder {
-  constructor(spec, node) {
+  constructor(spec: Spec, node: HTMLElement) {
     super(spec, node);
-    node._clause = this;
+    (<Clause.ClauseElement>node)._clause = this;
 
     this.header = node.querySelector('h1');
     if (!this.header) {
@@ -17,11 +30,11 @@ module.exports = class Clause extends Builder {
     }
 
     this.parentClause = utils.getParentClause(node);
-    this.title = this.header.textContent;
+    this.title = this.header.textContent!;
     this.subclauses = [];
     this.id = node.id;
 
-    let parentNamespace;
+    let parentNamespace: string | undefined;
     if (this.parentClause) {
       parentNamespace = this.parentClause.namespace;
       this.depth = this.parentClause.depth + 1;
@@ -46,14 +59,14 @@ module.exports = class Clause extends Builder {
     }
 
     if (node.hasAttribute('namespace')) {
-      this.namespace = node.getAttribute('namespace');
+      this.namespace = node.getAttribute('namespace')!;
       this.spec.biblio.createNamespace(this.namespace, parentNamespace);
     } else {
       this.namespace = parentNamespace;
     }
 
     // clauses are always at the spec-level namespace.
-    this.spec.biblio.add({
+    this.spec.biblio.add(<Biblio.ClauseBiblioEntry>{
       type: 'clause',
       id: this.id,
       aoid: this.aoid,
@@ -100,9 +113,9 @@ module.exports = class Clause extends Builder {
     }
   }
 
-  getNotesAndExamples() {
-    const notes = [];
-    const examples = [];
+  getNotesAndExamples(): [Note[], Example[]] {
+    const notes: Note[] = [];
+    const examples: Example[] = [];
 
     utils.domWalk(this.node, child => {
       if (utils.CLAUSE_ELEMS.indexOf(child.nodeName) > -1) {
@@ -110,11 +123,11 @@ module.exports = class Clause extends Builder {
       }
 
       if (child.nodeName === 'EMU-NOTE') {
-        notes.push(new Note(this.spec, child, this));
+        notes.push(new Note(this.spec, <HTMLElement>child, this));
       }
 
       if (child.nodeName === 'EMU-EXAMPLE') {
-        examples.push(new Example(this.spec, child, this));
+        examples.push(new Example(this.spec, <HTMLElement>child, this));
       }
     });
 
@@ -133,24 +146,34 @@ module.exports = class Clause extends Builder {
 
     return utilsElem;
   }
-};
+}
+
+/*@internal*/
+namespace Clause {
+  export interface ClauseElement extends HTMLElement {
+    _clause: Clause;
+  }
+}
 
 const NO_EMD = ['PRE', 'CODE', 'EMU-CLAUSE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN'];
 const textNodesUnder = utils.textNodesUnder(NO_EMD);
-function processEmd(clause) {
+function processEmd(clause: Clause) {
   const doc = clause.spec.doc;
   const textNodes = textNodesUnder(clause.node);
   for (let j = 0; j < textNodes.length; j++) {
     const node = textNodes[j];
-    if (node.textContent.trim().length === 0) continue;
+    if (node.textContent!.trim().length === 0) continue;
 
     // emd strips starting and ending spaces which we want to preserve
-    const startSpace = node.textContent.match(/^\s*/)[0];
-    const endSpace = node.textContent.match(/\s*$/)[0];
+    const startSpace = node.textContent!.match(/^\s*/)![0];
+    const endSpace = node.textContent!.match(/\s*$/)![0];
 
     const template = doc.createElement('template');
-    template.innerHTML = startSpace + emd.fragment(node.textContent) + endSpace;
+    template.innerHTML = startSpace + emd.fragment(node.textContent!) + endSpace;
 
     utils.replaceTextNode(node, template.content);
   }
 }
+
+/*@internal*/
+export = Clause;

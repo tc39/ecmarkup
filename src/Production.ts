@@ -1,15 +1,30 @@
-'use strict';
-const RHS = require('./RHS');
-const GrammarAnnotation = require('./GrammarAnnotation');
-const Terminal = require('./Terminal');
-const Builder = require('./Builder');
-const utils = require('./utils');
+import RHS = require('./RHS');
+import GrammarAnnotation = require('./GrammarAnnotation');
+import Terminal = require('./Terminal');
+import Builder = require('./Builder');
+import utils = require('./utils');
+import Spec = require('./Spec');
+import Biblio = require('./Biblio');
 
+/*@internal*/
 class Production extends Builder {
-  constructor(spec, node) {
+  static byName = {};
+
+  type: string | null;
+  name: string;
+  params: string | null;
+  optional: boolean;
+  oneOf: boolean;
+  rhses: RHS[];
+  rhsesById: { [id: string]: RHS };
+  namespace: string;
+  primary: boolean;
+  id: string | undefined;
+
+  constructor(spec: Spec, node: HTMLElement) {
     super(spec, node);
     this.type = node.getAttribute('type');
-    this.name = node.getAttribute('name');
+    this.name = node.getAttribute('name')!; // TODO: unchecked
     this.params = node.getAttribute('params');
     this.optional = node.hasAttribute('optional');
     this.oneOf = node.hasAttribute('oneof');
@@ -27,16 +42,16 @@ class Production extends Builder {
       }
     }
 
-    const id = this.id();
+    const id = this._id();
 
-    const entry = this.spec.biblio.byProductionName(this.name, this.namespace);
+    const entry = this.spec.biblio.byProductionName(this.name!, this.namespace);
 
     // primary if it's the first production with this name in this namespace or
     // the primary attribute is on this production or the parent emu-grammar clause.
     this.primary = !entry ||
                    entry.namespace !== this.namespace ||
                    node.hasAttribute('primary') ||
-                   node.parentNode.hasAttribute('primary');
+                   (<Element>node.parentNode).hasAttribute('primary');
 
     if (this.primary) {
       this.id = id;
@@ -45,7 +60,7 @@ class Production extends Builder {
         entry._instance.primary = false;
       }
 
-      const newEntry = {
+      const newEntry: Biblio.ProductionBiblioEntry = {
         type: 'production',
         id: id,
         name: this.name,
@@ -58,7 +73,7 @@ class Production extends Builder {
     }
   }
 
-  id() {
+  private _id() {
     if (this.namespace && this.namespace !== this.spec.namespace) {
       return `prod-${this.namespace}-${this.name}`;
     } else {
@@ -70,7 +85,7 @@ class Production extends Builder {
     const ntNode = this.spec.doc.createElement('emu-nt');
     ntNode.innerHTML = '<a href="#prod-' + this.name + '">' + this.name + '</a>';
     if (this.params) ntNode.setAttribute('params', this.params);
-    if (this.optional) ntNode.setAttribute('optional');
+    if (this.optional) ntNode.setAttribute('optional', '');
     this.node.insertBefore(ntNode, this.node.children[0]);
 
     const geq = this.spec.doc.createElement('emu-geq');
@@ -92,18 +107,18 @@ class Production extends Builder {
 
     this.rhses.forEach(rhs => rhs.build());
 
-    const ganns = this.node.querySelectorAll('emu-gann');
+    const ganns = this.node.querySelectorAll('emu-gann') as NodeListOf<HTMLElement>;
     for (let i = 0; i < ganns.length; i++) {
       new GrammarAnnotation(this.spec, this, ganns[i]).build();
     }
 
-    const ts = this.node.querySelectorAll('emu-t');
+    const ts = this.node.querySelectorAll('emu-t') as NodeListOf<HTMLElement>;
     for (let i = 0; i < ts.length; i++) {
       new Terminal(this.spec, this, ts[i]).build();
     }
 
     if (this.primary) {
-      this.node.setAttribute('id', this.id);
+      this.node.setAttribute('id', this.id!);
     }
 
 
@@ -117,6 +132,5 @@ class Production extends Builder {
   }
 }
 
-Production.byName = {};
-
-module.exports = Production;
+/*@internal*/
+export = Production;

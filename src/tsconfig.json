@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "strictNullChecks": true,
+        "noImplicitAny": true,
+        "declaration": true,
+        "stripInternal": true,
+        "outDir": "../lib",
+        "lib": ["es5", "es2015", "dom"],
+        "typeRoots": [
+            "../node_modules/@types"
+        ]
+    }
+}

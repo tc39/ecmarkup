@@ -1,9 +1,14 @@
-'use strict';
+import Builder = require('./Builder');
+import Spec = require('./Spec');
+import Toc = require('./Toc');
 
-const Builder = require('./Builder');
-const Toc = require('./Toc');
+/*@internal*/
+class Menu {
+  spec: Spec;
+  constructor(spec: Spec) {
+    this.spec = spec;
+  }
 
-module.exports = class Menu extends Builder {
   build() {
     const toc = Toc.build(this.spec, true);
 
@@ -35,4 +40,7 @@ module.exports = class Menu extends Builder {
     biblioContainer.textContent = JSON.stringify(this.spec.biblio);
     this.spec.doc.head.appendChild(biblioContainer);
   }
-};
+}
+
+/*@internal*/
+export = Menu;

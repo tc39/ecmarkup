@@ -1,17 +1,23 @@
-'use strict';
-const Builder = require('./Builder');
+import Builder = require('./Builder');
+import Spec = require("./Spec");
+import Clause = require("./Clause");
 
-module.exports = class Example extends Builder {
-  constructor(spec, node, clause) {
+/*@internal*/
+class Example extends Builder {
+  clause: Clause;
+  caption: string | null;
+  id: string | undefined;
+
+  constructor(spec: Spec, node: HTMLElement, clause: Clause) {
     super(spec, node);
     this.clause = clause;
     this.caption = this.node.getAttribute('caption');
     if (this.node.hasAttribute('id')) {
-      this.id = this.node.getAttribute('id');
+      this.id = this.node.getAttribute('id')!;
     }
   }
 
-  build(number) {
+  build(number?: number) {
     if (this.id) {
       // biblio is added during the build step as we don't know
       // the number at build time. Could probably be fixed.
@@ -40,5 +46,7 @@ module.exports = class Example extends Builder {
     captionElem.textContent = caption;
     this.node.childNodes[0].insertBefore(captionElem, this.node.childNodes[0].firstChild);
   }
-};
+}
 
+/*@internal*/
+export = Example;

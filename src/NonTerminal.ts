@@ -1,9 +1,14 @@
-'use strict';
-const Builder = require('./Builder');
-const utils = require('./utils');
+import Builder = require('./Builder');
+import utils = require('./utils');
+import Spec = require('./Spec');
 
-module.exports = class NonTerminal extends Builder {
-  constructor(spec, node) {
+/*@internal*/
+class NonTerminal extends Builder {
+  params: string | null;
+  optional: boolean;
+  namespace: string;
+
+  constructor(spec: Spec, node: HTMLElement) {
     super(spec, node);
 
     this.params = node.getAttribute('params');
@@ -12,7 +17,7 @@ module.exports = class NonTerminal extends Builder {
   }
 
   build() {
-    const name = this.node.textContent;
+    const name = this.node.textContent!;
     const id = 'prod-' + name;
     const entry = this.spec.biblio.byProductionName(name, this.namespace);
     if (entry) {
@@ -36,4 +41,7 @@ module.exports = class NonTerminal extends Builder {
       this.node.appendChild(el);
     }
   }
-};
+}
+
+/*@internal*/
+export = NonTerminal;

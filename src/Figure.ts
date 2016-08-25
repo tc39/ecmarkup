@@ -1,15 +1,24 @@
-'use strict';
-const Builder = require('./Builder');
+import Builder = require('./Builder');
+import Spec = require('./Spec');
+import Biblio = require('./Biblio');
 
-module.exports = class Figure extends Builder {
-  constructor(spec, node) {
+/*@internal*/
+class Figure extends Builder {
+  type: string;
+  number: number;
+  id: string | null;
+  isInformative: boolean;
+  captionElem: HTMLElement | null;
+  caption: string;
+
+  constructor(spec: Spec, node: HTMLElement) {
     super(spec, node);
     this.type = node.nodeName.split('-')[1].toLowerCase();
     this.number = ++spec._figureCounts[this.type];
     this.id = node.getAttribute('id');
 
     this.isInformative = node.hasAttribute('informative');
-    this.captionElem = node.querySelector('emu-caption');
+    this.captionElem = node.querySelector('emu-caption') as HTMLElement | null;
     this.caption = this.type.charAt(0).toUpperCase() + this.type.slice(1) + ' ' + this.number;
 
     if (this.isInformative) {
@@ -24,8 +33,8 @@ module.exports = class Figure extends Builder {
 
 
     if (this.id) {
-      spec.biblio.add({
-        type: this.type,
+      spec.biblio.add(<Biblio.FigureBiblioEntry>{
+        type: this.type as "table" | "figure" | "example" | "note",
         id: this.id,
         number: this.number,
         caption: this.caption
@@ -45,3 +54,6 @@ module.exports = class Figure extends Builder {
     this.node.childNodes[0].insertBefore(captionElem, this.node.childNodes[0].firstChild);
   }
 };
+
+/*@internal*/
+export = Figure;

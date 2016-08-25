@@ -1,20 +1,24 @@
-'use strict';
+import jsdom = require('jsdom');
+import Promise = require('bluebird');
+import chalk = require('chalk');
+import Spec = require("./Spec");
+import Clause = require("./Clause");
 
-const jsdom = require('jsdom');
-const Promise = require('bluebird');
-const chalk = require('chalk');
-const CLAUSE_ELEMS = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];
+/*@internal*/
+export const CLAUSE_ELEMS = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];
 
-exports.htmlToDoc = html => {
-  return new Promise((res, rej) => {
+/*@internal*/
+export function htmlToDoc(html: string) {
+  return new Promise<HTMLDocument>((res, rej) => {
     jsdom.env(html, (err, window) => {
       if (err) return rej(err);
       res(window.document);
     });
   });
-};
+}
 
-exports.domWalk = (root, cb) => {
+/*@internal*/
+export function domWalk(root: Node, cb: (node: Element) => boolean | undefined) {
   const childNodes = root.childNodes;
   const childLen = childNodes.length;
 
@@ -22,14 +26,15 @@ exports.domWalk = (root, cb) => {
     const node = childNodes[i];
     if (node.nodeType !== 1) continue;
 
-    const cont = cb(node);
+    const cont = cb(node as Element);
     if (cont === false) continue;
 
-    exports.domWalk(node, cb);
+    domWalk(node, cb);
   }
-};
+}
 
-exports.domWalkBackward = (root, cb) => {
+/*@internal*/
+export function domWalkBackward(root: Node, cb: (node: Element) => boolean | undefined) {
   const childNodes = root.childNodes;
   const childLen = childNodes.length;
 
@@ -37,16 +42,17 @@ exports.domWalkBackward = (root, cb) => {
     const node = childNodes[i];
     if (node.nodeType !== 1) continue;
 
-    const cont = cb(node);
+    const cont = cb(node as Element);
     if (cont === false) continue;
 
-    exports.domWalkBackward(node, cb);
+    domWalkBackward(node, cb);
   }
-};
+}
 
-exports.nodesInClause = (clause, nodeTypes) => {
-  const results = [];
-  exports.domWalk(clause, function (childNode) {
+/*@internal*/
+export function nodesInClause(clause: Node, nodeTypes: string[]) {
+  const results: Element[] = [];
+  domWalk(clause, function (childNode) {
     if (CLAUSE_ELEMS.indexOf(childNode.nodeName) > -1) {
       return false;
     }
@@ -57,22 +63,24 @@ exports.nodesInClause = (clause, nodeTypes) => {
   });
 
   return results;
-};
+}
 
-exports.textNodesUnder = skipList => {
-  return function find(node) {
-    let all = [];
+/*@internal*/
+export function textNodesUnder(skipList: string[]) {
+  return function find(node: Node) {
+    let all: Text[] = [];
 
     for (node = node.firstChild; node; node = node.nextSibling) {
-      if (node.nodeType == 3) all.push(node);
+      if (node.nodeType == 3) all.push(node as Text);
       else if (skipList.indexOf(node.nodeName) === -1) all = all.concat(find(node));
     }
 
     return all;
   };
-};
+}
 
-exports.replaceTextNode = (node, documentFragment) => {
+/*@internal*/
+export function replaceTextNode(node: Node, documentFragment: DocumentFragment) {
   // Append all the nodes
   const parent = node.parentNode;
   while (documentFragment.childNodes.length > 0) {
@@ -80,35 +88,39 @@ exports.replaceTextNode = (node, documentFragment) => {
   }
 
   node.parentNode.removeChild(node);
-};
+}
 
-exports.parent = (node, types) => {
+/*@internal*/
+export function parent(node: Node, types: string[]): Node | null {
   if (node === null) return null;
   if (types.indexOf(node.nodeName) > -1) return node;
-  return exports.parent(node.parentNode, types);
-};
+  return parent(node.parentElement, types);
+}
 
-exports.getNamespace = (spec, node) => {
-  const parentClause = exports.getParentClause(node);
+/*@internal*/
+export function getNamespace(spec: Spec, node: Node) {
+  const parentClause = getParentClause(node);
   if (parentClause) {
     return parentClause.namespace;
   } else {
     return spec.namespace;
   }
-};
+}
 
-
-exports.logVerbose = str => {
+/*@internal*/
+export function logVerbose(str: string) {
   let dateString = (new Date()).toISOString();
   console.log(chalk.gray('[' + dateString + '] ') + str);
-};
+}
 
-exports.logWarning = str => {
+/*@internal*/
+export function logWarning(str: string) {
   let dateString = (new Date()).toISOString();
   console.log(chalk.gray('[' + dateString + '] ') + chalk.red('Warning: ' + str));
-};
+}
 
-exports.shouldInline = node => {
+/*@internal*/
+export function shouldInline(node: Node) {
   let parent = node.parentNode;
 
   while (parent.nodeName === 'EMU-GRAMMAR' || parent.nodeName === 'EMU-IMPORT' || parent.nodeName === 'INS' || parent.nodeName === 'DEL') {
@@ -116,35 +128,36 @@ exports.shouldInline = node => {
   }
 
   return ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'].indexOf(parent.nodeName) === -1;
-};
+}
 
-exports.getParentClauseNode = node => {
+/*@internal*/
+export function getParentClauseNode(node: Node) {
   let current = node.parentNode;
   while (current) {
-    if (CLAUSE_ELEMS.indexOf(current.nodeName) > -1) return current;
+    if (CLAUSE_ELEMS.indexOf(current.nodeName) > -1) return current as Clause.ClauseElement;
     current = current.parentNode;
   }
 
   return null;
-};
+}
 
-exports.getParentClause = node => {
-  let parentClauseNode = exports.getParentClauseNode(node);
+/*@internal*/
+export function getParentClause(node: Node) {
+  let parentClauseNode = getParentClauseNode(node);
   if (parentClauseNode) {
     return parentClauseNode._clause;
   }
 
   return null;
-};
+}
 
-exports.getParentClauseId = node => {
-  let parentClause = exports.getParentClause(node);
+/*@internal*/
+export function getParentClauseId(node: Node) {
+  let parentClause = getParentClause(node);
 
   if (!parentClause) {
     return null;
   }
 
   return parentClause.id;
-};
-
-exports.CLAUSE_ELEMS = CLAUSE_ELEMS;
+}

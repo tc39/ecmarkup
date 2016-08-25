@@ -1,9 +1,12 @@
-'use strict';
+import Builder = require('./Builder');
+import Spec = require('./Spec');
+import Production = require('./Production');
 
-const Builder = require('./Builder');
+/*@internal*/
+class GrammarAnnotation extends Builder {
+  production: Production;
 
-module.exports = class GrammarAnnotation extends Builder {
-  constructor(spec, prod, node) {
+  constructor(spec: Spec, prod: Production, node: HTMLElement) {
     super(spec, node);
     this.production = prod;
   }
@@ -19,4 +22,7 @@ module.exports = class GrammarAnnotation extends Builder {
     const post = this.spec.doc.createTextNode(']');
     this.node.appendChild(post);
   }
-};
+}
+
+/*@internal*/
+export = GrammarAnnotation;

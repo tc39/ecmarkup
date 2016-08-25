@@ -1,11 +1,11 @@
-'use strict';
-const utils = require('./utils');
-const Path = require('path');
-const Promise = require('bluebird');
-const Builder = require('./Builder');
+import utils = require('./utils');
+import Path = require('path');
+import Promise = require('bluebird');
+import Builder = require('./Builder');
 
-module.exports = class Import extends Builder {
-  build(rootDir) {
+/*@internal*/
+class Import extends Builder {
+  build(rootDir: string): PromiseLike<any> {
     const href = this.node.getAttribute('href');
     const importPath = Path.join(rootDir || this.spec.rootDir, href);
     this.spec.imports.push(importPath);
@@ -23,10 +23,13 @@ module.exports = class Import extends Builder {
           frag.appendChild(importedNode);
         }
 
-        const imports = frag.querySelectorAll('emu-import');
+        const imports = frag.querySelectorAll('emu-import') as NodeListOf<HTMLElement>;
         this.node.appendChild(frag);
 
         return this.spec.buildAll(imports, Import, { buildArgs: [Path.dirname(importPath)] });
       });
   }
-};
+}
+
+/*@internal*/
+export = Import;

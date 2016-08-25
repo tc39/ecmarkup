@@ -1,6 +1,9 @@
-'use strict';
-const escape = require('html-escape');
-const utils = require('./utils');
+import Spec = require('./Spec');
+import Clause = require('./Clause');
+import Biblio = require('./Biblio');
+import escape = require('html-escape');
+import utils = require('./utils');
+
 const NO_CLAUSE_AUTOLINK = [
   'PRE',
   'CODE',
@@ -20,12 +23,17 @@ const NO_CLAUSE_AUTOLINK = [
 
 const clauseTextNodesUnder = utils.textNodesUnder(NO_CLAUSE_AUTOLINK);
 
-exports.link = function(spec) {
+/*@internal*/
+export function link(spec: Spec) {
   linkClause(spec, spec, new Map());
-};
+}
 
-function linkClause(spec, clause, replacerCache) {
-  let autolinkmap, clauseReplacer;
+interface AutoLinkMap {
+  [key: string]: Biblio.BiblioEntry;
+}
+
+function linkClause(spec: Spec, clause: Spec | Clause, replacerCache: Map<string, [AutoLinkMap, RegExp]>) {
+  let autolinkmap: AutoLinkMap, clauseReplacer: RegExp;
 
   let entry = replacerCache.get(clause.namespace);
   if (entry) {
@@ -35,16 +43,16 @@ function linkClause(spec, clause, replacerCache) {
     autolinkmap = {};
 
     spec.biblio.inScopeByType(clause.namespace, 'term')
-      .forEach(entry => autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry);
+      .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
 
     spec.biblio.inScopeByType(clause.namespace, 'op')
-      .forEach(entry => autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry);
+      .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
 
     clauseReplacer = new RegExp(Object.keys(autolinkmap)
       .sort(function (a, b) { return b.length - a.length; })
       .map(function (k) {
         const entry = autolinkmap[k];
-        const key = entry.key;
+        const key = entry.key!;
 
         if (entry.type === 'term') {
           if (isCommonTerm(key)) {
@@ -71,24 +79,24 @@ function linkClause(spec, clause, replacerCache) {
     replacerCache.set(clause.namespace, [autolinkmap, clauseReplacer]);
   }
 
-  autolink(clauseReplacer, autolinkmap, spec, clause.node, clause.id);
+  autolink(clauseReplacer, autolinkmap, spec, clause.node, (<Clause>clause).id);
   clause.subclauses.forEach(subclause => {
     linkClause(spec, subclause, replacerCache);
   });
 
-  let algs = utils.nodesInClause(clause.node, ['EMU-ALG', 'EMU-EQN']);
+  let algs = utils.nodesInClause(clause.node, ['EMU-ALG', 'EMU-EQN']) as HTMLElement[];
   for (let i = 0; i < algs.length; i++) {
     autolink(clauseReplacer, autolinkmap, spec, algs[i], clause.node.id, true);
   }
 }
 
-function autolink(replacer, autolinkmap, spec, node, parentId, allowSameId) {
+function autolink(replacer: RegExp, autolinkmap: AutoLinkMap, spec: Spec, node: HTMLElement, parentId: string, allowSameId?: boolean) {
   const textNodes = clauseTextNodesUnder(node);
   for (let i = 0; i < textNodes.length; i++) {
     const node = textNodes[i];
 
     const template = spec.doc.createElement('template');
-    const content = escape(node.textContent);
+    const content = escape(node.textContent!);
     const autolinked = content.replace(replacer, match => {
       const entry = autolinkmap[narrowSpace(match.toLowerCase())];
       if (!entry) {
@@ -116,15 +124,15 @@ function autolink(replacer, autolinkmap, spec, node, parentId, allowSameId) {
   }
 }
 
-function isCommonAbstractOp(op) {
+function isCommonAbstractOp(op: string) {
   return op === 'Call' || op === 'Set' || op === 'Type' || op === 'UTC' || op === 'min' || op === 'max';
 }
 
-function isCommonTerm(op) {
+function isCommonTerm(op: string) {
   return op === 'List' || op === 'Reference' || op === 'Record';
 }
 
-function caseInsensitiveRegExp(str) {
+function caseInsensitiveRegExp(str: string) {
   let lower = str[0].toLowerCase();
 
   if (lower !== str[0]) return str;
@@ -139,13 +147,13 @@ function caseInsensitiveRegExp(str) {
 
 // given a regexp string, returns a regexp string where each space can be
 // many spaces or line breaks.
-function widenSpace(str) {
+function widenSpace(str: string) {
   return str.replace(/\s+/g, '[\\s\\r\\n]+');
 }
 
 // given a regexp string, returns a regexp string where multiple spaces
 // or linebreaks can only be a single space
-function narrowSpace(str) {
+function narrowSpace(str: string) {
   return str.replace(/[\s\r\n]+/g, ' ');
 }
 

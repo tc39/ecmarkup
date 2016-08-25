@@ -1,14 +1,17 @@
-'use strict';
-const Builder = require('./Builder');
-const utils = require('./utils');
+import Builder = require('./Builder');
+import utils = require('./utils');
+import Biblio = require("./Biblio");
+import Spec = require("./Spec");
 
-module.exports = class Xref extends Builder {
+/*@internal*/
+class Xref extends Builder {
+  namespace: string;
   build() {
     const xref = this.node;
     const href = xref.getAttribute('href');
     const aoid = xref.getAttribute('aoid');
     if (this.node.hasAttribute('namespace')) {
-      this.namespace = this.node.getAttribute('namespace');
+      this.namespace = this.node.getAttribute('namespace')!;
     } else {
       this.namespace = utils.getNamespace(this.spec, this.node);
     }
@@ -32,7 +35,7 @@ module.exports = class Xref extends Builder {
 
       const id = href.slice(1);
 
-      const entry = this.spec.biblio.byId(id, this.namespace);
+      const entry = this.spec.biblio.byId(id /*, this.namespace */);
       if (!entry) {
         utils.logWarning('can\'t find clause, production, note or example with id ' + href);
         return;
@@ -75,10 +78,10 @@ module.exports = class Xref extends Builder {
     }
 
   }
-};
+}
 
-function buildClauseLink(xref, entry) {
-  if (xref.textContent.trim() === '') {
+function buildClauseLink(xref: Element, entry: Biblio.ClauseBiblioEntry) {
+  if (xref.textContent!.trim() === '') {
     if (xref.hasAttribute('title')) {
       xref.innerHTML = buildXrefLink(entry, entry.title);
     } else {
@@ -89,31 +92,31 @@ function buildClauseLink(xref, entry) {
   }
 }
 
-function buildProductionLink(xref, entry) {
-  if (xref.textContent.trim() === '') {
+function buildProductionLink(xref: Element, entry: Biblio.ProductionBiblioEntry) {
+  if (xref.textContent!.trim() === '') {
     xref.innerHTML = buildXrefLink(entry, '<emu-nt>' + entry.name + '</emu-nt>');
   } else {
     xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
   }
 }
 
-function buildAOLink(xref, entry) {
-  if (xref.textContent.trim() === '') {
+function buildAOLink(xref: Element, entry: Biblio.BiblioEntry) {
+  if (xref.textContent!.trim() === '') {
     xref.innerHTML = buildXrefLink(entry, xref.getAttribute('aoid'));
   } else {
     xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
   }
 }
 
-function buildTermLink(xref, entry) {
-  if (xref.textContent.trim() === '') {
+function buildTermLink(xref: Element, entry: Biblio.TermBiblioEntry) {
+  if (xref.textContent!.trim() === '') {
     xref.innerHTML = buildXrefLink(entry, entry.term);
   } else {
     xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
   }
 }
-function buildFigureLink(spec, xref, entry, type) {
-  if (xref.textContent.trim() === '') {
+function buildFigureLink(spec: Spec, xref: Element, entry: Biblio.FigureBiblioEntry, type: string) {
+  if (xref.textContent!.trim() === '') {
     if (entry.clauseId) {
       // first need to find the associated clause
       const clauseEntry = spec.biblio.byId(entry.clauseId);
@@ -122,7 +125,7 @@ function buildFigureLink(spec, xref, entry, type) {
         return;
       }
 
-      const parentClause = utils.parent(xref, ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX']);
+      const parentClause = utils.parent(xref, ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX']) as Element | null;
       if (parentClause && parentClause.id === clauseEntry.id) {
         xref.innerHTML = buildXrefLink(entry, type + ' ' + entry.number);
       } else {
@@ -140,7 +143,9 @@ function buildFigureLink(spec, xref, entry, type) {
   }
 }
 
-function buildXrefLink(entry, contents) {
+function buildXrefLink(entry: Biblio.BiblioEntry, contents: string | number | undefined | null) {
   return '<a href="' + entry.location + '#' + (entry.id || entry.refId) + '">' + contents + '</a>';
-
 }
+
+/*@internal*/
+export = Xref;

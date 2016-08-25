@@ -1,16 +1,21 @@
-'use strict';
-const Algorithm = require('./Algorithm');
-const emd = require('ecmarkdown');
-const utils = require('./utils');
+import Algorithm = require('./Algorithm');
+import emd = require('ecmarkdown');
+import utils = require('./utils');
+import Spec = require('./Spec');
+import Biblio = require('./Biblio');
 
-module.exports = class Eqn extends Algorithm {
-  constructor(spec, node) {
+/*@internal*/
+class Eqn extends Algorithm {
+  aoid: string | null;
+  id: string | null;
+
+  constructor(spec: Spec, node: HTMLElement) {
     super(spec, node);
     this.aoid = node.getAttribute('aoid');
     this.id = utils.getParentClauseId(node);
 
     if (this.aoid) {
-      this.spec.biblio.add({
+      this.spec.biblio.add(<Biblio.AlgorithmBiblioEntry>{
         type: 'op',
         aoid: this.aoid,
         refId: this.id
@@ -23,7 +28,7 @@ module.exports = class Eqn extends Algorithm {
 
     if (utils.shouldInline(this.node)) {
       const classString = this.node.getAttribute('class');
-      let classes;
+      let classes: string[];
 
       if (classString) {
         classes = classString.split(' ');
@@ -43,4 +48,7 @@ module.exports = class Eqn extends Algorithm {
     this.node.innerHTML = contents;
 
   }
-};
+}
+
+/*@internal*/
+export = Eqn;

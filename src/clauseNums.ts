@@ -1,12 +1,16 @@
-'use strict';
+/*@internal*/
+export interface ClauseNumberIterator {
+  next(level: number, annex: boolean): IteratorResult<string>;
+}
 
-exports.iterator = () => {
-  const ids = [];
+/*@internal*/
+export function iterator(): ClauseNumberIterator {
+  const ids: (string | number)[] = [];
   let inAnnex = false;
   let currentLevel = 0;
 
   return {
-    next(level, annex) {
+    next(level: number, annex: boolean) {
       if (inAnnex && !annex) throw new Error('Clauses cannot follow annexes');
       if (level - currentLevel > 1) throw new Error('Skipped clause');
 
@@ -27,7 +31,7 @@ exports.iterator = () => {
     }
   };
 
-  function nextAnnexNum(level) {
+  function nextAnnexNum(level: number): string | number {
     if (!inAnnex) {
       if (level > 0) throw new Error('First annex must be at depth 0');
       inAnnex = true;
@@ -36,14 +40,14 @@ exports.iterator = () => {
     }
 
     if (level === 0) {
-      return String.fromCharCode(ids[0].charCodeAt(0) + 1);
+      return String.fromCharCode((<string>ids[0]).charCodeAt(0) + 1);
     }
 
     return nextClauseNum(level);
   }
 
-  function nextClauseNum(level) {
+  function nextClauseNum(level: number) {
     if (ids[level] === undefined) return 1;
-    return ids[level] + 1;
+    return (<number>ids[level]) + 1;
   }
-};
+}

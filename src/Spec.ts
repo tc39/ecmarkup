@@ -1,37 +1,61 @@
-'use strict';
-
-const path = require('path');
-const fs = require('fs');
-const Path = require('path');
-const yaml = require('js-yaml');
-const utils = require('./utils');
-const hljs = require('highlight.js');
-const escape = require('html-escape');
-
+import path = require('path');
+import fs = require('fs');
+import Path = require('path');
+import yaml = require('js-yaml');
+import utils = require('./utils');
+import hljs = require('highlight.js');
+import escape = require('html-escape');
+import { Options } from './ecmarkup';
+import _Builder = require('./Builder');
 // Builders
-const Import = require('./Import');
-const Clause = require('./Clause');
-const ClauseNumbers = require('./clauseNums');
-const Algorithm = require('./Algorithm');
-const Dfn = require('./Dfn');
-const Note = require('./Note');
-const Toc = require('./Toc');
-const Menu = require('./Menu');
-const Production = require('./Production');
-const NonTerminal = require('./NonTerminal');
-const ProdRef = require('./ProdRef');
-const Grammar = require('./Grammar');
-const Xref = require('./Xref');
-const Eqn = require('./Eqn');
-const Figure = require('./Figure');
-const Biblio = require('./Biblio');
-const autolinker = require('./autolinker');
+import Import = require('./Import');
+import Clause = require('./Clause');
+import ClauseNumbers = require('./clauseNums');
+import Algorithm = require('./Algorithm');
+import Dfn = require('./Dfn');
+import Note = require('./Note');
+import Toc = require('./Toc');
+import Menu = require('./Menu');
+import Production = require('./Production');
+import NonTerminal = require('./NonTerminal');
+import ProdRef = require('./ProdRef');
+import Grammar = require('./Grammar');
+import Xref = require('./Xref');
+import Eqn = require('./Eqn');
+import Figure = require('./Figure');
+import Biblio = require('./Biblio');
+import autolinker = require('./autolinker');
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 
-module.exports = class Spec {
-  constructor (rootPath, fetch, doc, opts) {
+interface Spec {
+  spec: this;
+  opts: Options;
+  rootPath: string;
+  rootDir: string;
+  namespace: string;
+  toHTML(): string;
+  exportBiblio(): any;
+}
+
+/*@internal*/
+class Spec {
+  spec: this;
+  opts: Options;
+  rootPath: string;
+  rootDir: string;
+  namespace: string;
+  biblio: Biblio;
+  doc: Document;
+  imports: string[];
+  node: HTMLElement;
+  fetch: (file: string) => PromiseLike<string>;
+  subclauses: Clause[];
+  _figureCounts: { [type: string]: number };
+  private _numberer: ClauseNumbers.ClauseNumberIterator;
+
+  constructor (rootPath: string, fetch: (file: string) => PromiseLike<string>, doc: HTMLDocument, opts?: Options) {
     opts = opts || {};
 
     this.spec = this;
@@ -86,20 +110,21 @@ module.exports = class Spec {
     this.biblio = new Biblio(this.opts.location);
   }
 
-  buildAll(selector, Builder, opts) {
+  public buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any): PromiseLike<any> {
+    type Builder = _Builder;
     opts = opts || {};
 
 
-    let elems;
+    let elems: NodeListOf<HTMLElement>;
     if (typeof selector === 'string') {
       this._log('Building ' + selector + '...');
-      elems = this.doc.querySelectorAll(selector);
+      elems = this.doc.querySelectorAll(selector) as NodeListOf<HTMLElement>;
     } else {
       elems = selector;
     }
 
-    const builders = [];
-    const ps = [];
+    const builders: Builder[] = [];
+    const ps: any[] = [];
 
     for (let i = 0; i < elems.length; i++) {
       const b = new Builder(this, elems[i]);
@@ -119,8 +144,8 @@ module.exports = class Spec {
     return Promise.all(ps);
   }
 
-  build() {
-    let p = this.buildAll('emu-import', Import)
+  public build() {
+    let p: PromiseLike<any> = this.buildAll('emu-import', Import)
       .then(this.buildBoilerplate.bind(this))
       .then(this.loadES6Biblio.bind(this))
       .then(this.loadBiblios.bind(this))
@@ -142,7 +167,7 @@ module.exports = class Spec {
       p = p.then(() => {
         this._log('Building table of contents...');
 
-        let toc;
+        let toc: Toc | Menu;
 
         if (this.opts.oldToc) {
           toc = new Toc(this);
@@ -153,22 +178,22 @@ module.exports = class Spec {
       });
     }
 
-    return p.then(() => this, err => process.stderr.write(err.stack));
+    return p.then(() => this);
   }
 
-  toHTML() {
+  public toHTML() {
     return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
   }
 
-  processMetadata() {
+  private processMetadata() {
     const block = this.doc.querySelector('pre.metadata');
     if (!block) {
       return;
     }
 
-    let data;
+    let data: any;
     try {
-      data = yaml.safeLoad(block.textContent);
+      data = yaml.safeLoad(block.textContent!);
     } catch (e) {
       utils.logWarning('metadata block failed to parse');
       return;
@@ -179,17 +204,17 @@ module.exports = class Spec {
     Object.assign(this.opts, data);
   }
 
-  loadES6Biblio() {
+  private loadES6Biblio() {
     this._log('Loading biblios...');
 
     return this.fetch(Path.join(__dirname, '../es6biblio.json'))
       .then(es6bib => this.biblio.addExternalBiblio(JSON.parse(es6bib)));
   }
 
-  loadBiblios() {
+  private loadBiblios() {
     const spec = this;
 
-    const bibs = Array.prototype.slice.call(this.doc.querySelectorAll('emu-biblio'));
+    const bibs: HTMLElement[] = Array.prototype.slice.call(this.doc.querySelectorAll('emu-biblio'));
 
     return Promise.all(
       bibs.map(bib => {
@@ -201,23 +226,23 @@ module.exports = class Spec {
     );
   }
 
-  exportBiblio() {
+  public exportBiblio(): any {
     if (!this.opts.location) {
       utils.logWarning('No spec location specified. Biblio not generated. Try --location or setting the location in the document\'s metadata block.');
       return {};
     }
 
-    const biblio = {};
+    const biblio: Biblio.BiblioData = {};
     biblio[this.opts.location] = this.biblio.toJSON();
 
     return biblio;
   }
 
-  getNextClauseNumber(depth, isAnnex) {
+  getNextClauseNumber(depth: number, isAnnex: boolean) {
     return this._numberer.next(depth, isAnnex).value;
   }
 
-  highlightCode() {
+  private highlightCode() {
     this._log('Highlighting syntax...');
     const codes = this.doc.querySelectorAll('pre code');
     for (let i = 0; i < codes.length; i++) {
@@ -225,7 +250,7 @@ module.exports = class Spec {
       if (!classAttr) continue;
 
       const lang = classAttr.replace(/lang(uage)?\-/, '');
-      let input = codes[i].textContent;
+      let input = codes[i].textContent!;
 
       // remove leading and trailing blank lines
       input = input.replace(/^(\s*[\r\n])+|([\r\n]\s*)+$/g, '');
@@ -241,8 +266,8 @@ module.exports = class Spec {
     }
   }
 
-  buildBoilerplate() {
-    const status = this.opts.status;
+  private buildBoilerplate() {
+    const status = this.opts.status!;
     const version = this.opts.version;
     const title = this.opts.title;
     const shortname = this.opts.shortname;
@@ -303,9 +328,9 @@ module.exports = class Spec {
     }
   }
 
-  buildCopyrightBoilerplate() {
-    let copyright;
-    let address;
+  private buildCopyrightBoilerplate() {
+    let copyright: string;
+    let address: string;
 
     if (this.opts.status === 'draft') {
       copyright = getBoilerplate('draft-copyright');
@@ -318,7 +343,7 @@ module.exports = class Spec {
       address = '';
     }
 
-    copyright = copyright.replace(/!YEAR!/g, this.opts.date.getFullYear());
+    copyright = copyright.replace(/!YEAR!/g, "" + this.opts.date!.getFullYear());
 
     if (this.opts.contributors) {
       copyright = copyright.replace(/!CONTRIBUTORS!/g, this.opts.contributors);
@@ -329,11 +354,11 @@ module.exports = class Spec {
     let copyrightClause = this.doc.querySelector('.copyright-and-software-license');
     if (!copyrightClause) {
 
-      let last;
+      let last: HTMLElement | undefined;
       utils.domWalkBackward(this.doc.body, node => {
         if (last) return false;
         if (node.nodeName === 'EMU-CLAUSE' || node.nodeName === 'EMU-ANNEX') {
-          last = node;
+          last = node as HTMLElement;
           return false;
         }
       });
@@ -352,19 +377,19 @@ module.exports = class Spec {
       <h1>Copyright &amp; Software License</h1>
       ${address}
       <h2>Copyright Notice</h2>
-      ${copyright.replace('!YEAR!', this.opts.date.getFullYear())}
+      ${copyright.replace('!YEAR!', "" + this.opts.date!.getFullYear())}
       <h2>Software License</h2>
       ${softwareLicense}
     `;
 
   }
 
-  autolink() {
+  public autolink() {
     this._log('Autolinking terms and abstract ops...');
     autolinker.link(this);
   }
 
-  setCharset() {
+  public setCharset() {
     let current = this.spec.doc.querySelector('meta[charset]');
 
     if (!current) {
@@ -375,14 +400,14 @@ module.exports = class Spec {
     current.setAttribute('charset', 'utf-8');
   }
 
-  _log(str) {
+  private _log(str: string) {
     if (!this.opts.verbose) return;
     utils.logVerbose(str);
   }
 
-  _updateBySelector(selector, contents) {
+  private _updateBySelector(selector: string, contents: string) {
     const elem = this.doc.querySelector(selector);
-    if (elem && elem.textContent.trim().length > 0) {
+    if (elem && elem.textContent!.trim().length > 0) {
       return true;
     }
 
@@ -395,13 +420,14 @@ module.exports = class Spec {
   }
 };
 
-function assign(target, source) {
+function assign(target: any, source: any) {
   Object.keys(source).forEach(function (k) {
     target[k] = source[k];
   });
 }
 
-function getBoilerplate(file) {
+function getBoilerplate(file: string) {
   return fs.readFileSync(Path.join(__dirname, '../boilerplate', file + '.html'), 'utf8');
 }
 
+export = Spec;
