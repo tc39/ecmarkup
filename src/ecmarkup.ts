@@ -2,6 +2,7 @@ import Spec = require('./Spec');
 import Biblio = require('./Biblio');
 import BiblioEntry = Biblio.BiblioEntry;
 import utils = require('./utils');
+import { CancellationToken } from 'prex';
 
 export { Spec, BiblioEntry };
 
@@ -20,10 +21,10 @@ export interface Options {
     verbose?: boolean;
 }
 
-export function build(path: string, fetch: (path: string) => PromiseLike<string>, opts?: Options): PromiseLike<Spec> {
-  return fetch(path)
-    .then(utils.htmlToDoc)
-    .then(doc => {
-      return new Spec(path, fetch, doc, opts).build();
-    });
+export async function build(path: string, fetch: (path: string, token: CancellationToken) => PromiseLike<string>, opts?: Options, token = CancellationToken.none): Promise<Spec> {
+  const html = await fetch(path, token);
+  const doc = utils.htmlToDoc(html);
+  const spec = new Spec(path, fetch, doc, opts, /*sourceText*/ html, token);
+  await spec.build();
+  return spec;
 }

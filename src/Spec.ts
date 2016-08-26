@@ -25,6 +25,7 @@ import Eqn = require('./Eqn');
 import Figure = require('./Figure');
 import Biblio = require('./Biblio');
 import autolinker = require('./autolinker');
+import { CancellationToken } from 'prex';
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
@@ -45,34 +46,38 @@ class Spec {
   opts: Options;
   rootPath: string;
   rootDir: string;
+  sourceText: string | undefined;
   namespace: string;
   biblio: Biblio;
   doc: Document;
   imports: string[];
   node: HTMLElement;
-  fetch: (file: string) => PromiseLike<string>;
   subclauses: Clause[];
+  cancellationToken: CancellationToken;
   _figureCounts: { [type: string]: number };
-  private _numberer: ClauseNumbers.ClauseNumberIterator;
 
-  constructor (rootPath: string, fetch: (file: string) => PromiseLike<string>, doc: HTMLDocument, opts?: Options) {
+  private _numberer: ClauseNumbers.ClauseNumberIterator;
+  private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
+
+  constructor (rootPath: string, fetch: (file: string, token: CancellationToken) => PromiseLike<string>, doc: HTMLDocument, opts?: Options, sourceText?: string, token = CancellationToken.none) {
     opts = opts || {};
 
     this.spec = this;
     this.opts = {};
     this.rootPath = rootPath;
     this.rootDir = Path.dirname(this.rootPath);
+    this.sourceText = sourceText;
     this.doc = doc;
-    this.fetch = fetch;
+    this._fetch = fetch;
     this.subclauses = [];
     this.imports = [];
     this.node = this.doc.body;
+    this.cancellationToken = token;
     this._numberer = ClauseNumbers.iterator();
     this._figureCounts = {
       table: 0,
       figure: 0
     };
-
 
     this.processMetadata();
     Object.assign(this.opts, opts);
@@ -110,75 +115,74 @@ class Spec {
     this.biblio = new Biblio(this.opts.location);
   }
 
-  public buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any): PromiseLike<any> {
+  public fetch(file: string) {
+    return this._fetch(file, this.cancellationToken);
+  }
+
+  public async buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any) {
+    this.cancellationToken.throwIfCancellationRequested();
+
     type Builder = _Builder;
     opts = opts || {};
 
 
-    let elems: NodeListOf<HTMLElement>;
+    let elems: HTMLElement[];
     if (typeof selector === 'string') {
       this._log('Building ' + selector + '...');
-      elems = this.doc.querySelectorAll(selector) as NodeListOf<HTMLElement>;
+      elems = Array.from(this.doc.querySelectorAll(selector) as NodeListOf<HTMLElement>);
     } else {
-      elems = selector;
+      elems = Array.from(selector);
     }
 
-    const builders: Builder[] = [];
-    const ps: any[] = [];
-
-    for (let i = 0; i < elems.length; i++) {
-      const b = new Builder(this, elems[i]);
-      builders.push(b);
-    }
-
+    const builders = elems.map(elem => new Builder(this, elem));
     if (opts.buildArgs) {
-      for (let i = 0; i < elems.length; i++) {
-        ps.push(builders[i].build.apply(builders[i], opts.buildArgs));
-      }
-    } else {
-      for (let i = 0; i < elems.length; i++) {
-        ps.push(builders[i].build());
-      }
+      await Promise.all(builders.map(builder => builder.build(...opts.buildArgs)));
     }
-
-    return Promise.all(ps);
+    else {
+      await Promise.all(builders.map(builder => builder.build()));
+    }
   }
 
-  public build() {
-    let p: PromiseLike<any> = this.buildAll('emu-import', Import)
-      .then(this.buildBoilerplate.bind(this))
-      .then(this.loadES6Biblio.bind(this))
-      .then(this.loadBiblios.bind(this))
-      .then(this.buildAll.bind(this, 'emu-clause, emu-intro, emu-annex', Clause))
-      .then(this.buildAll.bind(this, 'emu-grammar', Grammar))
-      .then(this.buildAll.bind(this, 'emu-eqn', Eqn))
-      .then(this.buildAll.bind(this, 'emu-alg', Algorithm))
-      .then(this.buildAll.bind(this, 'emu-production', Production))
-      .then(this.buildAll.bind(this, 'emu-nt', NonTerminal))
-      .then(this.buildAll.bind(this, 'emu-prodref', ProdRef))
-      .then(this.buildAll.bind(this, 'emu-figure, emu-table', Figure))
-      .then(this.buildAll.bind(this, 'dfn', Dfn))
-      .then(this.highlightCode.bind(this))
-      .then(this.autolink.bind(this))
-      .then(this.buildAll.bind(this, 'emu-xref', Xref))
-      .then(this.setCharset.bind(this));
+  public async build() {
+    await this.buildAll('emu-import', Import);
+
+    this.buildBoilerplate();
+
+    this._log('Loading biblios...');
+    await this.loadES6Biblio();
+    await this.loadBiblios();
+
+    await this.buildAll('emu-clause, emu-intro, emu-annex', Clause);
+    await this.buildAll('emu-grammar', Grammar);
+    await this.buildAll('emu-eqn', Eqn);
+    await this.buildAll('emu-alg', Algorithm);
+    await this.buildAll('emu-production', Production);
+    await this.buildAll('emu-nt', NonTerminal);
+    await this.buildAll('emu-prodref', ProdRef);
+    await this.buildAll('emu-figure, emu-table', Figure);
+    await this.buildAll('dfn', Dfn);
+
+    this.highlightCode();
+    this.autolink();
+
+    await this.buildAll('emu-xref', Xref);
+
+    this.setCharset();
 
     if (this.opts.toc) {
-      p = p.then(() => {
         this._log('Building table of contents...');
 
         let toc: Toc | Menu;
-
         if (this.opts.oldToc) {
           toc = new Toc(this);
         } else {
           toc = new Menu(this);
         }
-        return toc.build();
-      });
+
+        toc.build();
     }
 
-    return p.then(() => this);
+    return this;
   }
 
   public toHTML() {
@@ -204,26 +208,20 @@ class Spec {
     Object.assign(this.opts, data);
   }
 
-  private loadES6Biblio() {
-    this._log('Loading biblios...');
-
-    return this.fetch(Path.join(__dirname, '../es6biblio.json'))
-      .then(es6bib => this.biblio.addExternalBiblio(JSON.parse(es6bib)));
+  private async loadES6Biblio() {
+    this.cancellationToken.throwIfCancellationRequested();
+    await this.loadBiblio(path.join(__dirname, "../es6biblio.json"));
   }
 
-  private loadBiblios() {
-    const spec = this;
+  private async loadBiblios() {
+    this.cancellationToken.throwIfCancellationRequested();
+    await Promise.all(Array.from(this.doc.querySelectorAll('emu-biblio'))
+      .map(biblio => this.loadBiblio(path.join(this.rootDir, biblio.getAttribute('href')))));
+  }
 
-    const bibs: HTMLElement[] = Array.prototype.slice.call(this.doc.querySelectorAll('emu-biblio'));
-
-    return Promise.all(
-      bibs.map(bib => {
-        const path = Path.join(spec.rootDir, bib.getAttribute('href'));
-
-        return spec.fetch(path)
-          .then(contents => this.biblio.addExternalBiblio(JSON.parse(contents)));
-      })
-    );
+  private async loadBiblio(file: string) {
+    const contents = await this.fetch(file);
+    this.biblio.addExternalBiblio(JSON.parse(contents));
   }
 
   public exportBiblio(): any {
@@ -238,7 +236,7 @@ class Spec {
     return biblio;
   }
 
-  getNextClauseNumber(depth: number, isAnnex: boolean) {
+  public getNextClauseNumber(depth: number, isAnnex: boolean) {
     return this._numberer.next(depth, isAnnex).value;
   }
 
@@ -267,6 +265,7 @@ class Spec {
   }
 
   private buildBoilerplate() {
+    this.cancellationToken.throwIfCancellationRequested();
     const status = this.opts.status!;
     const version = this.opts.version;
     const title = this.opts.title;

@@ -5,7 +5,7 @@ import emd = require('ecmarkdown');
 class Algorithm extends Builder {
   build() {
     const contents = this.node.innerHTML;
-    let html = emd.document(contents);
+    const html = emd.document(contents);
     this.node.innerHTML = html;
   }
 }

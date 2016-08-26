@@ -1,45 +1,56 @@
-#!/usr/bin/env node
-'use strict';
-
-import _args = require('./args');
-const args = _args.parse();
+const args = require('./args').parse();
 
 // requires after arg checking to avoid expensive load times
 import ecmarkup = require('./ecmarkup');
 import Spec = require('./Spec');
-import Promise = require('bluebird');
 import path = require('path');
 import fs = require('fs');
-const readFile = Promise.promisify<string, string, string>(fs.readFile);
 import utils = require('./utils');
 import debounce = require('promise-debounce');
 
 const jsDependencies = ['menu.js', 'findLocalReferences.js'];
 
-function fetch(path: string) {
-  return readFile(path, 'utf8');
+function readFile(file: string) {
+  return new Promise<string>((resolve, reject) => {
+    fs.readFile(file, "utf8", (err, data) => err ? reject(err) : resolve(data));
+  });
 }
 
-function concatJs() {
-  return jsDependencies.reduce(function (js, dependency) {
-    return js + fs.readFileSync(path.join(__dirname, '../js/' + dependency));
-  }, '');
+function writeFile(file: string, content: string) {
+  return new Promise<void>((resolve, reject) => {
+    fs.writeFile(file, content, "utf8", err => err ? reject(err) : resolve());
+  });
 }
 
-const build = debounce(function build() {
-  return ecmarkup.build(args.infile, fetch, args).then(function (spec) {
+async function copyFile(src: string, dest: string) {
+  const content = await readFile(src);
+  await writeFile(dest, content);
+}
+
+async function concatJs() {
+  const dependencies = await Promise.all(jsDependencies
+    .map(dependency => readFile(path.join(__dirname, "../js/" + dependency))));
+  return dependencies.reduce((js, dependency) => js + dependency, '');
+}
+
+const watching = new Map<string, fs.FSWatcher>();
+const build = debounce(async function build() {
+  try {
+    const spec = await ecmarkup.build(args.infile, readFile, args);
+
+    const pending: Promise<any>[] = [];
     if (args.biblio) {
       if (args.verbose) {
         utils.logVerbose('Writing biblio file to ' + args.biblio);
       }
-      fs.writeFileSync(args.biblio, JSON.stringify(spec.exportBiblio()), 'utf8');
+      pending.push(writeFile(args.biblio, JSON.stringify(spec.exportBiblio())));
     }
 
     if (args.outfile) {
       if (args.verbose) {
         utils.logVerbose('Writing output to ' + args.outfile);
       }
-      fs.writeFileSync(args.outfile, spec.toHTML(), 'utf8');
+      pending.push(writeFile(args.outfile, spec.toHTML()));
     } else {
       process.stdout.write(spec.toHTML());
     }
@@ -48,40 +59,39 @@ const build = debounce(function build() {
       if (args.verbose) {
         utils.logVerbose('Writing css file to ' + args.css);
       }
-      fs.writeFileSync(args.css, fs.readFileSync(path.join(__dirname, '../css/elements.css')));
+      pending.push(copyFile(path.join(__dirname, '../css/elements.css'), args.css));
     }
 
     if (args.js) {
       if (args.verbose) {
         utils.logVerbose('Writing js file to ' + args.js);
       }
-      fs.writeFileSync(args.js, concatJs());
+      pending.push(writeFile(args.js, await concatJs()));
     }
 
-    return spec;
-  }, err => process.stderr.write(err.stack));
+    await Promise.all(pending);
+
+    if (args.watch) {
+      const toWatch = new Set<string>(spec.imports.concat(args.infile));
+
+      // remove any files that we're no longer watching
+      for (const [file, watcher] of watching) {
+        if (!toWatch.has(file)) {
+          watcher.close();
+          watching.delete(file);
+        }
+      }
+
+      // watch any new files
+      for (const file of toWatch) {
+        if (!watching.has(file)) {
+          watching.set(file, fs.watch(file, build));
+        }
+      }
+    }
+  } catch (e) {
+    process.stderr.write(e.stack);
+  }
 });
 
-if (args.watch) {
-  let watching: { [file: string]: fs.FSWatcher } = Object.create(null);
-  build().then(spec => {
-    let toWatch = spec.imports.concat(args.infile);
-
-    // remove any files that we're no longer watching
-    Object.keys(watching).forEach(function(file) {
-      if (toWatch.indexOf(file) === -1) {
-        watching[file].close();
-        delete watching[file];
-      }
-    });
-
-    // watch any new files
-    toWatch.forEach(function(file) {
-      if (!watching[file]) {
-        watching[file] = fs.watch(file, build);
-      }
-    });
-  });
-} else {
-  build();
-}
+build();

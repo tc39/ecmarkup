@@ -1,5 +1,4 @@
 import jsdom = require('jsdom');
-import Promise = require('bluebird');
 import chalk = require('chalk');
 import Spec = require("./Spec");
 import Clause = require("./Clause");
@@ -9,12 +8,7 @@ export const CLAUSE_ELEMS = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];
 
 /*@internal*/
 export function htmlToDoc(html: string) {
-  return new Promise<HTMLDocument>((res, rej) => {
-    jsdom.env(html, (err, window) => {
-      if (err) return rej(err);
-      res(window.document);
-    });
-  });
+  return jsdom.jsdom(html);
 }
 
 /*@internal*/

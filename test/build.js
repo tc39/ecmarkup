@@ -1,6 +1,5 @@
 'use strict';
 const assert = require('assert');
-const Promise = require('bluebird');
 
 const build = require('../lib/ecmarkup').build;
 
