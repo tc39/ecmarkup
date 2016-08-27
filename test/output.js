@@ -1,8 +1,6 @@
 'use strict';
 const fs = require('fs');
 const assert = require('assert');
-const Promise = require('bluebird');
-const readFile = Promise.promisify(fs.readFile);
 const diff = require('diff');
 
 const emu = require('../lib/ecmarkup');
@@ -12,7 +10,9 @@ const files = fs.readdirSync('test')
 
 function build(file) {
   return emu.build(file, function (file) {
-    return readFile(file, 'utf-8');
+    return new Promise((resolve, reject) =>
+      fs.readFile(file, 'utf-8', (err, data) =>
+        err ? reject(err) : resolve(data)));
   });
 }
 
