@@ -1,9 +1,9 @@
-import Builder = require('./Builder');
-import Spec = require('./Spec');
-import Toc = require('./Toc');
+import Builder from './Builder';
+import Spec from './Spec';
+import Toc from './Toc';
 
 /*@internal*/
-class Menu {
+export default class Menu {
   spec: Spec;
   constructor(spec: Spec) {
     this.spec = spec;
@@ -41,6 +41,3 @@ class Menu {
     this.spec.doc.head.appendChild(biblioContainer);
   }
 }
-
-/*@internal*/
-export = Menu;

@@ -1,16 +1,15 @@
-import Spec = require("./Spec");
-import Production = require("./Production");
+import Spec from "./Spec";
+import Production from "./Production";
+import Builder from './Builder';
 
 /*@internal*/
-class RHS {
-  spec: Spec;
+export default class RHS extends Builder {
   production: Production;
-  node: Element;
   constraints: string | null;
   alternativeId: string | null;
 
-  constructor(spec: Spec, prod: Production, node: Element) {
-    this.spec = spec;
+  constructor(spec: Spec, prod: Production, node: HTMLElement) {
+    super(spec, node);
     this.production = prod;
     this.node = node;
     this.constraints = node.getAttribute('constraints');
@@ -57,6 +56,3 @@ class RHS {
     }
   }
 }
-
-/*@internal*/
-export = RHS;

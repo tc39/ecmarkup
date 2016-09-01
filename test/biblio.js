@@ -1,7 +1,8 @@
 'use strict';
 
 const assert = require('assert');
-const Biblio = require('../lib/Biblio');
+const BiblioModule = require('../lib/Biblio');
+const Biblio = BiblioModule.default;
 const location = 'https://tc39.github.io/ecma262/';
 
 describe('Biblio', function () {

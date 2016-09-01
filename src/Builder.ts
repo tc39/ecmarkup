@@ -1,19 +1,19 @@
-import Spec = require("./Spec");
+import Spec from "./Spec";
+import { Context } from './Context';
 
 /*@internal*/
-class Builder {
+export default class Builder {
   public spec: Spec;
   public node: HTMLElement;
 
-  constructor(spec: Spec, node: HTMLElement) {
+  constructor(spec: Spec, node: HTMLElement, ... args: any[]) {
     this.spec = spec;
     this.node = node;
   }
-
-  build(...args: any[]): void | PromiseLike<void> {
+  
+  static enter(context: Context): PromiseLike<void> | void {
     throw new Error('Builder not implemented');
   }
+  static exit(context: Context): PromiseLike<void> | void { } 
+  static elements: string[] = [];
 }
-
-/*@internal*/
-export = Builder;

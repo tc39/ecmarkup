@@ -22,7 +22,7 @@
 
   <p>Also terms are auto-linked in algorithms. But not naked abstract ops!</p>
 
-  <!-- these shouldn't autolink as they are under the same clause that defines the dfn -->
+  <!-- these should autolink - while they are under the same clause that defines the dfn, algs want auto-linking always -->
   <emu-alg><ol><li>Call the <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> algorithm.</li><li>Do something great with <emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref>.</li><li><emu-xref href="#sec-dfn"><a href="#sec-dfn">dfn</a></emu-xref> is now awesome.
   </li></ol></emu-alg>
 

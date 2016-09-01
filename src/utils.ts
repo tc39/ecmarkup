@@ -1,30 +1,26 @@
 import jsdom = require('jsdom');
 import chalk = require('chalk');
-import Spec = require("./Spec");
-import Clause = require("./Clause");
+import Spec from "./Spec";
+import Xref from './Xref';
+import Clause from './Clause';
+import emd = require('ecmarkdown');
 
 /*@internal*/
-export const CLAUSE_ELEMS = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];
+export function emdTextNode(spec: Spec, node: Node) {
+  // emd strips starting and ending spaces which we want to preserve
+  const startSpace = node.textContent!.match(/^\s*/)![0];
+  const endSpace = node.textContent!.match(/\s*$/)![0];
+
+  const template = spec.doc.createElement('template');
+  template.innerHTML = startSpace + emd.fragment(node.textContent!) + endSpace;
+
+  replaceTextNode(node, template.content);
+}
+
 
 /*@internal*/
 export function htmlToDoc(html: string) {
   return jsdom.jsdom(html);
-}
-
-/*@internal*/
-export function domWalk(root: Node, cb: (node: Element) => boolean | undefined) {
-  const childNodes = root.childNodes;
-  const childLen = childNodes.length;
-
-  for (let i = 0; i < childLen; i++) {
-    const node = childNodes[i];
-    if (node.nodeType !== 1) continue;
-
-    const cont = cb(node as Element);
-    if (cont === false) continue;
-
-    domWalk(node, cb);
-  }
 }
 
 /*@internal*/
@@ -44,61 +40,24 @@ export function domWalkBackward(root: Node, cb: (node: Element) => boolean | und
 }
 
 /*@internal*/
-export function nodesInClause(clause: Node, nodeTypes: string[]) {
-  const results: Element[] = [];
-  domWalk(clause, function (childNode) {
-    if (CLAUSE_ELEMS.indexOf(childNode.nodeName) > -1) {
-      return false;
-    }
-
-    if (nodeTypes.indexOf(childNode.nodeName) > -1) {
-      results.push(childNode);
-    }
-  });
-
-  return results;
-}
-
-/*@internal*/
-export function textNodesUnder(skipList: string[]) {
-  return function find(node: Node) {
-    let all: Text[] = [];
-
-    for (node = node.firstChild; node; node = node.nextSibling) {
-      if (node.nodeType == 3) all.push(node as Text);
-      else if (skipList.indexOf(node.nodeName) === -1) all = all.concat(find(node));
-    }
-
-    return all;
-  };
-}
-
-/*@internal*/
-export function replaceTextNode(node: Node, documentFragment: DocumentFragment) {
+export function replaceTextNode(node: Node, frag: DocumentFragment) {
   // Append all the nodes
   const parent = node.parentNode;
-  while (documentFragment.childNodes.length > 0) {
-    node.parentNode.insertBefore(documentFragment.childNodes[0], node);
-  }
+  const newXrefNodes = Array.from(frag.querySelectorAll('EMU-XREF'));
+  const first = frag.childNodes[0];
 
-  node.parentNode.removeChild(node);
-}
-
-/*@internal*/
-export function parent(node: Node, types: string[]): Node | null {
-  if (node === null) return null;
-  if (types.indexOf(node.nodeName) > -1) return node;
-  return parent(node.parentElement, types);
-}
-
-/*@internal*/
-export function getNamespace(spec: Spec, node: Node) {
-  const parentClause = getParentClause(node);
-  if (parentClause) {
-    return parentClause.namespace;
+  if (first.nodeType === 3) {
+    node.textContent = first.textContent;
+    frag.removeChild(first);
   } else {
-    return spec.namespace;
+    // set it to empty because we don't want to break iteration
+    // (I think it should work to delete it... investigate possible jsdom bug)  
+    node.textContent = '';
   }
+
+  parent.insertBefore(frag, node.nextSibling);
+
+  return newXrefNodes;
 }
 
 /*@internal*/
@@ -122,36 +81,4 @@ export function shouldInline(node: Node) {
   }
 
   return ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'].indexOf(parent.nodeName) === -1;
-}
-
-/*@internal*/
-export function getParentClauseNode(node: Node) {
-  let current = node.parentNode;
-  while (current) {
-    if (CLAUSE_ELEMS.indexOf(current.nodeName) > -1) return current as Clause.ClauseElement;
-    current = current.parentNode;
-  }
-
-  return null;
-}
-
-/*@internal*/
-export function getParentClause(node: Node) {
-  let parentClauseNode = getParentClauseNode(node);
-  if (parentClauseNode) {
-    return parentClauseNode._clause;
-  }
-
-  return null;
-}
-
-/*@internal*/
-export function getParentClauseId(node: Node) {
-  let parentClause = getParentClause(node);
-
-  if (!parentClause) {
-    return null;
-  }
-
-  return parentClause.id;
 }

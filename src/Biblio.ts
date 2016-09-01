@@ -1,13 +1,13 @@
-import Production = require("./Production");
+import Production from "./Production";
 
-class EnvRec extends Array<Biblio.BiblioEntry> {
+class EnvRec extends Array<BiblioEntry> {
   _parent: EnvRec | undefined;
   _namespace: string;
   _children: EnvRec[];
-  _byType: { [key: string]: Biblio.BiblioEntry[] };
-  _byLocation: { [key: string]: Biblio.BiblioEntry[] };
-  _byProductionName: { [key: string]: Biblio.ProductionBiblioEntry };
-  _byAoid: { [key: string]: Biblio.AlgorithmBiblioEntry };
+  _byType: { [key: string]: BiblioEntry[] };
+  _byLocation: { [key: string]: BiblioEntry[] };
+  _byProductionName: { [key: string]: ProductionBiblioEntry };
+  _byAoid: { [key: string]: AlgorithmBiblioEntry };
 
   constructor (parent: EnvRec | undefined, namespace: string) {
     super();
@@ -25,7 +25,7 @@ class EnvRec extends Array<Biblio.BiblioEntry> {
     this._byAoid = {};
   }
 
-  push(...items: Biblio.BiblioEntry[]) {
+  push(...items: BiblioEntry[]) {
     for (const item of items) {
       item.location = item.location || '';
 
@@ -33,7 +33,7 @@ class EnvRec extends Array<Biblio.BiblioEntry> {
       pushKey(this._byLocation, item.location, item);
 
       if (item.type === 'clause' && item.aoid) {
-        const op: Biblio.BiblioEntry = {
+        const op: BiblioEntry = {
           type: 'op',
           aoid: item.aoid,
           refId: item.id,
@@ -60,8 +60,8 @@ class EnvRec extends Array<Biblio.BiblioEntry> {
 }
 
 /*@internal*/
-class Biblio {
-  private _byId: { [id: string]: Biblio.BiblioEntry; };
+export default class Biblio {
+  private _byId: { [id: string]: BiblioEntry; };
   private _location: string;
   private _root: EnvRec;
   private _nsToEnvRec: { [namespace: string]: EnvRec | undefined; };
@@ -79,7 +79,7 @@ class Biblio {
     return this._byId[id];
   }
 
-  byNamespace(ns: string): Biblio.BiblioEntry[] {
+  byNamespace(ns: string): BiblioEntry[] {
     const env = this._nsToEnvRec[ns];
     if (!env) {
       throw new Error('Namespace ' + ns + ' not found');
@@ -98,15 +98,15 @@ class Biblio {
     return this.lookup(ns, env => env._byAoid[aoid]);
   }
 
-  inScopeByType(ns: string, type: "op"): Biblio.AlgorithmBiblioEntry[];
-  inScopeByType(ns: string, type: "production"): Biblio.ProductionBiblioEntry[];
-  inScopeByType(ns: string, type: "clause"): Biblio.ClauseBiblioEntry[];
-  inScopeByType(ns: string, type: "term"): Biblio.TermBiblioEntry[];
-  inScopeByType(ns: string, type: "table" | "figure" | "example" | "note"): Biblio.FigureBiblioEntry[];
-  inScopeByType(ns: string, type: string): Biblio.BiblioEntry[];
+  inScopeByType(ns: string, type: "op"): AlgorithmBiblioEntry[];
+  inScopeByType(ns: string, type: "production"): ProductionBiblioEntry[];
+  inScopeByType(ns: string, type: "clause"): ClauseBiblioEntry[];
+  inScopeByType(ns: string, type: "term"): TermBiblioEntry[];
+  inScopeByType(ns: string, type: "table" | "figure" | "example" | "note"): FigureBiblioEntry[];
+  inScopeByType(ns: string, type: string): BiblioEntry[];
   inScopeByType(ns: string, type: string) {
     let seen = new Set<string>();
-    let results: Biblio.BiblioEntry[] = [];
+    let results: BiblioEntry[] = [];
     let current = this._nsToEnvRec[ns];
     while (current) {
       (current._byType[type] || []).forEach(entry => {
@@ -138,7 +138,7 @@ class Biblio {
     return undefined;
   }
 
-  add(entry: Biblio.BiblioEntry, ns?: string | null) {
+  add(entry: BiblioEntry, ns?: string | null) {
     ns = ns || this._location;
     const env = this._nsToEnvRec[ns];
     entry.namespace = ns;
@@ -175,7 +175,7 @@ class Biblio {
     this._nsToEnvRec[ns] = env;
   }
 
-  addExternalBiblio(biblio: Biblio.BiblioData) {
+  addExternalBiblio(biblio: BiblioData) {
     Object.keys(biblio).forEach(site => {
       biblio[site].forEach(entry => {
         entry.location = site;
@@ -193,70 +193,69 @@ class Biblio {
   }
 }
 
-namespace Biblio {
-  export interface BiblioData {
-    [namespace: string]: BiblioEntry[];
-  }
-
-  export interface BiblioEntryBase {
-    type: string;
-    location?: string;
-    namespace?: string;
-    id?: string;
-    aoid?: string;
-    refId?: string;
-    clauseId?: string;
-    name?: string;
-    key?: string;
-    title?: string;
-    number?: string | number;
-    caption?: string;
-    term?: string;
-  }
-
-  export interface AlgorithmBiblioEntry extends BiblioEntryBase {
-    type: "op";
-    aoid: string;
-    refId: string;
-  }
-
-  export interface ProductionBiblioEntry extends BiblioEntryBase {
-    type: "production";
-    id?: string;
-    name: string;
-    /*@internal*/ _instance?: Production;
-  }
-
-  export interface ClauseBiblioEntry extends BiblioEntryBase {
-    type: "clause";
-    id: string;
-    aoid: string;
-    title: string;
-    number: string | number;
-  }
-
-  export interface TermBiblioEntry extends BiblioEntryBase {
-    type: "term";
-    term: string;
-    refId: string;
-    id?: string;
-  }
-
-  export interface FigureBiblioEntry extends BiblioEntryBase {
-    type: "table" | "figure" | "example" | "note";
-    id: string;
-    number: string | number;
-    clauseId?: string;
-    caption?: string;
-  }
-
-  export type BiblioEntry =
-    AlgorithmBiblioEntry |
-    ProductionBiblioEntry |
-    ClauseBiblioEntry |
-    TermBiblioEntry |
-    FigureBiblioEntry;
+export interface BiblioData {
+  [namespace: string]: BiblioEntry[];
 }
+
+export interface BiblioEntryBase {
+  type: string;
+  location?: string;
+  namespace?: string;
+  id?: string;
+  aoid?: string;
+  refId?: string;
+  clauseId?: string;
+  name?: string;
+  key?: string;
+  title?: string;
+  number?: string | number;
+  caption?: string;
+  term?: string;
+}
+
+export interface AlgorithmBiblioEntry extends BiblioEntryBase {
+  type: "op";
+  aoid: string;
+  refId: string;
+}
+
+export interface ProductionBiblioEntry extends BiblioEntryBase {
+  type: "production";
+  id?: string;
+  name: string;
+  /*@internal*/ _instance?: Production;
+}
+
+export interface ClauseBiblioEntry extends BiblioEntryBase {
+  type: "clause";
+  id: string;
+  aoid: string;
+  title: string;
+  titleHTML: string;
+  number: string | number;
+}
+
+export interface TermBiblioEntry extends BiblioEntryBase {
+  type: "term";
+  term: string;
+  refId: string;
+  id?: string;
+}
+
+export interface FigureBiblioEntry extends BiblioEntryBase {
+  type: "table" | "figure" | "example" | "note";
+  id: string;
+  number: string | number;
+  clauseId?: string;
+  caption?: string;
+}
+
+export type BiblioEntry =
+  AlgorithmBiblioEntry |
+  ProductionBiblioEntry |
+  ClauseBiblioEntry |
+  TermBiblioEntry |
+  FigureBiblioEntry;
 
 function dumpEnv(env: EnvRec) {
   console.log('## ' + env._namespace);
@@ -269,7 +268,7 @@ function dumpEnv(env: EnvRec) {
   });
 }
 
-function pushKey(arr: { [key: string]: Biblio.BiblioEntry[] }, key: string, value: Biblio.BiblioEntry) {
+function pushKey(arr: { [key: string]: BiblioEntry[] }, key: string, value: BiblioEntry) {
   if (arr[key] === undefined) {
     arr[key] = [];
   }
@@ -277,7 +276,7 @@ function pushKey(arr: { [key: string]: Biblio.BiblioEntry[] }, key: string, valu
   arr[key].push(value);
 }
 
-function getKey(item: Biblio.BiblioEntry) {
+function getKey(item: BiblioEntry) {
   switch (item.type) {
   case 'clause': return item.title;
   case 'production': return item.name;
@@ -289,8 +288,6 @@ function getKey(item: Biblio.BiblioEntry) {
   case 'note':
     return item.caption;
   default:
-    throw new Error('Can\'t get key for ' + (<Biblio.BiblioEntry>item).type);
+    throw new Error('Can\'t get key for ' + (<BiblioEntry>item).type);
   }
 }
-
-export = Biblio;

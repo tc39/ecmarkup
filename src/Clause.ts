@@ -1,94 +1,51 @@
-import Note = require('./Note');
-import Example = require('./Example');
+import Note from './Note';
+import Example from './Example';
 import emd = require('ecmarkdown');
-import utils = require('./utils');
-import Builder = require('./Builder');
-import Spec = require("./Spec");
-import Biblio = require("./Biblio");
+import { logWarning, replaceTextNode } from './utils';
+import Builder from './Builder';
+import Spec from "./Spec";
+import Biblio, { ClauseBiblioEntry } from "./Biblio";
+import { Context } from './Context';
 
 /*@internal*/
-class Clause extends Builder {
+export default class Clause extends Builder {
   id: string;
   namespace: string;
   header: HTMLHeadingElement;
-  parentClause: Clause | null;
+  parentClause: Clause;
   title: string;
+  titleHTML: string;
   subclauses: Clause[];
-  depth: number;
   number: string;
   aoid: string | null;
   notes: Note[];
   examples: Example[];
 
-  constructor(spec: Spec, node: HTMLElement) {
+  constructor(
+    spec: Spec,
+    node: HTMLElement,
+    parent: Clause,
+    id: string,
+    number: string,
+    namespace: string,
+    aoid: string | null
+  ) {
     super(spec, node);
-    (<Clause.ClauseElement>node)._clause = this;
-
-    this.header = node.querySelector('h1');
-    if (!this.header) {
-      throw new Error('Clause doesn\'t have header: ' + node.outerHTML);
-    }
-
-    this.parentClause = utils.getParentClause(node);
-    this.title = this.header.textContent!;
+    this.parentClause = parent;
+    this.id = id;
+    this.number = number;
     this.subclauses = [];
-    this.id = node.id;
-
-    let parentNamespace: string | undefined;
-    if (this.parentClause) {
-      parentNamespace = this.parentClause.namespace;
-      this.depth = this.parentClause.depth + 1;
-      this.parentClause.subclauses.push(this);
-    } else {
-      parentNamespace = this.spec.namespace;
-      this.depth = 0;
-      this.spec.subclauses.push(this);
-    }
-
-    if (node.nodeName === 'EMU-INTRO') {
-      this.number = '';
-    } else {
-      this.number = spec.getNextClauseNumber(this.depth,
-        node.nodeName === 'EMU-ANNEX'
-        );
-    }
-
-    this.aoid = node.getAttribute('aoid');
-    if (node.hasAttribute('aoid') && !this.aoid) {
-      this.aoid = this.id;
-    }
-
-    if (node.hasAttribute('namespace')) {
-      this.namespace = node.getAttribute('namespace')!;
-      this.spec.biblio.createNamespace(this.namespace, parentNamespace);
-    } else {
-      this.namespace = parentNamespace;
-    }
-
-    // clauses are always at the spec-level namespace.
-    this.spec.biblio.add(<Biblio.ClauseBiblioEntry>{
-      type: 'clause',
-      id: this.id,
-      aoid: this.aoid,
-      title: this.title,
-      number: this.number
-    }, this.spec.namespace);
-
-    const record = this.getNotesAndExamples();
-    this.notes = record[0];
-    this.examples = record[1];
+    this.namespace = namespace;
+    this.aoid = aoid;
+    this.notes = [];
+    this.examples = [];
   }
 
-  build() {
+  buildHeader() {
     const numElem = this.spec.doc.createElement('span');
     numElem.setAttribute('class', 'secnum');
     numElem.textContent = this.number;
     this.header.insertBefore(numElem, this.header.firstChild);
-
-    this.header.appendChild(this.buildUtils());
-    processEmd(this);
-    this.buildNotes();
-    this.buildExamples();
   }
 
   buildNotes() {
@@ -113,27 +70,6 @@ class Clause extends Builder {
     }
   }
 
-  getNotesAndExamples(): [Note[], Example[]] {
-    const notes: Note[] = [];
-    const examples: Example[] = [];
-
-    utils.domWalk(this.node, child => {
-      if (utils.CLAUSE_ELEMS.indexOf(child.nodeName) > -1) {
-        return false;
-      }
-
-      if (child.nodeName === 'EMU-NOTE') {
-        notes.push(new Note(this.spec, <HTMLElement>child, this));
-      }
-
-      if (child.nodeName === 'EMU-EXAMPLE') {
-        examples.push(new Example(this.spec, <HTMLElement>child, this));
-      }
-    });
-
-    return [notes, examples];
-  }
-
   buildUtils() {
     const utilsElem = this.spec.doc.createElement('span');
     utilsElem.setAttribute('class', 'utils');
@@ -144,36 +80,80 @@ class Clause extends Builder {
 
     utilsElem.appendChild(anchorElem);
 
-    return utilsElem;
+    this.header.appendChild(utilsElem);
   }
-}
 
-/*@internal*/
-namespace Clause {
-  export interface ClauseElement extends HTMLElement {
-    _clause: Clause;
+  static enter({spec, node, clauseStack, clauseNumberer}: Context) {
+    if (!node.id) {
+      logWarning("Clause doesn't have an id: " + node.outerHTML.slice(0, 100));
+    }
+    
+    let nextNumber = '';
+    if (node.nodeName !== 'EMU-INTRO') {
+      nextNumber = clauseNumberer.next(clauseStack.length, node.nodeName === 'EMU-ANNEX').value;
+    }
+    const parent = clauseStack[clauseStack.length - 1] || null;
+
+    let parentNamespace: string;
+    if (parent) {
+      parentNamespace = parent.namespace;
+    } else {
+      parentNamespace = spec.namespace;
+    }
+
+    let newNamespace = false;
+    let namespace: string;
+    if (node.hasAttribute('namespace')) {
+      namespace = node.getAttribute('namespace')!;
+      spec.biblio.createNamespace(namespace, parentNamespace);
+    } else {
+      namespace = parentNamespace;
+    }
+
+    let aoid = node.getAttribute('aoid');
+    if (aoid === "") {
+      // <emu-clause id=foo aoid> === <emu-clause id=foo aoid=foo>
+      aoid = node.id;
+    }
+    const clause = new Clause(spec, node, parent, node.id, nextNumber, namespace, aoid);
+    
+    if (parent) {
+      parent.subclauses.push(clause);
+    } else {
+      spec.subclauses.push(clause);
+    }
+
+    clauseStack.push(clause);
   }
-}
 
-const NO_EMD = ['PRE', 'CODE', 'EMU-CLAUSE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN'];
-const textNodesUnder = utils.textNodesUnder(NO_EMD);
-function processEmd(clause: Clause) {
-  const doc = clause.spec.doc;
-  const textNodes = textNodesUnder(clause.node);
-  for (let j = 0; j < textNodes.length; j++) {
-    const node = textNodes[j];
-    if (node.textContent!.trim().length === 0) continue;
+  static exit({spec, node, clauseStack}: Context) {
+    const clause = clauseStack[clauseStack.length - 1];
 
-    // emd strips starting and ending spaces which we want to preserve
-    const startSpace = node.textContent!.match(/^\s*/)![0];
-    const endSpace = node.textContent!.match(/\s*$/)![0];
+    if (!clause.header) {
+      throw new Error("Couldn't find title for clause #" + clause.id);
+    }
 
-    const template = doc.createElement('template');
-    template.innerHTML = startSpace + emd.fragment(node.textContent!) + endSpace;
 
-    utils.replaceTextNode(node, template.content);
+    clause.title = clause.header.textContent!;
+    clause.titleHTML = clause.header.innerHTML;
+    clause.buildHeader();
+    clause.buildExamples();
+    clause.buildNotes();
+    clause.buildUtils();
+
+    // clauses are always at the spec-level namespace.
+    spec.biblio.add(<ClauseBiblioEntry>{
+      type: 'clause',
+      id: clause.id,
+      aoid: clause.aoid,
+      title: clause.title,
+      titleHTML: clause.titleHTML,
+      number: clause.number
+    }, spec.namespace);
+
+    clauseStack.pop();
   }
-}
 
-/*@internal*/
-export = Clause;
+  static elements = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];
+  static linkElements = Clause.elements;
+}

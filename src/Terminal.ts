@@ -1,9 +1,9 @@
-import Builder = require("./Builder");
-import Spec = require("./Spec");
-import Production = require("./Production");
+import Builder from './Builder';
+import Spec from "./Spec";
+import Production from "./Production";
 
 /*@internal*/
-class Terminal extends Builder {
+export default class Terminal extends Builder {
   production: Production;
   optional: boolean;
 
@@ -29,6 +29,3 @@ class Terminal extends Builder {
     this.node.appendChild(el);
   }
 }
-
-/*@internal*/
-export = Terminal;

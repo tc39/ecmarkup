@@ -16,7 +16,13 @@ copyright: false
   </ins>
 
   LookaheadExample ::
-    `&&` `n` [lookahead <! {`1`, `3`, `5`, `7`, `9`}] DecimalDigits
-    DecimalDigit [lookahead <! DecimalDigit]
+    `&&` `n` [lookahead &lt;! {`1`, `3`, `5`, `7`, `9`}] DecimalDigits
+    DecimalDigit [lookahead &lt;! DecimalDigit]
 </emu-grammar>
 
+<p>Can also have inline productions like <emu-grammar>Atom :: `(` Disjunction `)`</emu-grammar>.</p>
+
+<emu-alg>
+  1. Can also have productions in steps.
+  1. Example is <emu-grammar>Atom :: `(` Disjunction `)`</emu-grammar>.
+</emu-alg>

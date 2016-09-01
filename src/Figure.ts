@@ -1,15 +1,16 @@
-import Builder = require('./Builder');
-import Spec = require('./Spec');
-import Biblio = require('./Biblio');
-
-/*@internal*/
-class Figure extends Builder {
+import Builder from './Builder';
+import Spec from './Spec';
+import Biblio, { FigureBiblioEntry } from './Biblio';
+import { Context } from './Context';
+export default class Figure extends Builder {
   type: string;
   number: number;
   id: string | null;
   isInformative: boolean;
   captionElem: HTMLElement | null;
   caption: string;
+
+  static elements = ['EMU-FIGURE', 'EMU-TABLE'];
 
   constructor(spec: Spec, node: HTMLElement) {
     super(spec, node);
@@ -33,7 +34,7 @@ class Figure extends Builder {
 
 
     if (this.id) {
-      spec.biblio.add(<Biblio.FigureBiblioEntry>{
+      spec.biblio.add(<FigureBiblioEntry>{
         type: this.type as "table" | "figure" | "example" | "note",
         id: this.id,
         number: this.number,
@@ -42,18 +43,16 @@ class Figure extends Builder {
     }
   }
 
-  build() {
-    if (this.captionElem) {
-      this.captionElem.parentNode.removeChild(this.captionElem);
+  static enter({ spec, node, clauseStack }: Context) {
+    const figure = new Figure(spec, node);
+    if (figure.captionElem) {
+      figure.captionElem.parentNode.removeChild(figure.captionElem);
     }
 
-    this.node.innerHTML = '<figure>' + this.node.innerHTML + '</figure>';
+    node.innerHTML = '<figure>' + node.innerHTML + '</figure>';
 
-    const captionElem = this.spec.doc.createElement('figcaption');
-    captionElem.innerHTML = this.caption;
-    this.node.childNodes[0].insertBefore(captionElem, this.node.childNodes[0].firstChild);
+    const captionElem = spec.doc.createElement('figcaption');
+    captionElem.innerHTML = figure.caption;
+    node.childNodes[0].insertBefore(captionElem, node.childNodes[0].firstChild);
   }
 };
-
-/*@internal*/
-export = Figure;

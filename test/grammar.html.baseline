@@ -14,4 +14,13 @@
 <emu-production name="LookaheadExample" type="lexical" id="prod-LookaheadExample">
     <emu-nt><a href="#prod-LookaheadExample">LookaheadExample</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="d9a654c9"><emu-t>&amp;&amp;</emu-t><emu-t>n</emu-t><emu-gann>[lookahead ∉ { <emu-t>1</emu-t>, <emu-t>3</emu-t>, <emu-t>5</emu-t>, <emu-t>7</emu-t>, <emu-t>9</emu-t> }]</emu-gann><emu-nt><a href="https://tc39.github.io/ecma262/#prod-DecimalDigits">DecimalDigits</a></emu-nt></emu-rhs>
     <emu-rhs a="195cbc6c"><emu-nt><a href="https://tc39.github.io/ecma262/#prod-DecimalDigit">DecimalDigit</a></emu-nt><emu-gann>[lookahead ∉ <emu-nt><a href="https://tc39.github.io/ecma262/#prod-DecimalDigit">DecimalDigit</a></emu-nt>]</emu-gann></emu-rhs>
-</emu-production></emu-grammar></body>
+</emu-production></emu-grammar>
+
+<p>Can also have inline productions like  <emu-grammar><emu-production name="Atom" type="lexical" collapsed="" id="prod-Atom" class=" inline">
+    <emu-nt><a href="#prod-Atom">Atom</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="34eb148f"><emu-t>(</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-Disjunction">Disjunction</a></emu-nt><emu-t>)</emu-t></emu-rhs>
+</emu-production></emu-grammar>.</p>
+
+<emu-alg><ol><li>Can also have productions in steps.</li><li>Example is <emu-grammar><emu-production name="Atom" type="lexical" collapsed="" class=" inline">
+    <emu-nt><a href="#prod-Atom">Atom</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="34eb148f"><emu-t>(</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-Disjunction">Disjunction</a></emu-nt><emu-t>)</emu-t></emu-rhs>
+</emu-production></emu-grammar>.</li></ol></emu-alg>
+</body>

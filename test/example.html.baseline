@@ -3,6 +3,7 @@
 <p>Examples outside of clauses aren't processed specially.</p>
 <emu-example>
   This is an example.
+
 </emu-example>
 
 <emu-clause id="sec-example">

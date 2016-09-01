@@ -7,6 +7,7 @@ import path = require('path');
 import fs = require('fs');
 import utils = require('./utils');
 import debounce = require('promise-debounce');
+var __awaiter = require('./awaiter');
 
 const jsDependencies = ['menu.js', 'findLocalReferences.js'];
 
@@ -72,7 +73,7 @@ const build = debounce(async function build() {
     await Promise.all(pending);
 
     if (args.watch) {
-      const toWatch = new Set<string>(spec.imports.concat(args.infile));
+      const toWatch = new Set<string>(spec.imports.map(i => i.importLocation).concat(args.infile));
 
       // remove any files that we're no longer watching
       for (const [file, watcher] of watching) {
@@ -94,4 +95,4 @@ const build = debounce(async function build() {
   }
 });
 
-build();
+build().catch(e => console.error(e));

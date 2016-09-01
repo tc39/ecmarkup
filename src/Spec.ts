@@ -2,47 +2,75 @@ import path = require('path');
 import fs = require('fs');
 import Path = require('path');
 import yaml = require('js-yaml');
-import utils = require('./utils');
+import * as utils from './utils';
 import hljs = require('highlight.js');
 import escape = require('html-escape');
 import { Options } from './ecmarkup';
 import _Builder = require('./Builder');
 // Builders
-import Import = require('./Import');
-import Clause = require('./Clause');
-import ClauseNumbers = require('./clauseNums');
-import Algorithm = require('./Algorithm');
-import Dfn = require('./Dfn');
-import Note = require('./Note');
-import Toc = require('./Toc');
-import Menu = require('./Menu');
-import Production = require('./Production');
-import NonTerminal = require('./NonTerminal');
-import ProdRef = require('./ProdRef');
-import Grammar = require('./Grammar');
-import Xref = require('./Xref');
-import Eqn = require('./Eqn');
-import Figure = require('./Figure');
-import Biblio = require('./Biblio');
-import autolinker = require('./autolinker');
+import { Context } from './Context';
+import Builder from './Builder';
+import Import from './Import';
+import H1 from './H1';
+import Clause from './Clause';
+import ClauseNumbers from './clauseNums';
+import Algorithm from './Algorithm';
+import Dfn from './Dfn';
+import Example from './Example';
+import Figure from './Figure';
+import Note from './Note';
+import Toc from './Toc';
+import Menu from './Menu';
+import Production from './Production';
+import NonTerminal from './NonTerminal';
+import ProdRef from './ProdRef';
+import Grammar from './Grammar';
+import Xref from './Xref';
+import Eqn from './Eqn';
+import Biblio, { BiblioData } from './Biblio';
+import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { CancellationToken } from 'prex';
 
+var __awaiter = require('./awaiter');
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
+const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
 
-interface Spec {
-  spec: this;
-  opts: Options;
-  rootPath: string;
-  rootDir: string;
-  namespace: string;
-  toHTML(): string;
-  exportBiblio(): any;
+
+
+interface VisitorMap {
+  [k: string]: typeof Builder
 }
 
+interface TextNodeContext {
+  clause: Spec | Clause,
+  node: Node,
+  inAlg: boolean
+}
+var builders: typeof Builder[] = [
+  Clause,
+  H1,
+  Algorithm,
+  Xref,
+  Dfn,
+  Eqn,
+  Grammar,
+  Production,
+  Example,
+  Figure,
+  NonTerminal,
+  ProdRef,
+  Note
+];
+
+const visitorMap = builders.reduce((map, T) => {
+  T.elements.forEach(e => map[e] = T);
+  return map;
+}, {} as VisitorMap);
+
 /*@internal*/
-class Spec {
-  spec: this;
+export default class Spec {
+  spec: Spec;
   opts: Options;
   rootPath: string;
   rootDir: string;
@@ -50,16 +78,26 @@ class Spec {
   namespace: string;
   biblio: Biblio;
   doc: Document;
-  imports: string[];
+  imports: Import[];
   node: HTMLElement;
   subclauses: Clause[];
   cancellationToken: CancellationToken;
-  _figureCounts: { [type: string]: number };
 
-  private _numberer: ClauseNumbers.ClauseNumberIterator;
+  _figureCounts: { [type: string]: number };
+  _xrefs: Xref[];
+  _ntRefs: NonTerminal[];
+  _prodRefs: ProdRef[];
+  _textNodes: {[s: string]: [TextNodeContext]};
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
 
-  constructor (rootPath: string, fetch: (file: string, token: CancellationToken) => PromiseLike<string>, doc: HTMLDocument, opts?: Options, sourceText?: string, token = CancellationToken.none) {
+  constructor (
+    rootPath: string,
+    fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
+    doc: HTMLDocument,
+    opts?: Options,
+    sourceText?: string,
+    token = CancellationToken.none
+  ) {
     opts = opts || {};
 
     this.spec = this;
@@ -73,11 +111,11 @@ class Spec {
     this.imports = [];
     this.node = this.doc.body;
     this.cancellationToken = token;
-    this._numberer = ClauseNumbers.iterator();
     this._figureCounts = {
       table: 0,
       figure: 0
     };
+    this._textNodes = {};
 
     this.processMetadata();
     Object.assign(this.opts, opts);
@@ -119,56 +157,69 @@ class Spec {
     return this._fetch(file, this.cancellationToken);
   }
 
-  public async buildAll(selector: string | NodeListOf<HTMLElement>, Builder: typeof _Builder, opts?: any) {
-    this.cancellationToken.throwIfCancellationRequested();
-
-    type Builder = _Builder;
-    opts = opts || {};
-
-
-    let elems: HTMLElement[];
-    if (typeof selector === 'string') {
-      this._log('Building ' + selector + '...');
-      elems = Array.from(this.doc.querySelectorAll(selector) as NodeListOf<HTMLElement>);
-    } else {
-      elems = Array.from(selector);
-    }
-
-    const builders = elems.map(elem => new Builder(this, elem));
-    if (opts.buildArgs) {
-      await Promise.all(builders.map(builder => builder.build(...opts.buildArgs)));
-    }
-    else {
-      await Promise.all(builders.map(builder => builder.build()));
-    }
-  }
-
   public async build() {
-    await this.buildAll('emu-import', Import);
-
-    this.buildBoilerplate();
-
+    /*
+    The Ecmarkup build process proceeds as follows:
+    
+    1. Load biblios, making xrefs and auto-linking from external specs work
+    2. Load imports by recursively inlining the import files' content into the emu-import element
+    3. Generate boilerplate text
+    4. Do a walk of the DOM visting elements and text nodes. Text nodes are replaced by text and HTML nodes depending
+       on content. Elements are built by delegating to builders. Builders work by modifying the DOM ahead of them so
+       the new elements they make are visited during the walk. Elements added behind the current iteration must be
+       handled specially (eg. see static exit method of clause). Xref, nt, and prodref's are collected for linking
+       in the next step.
+    5. Linking. After the DOM walk we have a complete picture of all the symbols in the document so we proceed to link
+       the various xrefs to the proper place.
+    6. Adding charset, highlighting code, etc.
+    */
+    
     this._log('Loading biblios...');
     await this.loadES6Biblio();
     await this.loadBiblios();
 
-    await this.buildAll('emu-clause, emu-intro, emu-annex', Clause);
-    await this.buildAll('emu-grammar', Grammar);
-    await this.buildAll('emu-eqn', Eqn);
-    await this.buildAll('emu-alg', Algorithm);
-    await this.buildAll('emu-production', Production);
-    await this.buildAll('emu-nt', NonTerminal);
-    await this.buildAll('emu-prodref', ProdRef);
-    await this.buildAll('emu-figure, emu-table', Figure);
-    await this.buildAll('dfn', Dfn);
+    this._log('Loading imports...');
+    await this.loadImports();
+
+    this._log('Building boilerplate...');
+    this.buildBoilerplate();
+
+    this._log('Walking document, building various elements...');
+    const context: Context = {
+      spec: this,
+      node: this.doc.body,
+      importStack: [],
+      clauseStack: [],
+      tagStack: [],
+      clauseNumberer: ClauseNumbers(),
+      inNoAutolink: false,
+      inAlg: false,
+      inNoEmd: false,
+      startEmd: null
+    }
+
+    this._xrefs = [];
+    this._ntRefs = [];
+    this._prodRefs = [];
+
+    const document = this.doc;
+    const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
+
+
+    walk(walker, context);
+
+    this.autolink();
+    this._log('Linking xrefs...');
+    this._xrefs.forEach(xref => xref.build());
+    this._log('Linking non-terminal references');
+    this._ntRefs.forEach(nt => nt.build());
+    this._log('Linking production references');
+    this._prodRefs.forEach(nt => nt.build());
 
     this.highlightCode();
-    this.autolink();
-
-    await this.buildAll('emu-xref', Xref);
-
     this.setCharset();
 
+    
     if (this.opts.toc) {
         this._log('Building table of contents...');
 
@@ -224,20 +275,20 @@ class Spec {
     this.biblio.addExternalBiblio(JSON.parse(contents));
   }
 
+  private async loadImports() {
+    await loadImports(this, this.spec.doc.body, this.rootDir);
+  }
+
   public exportBiblio(): any {
     if (!this.opts.location) {
       utils.logWarning('No spec location specified. Biblio not generated. Try --location or setting the location in the document\'s metadata block.');
       return {};
     }
 
-    const biblio: Biblio.BiblioData = {};
+    const biblio: BiblioData = {};
     biblio[this.opts.location] = this.biblio.toJSON();
 
     return biblio;
-  }
-
-  public getNextClauseNumber(depth: number, isAnnex: boolean) {
-    return this._numberer.next(depth, isAnnex).value;
   }
 
   private highlightCode() {
@@ -385,7 +436,18 @@ class Spec {
 
   public autolink() {
     this._log('Autolinking terms and abstract ops...');
-    autolinker.link(this);
+    const document = this.doc;
+    let namespaces = Object.keys(this._textNodes);
+    for (let i = 0; i < namespaces.length; i++) {
+      let namespace = namespaces[i];
+      const [replacer, autolinkmap] = replacerForNamespace(namespace, this.biblio);
+      let nodes = this._textNodes[namespace];
+
+      for(let j = 0; j < nodes.length; j++) {
+        const { node, clause , inAlg } = nodes[j];
+        autolink(node, replacer, autolinkmap, clause, inAlg);
+      }
+    }
   }
 
   public setCharset() {
@@ -429,4 +491,98 @@ function getBoilerplate(file: string) {
   return fs.readFileSync(Path.join(__dirname, '../boilerplate', file + '.html'), 'utf8');
 }
 
-export = Spec;
+async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: string) {
+  let imports = rootElement.querySelectorAll('EMU-IMPORT');
+  for (let i = 0; i < imports.length; i++) {
+    let node = imports[i];
+    let imp = await Import.build(spec, node as HTMLElement, rootPath);
+    await loadImports(spec, node as HTMLElement, imp.relativeRoot);
+  }
+}
+
+function walk (walker: TreeWalker, context: Context) {
+  // When we set either of these states we need to know to unset when we leave the element.
+  let changedInNoAutolink = false;
+  let changedInNoEmd = false;
+  const { spec, node } = context;
+
+  context.node = walker.currentNode as HTMLElement;
+  context.tagStack.push(context.node);
+
+  if (context.node === context.startEmd) {
+    context.startEmd = null;
+    context.inNoEmd = false;
+  }
+
+
+  if (context.node.nodeType === 3) {
+    // walked to a text node
+
+    if (context.node.textContent!.trim().length === 0) return; // skip empty nodes; nothing to do!
+    if (!context.inNoEmd) {
+      // new nodes as a result of emd processing should be skipped
+      context.inNoEmd = true;
+      // inNoEmd is set to true when we walk to this node 
+      let node = context.node as Node;
+      while(node && !node.nextSibling) {
+        node = node.parentNode;
+      }
+
+      if (node) {
+        context.startEmd = node.nextSibling;
+      }
+      // else, inNoEmd will just continue to the end of the file
+
+      utils.emdTextNode(context.spec, context.node);
+    }
+
+    if (!context.inNoAutolink) {
+      // stuff the text nodes into an array for auto-linking with later
+      // (since we can't autolink at this point without knowing the biblio).
+      const clause = context.clauseStack[context.clauseStack.length - 1] || context.spec;
+      const namespace = clause ? clause.namespace : context.spec.namespace;
+      context.spec._textNodes[namespace] = context.spec._textNodes[namespace] || [];
+      context.spec._textNodes[namespace].push({
+        node: context.node,
+        clause: clause,
+        inAlg: context.inAlg
+      });
+      
+    }
+
+    return;
+  }
+
+  // context.node is an HTMLElement (node type 1)
+
+  // See if we should stop auto-linking here.
+  if (NO_CLAUSE_AUTOLINK.has(context.node.nodeName) && !context.inNoAutolink) {
+    context.inNoAutolink = true;
+    changedInNoAutolink = true;
+  }
+
+  // check if entering a noEmd tag
+  if (NO_EMD.has(context.node.nodeName) && !context.inNoEmd) {
+    context.inNoEmd = true;
+    changedInNoEmd = true;
+  }
+
+  const visitor = visitorMap[context.node.nodeName];
+  if (visitor) visitor.enter(context);
+
+  const firstChild = walker.firstChild();
+  if (firstChild) {
+    while (true) {
+      walk(walker, context);
+      const next = walker.nextSibling(); 
+      if (!next) break;
+    }
+    walker.parentNode();
+    context.node = walker.currentNode as HTMLElement;
+  }
+
+  if (visitor) visitor.exit(context);
+  if (changedInNoAutolink) context.inNoAutolink = false;
+  if (changedInNoEmd) context.inNoEmd = false;
+  context.tagStack.pop();
+}

@@ -1,19 +1,37 @@
-import Builder = require('./Builder');
+import Spec from "./Spec";
+import Builder from './Builder';
+import { Context } from './Context';
 import utils = require('./utils');
-import Biblio = require("./Biblio");
-import Spec = require("./Spec");
+import * as Biblio from './Biblio';
+import Clause from './Clause';
 
 /*@internal*/
-class Xref extends Builder {
+export default class Xref extends Builder {
   namespace: string;
-  build() {
-    const xref = this.node;
-    const href = xref.getAttribute('href');
-    const aoid = xref.getAttribute('aoid');
-    if (this.node.hasAttribute('namespace')) {
-      this.namespace = this.node.getAttribute('namespace')!;
+  href: string;
+  aoid: string;
+  clause: Clause | null;
+
+  static elements = ['EMU-XREF'];
+  
+  constructor(spec: Spec, node: HTMLElement, clause: Clause | null, namespace: string, href: string, aoid: string) {
+    super(spec, node);
+    this.namespace = namespace;
+    this.href = href;
+    this.aoid = aoid;
+    this.clause = clause;
+  }
+
+  static enter({ node, spec, clauseStack }: Context) {
+    const href = node.getAttribute('href')!;
+    const aoid = node.getAttribute('aoid')!;
+    const parentClause = clauseStack[clauseStack.length - 1];
+
+    let namespace: string;
+    if (node.hasAttribute('namespace')) {
+      namespace = node.getAttribute('namespace')!;
     } else {
-      this.namespace = utils.getNamespace(this.spec, this.node);
+      namespace = parentClause ? parentClause.namespace : spec.namespace;
     }
 
     if (href && aoid) {
@@ -23,9 +41,21 @@ class Xref extends Builder {
 
     if (!href && !aoid) {
       utils.logWarning('xref has no href or aoid.');
-      console.log(xref.outerHTML);
+      console.log(node.outerHTML);
       return;
     }
+
+    const xref = new Xref(spec, node, parentClause, namespace, href, aoid);
+    spec._xrefs.push(xref);
+  }
+
+
+  build() {
+    const spec = this.spec;
+    const href = this.href;
+    const node = this.node;
+    const aoid = this.aoid;
+    const namespace = this.namespace;
 
     if (href) {
       if (href[0] !== '#') {
@@ -35,7 +65,7 @@ class Xref extends Builder {
 
       const id = href.slice(1);
 
-      const entry = this.spec.biblio.byId(id /*, this.namespace */);
+      const entry = spec.biblio.byId(id);
       if (!entry) {
         utils.logWarning('can\'t find clause, production, note or example with id ' + href);
         return;
@@ -43,47 +73,47 @@ class Xref extends Builder {
 
       switch (entry.type) {
       case 'clause':
-        buildClauseLink(xref, entry);
+        buildClauseLink(node, entry);
         break;
       case 'production':
-        buildProductionLink(xref, entry);
+        buildProductionLink(node, entry);
         break;
       case 'example':
-        buildFigureLink(this.spec, xref, entry, 'Example');
+        buildFigureLink(spec, this.clause, node, entry, 'Example');
         break;
       case 'note':
-        buildFigureLink(this.spec, xref, entry, 'Note');
+        buildFigureLink(spec, this.clause, node, entry, 'Note');
         break;
       case 'table':
-        buildFigureLink(this.spec, xref, entry, 'Table');
+        buildFigureLink(spec, this.clause, node, entry, 'Table');
         break;
       case 'figure':
-        buildFigureLink(this.spec, xref, entry, 'Figure');
+        buildFigureLink(spec, this.clause, node, entry, 'Figure');
         break;
       case 'term':
-        buildTermLink(xref, entry);
+        buildTermLink(node, entry);
         break;
       default:
         utils.logWarning('found unknown biblio entry (this is a bug, please file it)');
       }
     } else if (aoid) {
-      const entry = this.spec.biblio.byAoid(aoid, this.namespace);
+      const entry = spec.biblio.byAoid(aoid, namespace);
 
       if (entry) {
-        buildAOLink(xref, entry);
+        buildAOLink(node, entry);
         return;
       }
 
-      utils.logWarning('can\'t find abstract op with aoid ' + aoid + ' in namespace ' + this.namespace);
+      utils.logWarning('can\'t find abstract op with aoid ' + aoid + ' in namespace ' + namespace);
     }
-
   }
 }
 
 function buildClauseLink(xref: Element, entry: Biblio.ClauseBiblioEntry) {
   if (xref.textContent!.trim() === '') {
     if (xref.hasAttribute('title')) {
-      xref.innerHTML = buildXrefLink(entry, entry.title);
+      // titleHTML might not be present from older biblio files.
+      xref.innerHTML = buildXrefLink(entry, entry.titleHTML || entry.title);
     } else {
       xref.innerHTML = buildXrefLink(entry, entry.number);
     }
@@ -115,7 +145,7 @@ function buildTermLink(xref: Element, entry: Biblio.TermBiblioEntry) {
     xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
   }
 }
-function buildFigureLink(spec: Spec, xref: Element, entry: Biblio.FigureBiblioEntry, type: string) {
+function buildFigureLink(spec: Spec, parentClause: Clause | null, xref: Element, entry: Biblio.FigureBiblioEntry, type: string) {
   if (xref.textContent!.trim() === '') {
     if (entry.clauseId) {
       // first need to find the associated clause
@@ -125,7 +155,6 @@ function buildFigureLink(spec: Spec, xref: Element, entry: Biblio.FigureBiblioEn
         return;
       }
 
-      const parentClause = utils.parent(xref, ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX']) as Element | null;
       if (parentClause && parentClause.id === clauseEntry.id) {
         xref.innerHTML = buildXrefLink(entry, type + ' ' + entry.number);
       } else {
@@ -146,6 +175,3 @@ function buildFigureLink(spec: Spec, xref: Element, entry: Biblio.FigureBiblioEn
 function buildXrefLink(entry: Biblio.BiblioEntry, contents: string | number | undefined | null) {
   return '<a href="' + entry.location + '#' + (entry.id || entry.refId) + '">' + contents + '</a>';
 }
-
-/*@internal*/
-export = Xref;

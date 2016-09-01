@@ -1,127 +1,103 @@
-import Spec = require('./Spec');
-import Clause = require('./Clause');
-import Biblio = require('./Biblio');
+import Spec from './Spec';
+import Clause from './Clause';
+import Xref from './Xref';
+import Biblio, { BiblioEntry } from './Biblio';
 import escape = require('html-escape');
 import utils = require('./utils');
+import { Context } from './Context';
 
-const NO_CLAUSE_AUTOLINK = [
+export const NO_CLAUSE_AUTOLINK = new Set([
   'PRE',
   'CODE',
-  'EMU-CLAUSE',
   'EMU-PRODUCTION',
   'EMU-GRAMMAR',
   'EMU-XREF',
   'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
-  'EMU-EQN',
-  'EMU-ALG',
   'EMU-VAR',
   'EMU-VAL',
   'VAR',
   'A',
   'DFN'
-];
+]);
 
-const clauseTextNodesUnder = utils.textNodesUnder(NO_CLAUSE_AUTOLINK);
+export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, allowSameId: boolean) {
+  const spec = clause.spec;
+  const parentId = (clause as Clause).id;
+  const template = spec.doc.createElement('template');
+  const content = escape(node.textContent!);
+  const autolinked = content.replace(replacer, match => {
+    const entry = autolinkmap[narrowSpace(match.toLowerCase())];
+    if (!entry) {
+      return match;
+    }
 
-/*@internal*/
-export function link(spec: Spec) {
-  linkClause(spec, spec, new Map());
-}
+    const entryId = entry.id || entry.refId;
+    const skipLinking = !allowSameId && parentId && entryId === parentId;
 
-interface AutoLinkMap {
-  [key: string]: Biblio.BiblioEntry;
-}
+    if (skipLinking) {
+      return match;
+    }
 
-function linkClause(spec: Spec, clause: Spec | Clause, replacerCache: Map<string, [AutoLinkMap, RegExp]>) {
-  let autolinkmap: AutoLinkMap, clauseReplacer: RegExp;
-
-  let entry = replacerCache.get(clause.namespace);
-  if (entry) {
-    autolinkmap = entry[0];
-    clauseReplacer = entry[1];
-  } else {
-    autolinkmap = {};
-
-    spec.biblio.inScopeByType(clause.namespace, 'term')
-      .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
-
-    spec.biblio.inScopeByType(clause.namespace, 'op')
-      .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
-
-    clauseReplacer = new RegExp(Object.keys(autolinkmap)
-      .sort(function (a, b) { return b.length - a.length; })
-      .map(function (k) {
-        const entry = autolinkmap[k];
-        const key = entry.key!;
-
-        if (entry.type === 'term') {
-          if (isCommonTerm(key)) {
-            return '\\b' +
-                   widenSpace(key) +
-                   '\\b(?!\\.\\w|%%|\\]\\])';
-          } else if (key[0].match(/[A-Za-z0-9]/)) {
-            return '\\b' +
-                   widenSpace(caseInsensitiveRegExp(key)) +
-                   '\\b(?!\\.\\w|%%|\\]\\])';
-          } else {
-            return key;
-          }
-        } else {
-          // type is "op"
-          if (isCommonAbstractOp(key)) {
-            return '\\b' + key + '\\b(?=\\()';
-          } else {
-            return '\\b' + key + '\\b(?!\\.\\w|%%|\\]\\])';
-          }
-        }
-      })
-      .join('|'), 'g');
-    replacerCache.set(clause.namespace, [autolinkmap, clauseReplacer]);
-  }
-
-  autolink(clauseReplacer, autolinkmap, spec, clause.node, (<Clause>clause).id);
-  clause.subclauses.forEach(subclause => {
-    linkClause(spec, subclause, replacerCache);
+    if (entry.aoid) {
+      return '<emu-xref aoid="' + entry.aoid + '">' + match + '</emu-xref>';
+    } else {
+      return '<emu-xref href="#' + (entry.id || entry.refId) + '">' + match + '</emu-xref>';
+    }
   });
 
-  let algs = utils.nodesInClause(clause.node, ['EMU-ALG', 'EMU-EQN']) as HTMLElement[];
-  for (let i = 0; i < algs.length; i++) {
-    autolink(clauseReplacer, autolinkmap, spec, algs[i], clause.node.id, true);
+  if (autolinked !== content) {
+    template.innerHTML = autolinked;
+    const newXrefNodes = utils.replaceTextNode(node, template.content);
+    const newXrefs = newXrefNodes.map(node =>
+      new Xref(spec, node as HTMLElement, clause as Clause, clause.namespace, node.getAttribute('href')!, node.getAttribute('aoid')!)
+    )
+    spec._xrefs = spec._xrefs.concat(newXrefs);
   }
 }
 
-function autolink(replacer: RegExp, autolinkmap: AutoLinkMap, spec: Spec, node: HTMLElement, parentId: string, allowSameId?: boolean) {
-  const textNodes = clauseTextNodesUnder(node);
-  for (let i = 0; i < textNodes.length; i++) {
-    const node = textNodes[i];
+export function replacerForNamespace(namespace: string, biblio: Biblio) : [RegExp, AutoLinkMap] {
+  const autolinkmap: AutoLinkMap = {};
 
-    const template = spec.doc.createElement('template');
-    const content = escape(node.textContent!);
-    const autolinked = content.replace(replacer, match => {
-      const entry = autolinkmap[narrowSpace(match.toLowerCase())];
-      if (!entry) {
-        return match;
-      }
+  biblio.inScopeByType(namespace, 'term')
+    .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
 
-      const entryId = entry.id || entry.refId;
-      const skipLinking = !allowSameId && parentId && entryId === parentId;
+  biblio.inScopeByType(namespace, 'op')
+    .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
 
-      if (skipLinking) {
-        return match;
-      }
+  const clauseReplacer = new RegExp(Object.keys(autolinkmap)
+    .sort(function (a, b) { return b.length - a.length; })
+    .map(function (k) {
+      const entry = autolinkmap[k];
+      const key = entry.key!;
 
-      if (entry.aoid) {
-        return '<emu-xref aoid="' + entry.aoid + '">' + match + '</emu-xref>';
+      if (entry.type === 'term') {
+        if (isCommonTerm(key)) {
+          return '\\b' +
+                  widenSpace(key) +
+                  '\\b(?!\\.\\w|%%|\\]\\])';
+        } else if (key[0].match(/[A-Za-z0-9]/)) {
+          return '\\b' +
+                  widenSpace(caseInsensitiveRegExp(key)) +
+                  '\\b(?!\\.\\w|%%|\\]\\])';
+        } else {
+          return key;
+        }
       } else {
-        return '<emu-xref href="#' + (entry.id || entry.refId) + '">' + match + '</emu-xref>';
+        // type is "op"
+        if (isCommonAbstractOp(key)) {
+          return '\\b' + key + '\\b(?=\\()';
+        } else {
+          return '\\b' + key + '\\b(?!\\.\\w|%%|\\]\\])';
+        }
       }
-    });
+    })
+    .join('|'), 'g');
 
-    if (autolinked !== content) {
-      template.innerHTML = autolinked;
-      utils.replaceTextNode(node, template.content);
-    }
-  }
+  return [clauseReplacer, autolinkmap];
+}
+
+export interface AutoLinkMap {
+  [key: string]: BiblioEntry;
 }
 
 function isCommonAbstractOp(op: string) {
@@ -132,6 +108,7 @@ function isCommonTerm(op: string) {
   return op === 'List' || op === 'Reference' || op === 'Record';
 }
 
+// regexp-string where the first character is case insensitive
 function caseInsensitiveRegExp(str: string) {
   let lower = str[0].toLowerCase();
 
@@ -145,14 +122,12 @@ function caseInsensitiveRegExp(str: string) {
   return `[${lower}${upper}]${str.slice(1)}`;
 }
 
-// given a regexp string, returns a regexp string where each space can be
-// many spaces or line breaks.
+// returns a regexp string where each space can be many spaces or line breaks.
 function widenSpace(str: string) {
   return str.replace(/\s+/g, '[\\s\\r\\n]+');
 }
 
-// given a regexp string, returns a regexp string where multiple spaces
-// or linebreaks can only be a single space
+// replaces multiple whitespace characters with a single space
 function narrowSpace(str: string) {
   return str.replace(/[\s\r\n]+/g, ' ');
 }

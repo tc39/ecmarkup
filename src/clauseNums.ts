@@ -4,7 +4,7 @@ export interface ClauseNumberIterator {
 }
 
 /*@internal*/
-export function iterator(): ClauseNumberIterator {
+export default function iterator(): ClauseNumberIterator {
   const ids: (string | number)[] = [];
   let inAnnex = false;
   let currentLevel = 0;

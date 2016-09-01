@@ -1,6 +1,6 @@
-import Builder = require('./Builder');
-import Spec = require('./Spec');
-import Production = require('./Production');
+import Builder from './Builder';
+import Spec from './Spec';
+import Production from './Production';
 
 /*@internal*/
 class GrammarAnnotation extends Builder {

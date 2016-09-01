@@ -1,8 +1,9 @@
-import Spec = require('./Spec');
+import Spec from './Spec';
 import Biblio = require('./Biblio');
 import BiblioEntry = Biblio.BiblioEntry;
 import utils = require('./utils');
 import { CancellationToken } from 'prex';
+var __awaiter = require('./awaiter');
 
 export { Spec, BiblioEntry };
 

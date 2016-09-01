@@ -1,21 +1,22 @@
-import Algorithm = require('./Algorithm');
+import Builder from './Builder';
 import emd = require('ecmarkdown');
 import utils = require('./utils');
-import Spec = require('./Spec');
-import Biblio = require('./Biblio');
+import Spec from './Spec';
+import Biblio, { AlgorithmBiblioEntry } from './Biblio';
+import { Context } from './Context';
 
 /*@internal*/
-class Eqn extends Algorithm {
+export default class Eqn extends Builder {
   aoid: string | null;
   id: string | null;
 
-  constructor(spec: Spec, node: HTMLElement) {
+  constructor(spec: Spec, node: HTMLElement, id: string) {
     super(spec, node);
     this.aoid = node.getAttribute('aoid');
-    this.id = utils.getParentClauseId(node);
+    this.id = id;
 
     if (this.aoid) {
-      this.spec.biblio.add(<Biblio.AlgorithmBiblioEntry>{
+      this.spec.biblio.add(<AlgorithmBiblioEntry>{
         type: 'op',
         aoid: this.aoid,
         refId: this.id
@@ -23,11 +24,15 @@ class Eqn extends Algorithm {
     }
   }
 
-  build() {
-    let contents = emd.document(this.node.innerHTML).slice(3, -4);
+  static enter(context: Context) {
+    const { spec, node, clauseStack } = context;
+    const clause = clauseStack[clauseStack.length - 1];
+    const id = clause ? clause.id : ''; // TODO: no eqns outside of clauses, eh?
+    const eqn = new Eqn(spec, node, id);
+    let contents = emd.document(node.innerHTML).slice(3, -4);
 
-    if (utils.shouldInline(this.node)) {
-      const classString = this.node.getAttribute('class');
+    if (utils.shouldInline(node)) {
+      const classString = node.getAttribute('class');
       let classes: string[];
 
       if (classString) {
@@ -37,7 +42,7 @@ class Eqn extends Algorithm {
       }
 
       if (classes.indexOf('inline') === -1) {
-        this.node.setAttribute('class', classes.concat(['inline']).join(' '));
+        node.setAttribute('class', classes.concat(['inline']).join(' '));
       }
     } else {
       contents = '<div>' + contents.split(/\r?\n/g)
@@ -45,10 +50,13 @@ class Eqn extends Algorithm {
                                    .join('</div><div>') + '</div>';
     }
 
-    this.node.innerHTML = contents;
-
+    node.innerHTML = contents;
+    context.inAlg = true;
   }
-}
 
-/*@internal*/
-export = Eqn;
+  static exit(context: Context) {
+    context.inAlg = false;
+  }
+
+  static elements = ['EMU-EQN'];
+}

@@ -1,12 +1,14 @@
-import Builder = require('./Builder');
-import Spec = require("./Spec");
-import Clause = require("./Clause");
+import Builder from './Builder';
+import Spec from "./Spec";
+import Clause from "./Clause";
+import { Context } from "./Context";
 
 /*@internal*/
-class Example extends Builder {
+export default class Example extends Builder {
   clause: Clause;
   caption: string | null;
   id: string | undefined;
+  static elements = ['EMU-EXAMPLE'];
 
   constructor(spec: Spec, node: HTMLElement, clause: Clause) {
     super(spec, node);
@@ -15,6 +17,12 @@ class Example extends Builder {
     if (this.node.hasAttribute('id')) {
       this.id = this.node.getAttribute('id')!;
     }
+  }
+  
+  static enter({spec, node, clauseStack}: Context) {
+    const clause = clauseStack[clauseStack.length - 1];
+    if (!clause) return; // don't process examples outside of clauses
+    clause.examples.push(new Example(spec, node, clause));
   }
 
   build(number?: number) {
@@ -47,6 +55,3 @@ class Example extends Builder {
     this.node.childNodes[0].insertBefore(captionElem, this.node.childNodes[0].firstChild);
   }
 }
-
-/*@internal*/
-export = Example;

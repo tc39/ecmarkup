@@ -1,13 +1,13 @@
 'use strict';
 
 const assert = require('assert');
-const sectionNums = require('../lib/clauseNums');
+const sectionNums = require('../lib/clauseNums').default;
 
 describe('clause id generation', function () {
   let iter;
 
   beforeEach(function () {
-    iter = sectionNums.iterator();
+    iter = sectionNums();
   });
 
   specify('generating clause ids', function () {

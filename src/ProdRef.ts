@@ -1,12 +1,33 @@
-import Builder = require('./Builder');
-import Production = require('./Production');
-import utils = require('./utils');
+import Builder from './Builder';
+import Production from './Production';
+import { Context } from './Context';
+import Spec from './Spec';
+import { shouldInline } from './utils';
 
 /*@internal*/
-class ProdRef extends Builder {
+export default class ProdRef extends Builder {
+  public namespace: string;
+  public name: string;
+
+  static elements = ['EMU-PRODREF'];
+
+  constructor (spec: Spec, node: HTMLElement, namespace: string) {
+    super(spec, node);
+    this.spec = spec;
+    this.node = node;
+    this.namespace = namespace;
+    this.name = node.getAttribute('name')!;
+  }
+
+  static enter({node, spec, clauseStack}: Context) {
+    const clause = clauseStack[clauseStack.length - 1];
+    const namespace = clause ? clause.namespace : spec.namespace;
+    const prodref = new ProdRef(spec, node, namespace);
+    spec._prodRefs.push(prodref);
+  }
+
   build() {
-    const namespace = utils.getNamespace(this.spec, this.node);
-    const entry = this.spec.biblio.byProductionName(this.node.getAttribute('name')!, namespace);
+    const entry = this.spec.biblio.byProductionName(this.name, this.namespace);
     const prod = entry ? entry._instance : null;
 
     let copy: HTMLElement;
@@ -16,7 +37,7 @@ class ProdRef extends Builder {
       return;
     }
 
-    if (utils.shouldInline(this.node)) {
+    if (shouldInline(this.node)) {
       const cls = this.node.getAttribute('class') || '';
 
       if (cls.indexOf('inline') === -1) {
@@ -33,7 +54,7 @@ class ProdRef extends Builder {
 
       copy = prod.node.cloneNode(false) as HTMLElement;
 
-      // copy nodes until the first RHS. This captures the non-terminal name and any annotations.
+      // copy nodes until the first RHS. This captures the production name and any annotations.
       for (let j = 0; j < prod.node.childNodes.length; j++) {
         if (prod.node.childNodes[j].nodeName === 'EMU-RHS') break;
 
@@ -60,6 +81,3 @@ class ProdRef extends Builder {
 
   }
 }
-
-/*@internal*/
-export = ProdRef;

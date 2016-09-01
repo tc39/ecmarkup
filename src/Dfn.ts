@@ -1,27 +1,26 @@
-import Builder = require('./Builder');
 import utils = require('./utils');
-import parent = utils.parent;
-import Biblio = require('./Biblio');
+import Builder from './Builder';
+import Biblio, {TermBiblioEntry } from './Biblio';
+import { Context } from './Context';
 
 /*@internal*/
-class Dfn extends Builder {
-  build() {
-    const parentClause = parent(this.node, ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX']) as HTMLElement | null;
+export default class Dfn extends Builder {
+  static enter({spec, node, clauseStack}: Context) {
+    const parentClause = clauseStack[clauseStack.length - 1];
     if (!parentClause) return;
 
-    const entry: Biblio.TermBiblioEntry = {
+    const entry: TermBiblioEntry = {
       type: 'term',
-      term: this.node.textContent!,
+      term: node.textContent!,
       refId: parentClause.id
     };
 
-    if (this.node.hasAttribute('id')) {
-      entry.id = this.node.id;
+    if (node.hasAttribute('id')) {
+      entry.id = node.id;
     }
 
-    this.spec.biblio.add(entry, parentClause.getAttribute("namespace"));
+    spec.biblio.add(entry, parentClause.namespace);
   }
-}
 
-/*@internal*/
-export = Dfn;
+  static elements = ['DFN'];
+}

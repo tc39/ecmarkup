@@ -1,10 +1,10 @@
-import Builder = require('./Builder');
+import Builder from './Builder';
 import emd = require('ecmarkdown');
-import Spec = require('./Spec');
-import Clause = require('./Clause');
+import Spec from './Spec';
+import Clause from './Clause';
 
 /*@internal*/
-class Toc {
+export default class Toc {
   spec: Spec;
   constructor(spec: Spec) {
     this.spec = spec;
@@ -39,7 +39,7 @@ class Toc {
         }
       }
 
-      html += '<a href="#' + sub.id + '" title="' + sub.title + '"><span class="secnum">' + sub.number + '</span> ' + emd.fragment(shorten(sub.title)) + '</a>';
+      html += '<a href="#' + sub.id + '" title="' + sub.title + '"><span class="secnum">' + sub.number + '</span> ' + shorten(sub.titleHTML) + '</a>';
       if (sub.subclauses.length > 0) html += Toc.build(sub, expandy);
       html += '</li>';
     });
@@ -54,6 +54,3 @@ function shorten(title: string) {
   return title.replace('Static Semantics:', 'SS:')
               .replace('Runtime Semantics:', 'RS:');
 }
-
-/*@internal*/
-export = Toc;

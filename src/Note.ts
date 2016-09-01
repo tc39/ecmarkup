@@ -1,17 +1,28 @@
-import Builder = require('./Builder');
-import Spec = require("./Spec");
-import Clause = require("./Clause");
+import Builder from './Builder';
+import Spec from './Spec';
+import Clause from './Clause';
+import { Context } from './Context';
 
 /*@internal*/
-class Note extends Builder {
+export default class Note extends Builder {
   clause: Clause;
   id: string;
+
+  static elements = ['EMU-NOTE'];
+
   constructor(spec: Spec, node: HTMLElement, clause: Clause) {
     super(spec, node);
     this.clause = clause;
     if (this.node.hasAttribute('id')) {
       this.id = node.getAttribute('id')!;
     }
+  }
+
+  static enter({spec, node, clauseStack}: Context) {
+    const clause = clauseStack[clauseStack.length - 1];
+    if (!clause) return; // do nothing with top-level note
+
+    clause.notes.push(new Note(spec, node, clause));
   }
 
   build(number?: number) {
@@ -38,6 +49,3 @@ class Note extends Builder {
     this.node.insertBefore(noteSpan, this.node.firstChild);
   }
 }
-
-/*@internal*/
-export = Note;

@@ -1,13 +1,14 @@
-import RHS = require('./RHS');
+import RHS from './RHS';
 import GrammarAnnotation = require('./GrammarAnnotation');
-import Terminal = require('./Terminal');
-import Builder = require('./Builder');
+import Terminal from './Terminal';
+import Builder from './Builder';
 import utils = require('./utils');
-import Spec = require('./Spec');
-import Biblio = require('./Biblio');
+import Spec from './Spec';
+import Biblio, { ProductionBiblioEntry } from './Biblio';
+import { Context } from './Context';
 
 /*@internal*/
-class Production extends Builder {
+export default class Production extends Builder {
   static byName = {};
 
   type: string | null;
@@ -21,7 +22,7 @@ class Production extends Builder {
   primary: boolean;
   id: string | undefined;
 
-  constructor(spec: Spec, node: HTMLElement) {
+  constructor(spec: Spec, node: HTMLElement, namespace: string) {
     super(spec, node);
     this.type = node.getAttribute('type');
     this.name = node.getAttribute('name')!; // TODO: unchecked
@@ -30,9 +31,9 @@ class Production extends Builder {
     this.oneOf = node.hasAttribute('oneof');
     this.rhses = [];
     this.rhsesById = {};
-    this.namespace = utils.getNamespace(spec, node);
+    this.namespace = namespace;
 
-    const rhses = this.node.querySelectorAll('emu-rhs');
+    const rhses = this.node.querySelectorAll('emu-rhs') as NodeListOf<HTMLElement>;
     for (let i = 0; i < rhses.length; i++) {
       const rhs = new RHS(this.spec, this, rhses[i]);
       this.rhses.push(rhs);
@@ -58,9 +59,10 @@ class Production extends Builder {
 
       if (entry && entry.namespace === this.namespace && entry._instance) {
         entry._instance.primary = false;
+        entry._instance.node.removeAttribute('id');
       }
 
-      const newEntry: Biblio.ProductionBiblioEntry = {
+      const newEntry: ProductionBiblioEntry = {
         type: 'production',
         id: id,
         name: this.name,
@@ -81,56 +83,57 @@ class Production extends Builder {
     }
   }
 
-  build() {
-    const ntNode = this.spec.doc.createElement('emu-nt');
-    ntNode.innerHTML = '<a href="#prod-' + this.name + '">' + this.name + '</a>';
-    if (this.params) ntNode.setAttribute('params', this.params);
-    if (this.optional) ntNode.setAttribute('optional', '');
-    this.node.insertBefore(ntNode, this.node.children[0]);
+  static enter({spec, node, clauseStack}: Context) {
+    const ntNode = spec.doc.createElement('emu-nt');
+    const clause = clauseStack[clauseStack.length - 1];
+    const prod = new Production(spec, node, clause ? clause.namespace : spec.namespace);
+    ntNode.innerHTML = '<a href="#prod-' + prod.name + '">' + prod.name + '</a>';
+    if (prod.params) ntNode.setAttribute('params', prod.params);
+    if (prod.optional) ntNode.setAttribute('optional', '');
+    node.insertBefore(ntNode, node.children[0]);
 
-    const geq = this.spec.doc.createElement('emu-geq');
-    if (this.type === 'lexical') {
+    const geq = spec.doc.createElement('emu-geq');
+    if (prod.type === 'lexical') {
       geq.textContent = '::';
-    } else if (this.type === 'regexp') {
+    } else if (prod.type === 'regexp') {
       geq.textContent = ':::';
     } else {
       geq.textContent = ':';
     }
 
-    this.node.insertBefore(geq, ntNode.nextSibling);
+    node.insertBefore(geq, ntNode.nextSibling);
 
-    if (this.oneOf) {
-      const elem = this.spec.doc.createElement('emu-oneof');
+    if (prod.oneOf) {
+      const elem = spec.doc.createElement('emu-oneof');
       elem.textContent = 'one of';
-      this.node.insertBefore(elem, geq.nextSibling);
+      node.insertBefore(elem, geq.nextSibling);
     }
 
-    this.rhses.forEach(rhs => rhs.build());
+    prod.rhses.forEach(rhs => rhs.build());
 
-    const ganns = this.node.querySelectorAll('emu-gann') as NodeListOf<HTMLElement>;
+    const ganns = node.querySelectorAll('emu-gann') as NodeListOf<HTMLElement>;
     for (let i = 0; i < ganns.length; i++) {
-      new GrammarAnnotation(this.spec, this, ganns[i]).build();
+      new GrammarAnnotation(spec, prod, ganns[i]).build();
     }
 
-    const ts = this.node.querySelectorAll('emu-t') as NodeListOf<HTMLElement>;
+    const ts = node.querySelectorAll('emu-t') as NodeListOf<HTMLElement>;
     for (let i = 0; i < ts.length; i++) {
-      new Terminal(this.spec, this, ts[i]).build();
+      new Terminal(spec, prod, ts[i]).build();
     }
 
-    if (this.primary) {
-      this.node.setAttribute('id', this.id!);
+    if (prod.primary) {
+      node.setAttribute('id', prod.id!);
     }
 
 
-    if (utils.shouldInline(this.node)) {
-      const cls = this.node.getAttribute('class') || '';
+    if (utils.shouldInline(node)) {
+      const cls = node.getAttribute('class') || '';
 
       if (cls.indexOf('inline') === -1) {
-        this.node.setAttribute('class', cls + ' inline');
+        node.setAttribute('class', cls + ' inline');
       }
     }
   }
-}
 
-/*@internal*/
-export = Production;
+  static elements = ['EMU-PRODUCTION'];
+}

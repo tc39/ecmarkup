@@ -1,7 +1,7 @@
 <!doctype html>
 <head><meta charset="utf-8"></head><body>
-<emu-intro namespace="intro" aoid="SomeAlg">
-  <h1><span class="secnum"></span>Intro<span class="utils"><span class="anchor"><a href="#">#</a></span></span></h1>
+<emu-intro namespace="intro" aoid="SomeAlg" id="i1">
+  <h1><span class="secnum"></span>Intro<span class="utils"><span class="anchor"><a href="#i1">#</a></span></span></h1>
   <emu-grammar><emu-production name="Foo" type="lexical" id="prod-intro-Foo">
     <emu-nt><a href="#prod-intro-Foo">Foo</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="f944fd2f"><emu-t>bar</emu-t><emu-nt><a href="#prod-MainProd">MainProd</a></emu-nt><emu-t>baz</emu-t></emu-rhs>
 </emu-production></emu-grammar>
@@ -41,7 +41,7 @@
 
   <emu-annex id="annex12" aoid="SomeAlg" namespace="annex2">
     <h1><span class="secnum">A.2</span>Annex 1.2<span class="utils"><span class="anchor"><a href="#annex12">#</a></span></span></h1>
-    <p><emu-xref aoid="SomeAlg"><a href="#annex21">SomeAlg</a></emu-xref> should link to #annex12.  <emu-nt><a href="#prod-annex-Foo">Foo</a></emu-nt> should link to the production in #annex1.</p>
+    <p><emu-xref aoid="SomeAlg"><a href="#annex21">SomeAlg</a></emu-xref> should link to #annex12. <emu-nt><a href="#prod-annex-Foo">Foo</a></emu-nt> should link to the production in #annex1.</p>
   </emu-annex>
 
   <p><emu-xref aoid="SomeAlg"><a href="#annex21">SomeAlg</a></emu-xref> does things.</p>

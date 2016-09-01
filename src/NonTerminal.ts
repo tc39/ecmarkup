@@ -1,19 +1,27 @@
-import Builder = require('./Builder');
-import utils = require('./utils');
-import Spec = require('./Spec');
+import Builder from './Builder';
+import Spec from './Spec';
+import { Context } from './Context';
 
 /*@internal*/
-class NonTerminal extends Builder {
+export default class NonTerminal extends Builder {
   params: string | null;
   optional: boolean;
   namespace: string;
+  static elements = ['EMU-NT'];
 
-  constructor(spec: Spec, node: HTMLElement) {
+  constructor(spec: Spec, node: HTMLElement, namespace: string) {
     super(spec, node);
 
     this.params = node.getAttribute('params');
     this.optional = node.hasAttribute('optional');
-    this.namespace = utils.getNamespace(spec, node);
+    this.namespace = namespace;
+  }
+
+  static enter({ spec, node, clauseStack }: Context) {
+    const clause = clauseStack[clauseStack.length - 1];
+    const namespace = clause ? clause.namespace : spec.namespace;
+    const nt = new NonTerminal(spec, node, namespace);
+    spec._ntRefs.push(nt);
   }
 
   build() {
@@ -42,6 +50,3 @@ class NonTerminal extends Builder {
     }
   }
 }
-
-/*@internal*/
-export = NonTerminal;
