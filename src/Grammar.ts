@@ -1,7 +1,7 @@
 import Builder from './Builder';
 import jsdom = require('jsdom');
 import { Host, CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
-import { Context } from './context';
+import { Context } from './Context';
  
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
@@ -17,7 +17,7 @@ export default class Grammar extends Builder {
   static enter({spec, node, inAlg}: Context) {
     // we process grammar nodes in algorithms separately (in Algorithm.ts)
     if (inAlg) return;
-    
+
     let content: string;
     let possiblyMalformed = true;
     if (spec.sourceText) {
