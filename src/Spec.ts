@@ -26,6 +26,7 @@ import Figure = require('./Figure');
 import Biblio = require('./Biblio');
 import autolinker = require('./autolinker');
 import { CancellationToken } from 'prex';
+var __awaiter = require("./awaiter");
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };

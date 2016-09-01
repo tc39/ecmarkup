@@ -7,6 +7,7 @@ import path = require('path');
 import fs = require('fs');
 import utils = require('./utils');
 import debounce = require('promise-debounce');
+var __awaiter = require("./awaiter");
 
 const jsDependencies = ['menu.js', 'findLocalReferences.js'];
 

@@ -29,6 +29,7 @@
   "author": "Brian Terlson",
   "license": "MIT",
   "dependencies": {
+    "bluebird": "^3.4.5",
     "chalk": "^1.1.1",
     "ecmarkdown": "^3.0.9",
     "grammarkdown": "^1.0.5",
@@ -41,7 +42,7 @@
     "promise-debounce": "^1.0.1"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.0.31",
+    "@types/bluebird": "^3.0.32",
     "@types/chalk": "^0.4.28",
     "@types/highlight.js": "^9.1.7",
     "@types/js-yaml": "^3.5.27",
