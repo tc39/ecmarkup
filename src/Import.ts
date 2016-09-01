@@ -1,6 +1,7 @@
 import utils = require('./utils');
 import Path = require('path');
 import Builder = require('./Builder');
+var __awaiter = require("./awaiter");
 
 /*@internal*/
 class Import extends Builder {
