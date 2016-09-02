@@ -1,6 +1,6 @@
 {
   "name": "ecmarkup",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
   "main": "lib/ecmarkup.js",
   "typings": "lib/ecmarkup.d.ts",
@@ -36,6 +36,7 @@
     "highlight.js": "^9.0.0",
     "html-escape": "^1.0.2",
     "js-yaml": "^3.4.6",
+    "jsdom": "^9.4.5",
     "nomnom": "^1.8.1",
     "prex": "^0.2.0",
     "promise-debounce": "^1.0.1"
@@ -50,7 +51,6 @@
     "@types/nomnom": "0.0.27",
     "diff": "^2.2.1",
     "eslint": "^1.10.3",
-    "jsdom": "^9.4.5",
     "mocha": "^2.3.4",
     "typescript": "^2.1.0-dev.20160823"
   }
