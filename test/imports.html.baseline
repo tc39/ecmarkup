@@ -1,12 +1,12 @@
 <!doctype html>
-<head><meta charset="utf-8"></head><body>
+<head><meta charset="utf-8"></head><body><div id="spec-container">
 <emu-import href="imports/import1.html"><emu-clause id="Baz" aoid="Baz">
-  <h1><span class="secnum">1</span>Header<span class="utils"><span class="anchor"><a href="#Baz">#</a></span></span></h1>
+  <h1><span class="secnum">1</span>Header<span class="utils"><span class="anchor"><a href="#Baz">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
   <p>text</p>
   <p><emu-nt>nonterminal</emu-nt> <code>code</code> <emu-val>value</emu-val>.</p>
 
   <emu-import href="sub/import3.html"><emu-clause id="import3">
-  <h1><span class="secnum">1.1</span>Import 3<span class="utils"><span class="anchor"><a href="#import3">#</a></span></span></h1>
+  <h1><span class="secnum">1.1</span>Import 3<span class="utils"><span class="anchor"><a href="#import3">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
   wtf??
 
 </emu-clause>
@@ -14,9 +14,9 @@
 </emu-clause>
 </emu-import>
 <emu-import href="imports/import2.html"><emu-clause id="import2">
-  <h1><span class="secnum">2</span>Import 2<span class="utils"><span class="anchor"><a href="#import2">#</a></span></span></h1>
+  <h1><span class="secnum">2</span>Import 2<span class="utils"><span class="anchor"><a href="#import2">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
 </emu-clause>
 </emu-import>
 
 <emu-alg><ol><li>Ensure we can auto-link to imported aoids: <emu-xref aoid="Baz"><a href="#Baz">Baz</a></emu-xref>()</li></ol></emu-alg>
-</body>
+</div></body>

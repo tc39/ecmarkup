@@ -45,7 +45,7 @@ export default class Figure extends Builder {
 
   static enter({ spec, node, clauseStack }: Context) {
     const figure = new Figure(spec, node);
-    if (figure.captionElem) {
+    if (figure.captionElem && figure.captionElem.parentNode) {
       figure.captionElem.parentNode.removeChild(figure.captionElem);
     }
 

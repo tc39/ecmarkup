@@ -1,9 +1,9 @@
 <!doctype html>
-<head><meta charset="utf-8"><title>test title!</title></head><body><h1 class="version">Draft 1 / September 26, 2014</h1><h1 class="title">test title!</h1>
+<head><meta charset="utf-8"><title>test title!</title></head><body><div id="spec-container"><h1 class="version">Draft 1 / September 26, 2014</h1><h1 class="title">test title!</h1>
 <emu-clause id="sec-clause">
-  <h1><span class="secnum">1</span>Test Clause<span class="utils"><span class="anchor"><a href="#sec-clause">#</a></span></span></h1>
+  <h1><span class="secnum">1</span>Test Clause<span class="utils"><span class="anchor"><a href="#sec-clause">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
 </emu-clause><emu-annex id="sec-copyright-and-software-license">
-      <h1><span class="secnum">A</span>Copyright &amp; Software License<span class="utils"><span class="anchor"><a href="#sec-copyright-and-software-license">#</a></span></span></h1>
+      <h1><span class="secnum">A</span>Copyright &amp; Software License<span class="utils"><span class="anchor"><a href="#sec-copyright-and-software-license">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
       <p class="ECMAaddress">Ecma International</p>
 <p class="ECMAaddress">Rue du Rhone 114</p>
 <p class="ECMAaddress">CH-1204 Geneva</p>
@@ -36,4 +36,4 @@
 <p>THIS SOFTWARE IS PROVIDED BY THE ECMA INTERNATIONAL "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ECMA INTERNATIONAL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 
     </emu-annex>
-</body>
+</div></body>

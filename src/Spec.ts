@@ -219,7 +219,8 @@ export default class Spec {
     this.highlightCode();
     this.setCharset();
 
-    
+    this.buildSpecWrapper();
+
     if (this.opts.toc) {
         this._log('Building table of contents...');
 
@@ -239,10 +240,22 @@ export default class Spec {
   public toHTML() {
     return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
   }
+  private buildSpecWrapper() {
+    const elements = this.doc.body.childNodes;
+    const wrapper = this.doc.createElement('div');
+    wrapper.id = 'spec-container';
+    
+    while(elements.length > 0) {
+      wrapper.appendChild(elements[0]);
+    }
+
+    this.doc.body.appendChild(wrapper);
+  }
 
   private processMetadata() {
     const block = this.doc.querySelector('pre.metadata');
-    if (!block) {
+
+    if (!block || !block.parentNode) {
       return;
     }
 
@@ -416,7 +429,7 @@ export default class Spec {
       copyrightClause = this.doc.createElement('emu-annex');
       copyrightClause.setAttribute('id', 'sec-copyright-and-software-license');
 
-      if (last) {
+      if (last && last.parentNode) {
         last.parentNode.insertBefore(copyrightClause, last.nextSibling);
       } else {
         this.doc.body.appendChild(copyrightClause);
@@ -523,7 +536,7 @@ function walk (walker: TreeWalker, context: Context) {
       // new nodes as a result of emd processing should be skipped
       context.inNoEmd = true;
       // inNoEmd is set to true when we walk to this node 
-      let node = context.node as Node;
+      let node = context.node as Node | null;
       while(node && !node.nextSibling) {
         node = node.parentNode;
       }

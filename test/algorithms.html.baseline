@@ -1,17 +1,17 @@
 <!doctype html>
-<head><meta charset="utf-8"></head><body>
+<head><meta charset="utf-8"></head><body><div id="spec-container">
 <emu-biblio href="./algorithmsBiblio.json"></emu-biblio>
 <emu-alg><ol><li>Can call abstract operations in this spec: <emu-xref aoid="Internal"><a href="#sec-internal">Internal</a></emu-xref>();</li><li>Can call abstract operations in ES6: <emu-xref aoid="ReturnIfAbrupt"><a href="https://tc39.github.io/ecma262/#sec-returnifabrupt">ReturnIfAbrupt</a></emu-xref>(<var>completion</var>);</li><li>Can call abstract operations in a biblio file: <emu-xref aoid="Biblio"><a href="http://example.com/fooSite.html#sec-biblio">Biblio</a></emu-xref>();</li><li>Unfound abstract operations just don't link: Unfound();</li></ol></emu-alg>
 
 <emu-clause id="sec-internal" aoid="Internal">
-  <h1><span class="secnum">1</span>Internal Function<span class="utils"><span class="anchor"><a href="#sec-internal">#</a></span></span></h1>
+  <h1><span class="secnum">1</span>Internal Function<span class="utils"><span class="anchor"><a href="#sec-internal">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
 </emu-clause>
 <emu-clause id="sec-ref">
-  <h1><span class="secnum">2</span>Refs<span class="utils"><span class="anchor"><a href="#sec-ref">#</a></span></span></h1>
+  <h1><span class="secnum">2</span>Refs<span class="utils"><span class="anchor"><a href="#sec-ref">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
   <p>Can refer to functions in prose, eg. <emu-xref aoid="Internal"><a href="#sec-internal">Internal</a></emu-xref>.</p>
   <p><emu-xref aoid="Internal"><a href="#sec-internal">Internal</a></emu-xref> works if <emu-xref aoid="Internal"><a href="#sec-internal">Internal</a></emu-xref> is in the middle of the prose.</p>
   <p>Don't autolink references inside square brackets, eg: [[Internal]].
   Likewise, percent things: %%Internal%%.
   Likewise, mentions of Internal.foo.</p>
 </emu-clause>
-</body>
+</div></body>

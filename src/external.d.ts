@@ -9,6 +9,6 @@ declare module "html-escape" {
 }
 
 declare module "promise-debounce" {
-  function debounce<TFunc extends (...args: any[]) => PromiseLike<T>, T>(fn: TFunc, ctx?: any): TFunc;
+  function debounce<TFunc extends (...args: any[]) => Promise<any>>(fn: TFunc, ctx?: any): TFunc;
   export = debounce;
 }

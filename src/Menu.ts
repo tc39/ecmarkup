@@ -10,11 +10,27 @@ export default class Menu {
   }
 
   build() {
+    const pinContainer = this.spec.doc.createElement('div');
+    pinContainer.setAttribute('id', 'menu-pins');
+    const pinHeader = this.spec.doc.createElement('div');
+    pinHeader.textContent = 'Pinned Clauses';
+    pinHeader.setAttribute('class', 'menu-pane-header');
+    const pinList = this.spec.doc.createElement('ul');
+    pinList.setAttribute('id', 'menu-pins-list');
+
+    pinContainer.appendChild(pinHeader);
+    pinContainer.appendChild(pinList);
+
     const toc = Toc.build(this.spec, true);
 
     const tocContainer = this.spec.doc.createElement('div');
     tocContainer.setAttribute('id', 'menu-toc');
     tocContainer.innerHTML = toc;
+
+    const tocHeader = this.spec.doc.createElement('div');
+    tocHeader.textContent = 'Table of Contents';
+    tocHeader.setAttribute('class', 'menu-pane-header');
+    tocContainer.appendChild(tocHeader);
 
     const searchContainer = this.spec.doc.createElement('div');
     searchContainer.setAttribute('id', 'menu-search');
@@ -24,6 +40,8 @@ export default class Menu {
     const menuContainer = this.spec.doc.createElement('div');
     menuContainer.setAttribute('id', 'menu');
     menuContainer.appendChild(searchContainer);
+    menuContainer.appendChild(pinContainer);
+    menuContainer.appendChild(tocHeader);
     menuContainer.appendChild(tocContainer);
 
     this.spec.doc.body.insertBefore(menuContainer, this.spec.doc.body.firstChild);

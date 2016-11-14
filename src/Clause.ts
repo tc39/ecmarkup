@@ -76,9 +76,14 @@ export default class Clause extends Builder {
 
     const anchorElem = this.spec.doc.createElement('span');
     anchorElem.setAttribute('class', 'anchor');
-    anchorElem.innerHTML = '<a href="#' + this.id + '">#</a>';
+    anchorElem.innerHTML = '<a href="#' + this.id + '">link</a>';
+
+    const pinElem = this.spec.doc.createElement('span');
+    pinElem.setAttribute('class', 'anchor');
+    pinElem.innerHTML = '<a href="#" class="utils-pin">pin</a>';
 
     utilsElem.appendChild(anchorElem);
+    utilsElem.appendChild(pinElem);
 
     this.header.appendChild(utilsElem);
   }

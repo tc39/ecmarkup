@@ -1,6 +1,6 @@
 <!doctype html>
-<head><meta charset="utf-8"><title>test title!</title></head><body><h1 class="version">July 2014</h1><h1 class="title">test title!</h1>
+<head><meta charset="utf-8"><title>test title!</title></head><body><div id="spec-container"><h1 class="version">July 2014</h1><h1 class="title">test title!</h1>
 
 <p>Some body content</p>
 
-</body>
+</div></body>

@@ -43,6 +43,8 @@ export function domWalkBackward(root: Node, cb: (node: Element) => boolean | und
 export function replaceTextNode(node: Node, frag: DocumentFragment) {
   // Append all the nodes
   const parent = node.parentNode;
+  if (!parent) return [];
+
   const newXrefNodes = Array.from(frag.querySelectorAll('EMU-XREF'));
   const first = frag.childNodes[0];
 
@@ -75,8 +77,11 @@ export function logWarning(str: string) {
 /*@internal*/
 export function shouldInline(node: Node) {
   let parent = node.parentNode;
+  if (!parent) return false;
 
-  while (parent.nodeName === 'EMU-GRAMMAR' || parent.nodeName === 'EMU-IMPORT' || parent.nodeName === 'INS' || parent.nodeName === 'DEL') {
+  while (parent && parent.parentNode &&
+    (parent.nodeName === 'EMU-GRAMMAR' || parent.nodeName === 'EMU-IMPORT' || parent.nodeName === 'INS' || parent.nodeName === 'DEL')
+  ) {
     parent = parent.parentNode;
   }
 

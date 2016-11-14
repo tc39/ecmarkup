@@ -1,5 +1,5 @@
 <!doctype html>
-<head><meta charset="utf-8"></head><body>
+<head><meta charset="utf-8"></head><body><div id="spec-container">
 <p>Examples outside of clauses aren't processed specially.</p>
 <emu-example>
   This is an example.
@@ -7,14 +7,14 @@
 </emu-example>
 
 <emu-clause id="sec-example">
-  <h1><span class="secnum">1</span>Example Section<span class="utils"><span class="anchor"><a href="#sec-example">#</a></span></span></h1>
+  <h1><span class="secnum">1</span>Example Section<span class="utils"><span class="anchor"><a href="#sec-example">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
   <emu-example><figure><figcaption>Example (Informative)</figcaption>
     Examples inside clauses are numbered and have captions. Captions are optional.
   
   </figure></emu-example>
 
   <emu-clause id="sec-example-subclause">
-    <h1><span class="secnum">1.1</span>Example Subclause<span class="utils"><span class="anchor"><a href="#sec-example-subclause">#</a></span></span></h1>
+    <h1><span class="secnum">1.1</span>Example Subclause<span class="utils"><span class="anchor"><a href="#sec-example-subclause">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
     <emu-example caption="An example"><figure><figcaption>Example 1 (Informative): An example</figcaption>
       Multiple examples are numbered similar to notes
     
@@ -27,4 +27,4 @@
   </emu-clause>
 </emu-clause>
 
-</body>
+</div></body>
