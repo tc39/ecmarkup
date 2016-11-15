@@ -220,7 +220,8 @@ function Menu() {
   this.$toc = document.querySelector('#menu-toc > ol');
   this.search = new Search(this);
   
-  this._pindIds = {}; 
+  this._pinnedIds = {}; 
+  this.loadPinEntries();
 
   this.$toggle.addEventListener('click', this.toggle.bind(this));
   document.addEventListener('keydown', this.documentKeydown.bind(this));
@@ -377,18 +378,37 @@ Menu.prototype.addPinEntry = function (id) {
     prefix = '';
   }
   this.$pinList.innerHTML += '<li><a href="#' + entry.id + '">' + prefix + entry.titleHTML + '</a></li>';
-  if (Object.keys(this._pindIds).length === 0) {
+  if (Object.keys(this._pinnedIds).length === 0) {
     this.showPins();
   }
-  this._pindIds[id] = true;
+  this._pinnedIds[id] = true;
+  this.persistPinEntries();
 }
 
 Menu.prototype.removePinEntry = function (id) {
   var item = this.$pinList.querySelector('a[href="#' + id + '"]').parentNode;
   this.$pinList.removeChild(item);
-  delete this._pindIds[id];
-  if (Object.keys(this._pindIds).length === 0) {
+  delete this._pinnedIds[id];
+  if (Object.keys(this._pinnedIds).length === 0) {
     this.hidePins();
+  }
+
+  this.persistPinEntries();
+}
+
+Menu.prototype.persistPinEntries = function () {
+  if (!window.localStorage) return;
+
+  localStorage.pinEntries = JSON.stringify(Object.keys(this._pinnedIds));
+}
+
+Menu.prototype.loadPinEntries = function () {
+  if (!window.localStorage) return;
+  var pinsString = window.localStorage.pinEntries;
+  if (!pinsString) return;
+  var pins = JSON.parse(pinsString);
+  for(var i = 0; i < pins.length; i++) {
+    this.addPinEntry(pins[i]);
   }
 }
 
@@ -397,7 +417,7 @@ Menu.prototype.togglePinEntry = function (id) {
     id = this.$activeClause[this.$activeClause.length - 1].id;
   }
 
-  if (this._pindIds[id]) {
+  if (this._pinnedIds[id]) {
     this.removePinEntry(id);
   } else {
     this.addPinEntry(id);
