@@ -41,7 +41,11 @@ export default class Toc {
         }
       }
 
-      html += '<a href="#' + sub.id + '" title="' + sub.title + '"><span class="secnum">' + sub.number + '</span> ' + shorten(sub.titleHTML) + '</a>';
+      html += '<a href="#' + sub.id + '" title="' + sub.title + '">';
+      if (sub.number) {
+        html += '<span class="secnum">' + sub.number + '</span> ';
+      }
+      html += shorten(sub.titleHTML) + '</a>';
       if (sub.subclauses.length > 0) html += Toc.build(sub, expandy);
       html += '</li>';
     });

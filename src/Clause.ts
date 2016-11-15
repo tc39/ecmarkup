@@ -42,6 +42,8 @@ export default class Clause extends Builder {
   }
 
   buildHeader() {
+    if (!this.number) return;
+
     const numElem = this.spec.doc.createElement('span');
     numElem.setAttribute('class', 'secnum');
     numElem.textContent = this.number;
