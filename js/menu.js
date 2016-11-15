@@ -251,7 +251,7 @@ function Menu() {
 
   document.addEventListener('click', function (e) {
     if (e.target.classList.contains('utils-pin')) {
-      var id = e.target.parentNode.parentNode.parentNode.id;
+      var id = e.target.parentNode.parentNode.parentNode.parentNode.id;
       this.togglePinEntry(id);
     }
   }.bind(this))
@@ -368,9 +368,7 @@ Menu.prototype.hidePins = function () {
   this.$pins.classList.remove('active');
 }
 
-Menu.prototype.addPinEntry = function () {
-  var $clause = this.$activeClause[this.$activeClause.length - 1];
-  var id = $clause.id;
+Menu.prototype.addPinEntry = function (id) {
   var entry = this.search.biblio.clausesById[id];
   var prefix;
   if (entry.number) {
@@ -385,9 +383,7 @@ Menu.prototype.addPinEntry = function () {
   this._pindIds[id] = true;
 }
 
-Menu.prototype.removePinEntry = function () {
-  var $clause = this.$activeClause[this.$activeClause.length - 1];
-  var id = $clause.id;
+Menu.prototype.removePinEntry = function (id) {
   var item = this.$pinList.querySelector('a[href="#' + id + '"]').parentNode;
   this.$pinList.removeChild(item);
   delete this._pindIds[id];
@@ -402,9 +398,9 @@ Menu.prototype.togglePinEntry = function (id) {
   }
 
   if (this._pindIds[id]) {
-    this.removePinEntry();
+    this.removePinEntry(id);
   } else {
-    this.addPinEntry();
+    this.addPinEntry(id);
   }
 }
 
