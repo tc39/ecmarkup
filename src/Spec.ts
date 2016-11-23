@@ -218,7 +218,6 @@ export default class Spec {
 
     this.highlightCode();
     this.setCharset();
-
     this.buildSpecWrapper();
 
     if (this.opts.toc) {
@@ -240,11 +239,12 @@ export default class Spec {
   public toHTML() {
     return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
   }
+
   private buildSpecWrapper() {
     const elements = this.doc.body.childNodes;
     const wrapper = this.doc.createElement('div');
     wrapper.id = 'spec-container';
-    
+
     while(elements.length > 0) {
       wrapper.appendChild(elements[0]);
     }

@@ -43,8 +43,13 @@ export default class Menu {
     menuContainer.appendChild(pinContainer);
     menuContainer.appendChild(tocHeader);
     menuContainer.appendChild(tocContainer);
-
     this.spec.doc.body.insertBefore(menuContainer, this.spec.doc.body.firstChild);
+
+    const menuSpacer = this.spec.doc.createElement('div')
+    menuSpacer.setAttribute('id', 'menu-spacer');
+    this.spec.doc.body.insertBefore(menuSpacer, this.spec.doc.body.firstChild);
+
+    
 
     const menuToggle =  this.spec.doc.createElement('div');
     menuToggle.setAttribute('id', 'menu-toggle');
