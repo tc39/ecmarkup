@@ -20,8 +20,8 @@ Search.prototype.loadBiblio = function () {
     this.biblio = {};
   } else {
     this.biblio = JSON.parse($biblio.textContent);
-    this.biblio.clauses = this.biblio.filter(e => e.type === 'clause');
-    this.biblio.clausesById = this.biblio.clauses.reduce((map, entry) => {
+    this.biblio.clauses = this.biblio.filter(function (e) { return e.type === 'clause' });
+    this.biblio.clausesById = this.biblio.clauses.reduce(function (map, entry) {
       map[entry.id] = entry;
       return map;
     }, {});
