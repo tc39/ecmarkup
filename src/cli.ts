@@ -66,4 +66,7 @@ const build = debounce(async function build() {
   }
 });
 
-build().catch(e => console.error(e));
+build().catch(e => {
+  console.error(e);
+  process.exit(1);
+});
