@@ -19,6 +19,7 @@ export default class Clause extends Builder {
   number: string;
   aoid: string | null;
   notes: Note[];
+  editorNotes: Note[];
   examples: Example[];
 
   constructor(
@@ -38,6 +39,7 @@ export default class Clause extends Builder {
     this.namespace = namespace;
     this.aoid = aoid;
     this.notes = [];
+    this.editorNotes = [];
     this.examples = [];
   }
 
@@ -59,6 +61,8 @@ export default class Clause extends Builder {
         note.build(i + 1);
       });
     }
+
+    this.editorNotes.forEach(note => note.build());
   }
 
   buildExamples() {

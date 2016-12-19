@@ -47,6 +47,7 @@
   <emu-xref href="#note-2"><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
   <emu-xref href="#note-2" title=""><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
   <emu-xref href="#note-2"><a href="#note-2">with link text</a></emu-xref>
+  <emu-xref href="#editors-note"><a href="#editors-note">to editors note</a></emu-xref>
 
   <!-- refs to figures and tables -->
   <emu-xref href="#table-1"><a href="#table-1">Table 1</a></emu-xref>
@@ -67,10 +68,10 @@
     
     </figure></emu-example>
 
-    <emu-note id="note-1"><span class="note">Note</span>
+    <emu-note id="note-1"><span class="note"><a href="#note-1">Note</a></span><div class="note-contents">
       This is another note
     
-    </emu-note>
+    </div></emu-note>
   </emu-clause>
 
   <emu-example id="example-1" caption="Foo Caption"><figure><figcaption>Example (Informative): Foo Caption</figcaption>
@@ -78,10 +79,16 @@
   
   </figure></emu-example>
 
-  <emu-note id="note-2"><span class="note">Note</span>
+  <emu-note id="note-2"><span class="note"><a href="#note-2">Note</a></span><div class="note-contents">
     This is a note!
   
-  </emu-note>
+  </div></emu-note>
+
+  <emu-note id="editors-note" type="editor"><span class="note"><a href="#editors-note">Editor's Note</a></span><div class="note-contents">
+    <p>Editors should heed this note carefully...</p>
+    <p>This is a second paragraph of things to consider carefully...</p>
+    <p>And a third!</p>
+  </div></emu-note>
 
   <emu-figure id="figure-1"><figure><figcaption>Figure 1</figcaption>
     this is a figure!

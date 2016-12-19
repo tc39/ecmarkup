@@ -7,12 +7,18 @@ import { Context } from './Context';
 export default class Note extends Builder {
   clause: Clause;
   id: string;
-
+  type: string; // normal, editor
   static elements = ['EMU-NOTE'];
 
   constructor(spec: Spec, node: HTMLElement, clause: Clause) {
     super(spec, node);
     this.clause = clause;
+    if (this.node.hasAttribute('type')) {
+      this.type = this.node.getAttribute('type') as string;
+    } else {
+      this.type = 'normal';
+    }
+
     if (this.node.hasAttribute('id')) {
       this.id = node.getAttribute('id')!;
     }
@@ -22,7 +28,12 @@ export default class Note extends Builder {
     const clause = clauseStack[clauseStack.length - 1];
     if (!clause) return; // do nothing with top-level note
 
-    clause.notes.push(new Note(spec, node, clause));
+    const note = new Note(spec, node, clause);
+    if (note.type === 'editor') {
+      clause.editorNotes.push(note);
+    } else {
+      clause.notes.push(note);
+    }
   }
 
   build(number?: number) {
@@ -37,15 +48,39 @@ export default class Note extends Builder {
       });
     }
 
-    const noteSpan = this.spec.doc.createElement('span');
-    noteSpan.setAttribute('class', 'note');
-
-    if (number !== undefined) {
-      noteSpan.textContent = 'Note ' + number;
-    } else {
-      noteSpan.textContent = 'Note';
+    const noteContentContainer = this.spec.doc.createElement('div');
+    noteContentContainer.setAttribute('class', 'note-contents');
+    
+    while(this.node.childNodes.length > 0) {
+      noteContentContainer.appendChild(this.node.childNodes[0]);
     }
 
-    this.node.insertBefore(noteSpan, this.node.firstChild);
+    this.node.appendChild(noteContentContainer);
+
+    const noteSpan = this.spec.doc.createElement('span');
+    noteSpan.setAttribute('class', 'note');
+    let label = '';
+
+    if (this.type === 'normal') {
+      label = 'Note';
+    } else if (this.type === 'editor') {
+      label = 'Editor\'s Note';
+    } else {
+      this.spec._log(`Unknown note type ${this.type}. Skipping.`);
+    }
+
+    if (number !== undefined) {
+      label += ' ' + number;
+    }
+    
+    if (this.id) {
+      // create link to note
+      noteSpan.innerHTML = `<a href='#${this.id}'>${label}</a>`;
+    } else {
+      // just text
+      noteSpan.textContent = label;
+    }
+
+    this.node.insertBefore(noteSpan, noteContentContainer);
   }
 }

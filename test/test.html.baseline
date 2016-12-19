@@ -15,8 +15,8 @@
   <emu-clause id="Foo" aoid="Foo">
     <h1><span class="secnum">1.1</span>Sub Clause<span class="utils"><span class="anchor"><a href="#Foo">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
 
-    <emu-note><span class="note">Note 1</span>Note 1!</emu-note>
-    <emu-note><span class="note">Note 2</span>Note 2!</emu-note>
+    <emu-note><span class="note">Note 1</span><div class="note-contents">Note 1!</div></emu-note>
+    <emu-note><span class="note">Note 2</span><div class="note-contents">Note 2!</div></emu-note>
   </emu-clause>
 
   <emu-clause id="Bar" aoid="">
@@ -40,7 +40,7 @@
   <emu-alg><ol><li>Call <emu-xref aoid="Foo"><a href="#Foo">Foo</a></emu-xref>(<var>a</var>).</li><li>Call <emu-xref aoid="Bar"><a href="#Bar">Bar</a></emu-xref>(<code>toString</code>).</li><li>Call <emu-xref aoid="Baz"><a href="#Baz">Baz</a></emu-xref>(<emu-val>true</emu-val>).<ol><li>Do something else.</li><li>And again.
   </li></ol></li></ol></emu-alg>
 
-  <emu-note><span class="note">Note</span>Note!</emu-note>
+  <emu-note><span class="note">Note</span><div class="note-contents">Note!</div></emu-note>
 
   <emu-production name="WhileStatement" id="prod-WhileStatement">
     <emu-nt><a href="#prod-WhileStatement">WhileStatement</a></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>while</emu-t><emu-t>(</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-Expression">Expression</a></emu-nt><emu-t>)</emu-t><emu-nt><a href="https://tc39.github.io/ecma262/#prod-Statement">Statement</a></emu-nt></emu-rhs>

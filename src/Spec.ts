@@ -543,7 +543,8 @@ export default class Spec {
     current.setAttribute('charset', 'utf-8');
   }
 
-  private _log(str: string) {
+  /*@internal*/
+  _log(str: string) {
     if (!this.opts.verbose) return;
     utils.logVerbose(str);
   }

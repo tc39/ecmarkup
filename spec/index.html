@@ -7,6 +7,7 @@
 <pre class=metadata>
 repository: https://github.com/bterlson/ecmarkup
 assets: none
+copyright: false
 </pre>
 <emu-biblio href="./biblio.json"></emu-biblio>
 <h1>Ecmarkup Documentation</h1>
@@ -24,7 +25,7 @@ assets: none
     <li>Auto-links abstract operations and terms based on name with support for external bibliographies for cross-referencing between specs</li>
     <li>Source code syntax highlighting inside pre code blocks</li>
   </ul>
-  <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/bterlson/ecmarkup/blob/master/spec/index.html">on github</a>. Additionally, you can view the <a href="https://tc39.github.io/Array.prototype.includes/">Array.prototype.includes proposal</a> or the <a href="https://tc39.github.io/ecmascript-asyncawait">Async Functions proposal</a> in Ecmarkup format.</p>
+  <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/bterlson/ecmarkup/blob/master/spec/index.html">on github</a>.</p>
 </emu-intro>
 
 <emu-clause id="getting-started">
@@ -210,11 +211,15 @@ toc: false
 </emu-clause>
 <emu-clause id="emu-note">
   <h1>emu-note</h1>
-  <p>Non-normative explanatory text.</p>
+  <p>Non-normative explanatory text. Comes in two flavors - regular notes and Editor's notes. Regular notes are intended for the implementers and end users of this specification. Editor's notes are notes to and from the Editors and will generally be removed prior to a specification being finalized and ratified.</p>
+
+  <h2>Attributes</h2>
+  <p><b>type:</b> The type of note, either blank or "editor".</p>
 
   <h2>Example</h2>
   <p>For authentication only, servers and clients MUST support SASL Salted Challenge Response Authentication Mechanism [SCRAM].</p>
   <emu-note>But we know you won't.</emu-note>
+  <emu-note type=editor>This joke brought to you by RFC6919.</emu-note>
 </emu-clause>
 
 <emu-clause id="emu-xref">
