@@ -16,7 +16,8 @@ export default class Algorithm extends Builder {
       Grammar.exit(context);
       context.node = node;
     }
-    const contents = node.innerHTML;
+    // replace spaces after !/? with &nbsp; to prevent bad line breaking
+    const contents = node.innerHTML.replace(/(\s+[\!\?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
     const html = emd.document(contents);
     node.innerHTML = html;
     context.inAlg = true;
