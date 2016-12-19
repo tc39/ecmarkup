@@ -20,6 +20,10 @@ export interface Options {
     toc?: boolean;
     oldToc?: boolean;
     verbose?: boolean;
+    cssOut?: string;
+    jsOut?: string;
+    assets?: "none" | "inline";
+    outfile?: string;
 }
 
 export async function build(path: string, fetch: (path: string, token: CancellationToken) => PromiseLike<string>, opts?: Options, token = CancellationToken.none): Promise<Spec> {

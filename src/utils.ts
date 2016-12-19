@@ -4,6 +4,7 @@ import Spec from "./Spec";
 import Xref from './Xref';
 import Clause from './Clause';
 import emd = require('ecmarkdown');
+import fs = require('fs');
 
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Node) {
@@ -86,4 +87,24 @@ export function shouldInline(node: Node) {
   }
 
   return ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'].indexOf(parent.nodeName) === -1;
+}
+
+/*@internal*/
+export function readFile(file: string) {
+  return new Promise<string>((resolve, reject) => {
+    fs.readFile(file, "utf8", (err, data) => err ? reject(err) : resolve(data));
+  });
+}
+
+/*@internal*/
+export function writeFile(file: string, content: string) {
+  return new Promise<void>((resolve, reject) => {
+    fs.writeFile(file, content, "utf8", err => err ? reject(err) : resolve());
+  });
+}
+
+/*@internal*/
+export async function copyFile(src: string, dest: string) {
+  const content = await readFile(src);
+  await writeFile(dest, content);
 }

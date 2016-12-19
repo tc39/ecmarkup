@@ -172,6 +172,7 @@ export default class Spec {
     5. Linking. After the DOM walk we have a complete picture of all the symbols in the document so we proceed to link
        the various xrefs to the proper place.
     6. Adding charset, highlighting code, etc.
+    7. Add CSS & JS dependencies.
     */
     
     this._log('Loading biblios...');
@@ -211,9 +212,9 @@ export default class Spec {
     this.autolink();
     this._log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
-    this._log('Linking non-terminal references');
+    this._log('Linking non-terminal references...');
     this._ntRefs.forEach(nt => nt.build());
-    this._log('Linking production references');
+    this._log('Linking production references...');
     this._prodRefs.forEach(nt => nt.build());
 
     this.highlightCode();
@@ -233,11 +234,79 @@ export default class Spec {
         toc.build();
     }
 
+    await this.buildAssets();
+
     return this;
   }
 
   public toHTML() {
     return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
+  }
+
+  private async buildAssets() {
+    const jsContents = await concatJs();
+    const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
+    
+    if (this.opts.jsOut) {
+      this._log(`Writing js file to ${this.opts.jsOut}...`);
+      await utils.writeFile(this.opts.jsOut, jsContents);
+    }
+
+    if (this.opts.cssOut) {
+      this._log(`Writing css file to ${this.opts.cssOut}...`);
+      await utils.writeFile(this.opts.cssOut, cssContents);
+    }
+
+    if (this.opts.assets === 'none') return;
+
+    // back-compat: if we already have a link to this script or css, bail out
+    let skipJs = false,
+        skipCss = false,
+        outDir: string;
+
+    if (this.opts.outfile) {
+      outDir = Path.dirname(this.opts.outfile);
+    } else {
+      outDir = process.cwd();
+    }
+    
+    if (this.opts.jsOut) {
+      const scripts = this.doc.querySelectorAll('script');
+      for (let i = 0; i < scripts.length; i++) {
+        const script = scripts[i];
+        const src = script.getAttribute('src');
+        if (src && Path.normalize(Path.join(outDir, src)) === Path.normalize(this.opts.jsOut)) {
+          this._log(`Found existing js link to ${src}, skipping inlining...`);
+          skipJs = true;
+        }
+      }
+    }
+
+    if (this.opts.cssOut) {
+      const links = this.doc.querySelectorAll('link[rel=stylesheet]');
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        const href = link.getAttribute('href');
+        if (href && Path.normalize(Path.join(outDir, href)) === Path.normalize(this.opts.cssOut)) {
+          this._log(`Found existing css link to ${href}, skipping inlining...`);
+          skipCss = true;
+        }
+      }
+    }
+
+    if (!skipJs) {
+      this._log('Inlining JavaScript assets...');
+      const script = this.doc.createElement('script');
+      script.textContent = jsContents;
+      this.doc.head.appendChild(script);
+    }
+
+    if (!skipCss) {
+      this._log('Inlining CSS assets...');
+      const style = this.doc.createElement('style');
+      style.textContent = cssContents;
+      this.doc.head.appendChild(style);
+    }
   }
 
   private buildSpecWrapper() {
@@ -598,4 +667,11 @@ function walk (walker: TreeWalker, context: Context) {
   if (changedInNoAutolink) context.inNoAutolink = false;
   if (changedInNoEmd) context.inNoEmd = false;
   context.tagStack.pop();
+}
+
+const jsDependencies = ['menu.js', 'findLocalReferences.js'];
+async function concatJs() {
+  const dependencies = await Promise.all(jsDependencies
+    .map(dependency => utils.readFile(path.join(__dirname, "../js/" + dependency))));
+  return dependencies.reduce((js, dependency) => js + dependency, '');
 }
