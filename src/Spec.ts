@@ -136,12 +136,8 @@ export default class Spec {
       this.opts.date = new Date();
     }
 
-    if (this.opts.stage) {
+    if (this.opts.stage != undefined) {
       this.opts.stage = String(this.opts.stage);
-    } else if (this.opts.status === 'proposal') {
-      this.opts.stage = '0';
-    } else {
-      this.opts.stage = null;
     }
 
     if (!this.opts.location) {
@@ -404,7 +400,7 @@ export default class Spec {
     const title = this.opts.title;
     const shortname = this.opts.shortname;
     const stage = this.opts.stage;
-
+    
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
         utils.logWarning('Contributors not specified, skipping copyright boilerplate. Specify contributors in your frontmatter metadata.');
@@ -426,6 +422,10 @@ export default class Spec {
       h1.setAttribute('class', 'title');
       h1.innerHTML = title;
       this.doc.body.insertBefore(h1, this.doc.body.firstChild);
+    }
+
+    if (version == undefined && stage == undefined) {
+      return;
     }
 
     // version string, ala 6th Edition July 2016 or Draft 10 / September 26, 2015
