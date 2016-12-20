@@ -274,6 +274,7 @@ function Menu() {
     if (e.target.classList.contains('utils-pin')) {
       var id = e.target.parentNode.parentNode.parentNode.parentNode.id;
       this.togglePinEntry(id);
+      e.preventDefault();
     }
   }.bind(this))
 }
