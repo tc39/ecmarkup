@@ -2,7 +2,7 @@
 <head><meta charset="utf-8"></head><body><div id="spec-container">
 <emu-biblio href="./xrefTestBiblio.json"></emu-biblio>
 <emu-clause id="sec-clause-id">
-  <h1><span class="secnum">1</span>Clause Title<span class="utils"><span class="anchor"><a href="#sec-clause-id">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
+  <h1 class="first"><span class="secnum">1</span>Clause Title<span class="utils"><span class="anchor"><a href="#sec-clause-id">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
 
   <!-- local refs to clause -->
   <emu-xref href="#sec-clause-id"><a href="#sec-clause-id">with link text</a></emu-xref>

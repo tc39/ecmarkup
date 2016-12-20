@@ -2,7 +2,7 @@
 <head><meta charset="utf-8"></head><body><div id="spec-container">
 <link rel="stylesheet" href="css/elements.css">
 <emu-clause id="foo">
-  <h1><span class="secnum">1</span>Test Clause<span class="utils"><span class="anchor"><a href="#foo">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
+  <h1 class="first"><span class="secnum">1</span>Test Clause<span class="utils"><span class="anchor"><a href="#foo">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
   <p>Increases indentaion level.</p>
   <pre><code class="lang-javascript hljs">global1.Zone.current; <span class="hljs-comment">// succeeds</span>
 global2.Zone.current; <span class="hljs-comment">// throws: currentRealm = realm1; thisRealm = functionRealm = realm2</span>
