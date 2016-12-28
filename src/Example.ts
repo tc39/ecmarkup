@@ -33,7 +33,8 @@ export default class Example extends Builder {
         type: 'example',
         id: this.id,
         number: number || 1,
-        clauseId: this.clause.id
+        clauseId: this.clause.id,
+        referencingIds: []
       });
     }
 

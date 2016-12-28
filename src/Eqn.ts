@@ -8,18 +8,18 @@ import { Context } from './Context';
 /*@internal*/
 export default class Eqn extends Builder {
   aoid: string | null;
-  id: string | null;
+  clauseId: string | null;
 
-  constructor(spec: Spec, node: HTMLElement, id: string) {
+  constructor(spec: Spec, node: HTMLElement, clauseId: string) {
     super(spec, node);
     this.aoid = node.getAttribute('aoid');
-    this.id = id;
+    this.clauseId = clauseId;
 
     if (this.aoid) {
       this.spec.biblio.add(<AlgorithmBiblioEntry>{
         type: 'op',
         aoid: this.aoid,
-        refId: this.id
+        refId: this.clauseId
       });
     }
   }

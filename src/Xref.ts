@@ -11,6 +11,8 @@ export default class Xref extends Builder {
   href: string;
   aoid: string;
   clause: Clause | null;
+  id: string;
+  entry: Biblio.BiblioEntry | undefined;
 
   static elements = ['EMU-XREF'];
   
@@ -20,6 +22,7 @@ export default class Xref extends Builder {
     this.href = href;
     this.aoid = aoid;
     this.clause = clause;
+    this.id = node.getAttribute('id')!;
   }
 
   static enter({ node, spec, clauseStack }: Context) {
@@ -65,42 +68,42 @@ export default class Xref extends Builder {
 
       const id = href.slice(1);
 
-      const entry = spec.biblio.byId(id);
-      if (!entry) {
+      this.entry = spec.biblio.byId(id);
+      if (!this.entry) {
         utils.logWarning('can\'t find clause, production, note or example with id ' + href);
         return;
       }
 
-      switch (entry.type) {
+      switch (this.entry.type) {
       case 'clause':
-        buildClauseLink(node, entry);
+        buildClauseLink(node, this.entry);
         break;
       case 'production':
-        buildProductionLink(node, entry);
+        buildProductionLink(node, this.entry);
         break;
       case 'example':
-        buildFigureLink(spec, this.clause, node, entry, 'Example');
+        buildFigureLink(spec, this.clause, node, this.entry, 'Example');
         break;
       case 'note':
-        buildFigureLink(spec, this.clause, node, entry, 'Note');
+        buildFigureLink(spec, this.clause, node, this.entry, 'Note');
         break;
       case 'table':
-        buildFigureLink(spec, this.clause, node, entry, 'Table');
+        buildFigureLink(spec, this.clause, node, this.entry, 'Table');
         break;
       case 'figure':
-        buildFigureLink(spec, this.clause, node, entry, 'Figure');
+        buildFigureLink(spec, this.clause, node, this.entry, 'Figure');
         break;
       case 'term':
-        buildTermLink(node, entry);
+        buildTermLink(node, this.entry);
         break;
       default:
         utils.logWarning('found unknown biblio entry (this is a bug, please file it)');
       }
     } else if (aoid) {
-      const entry = spec.biblio.byAoid(aoid, namespace);
+      this.entry = spec.biblio.byAoid(aoid, namespace);
 
-      if (entry) {
-        buildAOLink(node, entry);
+      if (this.entry) {
+        buildAOLink(node, this.entry);
         return;
       }
 

@@ -205,12 +205,15 @@ export default class Spec {
     walk(walker, context);
 
     this.autolink();
+
     this._log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this._log('Linking non-terminal references...');
     this._ntRefs.forEach(nt => nt.build());
     this._log('Linking production references...');
-    this._prodRefs.forEach(nt => nt.build());
+    this._prodRefs.forEach(prod => prod.build());
+    this._log('Building reference graph...');
+    this.buildReferenceGraph();
 
     this.highlightCode();
     this.setCharset();
@@ -237,6 +240,38 @@ export default class Spec {
 
   public toHTML() {
     return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
+  }
+
+  private buildReferenceGraph() {
+    let counter = 0;
+    this._xrefs.forEach(xref => {
+      let entry = xref.entry;
+      if (!entry || entry.namespace === "global") return;
+            
+      if (!entry.id && entry.refId) {
+        entry = this.spec.biblio.byId(entry.refId);
+      }
+
+      if (!xref.id) {
+        const id =  `_ref_${counter++}`;
+        xref.node.setAttribute('id', id);
+        xref.id = id;
+      }
+
+      entry.referencingIds.push(xref.id);
+    });
+
+    this._ntRefs.forEach(prod => {
+      const entry = prod.entry;
+      if (!entry || entry.namespace === "global") return;
+
+      // if this is the defining nt of an emu-production, don't create a ref
+      if (prod.node.parentNode!.nodeName === "EMU-PRODUCTION") return;
+      
+      const id = `_ref_${counter++}`;
+      prod.node.setAttribute('id', id);
+      entry.referencingIds.push(id);
+    });
   }
 
   private async buildAssets() {

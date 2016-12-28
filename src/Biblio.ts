@@ -28,6 +28,7 @@ class EnvRec extends Array<BiblioEntry> {
   push(...items: BiblioEntry[]) {
     for (const item of items) {
       item.location = item.location || '';
+      item.referencingIds = item.referencingIds || [];
 
       pushKey(this._byType, item.type, item);
       pushKey(this._byLocation, item.location, item);
@@ -37,7 +38,8 @@ class EnvRec extends Array<BiblioEntry> {
           type: 'op',
           aoid: item.aoid,
           refId: item.id,
-          location: item.location
+          location: item.location,
+          referencingIds: []
         };
         this.push(op);
       }
@@ -59,6 +61,9 @@ class EnvRec extends Array<BiblioEntry> {
   }
 }
 
+// Map, etc. returns array.
+Object.defineProperty(EnvRec, Symbol.species, { value: Array });
+
 /*@internal*/
 export default class Biblio {
   private _byId: { [id: string]: BiblioEntry; };
@@ -79,7 +84,7 @@ export default class Biblio {
     return this._byId[id];
   }
 
-  byNamespace(ns: string): BiblioEntry[] {
+  byNamespace(ns: string): EnvRec {
     const env = this._nsToEnvRec[ns];
     if (!env) {
       throw new Error('Namespace ' + ns + ' not found');
@@ -185,7 +190,14 @@ export default class Biblio {
   }
 
   toJSON() {
-    return this.byNamespace(this._location);
+    let root: BiblioEntry[] = [];
+
+    function addEnv(env: EnvRec) {
+      root = root.concat(env);
+      env._children.forEach(addEnv);
+    }
+    addEnv(this.byNamespace(this._location));
+    return root;
   }
 
   dump() {
@@ -211,6 +223,7 @@ export interface BiblioEntryBase {
   number?: string | number;
   caption?: string;
   term?: string;
+  referencingIds: string[];
 }
 
 export interface AlgorithmBiblioEntry extends BiblioEntryBase {

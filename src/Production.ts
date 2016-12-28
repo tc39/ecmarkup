@@ -66,6 +66,7 @@ export default class Production extends Builder {
         type: 'production',
         id: id,
         name: this.name,
+        referencingIds: []
       };
 
       // non-enumerable to JSON-stringifying the biblio doesn't include this

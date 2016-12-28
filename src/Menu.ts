@@ -13,7 +13,7 @@ export default class Menu {
     const pinContainer = this.spec.doc.createElement('div');
     pinContainer.setAttribute('id', 'menu-pins');
     const pinHeader = this.spec.doc.createElement('div');
-    pinHeader.textContent = 'Pinned Clauses';
+    pinHeader.textContent = 'Pins';
     pinHeader.setAttribute('class', 'menu-pane-header');
     const pinList = this.spec.doc.createElement('ul');
     pinList.setAttribute('id', 'menu-pins-list');

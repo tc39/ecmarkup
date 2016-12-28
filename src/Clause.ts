@@ -150,7 +150,7 @@ export default class Clause extends Builder {
     clause.buildHeader();
     clause.buildExamples();
     clause.buildNotes();
-    clause.buildUtils();
+    //clause.buildUtils();
 
     // clauses are always at the spec-level namespace.
     spec.biblio.add(<ClauseBiblioEntry>{

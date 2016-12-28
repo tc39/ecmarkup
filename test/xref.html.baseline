@@ -2,12 +2,12 @@
 <head><meta charset="utf-8"></head><body><div id="spec-container">
 <emu-biblio href="./xrefTestBiblio.json"></emu-biblio>
 <emu-clause id="sec-clause-id">
-  <h1 class="first"><span class="secnum">1</span>Clause Title<span class="utils"><span class="anchor"><a href="#sec-clause-id">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
+  <h1 class="first"><span class="secnum">1</span>Clause Title</h1>
 
   <!-- local refs to clause -->
-  <emu-xref href="#sec-clause-id"><a href="#sec-clause-id">with link text</a></emu-xref>
-  <emu-xref href="#sec-clause-id"><a href="#sec-clause-id">1</a></emu-xref>
-  <emu-xref href="#sec-clause-id" title=""><a href="#sec-clause-id">Clause Title</a></emu-xref>
+  <emu-xref href="#sec-clause-id" id="_ref_0"><a href="#sec-clause-id">with link text</a></emu-xref>
+  <emu-xref href="#sec-clause-id" id="_ref_1"><a href="#sec-clause-id">1</a></emu-xref>
+  <emu-xref href="#sec-clause-id" title="" id="_ref_2"><a href="#sec-clause-id">Clause Title</a></emu-xref>
 
   <!-- refs to ES6 clause -->
   <emu-xref href="#sec-notational-conventions"><a href="https://tc39.github.io/ecma262/#sec-notational-conventions">with link text</a></emu-xref>
@@ -20,41 +20,41 @@
   <emu-xref href="#sec-foo" title=""><a href="http://example.com/fooSite.html#sec-foo">Foo Section</a></emu-xref>
 
   <!-- refs to local nonterminal -->
-  <emu-xref href="#prod-TestProduction"><a href="#prod-TestProduction"><emu-nt>TestProduction</emu-nt></a></emu-xref>
-  <emu-xref href="#prod-TestProduction"><a href="#prod-TestProduction">with link text</a></emu-xref>
+  <emu-xref href="#prod-TestProduction" id="_ref_3"><a href="#prod-TestProduction"><emu-nt>TestProduction</emu-nt></a></emu-xref>
+  <emu-xref href="#prod-TestProduction" id="_ref_4"><a href="#prod-TestProduction">with link text</a></emu-xref>
 
   <!-- refs to ES6 nonterminal -->
   <emu-xref href="#prod-PrimaryExpression"><a href="https://tc39.github.io/ecma262/#prod-PrimaryExpression"><emu-nt>PrimaryExpression</emu-nt></a></emu-xref>
 
   <!-- refs to local abstract op -->
-  <emu-xref aoid="AbstractOp"><a href="#sec-abstract-op">AbstractOp</a></emu-xref>
-  <emu-xref aoid="AbstractOp"><a href="#sec-abstract-op">the AbstractOp abstract operation</a></emu-xref>
+  <emu-xref aoid="AbstractOp" id="_ref_5"><a href="#sec-abstract-op">AbstractOp</a></emu-xref>
+  <emu-xref aoid="AbstractOp" id="_ref_6"><a href="#sec-abstract-op">the AbstractOp abstract operation</a></emu-xref>
 
   <!-- refs to es6 abstract op -->
-  <emu-xref aoid="ReturnIfAbrupt"><a href="https://tc39.github.io/ecma262/#sec-returnifabrupt">ReturnIfAbrupt</a></emu-xref>
-  <emu-xref aoid="ReturnIfAbrupt"><a href="https://tc39.github.io/ecma262/#sec-returnifabrupt">Return if abrupt</a></emu-xref>
+  <emu-xref aoid="ReturnIfAbrupt" id="_ref_7"><a href="https://tc39.github.io/ecma262/#sec-returnifabrupt">ReturnIfAbrupt</a></emu-xref>
+  <emu-xref aoid="ReturnIfAbrupt" id="_ref_8"><a href="https://tc39.github.io/ecma262/#sec-returnifabrupt">Return if abrupt</a></emu-xref>
 
   <!-- refs to examples -->
-  <emu-xref href="#example-2"><a href="#example-2">1.1 Example 1</a></emu-xref>
-  <emu-xref href="#example-1"><a href="#example-1">Example 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
-  <emu-xref href="#example-1" title=""><a href="#example-1">Example 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
-  <emu-xref href="#example-3" title=""><a href="#example-3">AbstractOp Example 2</a></emu-xref>
-  <emu-xref href="#example-2"><a href="#example-2">with link text</a></emu-xref>
+  <emu-xref href="#example-2" id="_ref_9"><a href="#example-2">1.1 Example 1</a></emu-xref>
+  <emu-xref href="#example-1" id="_ref_10"><a href="#example-1">Example 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#example-1" title="" id="_ref_11"><a href="#example-1">Example 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#example-3" title="" id="_ref_12"><a href="#example-3">AbstractOp Example 2</a></emu-xref>
+  <emu-xref href="#example-2" id="_ref_13"><a href="#example-2">with link text</a></emu-xref>
 
   <!-- refs to notes -->
-  <emu-xref href="#note-1"><a href="#note-1">1.1 Note 1</a></emu-xref>
-  <emu-xref href="#note-1" title=""><a href="#note-1">AbstractOp Note 1</a></emu-xref>
-  <emu-xref href="#note-2"><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
-  <emu-xref href="#note-2" title=""><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
-  <emu-xref href="#note-2"><a href="#note-2">with link text</a></emu-xref>
-  <emu-xref href="#editors-note"><a href="#editors-note">to editors note</a></emu-xref>
+  <emu-xref href="#note-1" id="_ref_14"><a href="#note-1">1.1 Note 1</a></emu-xref>
+  <emu-xref href="#note-1" title="" id="_ref_15"><a href="#note-1">AbstractOp Note 1</a></emu-xref>
+  <emu-xref href="#note-2" id="_ref_16"><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#note-2" title="" id="_ref_17"><a href="#note-2">Note 1</a></emu-xref> <!-- examples in current clause shouldn't include clause name -->
+  <emu-xref href="#note-2" id="_ref_18"><a href="#note-2">with link text</a></emu-xref>
+  <emu-xref href="#editors-note" id="_ref_19"><a href="#editors-note">to editors note</a></emu-xref>
 
   <!-- refs to figures and tables -->
-  <emu-xref href="#table-1"><a href="#table-1">Table 1</a></emu-xref>
-  <emu-xref href="#figure-1"><a href="#figure-1">Figure 1</a></emu-xref>
+  <emu-xref href="#table-1" id="_ref_20"><a href="#table-1">Table 1</a></emu-xref>
+  <emu-xref href="#figure-1" id="_ref_21"><a href="#figure-1">Figure 1</a></emu-xref>
 
   <emu-clause id="sec-abstract-op" aoid="AbstractOp">
-    <h1><span class="secnum">1.1</span>AbstractOp<span class="utils"><span class="anchor"><a href="#sec-abstract-op">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
+    <h1><span class="secnum">1.1</span>AbstractOp</h1>
     <emu-alg><ol><li>Return.
     </li></ol></emu-alg>
 

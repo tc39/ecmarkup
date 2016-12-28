@@ -3,12 +3,12 @@
 <emu-note>This is a note. Since it is outside a clause it is unstyled.</emu-note>
 
 <emu-clause id="sec-this">
-  <h1><span class="secnum">1</span>This<span class="utils"><span class="anchor"><a href="#sec-this">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
+  <h1><span class="secnum">1</span>This</h1>
 
   <emu-note><span class="note">Note</span><div class="note-contents">This is note 1, but since it is the only note, it is not numbered.</div></emu-note>
 
   <emu-clause id="sec-that">
-    <h1><span class="secnum">1.1</span>That<span class="utils"><span class="anchor"><a href="#sec-that">link</a></span><span class="anchor"><a href="#" class="utils-pin">pin</a></span></span></h1>
+    <h1><span class="secnum">1.1</span>That</h1>
     <emu-note><span class="note">Note 1</span><div class="note-contents">This is note 1, should be numbered</div></emu-note>
     <emu-note><span class="note">Note 2</span><div class="note-contents">This is note 2, should also be numbered</div></emu-note>
   </emu-clause>

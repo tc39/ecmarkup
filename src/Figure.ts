@@ -38,7 +38,8 @@ export default class Figure extends Builder {
         type: this.type as "table" | "figure" | "example" | "note",
         id: this.id,
         number: this.number,
-        caption: this.caption
+        caption: this.caption,
+        referencingIds: []
       });
     }
   }

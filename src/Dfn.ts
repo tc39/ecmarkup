@@ -12,7 +12,8 @@ export default class Dfn extends Builder {
     const entry: TermBiblioEntry = {
       type: 'term',
       term: node.textContent!,
-      refId: parentClause.id
+      refId: parentClause.id,
+      referencingIds: []
     };
 
     if (node.hasAttribute('id')) {
