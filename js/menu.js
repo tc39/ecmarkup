@@ -719,7 +719,7 @@ var referencePane = {
     this.$header = document.createElement('div');
     this.$header.classList.add('menu-pane-header');
     this.$header.textContent = 'References to ';
-    this.$headerRefId = document.createElement('span');
+    this.$headerRefId = document.createElement('a');
     this.$header.appendChild(this.$headerRefId);
     this.$closeButton = document.createElement('span');
     this.$closeButton.setAttribute('id', 'references-pane-close');
@@ -758,6 +758,7 @@ var referencePane = {
     var previousCell;
     var dupCount = 0;
     this.$headerRefId.textContent = '#' + entry.id;
+    this.$headerRefId.setAttribute('href', '#' + entry.id);
     entry.referencingIds.map(function (id) {
       var target = document.getElementById(id);
       var cid = findParentClauseId(target);
