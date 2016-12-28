@@ -642,7 +642,7 @@ var Toolbox = {
     document.body.appendChild(this.$container);
   },
 
-  activate: function (el, entry) {
+  activate: function (el, entry, target) {
     if (el === this._activeEl) return;
     this.active = true;
     this.entry = entry;
@@ -653,7 +653,9 @@ var Toolbox = {
     this.updatePermalink();
     this.updateReferences();
     this._activeEl = el;
-    if (this.top < document.body.scrollTop) {
+    console.log(el.offsetHeight);
+    if (this.top < document.body.scrollTop && el === target) {
+      // don't scroll unless it's a small thing (< 200px)
       this.$container.scrollIntoView();
     }
   },
@@ -670,7 +672,7 @@ var Toolbox = {
     var ref = this.findReferenceUnder(e.target);
     if (ref) {
       var entry = menu.search.biblio.byId[ref.id];
-      this.activate(ref.element, entry);
+      this.activate(ref.element, entry, e.target);
     } else if (this.active && ((e.pageY < this.top) || e.pageY > (this._activeEl.offsetTop + this._activeEl.offsetHeight))) {
       this.deactivate();
     }
@@ -686,6 +688,9 @@ var Toolbox = {
         if (el.nodeName === 'EMU-FIGURE' || el.nodeName === 'EMU-TABLE' || el.nodeName === 'EMU-EXAMPLE') {
           // return the figcaption element
           return { element: el.children[0].children[0], id: el.id };
+        } else if (el.nodeName === 'EMU-PRODUCTION') {
+          // return the LHS non-terminal element
+          return { element: el.children[0], id: el.id };
         } else {
           return { element: el, id: el.id };
         }
