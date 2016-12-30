@@ -189,7 +189,7 @@ Search.prototype.displayResults = function (results) {
       } else if (entry.type === 'op') {
         text = entry.key;
         cssClass = 'op';
-        id = entry.refId;
+        id = entry.id || entry.refId;
       } else if (entry.type === 'term') {
         text = entry.key;
         cssClass = 'term';

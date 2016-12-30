@@ -45,8 +45,10 @@ interface VisitorMap {
 interface TextNodeContext {
   clause: Spec | Clause,
   node: Node,
-  inAlg: boolean
+  inAlg: boolean,
+  currentId: string | null
 }
+
 var builders: typeof Builder[] = [
   Clause,
   H1,
@@ -192,7 +194,8 @@ export default class Spec {
       inNoAutolink: false,
       inAlg: false,
       inNoEmd: false,
-      startEmd: null
+      startEmd: null,
+      currentId: null
     }
 
     this._xrefs = [];
@@ -580,8 +583,8 @@ export default class Spec {
       let nodes = this._textNodes[namespace];
 
       for(let j = 0; j < nodes.length; j++) {
-        const { node, clause , inAlg } = nodes[j];
-        autolink(node, replacer, autolinkmap, clause, inAlg);
+        const { node, clause , inAlg, currentId } = nodes[j];
+        autolink(node, replacer, autolinkmap, clause, currentId, inAlg);
       }
     }
   }
@@ -682,7 +685,8 @@ function walk (walker: TreeWalker, context: Context) {
       context.spec._textNodes[namespace].push({
         node: context.node,
         clause: clause,
-        inAlg: context.inAlg
+        inAlg: context.inAlg,
+        currentId: context.currentId
       });
       
     }
@@ -691,6 +695,11 @@ function walk (walker: TreeWalker, context: Context) {
   }
 
   // context.node is an HTMLElement (node type 1)
+
+  let parentId = context.currentId;
+  if (context.node.hasAttribute('id')) {
+    context.currentId = context.node.getAttribute('id');
+  }
 
   // See if we should stop auto-linking here.
   if (NO_CLAUSE_AUTOLINK.has(context.node.nodeName) && !context.inNoAutolink) {
@@ -721,6 +730,7 @@ function walk (walker: TreeWalker, context: Context) {
   if (visitor) visitor.exit(context);
   if (changedInNoAutolink) context.inNoAutolink = false;
   if (changedInNoEmd) context.inNoEmd = false;
+  context.currentId = parentId;
   context.tagStack.pop();
 }
 

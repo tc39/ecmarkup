@@ -9,18 +9,30 @@ import { Context } from './Context';
 export default class Eqn extends Builder {
   aoid: string | null;
   clauseId: string | null;
+  id: string | null;
 
   constructor(spec: Spec, node: HTMLElement, clauseId: string) {
     super(spec, node);
     this.aoid = node.getAttribute('aoid');
     this.clauseId = clauseId;
+    this.id = node.getAttribute('id');
 
     if (this.aoid) {
-      this.spec.biblio.add(<AlgorithmBiblioEntry>{
-        type: 'op',
-        aoid: this.aoid,
-        refId: this.clauseId
-      });
+      if (this.id) {
+        this.spec.biblio.add(<AlgorithmBiblioEntry>{
+          type: 'op',
+          aoid: this.aoid,
+          id: this.id,
+          referencingIds: []
+        });
+      } else {
+        this.spec.biblio.add(<AlgorithmBiblioEntry>{
+          type: 'op',
+          aoid: this.aoid,
+          refId: this.clauseId,
+          referencingIds: []
+        });
+      }
     }
   }
 
@@ -51,12 +63,9 @@ export default class Eqn extends Builder {
     }
 
     node.innerHTML = contents;
-    context.inAlg = true;
   }
 
-  static exit(context: Context) {
-    context.inAlg = false;
-  }
+  static exit(context: Context) { }
 
   static elements = ['EMU-EQN'];
 }

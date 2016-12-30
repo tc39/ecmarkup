@@ -20,9 +20,8 @@ export const NO_CLAUSE_AUTOLINK = new Set([
   'DFN'
 ]);
 
-export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, allowSameId: boolean) {
+export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, currentId: string | null, allowSameId: boolean) {
   const spec = clause.spec;
-  const parentId = (clause as Clause).id;
   const template = spec.doc.createElement('template');
   const content = escape(node.textContent!);
   const autolinked = content.replace(replacer, match => {
@@ -32,8 +31,8 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
     }
 
     const entryId = entry.id || entry.refId;
-    const skipLinking = !allowSameId && parentId && entryId === parentId;
-
+    
+    const skipLinking = !allowSameId && currentId && entryId === currentId;
     if (skipLinking) {
       return match;
     }

@@ -229,7 +229,7 @@ export interface BiblioEntryBase {
 export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   type: "op";
   aoid: string;
-  refId: string;
+  refId?: string;
 }
 
 export interface ProductionBiblioEntry extends BiblioEntryBase {

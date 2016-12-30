@@ -15,4 +15,5 @@ export interface Context {
   inNoEmd: boolean;
   inAlg: boolean;
   startEmd: Node | null;
+  currentId: string | null;
 }
