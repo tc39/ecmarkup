@@ -653,7 +653,6 @@ var Toolbox = {
     this.updatePermalink();
     this.updateReferences();
     this._activeEl = el;
-    console.log(el.offsetHeight);
     if (this.top < document.body.scrollTop && el === target) {
       // don't scroll unless it's a small thing (< 200px)
       this.$container.scrollIntoView();
@@ -670,7 +669,7 @@ var Toolbox = {
 
   activateIfMouseOver: function (e) {
     var ref = this.findReferenceUnder(e.target);
-    if (ref) {
+    if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
       var entry = menu.search.biblio.byId[ref.id];
       this.activate(ref.element, entry, e.target);
     } else if (this.active && ((e.pageY < this.top) || e.pageY > (this._activeEl.offsetTop + this._activeEl.offsetHeight))) {
