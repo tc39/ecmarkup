@@ -5,13 +5,13 @@ import { Context } from './Context';
  
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
-const entityRe = /&(gt|lt|amp|(l|r)dquo);/g;
+const entityRe = /&(gt|lt|amp|[lr]dquo);/g;
 const entities: { [key: string]: string } = {
   "&gt;": ">",
   "&lt;": "<",
   "&amp;": "&",
-  "&ldquo;": "“",
-  "&rdquo;": "”",
+  "&ldquo;": "\u201C",
+  "&rdquo;": \u201D",
 };
 
 /*@internal*/
