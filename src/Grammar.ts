@@ -11,7 +11,7 @@ const entities: { [key: string]: string } = {
   "&lt;": "<",
   "&amp;": "&",
   "&ldquo;": "\u201C",
-  "&rdquo;": \u201D",
+  "&rdquo;": "\u201D",
 };
 
 /*@internal*/
