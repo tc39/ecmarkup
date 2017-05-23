@@ -20,8 +20,8 @@ export function emdTextNode(spec: Spec, node: Node) {
 
 
 /*@internal*/
-export function htmlToDoc(html: string) {
-  return jsdom.jsdom(html);
+export function htmlToDom(html: string) {
+  return new (jsdom as any).JSDOM(html, { includeNodeLocations: true });
 }
 
 /*@internal*/

@@ -25,7 +25,7 @@ export default class Import extends Builder {
     spec.imports.push(imp);
 
     const html = await spec.fetch(importPath);
-    const importDoc = await utils.htmlToDoc(html);
+    const importDoc = await utils.htmlToDom(html).window.document;
     
     const nodes = importDoc.body.childNodes;
     const frag = spec.doc.createDocumentFragment();

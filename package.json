@@ -32,11 +32,11 @@
     "bluebird": "^3.4.5",
     "chalk": "^1.1.1",
     "ecmarkdown": "^3.0.9",
-    "grammarkdown": "^1.0.5",
+    "grammarkdown": "^1.0.7",
     "highlight.js": "^9.0.0",
     "html-escape": "^1.0.2",
     "js-yaml": "^3.4.6",
-    "jsdom": "^9.4.5",
+    "jsdom": "^11.0.0",
     "nomnom": "^1.8.1",
     "prex": "^0.2.0",
     "promise-debounce": "^1.0.1"
@@ -46,12 +46,12 @@
     "@types/chalk": "^0.4.28",
     "@types/highlight.js": "^9.1.7",
     "@types/js-yaml": "^3.5.27",
-    "@types/jsdom": "^2.0.28",
+    "@types/jsdom": "^2.0.30",
     "@types/node": "^6.0.37",
     "@types/nomnom": "0.0.27",
     "diff": "^2.2.1",
     "eslint": "^1.10.3",
     "mocha": "^2.3.4",
-    "typescript": "^2.1.0-dev.20161107"
+    "typescript": "^2.3.0"
   }
 }

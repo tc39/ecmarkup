@@ -79,6 +79,7 @@ export default class Spec {
   sourceText: string | undefined;
   namespace: string;
   biblio: Biblio;
+  dom: any; /* JSDOM types are not updated, this is the jsdom DOM object */
   doc: Document;
   imports: Import[];
   node: HTMLElement;
@@ -95,7 +96,7 @@ export default class Spec {
   constructor (
     rootPath: string,
     fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
-    doc: HTMLDocument,
+    dom: any,
     opts?: Options,
     sourceText?: string,
     token = CancellationToken.none
@@ -107,7 +108,8 @@ export default class Spec {
     this.rootPath = rootPath;
     this.rootDir = Path.dirname(this.rootPath);
     this.sourceText = sourceText;
-    this.doc = doc;
+    this.doc = dom.window.document;
+    this.dom = dom;
     this._fetch = fetch;
     this.subclauses = [];
     this.imports = [];
