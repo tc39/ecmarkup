@@ -1,15 +1,10 @@
 import Builder from './Builder';
 import { Host, CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 import { Context } from './Context';
- 
+import { decode as decodeHtmlEntities } from "he";
+
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
-const entityRe = /&(gt|lt|amp);/g;
-const entities: { [key: string]: string } = {
-  "&gt;": ">",
-  "&lt;": "<",
-  "&amp;": "&"
-};
 
 /*@internal*/
 export default class Grammar extends Builder {
@@ -61,9 +56,9 @@ export default class Grammar extends Builder {
         content = content.slice(0, match.index);
       }
     }
-    // grammarkdown doesn't handle html entities but most usages of
-    // ecmarkup use &lt; and &gt; extensively in emu-grammar (eg. lookaheads)
-    content = content.replace(entityRe, entity => entities[entity]);
+
+    // grammarkdown doesn't handle html entities, so decode them first
+    content = decodeHtmlEntities(content);
 
     const host = Host.getHost({
       readFile: file => content,

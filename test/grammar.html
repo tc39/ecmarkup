@@ -19,6 +19,9 @@ assets: none
   LookaheadExample ::
     `&&` `n` [lookahead &lt;! {`1`, `3`, `5`, `7`, `9`}] DecimalDigits
     DecimalDigit [lookahead &lt;! DecimalDigit]
+
+  HTMLEntitiesExample ::
+    > This is technically a &ldquo;production&rdquo;
 </emu-grammar>
 
 <p>Can also have inline productions like <emu-grammar>Atom :: `(` Disjunction `)`</emu-grammar>.</p>
