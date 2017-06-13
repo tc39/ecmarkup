@@ -435,6 +435,18 @@ emu-grammar > ins, emu-grammar > del {
   display: block;
 }
 
+tr.ins > td > ins {
+  border-bottom: none;
+}
+
+tr.ins > td {
+  background-color: #e0f8e0;
+}
+
+tr.del > td {
+  background-color: #fee;
+}
+
 /* Menu Styles */
 #menu-toggle {
   font-size: 2em;
