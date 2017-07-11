@@ -483,16 +483,18 @@ export default class Spec {
       this.doc.body.insertBefore(h1, this.doc.body.firstChild);
     }
 
-    if (version == undefined && stage == undefined) {
-      return;
-    }
-
     // version string, ala 6th Edition July 2016 or Draft 10 / September 26, 2015
     let versionText = '';
+    let omitShortname = false;
     if (version) {
       versionText += version + ' / ';
     } else if (status === 'proposal' && stage) {
       versionText += 'Stage ' + stage + ' Draft / ';
+    } else if (shortname && status === 'draft') {
+      versionText += 'Draft ' + shortname + ' / ';
+      omitShortname = true;
+    } else {
+      return;
     }
 
     const defaultDateFormat = status === 'standard' ? STANDARD_DATE_FORMAT : DRAFT_DATE_FORMAT;
@@ -507,7 +509,7 @@ export default class Spec {
     }
 
     // shortname and status, ala 'Draft ECMA-262
-    if (shortname) {
+    if (shortname && !omitShortname) {
       const shortnameText = status.charAt(0).toUpperCase() + status.slice(1) + ' ' + shortname;
 
       if (!this._updateBySelector('h1.shortname', shortnameText)) {

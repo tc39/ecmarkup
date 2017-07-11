@@ -66,8 +66,9 @@ export function replacerForNamespace(namespace: string, biblio: Biblio) : [RegEx
   const clauseReplacer = new RegExp(Object.keys(autolinkmap)
     .sort(function (a, b) { return b.length - a.length; })
     .map(function (k) {
+      
       const entry = autolinkmap[k];
-      const key = entry.key!;
+      const key = regexpEscape(entry.key!);
 
       if (entry.type === 'term') {
         if (isCommonTerm(key)) {
@@ -131,3 +132,6 @@ function narrowSpace(str: string) {
   return str.replace(/[\s\r\n]+/g, ' ');
 }
 
+function regexpEscape(str: string) {
+  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
