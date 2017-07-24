@@ -26,21 +26,35 @@ export default class Clause extends Builder {
     spec: Spec,
     node: HTMLElement,
     parent: Clause,
-    id: string,
     number: string,
-    namespace: string,
-    aoid: string | null
   ) {
     super(spec, node);
     this.parentClause = parent;
-    this.id = id;
+    this.id = node.getAttribute('id')!;
     this.number = number;
     this.subclauses = [];
-    this.namespace = namespace;
-    this.aoid = aoid;
     this.notes = [];
     this.editorNotes = [];
     this.examples = [];
+
+    // namespace is either the entire spec or the parent clause's namespace.
+    let parentNamespace = spec.namespace;
+    if (parent) {
+      parentNamespace = parent.namespace;
+    }
+
+    if (node.hasAttribute('namespace')) {
+      this.namespace = node.getAttribute('namespace')!;
+      spec.biblio.createNamespace(this.namespace, parentNamespace);
+    } else {
+      this.namespace = parentNamespace;
+    }
+
+    this.aoid = node.getAttribute('aoid');
+    if (this.aoid === "") {
+      // <emu-clause id=foo aoid> === <emu-clause id=foo aoid=foo>
+      this.aoid = node.id;
+    }
   }
 
   buildHeader() {
@@ -105,28 +119,7 @@ export default class Clause extends Builder {
     }
     const parent = clauseStack[clauseStack.length - 1] || null;
 
-    let parentNamespace: string;
-    if (parent) {
-      parentNamespace = parent.namespace;
-    } else {
-      parentNamespace = spec.namespace;
-    }
-
-    let newNamespace = false;
-    let namespace: string;
-    if (node.hasAttribute('namespace')) {
-      namespace = node.getAttribute('namespace')!;
-      spec.biblio.createNamespace(namespace, parentNamespace);
-    } else {
-      namespace = parentNamespace;
-    }
-
-    let aoid = node.getAttribute('aoid');
-    if (aoid === "") {
-      // <emu-clause id=foo aoid> === <emu-clause id=foo aoid=foo>
-      aoid = node.id;
-    }
-    const clause = new Clause(spec, node, parent, node.id, nextNumber, namespace, aoid);
+    const clause = new Clause(spec, node, parent, nextNumber);
     
     if (parent) {
       parent.subclauses.push(clause);
@@ -159,7 +152,7 @@ export default class Clause extends Builder {
       aoid: clause.aoid,
       title: clause.title,
       titleHTML: clause.titleHTML,
-      number: clause.number
+      number: clause.number,
     }, spec.namespace);
 
     clauseStack.pop();
