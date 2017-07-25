@@ -331,18 +331,18 @@ toc: false
   <p><b>href:</b> Required: URL to the biblio file.</p>
 
   <h2>Example</h2>
-  <b>biblio.js</b>
+  <b>biblio.json</b>
   <pre><code class="language-json">{
-  "http://people.mozilla.org/~jorendorff/es6-draft.html": [
+  "https://tc39.github.io/ecma262/": [
+    {
       "type": "op",
-      "ReturnIfAbrupt": "#sec-returnifabrupt",
-      "Get": "#sec-get-o-p"
-    ]
-  }
+      "aoid": "ReturnIfAbrubt"
+    }
+  ]
 }</code></pre>
-  <b>spec.js</b>
+  <b>spec.emu</b>
   <pre><code class="language-html">
-&lt;emu-biblio href="./spec.js">&lt;/emu-biblio>
+&lt;emu-biblio href="./biblio.json">&lt;/emu-biblio>
 &lt;emu-alg>
 1. let _res_ be some value.
 2. ReturnIfAbrupt(_res_)
