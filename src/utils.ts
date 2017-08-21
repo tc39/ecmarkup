@@ -99,7 +99,7 @@ export function readFile(file: string) {
 /*@internal*/
 export function writeFile(file: string, content: string) {
   return new Promise<void>((resolve, reject) => {
-    fs.writeFile(file, content, "utf8", err => err ? reject(err) : resolve());
+    fs.writeFile(file, content, { encoding: "utf8" }, err => err ? reject(err) : resolve());
   });
 }
 

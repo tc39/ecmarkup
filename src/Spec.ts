@@ -694,11 +694,23 @@ function walk (walker: TreeWalker, context: Context) {
       });
       
     }
-
     return;
   }
 
   // context.node is an HTMLElement (node type 1)
+  
+  // handle oldids
+  let oldids = context.node.getAttribute('oldids');
+  if (oldids) {
+    if (!context.node.children) {
+      throw new Error("oldids found on unsupported element: " + context.node.nodeName);
+    }
+    oldids.split(/,/g).map(s => s.trim()).forEach(oid => {
+      let s = spec.doc.createElement('span');
+      s.setAttribute('id', oid);
+      context.node.insertBefore(s, context.node.children[0]);
+    })
+  }
 
   let parentId = context.currentId;
   if (context.node.hasAttribute('id')) {
