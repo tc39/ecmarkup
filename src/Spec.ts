@@ -385,7 +385,7 @@ export default class Spec {
   private async loadBiblios() {
     this.cancellationToken.throwIfCancellationRequested();
     await Promise.all(Array.from(this.doc.querySelectorAll('emu-biblio'))
-      .map(biblio => this.loadBiblio(path.join(this.rootDir, biblio.getAttribute('href')))));
+      .map(biblio => this.loadBiblio(path.join(this.rootDir, biblio.getAttribute('href')!))));
   }
 
   private async loadBiblio(file: string) {

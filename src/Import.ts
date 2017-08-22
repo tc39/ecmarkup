@@ -19,6 +19,7 @@ export default class Import extends Builder {
 
   static async build(spec: Spec, node: HTMLElement, root: string) {
     const href = node.getAttribute('href');
+    if (!href) throw new Error("Import missing href attribute.");
     const importPath = Path.join(root, href);
     const relativeRoot = Path.dirname(importPath);
     const imp = new Import(spec, node, importPath, relativeRoot);
