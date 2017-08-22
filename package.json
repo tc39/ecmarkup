@@ -54,6 +54,6 @@
     "diff": "^2.2.1",
     "eslint": "^1.10.3",
     "mocha": "^2.3.4",
-    "typescript": "^2.3.0"
+    "typescript": "^2.4.2"
   }
 }
