@@ -1,9 +1,8 @@
 {
-  "http://people.mozilla.org/~jorendorff/es6-draft.html": [
+  "https://tc39.github.io/ecma262/": [
     {
       "type": "op",
-      "id": "sec-returnifabrupt",
-      "aoid": "ReturnIfAbrupt"
+      "aoid": "ReturnIfAbrubt"
     },
     {
       "type": "op",
