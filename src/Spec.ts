@@ -448,7 +448,7 @@ export default class Spec {
         return;
       }
 
-      node = walker.nextNode();
+      node = walker.nextNode()!;
     }
   }
 
@@ -522,27 +522,41 @@ export default class Spec {
   }
 
   private buildCopyrightBoilerplate() {
-    let copyright: string;
     let address: string;
+    let copyright: string;
+    let license: string;
 
-    if (this.opts.status === 'draft') {
-      copyright = getBoilerplate('draft-copyright');
-      address = getBoilerplate('address');
-    } else if (this.opts.status === 'standard') {
-      copyright = getBoilerplate('standard-copyright');
-      address = getBoilerplate('address');
-    } else {
-      copyright = getBoilerplate('proposal-copyright');
+    let addressFile: string | undefined;
+    let copyrightFile: string | undefined;
+    let licenseFile: string | undefined;
+
+    if (this.opts.boilerplate) {
+      if (this.opts.boilerplate.address) {
+        addressFile = Path.join(process.cwd(), this.opts.boilerplate.address);
+      }
+      if (this.opts.boilerplate.copyright) {
+        copyrightFile = Path.join(process.cwd(), this.opts.boilerplate.copyright);
+      }
+      if (this.opts.boilerplate.license) {
+        licenseFile = Path.join(process.cwd(), this.opts.boilerplate.license);
+      }
+    }
+
+    // Get content from files
+    address = getBoilerplate(addressFile || 'address');
+    copyright = getBoilerplate(copyrightFile || `${this.opts.status}-copyright`);
+    license = getBoilerplate(licenseFile || 'software-license');
+
+    if (this.opts.status === 'proposal') {
       address = '';
     }
 
+    // Operate on content
     copyright = copyright.replace(/!YEAR!/g, "" + this.opts.date!.getFullYear());
 
     if (this.opts.contributors) {
       copyright = copyright.replace(/!CONTRIBUTORS!/g, this.opts.contributors);
     }
-
-    const softwareLicense = getBoilerplate('software-license');
 
     let copyrightClause = this.doc.querySelector('.copyright-and-software-license');
     if (!copyrightClause) {
@@ -572,7 +586,7 @@ export default class Spec {
       <h2>Copyright Notice</h2>
       ${copyright.replace('!YEAR!', "" + this.opts.date!.getFullYear())}
       <h2>Software License</h2>
-      ${softwareLicense}
+      ${license}
     `;
 
   }
@@ -632,7 +646,17 @@ function assign(target: any, source: any) {
 }
 
 function getBoilerplate(file: string) {
-  return fs.readFileSync(Path.join(__dirname, '../boilerplate', file + '.html'), 'utf8');
+  let boilerplateFile: string = file;
+
+  try {
+    if (fs.lstatSync(file).isFile()) {
+      boilerplateFile = file;
+    }
+  } catch (error) {
+    boilerplateFile = Path.join(__dirname, '../boilerplate', `${file}.html`);
+  }
+
+  return fs.readFileSync(boilerplateFile, 'utf8');
 }
 
 async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: string) {
