@@ -7,23 +7,30 @@ var __awaiter = require('./awaiter');
 
 export { Spec, BiblioEntry };
 
+export class Boilerplate {
+  address?: string;
+  copyright?: string;
+  license?: string;
+}
+
 export interface Options {
-    status?: "proposal" | "draft" | "standard";
-    version?: string;
-    title?: string;
-    shortname?: string;
-    stage?: string | null;
-    copyright?: boolean;
-    date?: Date;
-    location?: string;
-    contributors?: string;
-    toc?: boolean;
-    oldToc?: boolean;
-    verbose?: boolean;
-    cssOut?: string;
-    jsOut?: string;
-    assets?: "none" | "inline";
-    outfile?: string;
+  status?: "proposal" | "draft" | "standard";
+  version?: string;
+  title?: string;
+  shortname?: string;
+  stage?: string | null;
+  copyright?: boolean;
+  date?: Date;
+  location?: string;
+  contributors?: string;
+  toc?: boolean;
+  oldToc?: boolean;
+  verbose?: boolean;
+  cssOut?: string;
+  jsOut?: string;
+  assets?: "none" | "inline";
+  outfile?: string;
+  boilerplate?: Boilerplate;
 }
 
 export async function build(path: string, fetch: (path: string, token: CancellationToken) => PromiseLike<string>, opts?: Options, token = CancellationToken.none): Promise<Spec> {
