@@ -1,0 +1,36 @@
+<!doctype html>
+<head><meta charset="utf-8"></head><body><div id="spec-container">
+<emu-clause id="sec-a">
+  <h1 class="first"><span class="secnum">1</span>A</h1>
+  <emu-clause id="sec-a">
+    <h1><span class="secnum">1.1</span>Sub A</h1>
+
+    <emu-example id="an-example" caption="An example"><figure><figcaption>Example (Informative): An example</figcaption>
+      Multiple examples are numbered similar to notes
+    
+    </figure></emu-example>
+  </emu-clause>
+</emu-clause>
+<emu-clause id="sec-a">
+  <h1><span class="secnum">2</span>Section A: Extras</h1>
+  <emu-table id="table-of-stuff" caption="A Table Of Stuff" informative=""><figure><figcaption>Table 1 (Informative): A Table Of Stuff</figcaption>
+    <table>
+      <tbody><tr><th>Column 1</th><th>Column 2</th></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+    </tbody></table>
+  </figure></emu-table>
+</emu-clause>
+<emu-clause id="sec-a">
+  <h1><span class="secnum">3</span>Section A: Extras</h1>
+  <emu-table id="table-of-stuff" caption="A Table Of Stuff" informative=""><figure><figcaption>Table 2 (Informative): A Table Of Stuff</figcaption>
+    <table>
+      <tbody><tr><th>Column 1</th><th>Column 2</th></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+    </tbody></table>
+  </figure></emu-table>
+  <emu-example id="an-example" caption="An example"><figure><figcaption>Example (Informative): An example</figcaption>
+    Multiple examples are numbered similar to notes
+  
+  </figure></emu-example>
+</emu-clause>
+</div></body>
