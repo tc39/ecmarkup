@@ -1,7 +1,6 @@
 'use strict';
 const fs = require('fs');
 const assert = require('assert');
-const diff = require('diff');
 
 const emu = require('../lib/ecmarkup');
 
@@ -18,14 +17,28 @@ function build(file) {
 
 describe('baselines', function() {
   files.forEach(function(file) {
+    const local = 'test/baselines/local/' + file;
+    const reference = 'test/baselines/reference/' + file;
     file = 'test/' + file;
     it(file, function() {
       return build(file)
         .then(function (spec) {
           const contents = spec.toHTML();
-          const str = fs.readFileSync(file + '.baseline', 'utf-8').toString();
+          let str;
+          try {
+            str = fs.readFileSync(reference, 'utf8');
+          }
+          catch (e) { }
           if (contents !== str) {
-            throw new Error(diff.createPatch(file, contents, str));
+            try {
+              fs.mkdirSync('test/baselines/local'); 
+            } 
+            catch (e) { }
+            fs.writeFileSync(local, contents, 'utf8');
+            const error = new Error("Incorrect baseline");
+            error.expected = str || "";
+            error.actual = contents;
+            throw error;
           }
         });
     });

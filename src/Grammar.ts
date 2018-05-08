@@ -2,13 +2,14 @@ import Builder from './Builder';
 import { Host, CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 import { Context } from './Context';
 import { decode as decodeHtmlEntities } from "he";
+var __awaiter = require('./awaiter');
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
 
 /*@internal*/
 export default class Grammar extends Builder {
-  static enter({spec, node, inAlg}: Context) {
+  static async enter({spec, node, inAlg}: Context) {
     // we process grammar nodes in algorithms separately (in Algorithm.ts)
     if (inAlg) return;
 
@@ -57,12 +58,9 @@ export default class Grammar extends Builder {
       }
     }
 
-    // grammarkdown doesn't handle html entities, so decode them first
-    content = decodeHtmlEntities(content);
-
-    const host = Host.getHost({
-      readFile: file => content,
-      writeFile: (_, output) => content = output
+    const host = new Host({
+      async readFile(_: string) { return content; },
+      async writeFile(_: string, output: string) { content = output; }
     });
 
     const options: CompilerOptions = {
@@ -70,8 +68,8 @@ export default class Grammar extends Builder {
       noChecks: true
     };
 
-    const grammar = new GrammarFile(['file.grammar'], options, host, /*oldGrammar*/ undefined, spec.cancellationToken);
-    grammar.emit(); // updates content
+    const grammar = new GrammarFile(['file.grammar'], options, host);
+    await grammar.emit(/*sourceFile*/ undefined, /*writeFile*/ undefined, spec.cancellationToken); // updates content
     node.innerHTML = content;
   }
 

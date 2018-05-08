@@ -1,3 +1,4 @@
 node_modules
 index.html
 lib
+test/baselines/local

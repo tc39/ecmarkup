@@ -32,14 +32,14 @@
     "bluebird": "^3.4.5",
     "chalk": "^1.1.1",
     "ecmarkdown": "^3.0.9",
-    "grammarkdown": "^1.0.7",
+    "grammarkdown": "^2.0.5",
     "he": "^1.1.1",
     "highlight.js": "^9.0.0",
     "html-escape": "^1.0.2",
     "js-yaml": "^3.4.6",
     "jsdom": "^11.0.0",
     "nomnom": "^1.8.1",
-    "prex": "^0.2.0",
+    "prex": "^0.4.2",
     "promise-debounce": "^1.0.1"
   },
   "devDependencies": {
@@ -54,6 +54,6 @@
     "diff": "^2.2.1",
     "eslint": "^1.10.3",
     "mocha": "^2.3.4",
-    "typescript": "^2.4.2"
+    "typescript": "^2.9.0-dev.20180506"
   }
 }
