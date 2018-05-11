@@ -434,6 +434,9 @@ emu-production > ins, emu-production > del,
 emu-grammar > ins, emu-grammar > del {
   display: block;
 }
+emu-rhs > ins, emu-rhs > del { 
+  display: inline;
+}
 
 tr.ins > td > ins {
   border-bottom: none;
