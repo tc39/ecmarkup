@@ -1,10 +1,15 @@
+/// <reference types="mocha" />
 'use strict';
 const cp = require('child_process');
 const assert = require('assert');
 
+const execPath = /^win/.test(process.platform) && /\s/.test(process.execPath)
+  ? '"' + process.execPath + '"'
+  : process.execPath;
+
 describe('detecting duplicate ids', () => {
   it('reports when --verbose flag is present', (done) => {
-    cp.exec('./bin/ecmarkup.js --verbose test/duplicate-ids.html', (error, result) => {
+    cp.execFile(execPath, ['./bin/ecmarkup.js', '--verbose', 'test/duplicate-ids.html'], { encoding: "utf8", shell: true, windowsVerbatimArguments: true }, (error, result) => {
       if (error) {
         assert.fail(error);
         done();
@@ -16,9 +21,9 @@ describe('detecting duplicate ids', () => {
       assert.equal(result.includes('<emu-example> has duplicate id: an-example'), true);
       done();
     });
-  });
+  }).timeout(3000);
   it('does not report when --verbose flag is not present', (done) => {
-    cp.exec('./bin/ecmarkup.js test/duplicate-ids.html', (error, result) => {
+    cp.execFile(execPath, ['./bin/ecmarkup.js', 'test/duplicate-ids.html'], { encoding: "utf8", shell: true, windowsVerbatimArguments: true }, (error, result) => {
       if (error) {
         assert.fail(error);
         done();
@@ -29,5 +34,5 @@ describe('detecting duplicate ids', () => {
       assert.equal(result.includes('<emu-example> has duplicate id: an-example'), false);
       done();
     });
-  });
+  }).timeout(3000);
 });
