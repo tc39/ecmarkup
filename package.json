@@ -1,7 +1,8 @@
 {
   "name": "ecmarkup",
   "version": "3.14.3",
-  "description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
+  "description":
+    "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
   "main": "lib/ecmarkup.js",
   "typings": "lib/ecmarkup.d.ts",
   "scripts": {
@@ -11,8 +12,10 @@
     "pretest": "npm run build",
     "test": "mocha",
     "lint": "eslint bin && eslint lib && eslint test",
-    "update-pages": "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
-    "update-baselines": "echo for f in test/*.html; do node bin/ecmarkup.js $f $f.baseline; done | bash"
+    "update-pages":
+      "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
+    "update-baselines":
+      "echo for f in test/*.html; do node bin/ecmarkup.js $f $f.baseline; done | bash"
   },
   "bin": "bin/ecmarkup.js",
   "repository": "bterlson/ecmarkup",
@@ -37,7 +40,7 @@
     "highlight.js": "^9.0.0",
     "html-escape": "^1.0.2",
     "js-yaml": "^3.4.6",
-    "jsdom": "^11.10.0",
+    "jsdom": "11.10.0",
     "nomnom": "^1.8.1",
     "prex": "^0.4.2",
     "promise-debounce": "^1.0.1"
