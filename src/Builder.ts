@@ -29,9 +29,9 @@ export default class Builder {
     utils.logWarning(str);
   }
 
-  static enter(context: Context): PromiseLike<void> | void {
+  static enter(context: Context): void {
     throw new Error('Builder not implemented');
   }
-  static exit(context: Context): PromiseLike<void> | void { } 
+  static exit(context: Context): void { } 
   static elements: string[] = [];
 }

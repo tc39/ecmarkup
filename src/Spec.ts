@@ -207,7 +207,7 @@ export default class Spec {
     const document = this.doc;
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
 
-    await walk(walker, context);
+    walk(walker, context);
 
     this.autolink();
 
@@ -240,6 +240,7 @@ export default class Spec {
 
     await this.buildAssets();
 
+    this._log('Done.');
     return this;
   }
 
@@ -668,7 +669,7 @@ async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: strin
   }
 }
 
-async function walk (walker: TreeWalker, context: Context) {
+function walk (walker: TreeWalker, context: Context) {
   // When we set either of these states we need to know to unset when we leave the element.
   let changedInNoAutolink = false;
   let changedInNoEmd = false;
@@ -754,12 +755,12 @@ async function walk (walker: TreeWalker, context: Context) {
   }
 
   const visitor = visitorMap[context.node.nodeName];
-  if (visitor) await visitor.enter(context);
+  if (visitor) visitor.enter(context);
 
   const firstChild = walker.firstChild();
   if (firstChild) {
     while (true) {
-      await walk(walker, context);
+      walk(walker, context);
       const next = walker.nextSibling(); 
       if (!next) break;
     }
@@ -767,7 +768,7 @@ async function walk (walker: TreeWalker, context: Context) {
     context.node = walker.currentNode as HTMLElement;
   }
 
-  if (visitor) await visitor.exit(context);
+  if (visitor) visitor.exit(context);
   if (changedInNoAutolink) context.inNoAutolink = false;
   if (changedInNoEmd) context.inNoEmd = false;
   context.currentId = parentId;

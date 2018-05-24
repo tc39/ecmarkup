@@ -9,7 +9,7 @@ const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
 
 /*@internal*/
 export default class Grammar extends Builder {
-  static async enter({spec, node, inAlg}: Context) {
+  static enter({spec, node, inAlg}: Context) {
     // we process grammar nodes in algorithms separately (in Algorithm.ts)
     if (inAlg) return;
 
@@ -58,19 +58,12 @@ export default class Grammar extends Builder {
       }
     }
 
-    const host = new Host({
-      async readFile(_: string) { return content; },
-      async writeFile(_: string, output: string) { content = output; }
-    });
-
     const options: CompilerOptions = {
       format: EmitFormat.ecmarkup,
       noChecks: true
     };
 
-    const grammar = new GrammarFile(['file.grammar'], options, host);
-    await grammar.emit(/*sourceFile*/ undefined, /*writeFile*/ undefined, spec.cancellationToken); // updates content
-    node.innerHTML = content;
+    node.innerHTML = GrammarFile.convert(content, options, /*hostFallback*/ undefined, spec.cancellationToken);
   }
 
   static elements = ['EMU-GRAMMAR'];
