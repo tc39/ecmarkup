@@ -6,14 +6,14 @@ var __awaiter = require('./awaiter');
 
 /*@internal*/
 export default class Algorithm extends Builder {
-  static async enter(context: Context) {
+  static enter(context: Context) {
     const { node } = context;
     // Need to process emu-grammar elements first so emd doesn't trash the syntax inside emu-grammar nodes
     const grammarNodes = node.querySelectorAll('emu-grammar');
     for (let i = 0; i < grammarNodes.length; i++) {
       let gn = grammarNodes[i];
       context.node = gn as HTMLElement;
-      await Grammar.enter(context);
+      Grammar.enter(context);
       Grammar.exit(context);
       context.node = node;
     }
