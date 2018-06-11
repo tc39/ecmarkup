@@ -70,9 +70,20 @@ const visitorMap = builders.reduce((map, T) => {
   return map;
 }, {} as VisitorMap);
 
+// NOTE: This is the public API for spec as used in the types. Do not remove.
+export default interface Spec {
+  spec: this;
+  opts: Options;
+  rootPath: string;
+  rootDir: string;
+  namespace: string;
+  toHTML(): string;
+  exportBiblio(): any;
+}
+
 /*@internal*/
 export default class Spec {
-  spec: Spec;
+  spec: this;
   opts: Options;
   rootPath: string;
   rootDir: string;
