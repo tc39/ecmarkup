@@ -20,6 +20,9 @@ export const NO_CLAUSE_AUTOLINK = new Set([
   'DFN'
 ]);
 
+const COMMON_ABSTRACT_OP = new Set(['Call', 'Set', 'Type', 'UTC', 'min', 'max']);
+const COMMON_TERM = new Set(['List', 'Reference', 'Record']);
+
 export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, currentId: string | null, allowSameId: boolean) {
   const spec = clause.spec;
   const template = spec.doc.createElement('template');
@@ -71,7 +74,7 @@ export function replacerForNamespace(namespace: string, biblio: Biblio) : [RegEx
       const key = regexpEscape(entry.key!);
 
       if (entry.type === 'term') {
-        if (isCommonTerm(key)) {
+        if (COMMON_TERM.has(key)) {
           return '\\b' +
                   widenSpace(key) +
                   '\\b(?!\\.\\w|%%|\\]\\])';
@@ -84,7 +87,7 @@ export function replacerForNamespace(namespace: string, biblio: Biblio) : [RegEx
         }
       } else {
         // type is "op"
-        if (isCommonAbstractOp(key)) {
+        if (COMMON_ABSTRACT_OP.has(key)) {
           return '\\b' + key + '\\b(?=\\()';
         } else {
           return '\\b' + key + '\\b(?!\\.\\w|%%|\\]\\])';
@@ -98,14 +101,6 @@ export function replacerForNamespace(namespace: string, biblio: Biblio) : [RegEx
 
 export interface AutoLinkMap {
   [key: string]: BiblioEntry;
-}
-
-function isCommonAbstractOp(op: string) {
-  return op === 'Call' || op === 'Set' || op === 'Type' || op === 'UTC' || op === 'min' || op === 'max';
-}
-
-function isCommonTerm(op: string) {
-  return op === 'List' || op === 'Reference' || op === 'Record';
 }
 
 // regexp-string where the first character is case insensitive

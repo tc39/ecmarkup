@@ -707,7 +707,7 @@ function walk (walker: TreeWalker, context: Context) {
   if (context.node.nodeType === 3) {
     // walked to a text node
 
-    if (context.node.textContent!.trim().length === 0) return; // skip empty nodes; nothing to do!
+    if (context.node.nodeValue!.trim().length === 0) return; // skip empty nodes; nothing to do!
     if (!context.inNoEmd) {
       // new nodes as a result of emd processing should be skipped
       context.inNoEmd = true;
@@ -750,18 +750,19 @@ function walk (walker: TreeWalker, context: Context) {
   }
 
   let parentId = context.currentId;
-  if (context.node.hasAttribute('id')) {
-    context.currentId = context.node.getAttribute('id');
+  let contextId = context.node.getAttribute('id');
+  if (contextId !== null) {
+    context.currentId = contextId;
   }
 
   // See if we should stop auto-linking here.
-  if (NO_CLAUSE_AUTOLINK.has(context.node.nodeName) && !context.inNoAutolink) {
+  if (!context.inNoAutolink && NO_CLAUSE_AUTOLINK.has(context.node.nodeName)) {
     context.inNoAutolink = true;
     changedInNoAutolink = true;
   }
 
   // check if entering a noEmd tag
-  if (NO_EMD.has(context.node.nodeName) && !context.inNoEmd) {
+  if (!context.inNoEmd && NO_EMD.has(context.node.nodeName)) {
     context.inNoEmd = true;
     changedInNoEmd = true;
   }
