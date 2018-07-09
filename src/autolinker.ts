@@ -27,8 +27,8 @@ const autolinkTemplateCache = new WeakMap();
 export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, currentId: string | null, allowSameId: boolean) {
   const spec = clause.spec;
   const content = escape(node.textContent!);
-  const autolinked = content.replace(replacer, match => {
-    const entry = autolinkmap[narrowSpace(match.toLowerCase())];
+  const autolinked = content.replace(replacer, (match, boundary, ref) => {
+    const entry = autolinkmap[narrowSpace(ref.toLowerCase())];
     if (!entry) {
       return match;
     }
@@ -41,9 +41,9 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
     }
 
     if (entry.aoid) {
-      return '<emu-xref aoid="' + entry.aoid + '">' + match + '</emu-xref>';
+      return boundary + '<emu-xref aoid="' + entry.aoid + '">' + ref + '</emu-xref>';
     } else {
-      return '<emu-xref href="#' + (entry.id || entry.refId) + '">' + match + '</emu-xref>';
+      return boundary + '<emu-xref href="#' + entryId + '">' + ref + '</emu-xref>';
     }
   });
 
@@ -58,7 +58,7 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
     const newXrefs = newXrefNodes.map(node =>
       new Xref(spec, node as HTMLElement, clause as Clause, clause.namespace, node.getAttribute('href')!, node.getAttribute('aoid')!)
     )
-    spec._xrefs = spec._xrefs.concat(newXrefs);
+    spec._xrefs.push.apply(spec._xrefs, newXrefs);
   }
 }
 
@@ -71,55 +71,54 @@ export function replacerForNamespace(namespace: string, biblio: Biblio) : [RegEx
   biblio.inScopeByType(namespace, 'op')
     .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
 
-  const clauseReplacer = new RegExp(Object.keys(autolinkmap)
+  const patterns = Object.keys(autolinkmap)
     .sort(function (a, b) { return b.length - a.length; })
     .map(function (k) {
-      
       const entry = autolinkmap[k];
-      const key = regexpEscape(entry.key!);
+      let pattern = regexpEscape(entry.key!);
 
       if (entry.type === 'term') {
-        if (COMMON_TERM.has(key)) {
-          return '\\b' +
-                  widenSpace(key) +
-                  '\\b(?!\\.\\w|%%|\\]\\])';
-        } else if (key[0].match(/[A-Za-z0-9]/)) {
-          return '\\b' +
-                  widenSpace(caseInsensitiveRegExp(key)) +
-                  '\\b(?!\\.\\w|%%|\\]\\])';
-        } else {
-          return key;
+        // expand patterns for fuzzy matching as appropriate
+        if (!COMMON_TERM.has(pattern)) {
+          const alphanumericStart = /^([a-z])|^[A-Z0-9]/.exec(pattern);
+
+          // if the first character is special, we'll only link exact matches (ignoring context)
+          if (alphanumericStart === null) {
+            return pattern;
+          }
+
+          // always allow the first character to be uppercase
+          const lowercaseStart = alphanumericStart[1];
+          if (lowercaseStart) {
+            pattern = '[' + lowercaseStart + lowercaseStart.toUpperCase() + ']' + pattern.slice(1);
+          }
+
+          // allow arbitrary whitespace combinations
+          pattern = widenSpace(pattern);
         }
       } else {
         // type is "op"
-        if (COMMON_ABSTRACT_OP.has(key)) {
-          return '\\b' + key + '\\b(?=\\()';
-        } else {
-          return '\\b' + key + '\\b(?!\\.\\w|%%|\\]\\])';
+
+        // we'll only link to common operations at invocation sites
+        if (COMMON_ABSTRACT_OP.has(pattern)) {
+          return pattern + '(?=\\()';
         }
       }
-    })
-    .join('|'), 'g');
+
+      // we only want to link isolated references, and specifically skip:
+      // * text inside other words, e.g. `${term}ed`
+      // * references followed by member access, e.g. `${term}.length`
+      // * references as slot names, e.g. `[[${term}]]`
+      // * references wrapped in double percent signs, e.g. `%%${term}%%`
+      return pattern + '(?!\\.?\\w|\\]\\]|%%)';
+    });
+  const clauseReplacer = new RegExp('(^|\\W)(' + patterns.join('|') + ')', 'g');
 
   return [clauseReplacer, autolinkmap];
 }
 
 export interface AutoLinkMap {
   [key: string]: BiblioEntry;
-}
-
-// regexp-string where the first character is case insensitive
-function caseInsensitiveRegExp(str: string) {
-  let lower = str[0].toLowerCase();
-
-  if (lower !== str[0]) return str;
-
-  let upper = lower.toUpperCase();
-  if (lower === upper) {
-    return str;
-  }
-
-  return `[${lower}${upper}]${str.slice(1)}`;
 }
 
 // returns a regexp string where each space can be many spaces or line breaks.
