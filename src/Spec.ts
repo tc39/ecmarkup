@@ -711,16 +711,8 @@ function walk (walker: TreeWalker, context: Context) {
     if (!context.inNoEmd) {
       // new nodes as a result of emd processing should be skipped
       context.inNoEmd = true;
-      // inNoEmd is set to true when we walk to this node 
-      let node = context.node as Node | null;
-      while(node && !node.nextSibling) {
-        node = node.parentNode;
-      }
-
-      if (node) {
-        context.startEmd = node.nextSibling;
-      }
-      // else, inNoEmd will just continue to the end of the file
+      context.startEmd = walker.nextNode();
+      if (context.startEmd) walker.previousNode();
 
       utils.emdTextNode(context.spec, context.node);
     }
@@ -729,7 +721,7 @@ function walk (walker: TreeWalker, context: Context) {
       // stuff the text nodes into an array for auto-linking with later
       // (since we can't autolink at this point without knowing the biblio).
       const clause = context.clauseStack[context.clauseStack.length - 1] || context.spec;
-      const namespace = clause ? clause.namespace : context.spec.namespace;
+      const namespace = clause.namespace;
       context.spec._textNodes[namespace] = context.spec._textNodes[namespace] || [];
       context.spec._textNodes[namespace].push({
         node: context.node,
@@ -777,8 +769,7 @@ function walk (walker: TreeWalker, context: Context) {
   const visitor = visitorMap[context.node.nodeName];
   if (visitor) visitor.enter(context);
 
-  const firstChild = walker.firstChild();
-  if (firstChild) {
+  if (walker.firstChild()) {
     while (true) {
       walk(walker, context);
       const next = walker.nextSibling(); 
