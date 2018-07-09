@@ -22,10 +22,10 @@ export const NO_CLAUSE_AUTOLINK = new Set([
 
 const COMMON_ABSTRACT_OP = new Set(['Call', 'Set', 'Type', 'UTC', 'min', 'max']);
 const COMMON_TERM = new Set(['List', 'Reference', 'Record']);
+const autolinkTemplateCache = new WeakMap();
 
 export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, currentId: string | null, allowSameId: boolean) {
   const spec = clause.spec;
-  const template = spec.doc.createElement('template');
   const content = escape(node.textContent!);
   const autolinked = content.replace(replacer, match => {
     const entry = autolinkmap[narrowSpace(match.toLowerCase())];
@@ -48,6 +48,11 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
   });
 
   if (autolinked !== content) {
+    let template = autolinkTemplateCache.get(spec);
+    if ( !template ) {
+      template = spec.doc.createElement('template');
+      autolinkTemplateCache.set(spec, template);
+    }
     template.innerHTML = autolinked;
     const newXrefNodes = utils.replaceTextNode(node, template.content);
     const newXrefs = newXrefNodes.map(node =>

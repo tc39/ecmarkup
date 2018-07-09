@@ -7,12 +7,19 @@ import emd = require('ecmarkdown');
 import fs = require('fs');
 
 /*@internal*/
+const emdTextNodeTemplateCache = new WeakMap();
+
+/*@internal*/
 export function emdTextNode(spec: Spec, node: Node) {
   // emd strips starting and ending spaces which we want to preserve
   const startSpace = node.textContent!.match(/^\s*/)![0];
   const endSpace = node.textContent!.match(/\s*$/)![0];
 
-  const template = spec.doc.createElement('template');
+  let template = emdTextNodeTemplateCache.get(spec);
+  if ( !template ) {
+    template = spec.doc.createElement('template');
+    emdTextNodeTemplateCache.set(spec, template);
+  }
   template.innerHTML = startSpace + emd.fragment(node.textContent!) + endSpace;
 
   replaceTextNode(node, template.content);
