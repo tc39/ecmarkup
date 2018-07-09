@@ -186,6 +186,10 @@ export default class Spec {
     7. Add CSS & JS dependencies.
     */
     
+    // for better performance, make sure every node is visited before making any changes
+    this._log('Priming DOM...');
+    this.toHTML();
+
     this._log('Loading biblios...');
     await this.loadES6Biblio();
     await this.loadBiblios();
