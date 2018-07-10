@@ -690,101 +690,108 @@ async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: strin
 }
 
 function walk (walker: TreeWalker, context: Context) {
-  // When we set either of these states we need to know to unset when we leave the element.
-  let changedInNoAutolink = false;
-  let changedInNoEmd = false;
-  const { spec, node } = context;
+  const spec = context.spec;
+  const rootNode = walker.currentNode as HTMLElement;
+  const parentIds = [];
+  const visitors = [];
 
-  context.node = walker.currentNode as HTMLElement;
-  context.tagStack.push(context.node);
+  // Track context elements for special state flags so we know when to unset them.
+  let restoreAutolink = null;
+  let restoreEmd = null;
 
-  if (context.node === context.startEmd) {
-    context.startEmd = null;
-    context.inNoEmd = false;
-  }
+  visit: while (true) {
+    let node = context.node = walker.currentNode as HTMLElement;
 
-
-  if (context.node.nodeType === 3) {
-    // walked to a text node
-
-    if (context.node.nodeValue!.trim().length === 0) return; // skip empty nodes; nothing to do!
-    if (!context.inNoEmd) {
-      // new nodes as a result of emd processing should be skipped
-      context.inNoEmd = true;
-      context.startEmd = walker.nextNode();
-      if (context.startEmd) walker.previousNode();
-
-      utils.emdTextNode(context.spec, context.node);
+    if (node === context.startEmd) {
+      context.startEmd = null;
+      context.inNoEmd = false;
     }
 
-    if (!context.inNoAutolink) {
-      // stuff the text nodes into an array for auto-linking with later
-      // (since we can't autolink at this point without knowing the biblio).
-      const clause = context.clauseStack[context.clauseStack.length - 1] || context.spec;
-      const namespace = clause.namespace;
-      context.spec._textNodes[namespace] = context.spec._textNodes[namespace] || [];
-      context.spec._textNodes[namespace].push({
-        node: context.node,
-        clause: clause,
-        inAlg: context.inAlg,
-        currentId: context.currentId
-      });
-      
+    if (node.nodeType === 3) {
+      // walked to a text node
+
+      if (node.nodeValue!.trim() !== '') {
+        if (!context.inNoEmd) {
+          // new nodes as a result of emd processing should be skipped
+          context.inNoEmd = true;
+          context.startEmd = walker.nextNode();
+          if (context.startEmd) walker.previousNode();
+
+          utils.emdTextNode(spec, node);
+        }
+
+        if (!context.inNoAutolink) {
+          // stuff the text nodes into an array for auto-linking with later
+          // (since we can't autolink at this point without knowing the biblio).
+          const clause = context.clauseStack[context.clauseStack.length - 1] || spec;
+          const namespace = clause.namespace;
+          spec._textNodes[namespace] = spec._textNodes[namespace] || [];
+          spec._textNodes[namespace].push({
+            node: node,
+            clause: clause,
+            inAlg: context.inAlg,
+            currentId: context.currentId
+          });
+        }
+      }
+
+    } else if (node.nodeType === 1) {
+      // node is an HTMLElement (node type 1)
+
+      // entering
+      if (context.tagStack[context.tagStack.length - 1] !== node) {
+        context.tagStack.push(node);
+
+        // handle oldids
+        let oldids = node.getAttribute('oldids');
+        if (oldids) {
+          if (!node.children) {
+            throw new Error("oldids found on unsupported element: " + node.nodeName);
+          }
+          oldids.split(/,/g).map(s => s.trim()).forEach(oid => {
+            let s = spec.doc.createElement('span');
+            s.setAttribute('id', oid);
+            node.insertBefore(s, node.children[0]);
+          })
+        }
+
+        parentIds.push(context.currentId);
+        let contextId = node.getAttribute('id');
+        if (contextId !== null) context.currentId = contextId;
+
+        // See if we should stop auto-linking here.
+        if (!context.inNoAutolink && NO_CLAUSE_AUTOLINK.has(node.nodeName)) {
+          context.inNoAutolink = true;
+          restoreAutolink = node;
+        }
+
+        // check if entering a noEmd tag
+        if (!context.inNoEmd && NO_EMD.has(node.nodeName)) {
+          context.inNoEmd = true;
+          restoreEmd = node;
+        }
+
+        const visitor = visitorMap[node.nodeName];
+        visitors.push(visitor);
+        if (visitor) visitor.enter(context);
+
+        if (walker.firstChild()) continue;
+      }
+
+      // exiting
+      const visitor = visitors.pop();
+      if (visitor) visitor.exit(context);
+      if (node === restoreAutolink) context.inNoAutolink = false;
+      if (node === restoreEmd) context.inNoEmd = false;
+      context.currentId = parentIds.pop() as string | null;
+      context.tagStack.pop();
+      if (node === rootNode) break;
     }
-    return;
-  }
 
-  // context.node is an HTMLElement (node type 1)
-  
-  // handle oldids
-  let oldids = context.node.getAttribute('oldids');
-  if (oldids) {
-    if (!context.node.children) {
-      throw new Error("oldids found on unsupported element: " + context.node.nodeName);
+    if (!walker.nextSibling()) {
+      walker.parentNode();
     }
-    oldids.split(/,/g).map(s => s.trim()).forEach(oid => {
-      let s = spec.doc.createElement('span');
-      s.setAttribute('id', oid);
-      context.node.insertBefore(s, context.node.children[0]);
-    })
   }
-
-  let parentId = context.currentId;
-  let contextId = context.node.getAttribute('id');
-  if (contextId !== null) {
-    context.currentId = contextId;
-  }
-
-  // See if we should stop auto-linking here.
-  if (!context.inNoAutolink && NO_CLAUSE_AUTOLINK.has(context.node.nodeName)) {
-    context.inNoAutolink = true;
-    changedInNoAutolink = true;
-  }
-
-  // check if entering a noEmd tag
-  if (!context.inNoEmd && NO_EMD.has(context.node.nodeName)) {
-    context.inNoEmd = true;
-    changedInNoEmd = true;
-  }
-
-  const visitor = visitorMap[context.node.nodeName];
-  if (visitor) visitor.enter(context);
-
-  if (walker.firstChild()) {
-    while (true) {
-      walk(walker, context);
-      const next = walker.nextSibling(); 
-      if (!next) break;
-    }
-    walker.parentNode();
-    context.node = walker.currentNode as HTMLElement;
-  }
-
-  if (visitor) visitor.exit(context);
-  if (changedInNoAutolink) context.inNoAutolink = false;
-  if (changedInNoEmd) context.inNoEmd = false;
-  context.currentId = parentId;
-  context.tagStack.pop();
 }
 
 const jsDependencies = ['menu.js', 'findLocalReferences.js'];
