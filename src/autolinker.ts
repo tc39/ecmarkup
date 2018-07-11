@@ -22,7 +22,6 @@ export const NO_CLAUSE_AUTOLINK = new Set([
 
 const COMMON_ABSTRACT_OP = new Set(['Call', 'Set', 'Type', 'UTC', 'min', 'max']);
 const COMMON_TERM = new Set(['List', 'Reference', 'Record']);
-const autolinkTemplateCache = new WeakMap();
 
 export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, currentId: string | null, allowSameId: boolean) {
   const spec = clause.spec;
@@ -48,13 +47,7 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
   });
 
   if (autolinked !== content) {
-    let template = autolinkTemplateCache.get(spec);
-    if ( !template ) {
-      template = spec.doc.createElement('template');
-      autolinkTemplateCache.set(spec, template);
-    }
-    template.innerHTML = autolinked;
-    const newXrefNodes = utils.replaceTextNode(node, template.content);
+    const newXrefNodes = utils.replaceTextNode(node, autolinked);
     const newXrefs = newXrefNodes.map(node =>
       new Xref(spec, node as HTMLElement, clause as Clause, clause.namespace, node.getAttribute('href')!, node.getAttribute('aoid')!)
     )

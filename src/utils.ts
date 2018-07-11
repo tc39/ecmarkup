@@ -7,7 +7,7 @@ import emd = require('ecmarkdown');
 import fs = require('fs');
 
 /*@internal*/
-const emdTextNodeTemplateCache = new WeakMap();
+const templateCache = new WeakMap();
 
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Node) {
@@ -15,14 +15,7 @@ export function emdTextNode(spec: Spec, node: Node) {
   const startSpace = node.textContent!.match(/^\s*/)![0];
   const endSpace = node.textContent!.match(/\s*$/)![0];
 
-  let template = emdTextNodeTemplateCache.get(spec);
-  if ( !template ) {
-    template = spec.doc.createElement('template');
-    emdTextNodeTemplateCache.set(spec, template);
-  }
-  template.innerHTML = startSpace + emd.fragment(node.textContent!) + endSpace;
-
-  replaceTextNode(node, template.content);
+  replaceTextNode(node, startSpace + emd.fragment(node.textContent!) + endSpace);
 }
 
 
@@ -48,10 +41,19 @@ export function domWalkBackward(root: Node, cb: (node: Element) => boolean | und
 }
 
 /*@internal*/
-export function replaceTextNode(node: Node, frag: DocumentFragment) {
+export function replaceTextNode(node: Node, content: string) {
   // Append all the nodes
   const parent = node.parentNode;
   if (!parent) return [];
+
+  // Parse the content
+  let template = templateCache.get(node.ownerDocument);
+  if ( !template ) {
+	template = node.ownerDocument.createElement('template');
+	templateCache.set(node.ownerDocument, template);
+  }
+  template.innerHTML = content;
+  const frag = template.content as DocumentFragment;
 
   const newXrefNodes = Array.from(frag.querySelectorAll('EMU-XREF'));
   const first = frag.childNodes[0];
