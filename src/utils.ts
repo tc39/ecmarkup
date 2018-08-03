@@ -49,8 +49,8 @@ export function replaceTextNode(node: Node, content: string) {
   // Parse the content
   let template = templateCache.get(node.ownerDocument);
   if ( !template ) {
-	template = node.ownerDocument.createElement('template');
-	templateCache.set(node.ownerDocument, template);
+    template = node.ownerDocument.createElement('template');
+    templateCache.set(node.ownerDocument, template);
   }
   template.innerHTML = content;
   const frag = template.content as DocumentFragment;
