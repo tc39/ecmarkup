@@ -63,6 +63,7 @@ export default class Clause extends Builder {
     const numElem = this.spec.doc.createElement('span');
     numElem.setAttribute('class', 'secnum');
     numElem.textContent = this.number;
+    this.header.insertBefore(this.spec.doc.createTextNode(' '), this.header.firstChild);
     this.header.insertBefore(numElem, this.header.firstChild);
   }
 
