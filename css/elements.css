@@ -189,6 +189,7 @@ emu-gann {
 }
 
 emu-gann emu-t:last-child,
+emu-gann emu-gprose:last-child,
 emu-gann emu-nt:last-child {
     margin-right: 0;
 }
@@ -263,6 +264,10 @@ emu-opt {
 emu-gprose {
     font-size: 0.9em;
     font-family: Helvetica, Arial, sans-serif;
+}
+
+emu-production emu-gprose {
+    margin-right: 1ex;
 }
 
 h1.shortname {
