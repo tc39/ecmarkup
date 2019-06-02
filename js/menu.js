@@ -482,6 +482,11 @@ function init() {
   $container.addEventListener('mouseover', debounce(function (e) {
     Toolbox.activateIfMouseOver(e);
   }));
+  document.addEventListener('keydown', debounce(function (e) {
+    if (e.code === "Escape" && Toolbox.active) {
+      Toolbox.deactivate();
+    }
+  }));
 }
 
 document.addEventListener('DOMContentLoaded', init);
