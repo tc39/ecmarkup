@@ -470,6 +470,7 @@ export default class Spec {
     const version = this.opts.version;
     const title = this.opts.title;
     const shortname = this.opts.shortname;
+    const location = this.opts.location;
     const stage = this.opts.stage;
     
     if (this.opts.copyright) {
@@ -522,12 +523,16 @@ export default class Spec {
 
     // shortname and status, ala 'Draft ECMA-262
     if (shortname && !omitShortname) {
-      const shortnameText = status.charAt(0).toUpperCase() + status.slice(1) + ' ' + shortname;
+      // for proposals, link shortname to location
+      const shortnameLinkHtml = status === 'proposal' && location ?
+        `<a href="${location}">${shortname}</a>` :
+        shortname;
+      const shortnameHtml = status.charAt(0).toUpperCase() + status.slice(1) + ' ' + shortnameLinkHtml;
 
-      if (!this._updateBySelector('h1.shortname', shortnameText)) {
+      if (!this._updateBySelector('h1.shortname', shortnameHtml)) {
         const h1 = this.doc.createElement('h1');
         h1.setAttribute('class', 'shortname');
-        h1.innerHTML = shortnameText;
+        h1.innerHTML = shortnameHtml;
         this.doc.body.insertBefore(h1, this.doc.body.firstChild);
       }
     }
