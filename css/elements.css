@@ -162,6 +162,10 @@ emu-table figure {
 
 emu-production {
     display: block;
+}
+
+emu-grammar[type="example"] emu-production,
+emu-grammar[type="definition"] emu-production {
     margin-top: 1em;
     margin-bottom: 1em;
     margin-left: 5ex;
