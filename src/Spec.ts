@@ -187,7 +187,7 @@ export default class Spec {
     */
     
     this._log('Loading biblios...');
-    await this.loadES6Biblio();
+    await this.loadECMA262Biblio();
     await this.loadBiblios();
 
     this._log('Loading imports...');
@@ -389,9 +389,9 @@ export default class Spec {
     Object.assign(this.opts, data);
   }
 
-  private async loadES6Biblio() {
+  private async loadECMA262Biblio() {
     this.cancellationToken.throwIfCancellationRequested();
-    await this.loadBiblio(path.join(__dirname, "../es6biblio.json"));
+    await this.loadBiblio(path.join(__dirname, "../ecma262biblio.json"));
   }
 
   private async loadBiblios() {
