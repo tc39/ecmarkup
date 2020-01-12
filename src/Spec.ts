@@ -187,7 +187,9 @@ export default class Spec {
     */
     
     this._log('Loading biblios...');
-    await this.loadECMA262Biblio();
+    if (!this.opts.omitECMA262Biblio) {
+      await this.loadECMA262Biblio();
+    }
     await this.loadBiblios();
 
     this._log('Loading imports...');

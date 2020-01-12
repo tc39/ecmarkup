@@ -7,6 +7,7 @@ const args = nomnom.script('ecmarkup')
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
     watch: { abbr: 'w', flag: true, help: 'Rebuild when files change' },
     biblio: { abbr: 'b', metavar: 'FILE', help: 'Write a biblio file to FILE' },
+    omitECMA262Biblio: { full: 'omit-ecma262biblio', flag: true, default: false, help: 'Skip loading ECMA-262 biblio file' },
     assets: { choices: ['none', 'inline', 'external'], help: 'Link to css and js assets' },
     cssOut: { full: 'css-out', metavar: 'FILE', help: 'Write Emu CSS dependencies to FILE'},
     jsOut: { full: 'js-out', metavar: 'FILE', help: 'Write Emu JS dependencies to FILE' },
