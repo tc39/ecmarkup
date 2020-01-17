@@ -12,7 +12,7 @@
     "test": "mocha",
     "lint": "eslint bin && eslint lib && eslint test",
     "update-pages": "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
-    "update-baselines": "echo for f in test/*.html; do node bin/ecmarkup.js $f $f.baseline; done | bash"
+    "update-baselines": "echo 'for f in test/*.html; do node bin/ecmarkup.js $f test/baselines/reference/$(basename $f); done' | bash"
   },
   "bin": "bin/ecmarkup.js",
   "repository": "bterlson/ecmarkup",
