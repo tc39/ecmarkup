@@ -43,17 +43,17 @@
     "promise-debounce": "^1.0.1"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.0.31",
-    "@types/chalk": "^0.4.28",
-    "@types/he": "^0.5.29",
-    "@types/highlight.js": "^9.1.7",
-    "@types/js-yaml": "^3.5.27",
-    "@types/jsdom": "^2.0.32",
-    "@types/node": "^8.0.24",
+    "@types/bluebird": "^3.5.29",
+    "@types/chalk": "^0.4.31",
+    "@types/he": "^1.1.0",
+    "@types/highlight.js": "^9.12.3",
+    "@types/js-yaml": "^3.12.1",
+    "@types/jsdom": "^11.12.0",
+    "@types/node": "^13.1.8",
     "@types/nomnom": "0.0.27",
-    "diff": "^2.2.1",
+    "diff": "^2.2.3",
     "eslint": "^4.19.1",
     "mocha": "^5.2.0",
-    "typescript": "^2.9.0-dev.20180506"
+    "typescript": "^3.7.5"
   }
 }
