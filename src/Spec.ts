@@ -135,19 +135,19 @@ export default class Spec {
     this.processMetadata();
     Object.assign(this.opts, opts);
 
-    if (!this.opts.hasOwnProperty('status')) {
+    if (typeof this.opts.status === 'undefined') {
       this.opts.status = 'proposal';
     }
 
-    if (!this.opts.hasOwnProperty('toc')) {
+    if (typeof this.opts.toc === 'undefined') {
       this.opts.toc = true;
     }
 
-    if (!this.opts.hasOwnProperty('copyright')) {
+    if (typeof this.opts.copyright === 'undefined') {
       this.opts.copyright = true;
     }
 
-    if (!this.opts.hasOwnProperty('ecma262Biblio')) {
+    if (typeof this.opts.ecma262Biblio === 'undefined') {
       this.opts.ecma262Biblio = true;
     }
 
