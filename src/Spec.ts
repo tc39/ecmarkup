@@ -147,6 +147,10 @@ export default class Spec {
       this.opts.copyright = true;
     }
 
+    if (!this.opts.hasOwnProperty('ecma262Biblio')) {
+      this.opts.ecma262Biblio = true;
+    }
+
     if (!this.opts.date) {
       this.opts.date = new Date();
     }
@@ -187,7 +191,7 @@ export default class Spec {
     */
     
     this._log('Loading biblios...');
-    if (!this.opts.omitECMA262Biblio) {
+    if (this.opts.ecma262Biblio) {
       await this.loadECMA262Biblio();
     }
     await this.loadBiblios();
