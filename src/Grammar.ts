@@ -1,7 +1,6 @@
 import Builder from './Builder';
-import { Host, CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
+import { CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 import { Context } from './Context';
-import { decode as decodeHtmlEntities } from "he";
 var __awaiter = require('./awaiter');
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;

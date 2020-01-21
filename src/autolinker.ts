@@ -4,7 +4,6 @@ import Xref from './Xref';
 import Biblio, { BiblioEntry } from './Biblio';
 import escape = require('html-escape');
 import utils = require('./utils');
-import { Context } from './Context';
 
 export const NO_CLAUSE_AUTOLINK = new Set([
   'PRE',

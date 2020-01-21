@@ -1,5 +1,3 @@
-import Builder from './Builder';
-import emd = require('ecmarkdown');
 import Spec from './Spec';
 import Clause from './Clause';
 

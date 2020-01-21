@@ -1,7 +1,6 @@
 import utils = require('./utils');
 import Path = require('path');
 
-import { Context } from './Context';
 import Builder from './Builder';
 import Spec from './Spec';
 var __awaiter = require('./awaiter');
@@ -27,7 +26,7 @@ export default class Import extends Builder {
 
     const html = await spec.fetch(importPath);
     const importDoc = await utils.htmlToDom(html).window.document;
-    
+
     const nodes = importDoc.body.childNodes;
     const frag = spec.doc.createDocumentFragment();
 

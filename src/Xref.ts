@@ -15,7 +15,7 @@ export default class Xref extends Builder {
   entry: Biblio.BiblioEntry | undefined;
 
   static elements = ['EMU-XREF'];
-  
+
   constructor(spec: Spec, node: HTMLElement, clause: Clause | null, namespace: string, href: string, aoid: string) {
     super(spec, node);
     this.namespace = namespace;

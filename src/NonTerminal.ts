@@ -9,7 +9,7 @@ export default class NonTerminal extends Builder {
   optional: boolean;
   namespace: string;
   entry: BiblioEntry;
-  
+
   static elements = ['EMU-NT'];
 
   constructor(spec: Spec, node: HTMLElement, namespace: string) {
@@ -29,9 +29,9 @@ export default class NonTerminal extends Builder {
 
   build() {
     const name = this.node.textContent!;
-    const id = 'prod-' + name;
+    // const id = 'prod-' + name;
     const entry = this.spec.biblio.byProductionName(name, this.namespace);
-    
+
     if (entry) {
       this.node.innerHTML = '<a href="' + entry.location + '#' + entry.id + '">' + name + '</a>';
       this.entry = entry;

@@ -1,6 +1,5 @@
 import { Context } from './Context';
 import Builder from './Builder';
-import Spec from './Spec';
 
 /*@internal*/
 export default class H1 extends Builder {

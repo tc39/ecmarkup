@@ -3,8 +3,6 @@ const args = require('./args').parse();
 
 // requires after arg checking to avoid expensive load times
 import ecmarkup = require('./ecmarkup');
-import Spec = require('./Spec');
-import path = require('path');
 import fs = require('fs');
 import utils = require('./utils');
 import debounce = require('promise-debounce');

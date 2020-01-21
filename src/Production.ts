@@ -4,7 +4,7 @@ import Terminal from './Terminal';
 import Builder from './Builder';
 import utils = require('./utils');
 import Spec from './Spec';
-import Biblio, { ProductionBiblioEntry } from './Biblio';
+import { ProductionBiblioEntry } from './Biblio';
 import { Context } from './Context';
 
 /*@internal*/

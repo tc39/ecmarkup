@@ -4,7 +4,6 @@ import Path = require('path');
 import yaml = require('js-yaml');
 import * as utils from './utils';
 import hljs = require('highlight.js');
-import escape = require('html-escape');
 import { Options } from './ecmarkup';
 import _Builder = require('./Builder');
 // Builders
@@ -175,7 +174,7 @@ export default class Spec {
   public async build() {
     /*
     The Ecmarkup build process proceeds as follows:
-    
+
     1. Load biblios, making xrefs and auto-linking from external specs work
     2. Load imports by recursively inlining the import files' content into the emu-import element
     3. Generate boilerplate text
@@ -189,7 +188,7 @@ export default class Spec {
     6. Adding charset, highlighting code, etc.
     7. Add CSS & JS dependencies.
     */
-    
+
     this._log('Loading biblios...');
     if (this.opts.ecma262Biblio) {
       await this.loadECMA262Biblio();
@@ -215,7 +214,7 @@ export default class Spec {
       inNoEmd: false,
       startEmd: null,
       currentId: null
-    }
+    };
 
     this._xrefs = [];
     this._ntRefs = [];
@@ -270,7 +269,7 @@ export default class Spec {
     this._xrefs.forEach(xref => {
       let entry = xref.entry;
       if (!entry || entry.namespace === "global") return;
-            
+
       if (!entry.id && entry.refId) {
         entry = this.spec.biblio.byId(entry.refId);
       }
@@ -290,7 +289,7 @@ export default class Spec {
 
       // if this is the defining nt of an emu-production, don't create a ref
       if (prod.node.parentNode!.nodeName === "EMU-PRODUCTION") return;
-      
+
       const id = `_ref_${counter++}`;
       prod.node.setAttribute('id', id);
       entry.referencingIds.push(id);
@@ -300,7 +299,7 @@ export default class Spec {
   private async buildAssets() {
     const jsContents = await concatJs();
     const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
-    
+
     if (this.opts.jsOut) {
       this._log(`Writing js file to ${this.opts.jsOut}...`);
       await utils.writeFile(this.opts.jsOut, jsContents);
@@ -323,7 +322,7 @@ export default class Spec {
     } else {
       outDir = process.cwd();
     }
-    
+
     if (this.opts.jsOut) {
       const scripts = this.doc.querySelectorAll('script');
       for (let i = 0; i < scripts.length; i++) {
@@ -478,7 +477,7 @@ export default class Spec {
     const shortname = this.opts.shortname;
     const location = this.opts.location;
     const stage = this.opts.stage;
-    
+
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
         utils.logWarning('Contributors not specified, skipping copyright boilerplate. Specify contributors in your frontmatter metadata.');
@@ -616,7 +615,6 @@ export default class Spec {
 
   public autolink() {
     this._log('Autolinking terms and abstract ops...');
-    const document = this.doc;
     let namespaces = Object.keys(this._textNodes);
     for (let i = 0; i < namespaces.length; i++) {
       let namespace = namespaces[i];
@@ -662,12 +660,6 @@ export default class Spec {
   }
 };
 
-function assign(target: any, source: any) {
-  Object.keys(source).forEach(function (k) {
-    target[k] = source[k];
-  });
-}
-
 function getBoilerplate(file: string) {
   let boilerplateFile: string = file;
 
@@ -695,7 +687,7 @@ function walk (walker: TreeWalker, context: Context) {
   // When we set either of these states we need to know to unset when we leave the element.
   let changedInNoAutolink = false;
   let changedInNoEmd = false;
-  const { spec, node } = context;
+  const { spec } = context;
 
   context.node = walker.currentNode as HTMLElement;
   context.tagStack.push(context.node);
@@ -739,13 +731,13 @@ function walk (walker: TreeWalker, context: Context) {
         inAlg: context.inAlg,
         currentId: context.currentId
       });
-      
+
     }
     return;
   }
 
   // context.node is an HTMLElement (node type 1)
-  
+
   // handle oldids
   let oldids = context.node.getAttribute('oldids');
   if (oldids) {
@@ -756,7 +748,7 @@ function walk (walker: TreeWalker, context: Context) {
       let s = spec.doc.createElement('span');
       s.setAttribute('id', oid);
       context.node.insertBefore(s, context.node.children[0]);
-    })
+    });
   }
 
   let parentId = context.currentId;

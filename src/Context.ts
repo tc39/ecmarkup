@@ -1,7 +1,6 @@
 import Spec from './Spec';
 import Import from './Import';
 import Clause from './Clause';
-import Xref from './Xref';
 import { ClauseNumberIterator } from './clauseNums';
 
 export interface Context {

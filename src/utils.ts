@@ -1,8 +1,6 @@
 import jsdom = require('jsdom');
 import chalk = require('chalk');
 import Spec from "./Spec";
-import Xref from './Xref';
-import Clause from './Clause';
 import emd = require('ecmarkdown');
 import fs = require('fs');
 
@@ -54,7 +52,7 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
     frag.removeChild(first);
   } else {
     // set it to empty because we don't want to break iteration
-    // (I think it should work to delete it... investigate possible jsdom bug)  
+    // (I think it should work to delete it... investigate possible jsdom bug)
     node.textContent = '';
   }
 

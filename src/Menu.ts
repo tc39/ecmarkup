@@ -1,4 +1,3 @@
-import Builder from './Builder';
 import Spec from './Spec';
 import Toc from './Toc';
 
@@ -36,7 +35,6 @@ export default class Menu {
     searchContainer.setAttribute('id', 'menu-search');
     searchContainer.innerHTML = '<input type=text id=menu-search-box placeholder=Search...><div id=menu-search-results class=inactive></div>';
 
-
     const menuContainer = this.spec.doc.createElement('div');
     menuContainer.setAttribute('id', 'menu');
     menuContainer.appendChild(searchContainer);
@@ -45,11 +43,9 @@ export default class Menu {
     menuContainer.appendChild(tocContainer);
     this.spec.doc.body.insertBefore(menuContainer, this.spec.doc.body.firstChild);
 
-    const menuSpacer = this.spec.doc.createElement('div')
+    const menuSpacer = this.spec.doc.createElement('div');
     menuSpacer.setAttribute('id', 'menu-spacer');
     this.spec.doc.body.insertBefore(menuSpacer, this.spec.doc.body.firstChild);
-
-    
 
     const menuToggle =  this.spec.doc.createElement('div');
     menuToggle.setAttribute('id', 'menu-toggle');

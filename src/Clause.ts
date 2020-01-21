@@ -1,10 +1,9 @@
 import Note from './Note';
 import Example from './Example';
-import emd = require('ecmarkdown');
-import { logWarning, replaceTextNode } from './utils';
+import { logWarning } from './utils';
 import Builder from './Builder';
 import Spec from "./Spec";
-import Biblio, { ClauseBiblioEntry } from "./Biblio";
+import { ClauseBiblioEntry } from "./Biblio";
 import { Context } from './Context';
 
 /*@internal*/
@@ -113,7 +112,7 @@ export default class Clause extends Builder {
     if (!node.id) {
       logWarning("Clause doesn't have an id: " + node.outerHTML.slice(0, 100));
     }
-    
+
     let nextNumber = '';
     if (node.nodeName !== 'EMU-INTRO') {
       nextNumber = clauseNumberer.next(clauseStack.length, node.nodeName === 'EMU-ANNEX').value;
@@ -121,7 +120,7 @@ export default class Clause extends Builder {
     const parent = clauseStack[clauseStack.length - 1] || null;
 
     const clause = new Clause(spec, node, parent, nextNumber);
-    
+
     if (parent) {
       parent.subclauses.push(clause);
     } else {

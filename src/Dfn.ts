@@ -1,6 +1,5 @@
-import utils = require('./utils');
 import Builder from './Builder';
-import Biblio, {TermBiblioEntry } from './Biblio';
+import { TermBiblioEntry } from './Biblio';
 import { Context } from './Context';
 
 /*@internal*/
