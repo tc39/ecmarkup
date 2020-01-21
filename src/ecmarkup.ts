@@ -31,6 +31,7 @@ export interface Options {
   assets?: "none" | "inline";
   outfile?: string;
   boilerplate?: Boilerplate;
+  ecma262Biblio?: boolean;
 }
 
 export async function build(path: string, fetch: (path: string, token: CancellationToken) => PromiseLike<string>, opts?: Options, token = CancellationToken.none): Promise<Spec> {

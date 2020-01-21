@@ -135,16 +135,20 @@ export default class Spec {
     this.processMetadata();
     Object.assign(this.opts, opts);
 
-    if (!this.opts.hasOwnProperty('status')) {
+    if (typeof this.opts.status === 'undefined') {
       this.opts.status = 'proposal';
     }
 
-    if (!this.opts.hasOwnProperty('toc')) {
+    if (typeof this.opts.toc === 'undefined') {
       this.opts.toc = true;
     }
 
-    if (!this.opts.hasOwnProperty('copyright')) {
+    if (typeof this.opts.copyright === 'undefined') {
       this.opts.copyright = true;
+    }
+
+    if (typeof this.opts.ecma262Biblio === 'undefined') {
+      this.opts.ecma262Biblio = true;
     }
 
     if (!this.opts.date) {
@@ -187,7 +191,9 @@ export default class Spec {
     */
     
     this._log('Loading biblios...');
-    await this.loadECMA262Biblio();
+    if (this.opts.ecma262Biblio) {
+      await this.loadECMA262Biblio();
+    }
     await this.loadBiblios();
 
     this._log('Loading imports...');
