@@ -3,7 +3,7 @@ import Biblio = require('./Biblio');
 import BiblioEntry = Biblio.BiblioEntry;
 import utils = require('./utils');
 import { CancellationToken } from 'prex';
-var __awaiter = require('./awaiter');
+let __awaiter = require('./awaiter');
 
 export { Spec, BiblioEntry };
 
@@ -14,7 +14,7 @@ export class Boilerplate {
 }
 
 export interface Options {
-  status?: "proposal" | "draft" | "standard";
+  status?: 'proposal' | 'draft' | 'standard';
   version?: string;
   title?: string;
   shortname?: string;
@@ -28,7 +28,7 @@ export interface Options {
   verbose?: boolean;
   cssOut?: string;
   jsOut?: string;
-  assets?: "none" | "inline";
+  assets?: 'none' | 'inline';
   outfile?: string;
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;

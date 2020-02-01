@@ -52,9 +52,9 @@ export default class Toc {
 
     return html;
   }
-};
+}
 
 function shorten(title: string) {
   return title.replace('Static Semantics:', 'SS:')
-              .replace('Runtime Semantics:', 'RS:');
+    .replace('Runtime Semantics:', 'RS:');
 }

@@ -2,8 +2,8 @@ import Note from './Note';
 import Example from './Example';
 import { logWarning } from './utils';
 import Builder from './Builder';
-import Spec from "./Spec";
-import { ClauseBiblioEntry } from "./Biblio";
+import Spec from './Spec';
+import { ClauseBiblioEntry } from './Biblio';
 import { Context } from './Context';
 
 /*@internal*/
@@ -50,7 +50,7 @@ export default class Clause extends Builder {
     }
 
     this.aoid = node.getAttribute('aoid');
-    if (this.aoid === "") {
+    if (this.aoid === '') {
       // <emu-clause id=foo aoid> === <emu-clause id=foo aoid=foo>
       this.aoid = node.id;
     }
@@ -110,7 +110,7 @@ export default class Clause extends Builder {
 
   static enter({spec, node, clauseStack, clauseNumberer}: Context) {
     if (!node.id) {
-      logWarning("Clause doesn't have an id: " + node.outerHTML.slice(0, 100));
+      logWarning('Clause doesn\'t have an id: ' + node.outerHTML.slice(0, 100));
     }
 
     let nextNumber = '';
@@ -134,7 +134,7 @@ export default class Clause extends Builder {
     const clause = clauseStack[clauseStack.length - 1];
 
     if (!clause.header) {
-      throw new Error("Couldn't find title for clause #" + clause.id);
+      throw new Error('Couldn\'t find title for clause #' + clause.id);
     }
 
 

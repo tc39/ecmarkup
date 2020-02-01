@@ -1,7 +1,7 @@
 import Builder from './Builder';
 import { CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 import { Context } from './Context';
-var __awaiter = require('./awaiter');
+let __awaiter = require('./awaiter');
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
@@ -25,8 +25,7 @@ export default class Grammar extends Builder {
           const start = location.startTag.endOffset as number;
           const end = location.endTag.startOffset as number;
           content = spec.sourceText.slice(start, end);
-        }
-        else {
+        } else {
           // the parser was *not* able to find a matching end tag. Try to recover by finding a
           // possible end tag, otherwise read the rest of the source text.
           const start = globalEndTagRe.lastIndex = location.endOffset as number;
@@ -42,8 +41,7 @@ export default class Grammar extends Builder {
         // can't read location for whatever reason, so fallback to innerHTML
         content = node.innerHTML;
       }
-    }
-    else {
+    } else {
       // no source text, so read innerHTML as a fallback.
       content = node.innerHTML;
     }

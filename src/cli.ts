@@ -6,7 +6,7 @@ import ecmarkup = require('./ecmarkup');
 import fs = require('fs');
 import utils = require('./utils');
 import debounce = require('promise-debounce');
-var __awaiter = require('./awaiter');
+let __awaiter = require('./awaiter');
 
 // back compat to old argument names
 if (args.css) {

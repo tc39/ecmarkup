@@ -1,4 +1,4 @@
-import Spec from "./Spec";
+import Spec from './Spec';
 import Builder from './Builder';
 import { Context } from './Context';
 import utils = require('./utils');

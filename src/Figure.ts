@@ -35,7 +35,7 @@ export default class Figure extends Builder {
 
     if (this.id) {
       spec.biblio.add(<FigureBiblioEntry>{
-        type: this.type as "table" | "figure" | "example" | "note",
+        type: this.type as 'table' | 'figure' | 'example' | 'note',
         id: this.id,
         number: this.number,
         caption: this.caption,
@@ -56,4 +56,4 @@ export default class Figure extends Builder {
     captionElem.innerHTML = figure.caption;
     node.childNodes[0].insertBefore(captionElem, node.childNodes[0].firstChild);
   }
-};
+}

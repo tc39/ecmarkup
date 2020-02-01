@@ -30,7 +30,7 @@ import Biblio, { BiblioData } from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { CancellationToken } from 'prex';
 
-var __awaiter = require('./awaiter');
+let __awaiter = require('./awaiter');
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
@@ -48,7 +48,7 @@ interface TextNodeContext {
   currentId: string | null
 }
 
-var builders: typeof Builder[] = [
+let builders: typeof Builder[] = [
   Clause,
   H1,
   Algorithm,
@@ -242,16 +242,16 @@ export default class Spec {
     this.buildSpecWrapper();
 
     if (this.opts.toc) {
-        this._log('Building table of contents...');
+      this._log('Building table of contents...');
 
-        let toc: Toc | Menu;
-        if (this.opts.oldToc) {
-          toc = new Toc(this);
-        } else {
-          toc = new Menu(this);
-        }
+      let toc: Toc | Menu;
+      if (this.opts.oldToc) {
+        toc = new Toc(this);
+      } else {
+        toc = new Menu(this);
+      }
 
-        toc.build();
+      toc.build();
     }
 
     await this.buildAssets();
@@ -268,7 +268,7 @@ export default class Spec {
     let counter = 0;
     this._xrefs.forEach(xref => {
       let entry = xref.entry;
-      if (!entry || entry.namespace === "global") return;
+      if (!entry || entry.namespace === 'global') return;
 
       if (!entry.id && entry.refId) {
         entry = this.spec.biblio.byId(entry.refId);
@@ -285,10 +285,10 @@ export default class Spec {
 
     this._ntRefs.forEach(prod => {
       const entry = prod.entry;
-      if (!entry || entry.namespace === "global") return;
+      if (!entry || entry.namespace === 'global') return;
 
       // if this is the defining nt of an emu-production, don't create a ref
-      if (prod.node.parentNode!.nodeName === "EMU-PRODUCTION") return;
+      if (prod.node.parentNode!.nodeName === 'EMU-PRODUCTION') return;
 
       const id = `_ref_${counter++}`;
       prod.node.setAttribute('id', id);
@@ -314,8 +314,8 @@ export default class Spec {
 
     // back-compat: if we already have a link to this script or css, bail out
     let skipJs = false,
-        skipCss = false,
-        outDir: string;
+      skipCss = false,
+      outDir: string;
 
     if (this.opts.outfile) {
       outDir = Path.dirname(this.opts.outfile);
@@ -367,7 +367,7 @@ export default class Spec {
     const wrapper = this.doc.createElement('div');
     wrapper.id = 'spec-container';
 
-    while(elements.length > 0) {
+    while (elements.length > 0) {
       wrapper.appendChild(elements[0]);
     }
 
@@ -396,7 +396,7 @@ export default class Spec {
 
   private async loadECMA262Biblio() {
     this.cancellationToken.throwIfCancellationRequested();
-    await this.loadBiblio(path.join(__dirname, "../ecma262biblio.json"));
+    await this.loadBiblio(path.join(__dirname, '../ecma262biblio.json'));
   }
 
   private async loadBiblios() {
@@ -433,7 +433,7 @@ export default class Spec {
       const classAttr = codes[i].getAttribute('class');
       if (!classAttr) continue;
 
-      const lang = classAttr.replace(/lang(uage)?\-/, '');
+      const lang = classAttr.replace(/lang(uage)?-/, '');
       let input = codes[i].textContent!;
 
       // remove leading and trailing blank lines
@@ -455,7 +455,7 @@ export default class Spec {
     const document = this.spec.doc;
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
     let node = walker.currentNode;
-    while(node) {
+    while (node) {
       if (node.nodeType === 3 && node.textContent!.trim().length > 0) {
         return;
       }
@@ -574,7 +574,7 @@ export default class Spec {
     }
 
     // Operate on content
-    copyright = copyright.replace(/!YEAR!/g, "" + this.opts.date!.getFullYear());
+    copyright = copyright.replace(/!YEAR!/g, '' + this.opts.date!.getFullYear());
 
     if (this.opts.contributors) {
       copyright = copyright.replace(/!CONTRIBUTORS!/g, this.opts.contributors);
@@ -606,7 +606,7 @@ export default class Spec {
       <h1>Copyright &amp; Software License</h1>
       ${address}
       <h2>Copyright Notice</h2>
-      ${copyright.replace('!YEAR!', "" + this.opts.date!.getFullYear())}
+      ${copyright.replace('!YEAR!', '' + this.opts.date!.getFullYear())}
       <h2>Software License</h2>
       ${license}
     `;
@@ -621,7 +621,7 @@ export default class Spec {
       const [replacer, autolinkmap] = replacerForNamespace(namespace, this.biblio);
       let nodes = this._textNodes[namespace];
 
-      for(let j = 0; j < nodes.length; j++) {
+      for (let j = 0; j < nodes.length; j++) {
         const { node, clause , inAlg, currentId } = nodes[j];
         autolink(node, replacer, autolinkmap, clause, currentId, inAlg);
       }
@@ -658,7 +658,7 @@ export default class Spec {
 
     return false;
   }
-};
+}
 
 function getBoilerplate(file: string) {
   let boilerplateFile: string = file;
@@ -707,7 +707,7 @@ function walk (walker: TreeWalker, context: Context) {
       context.inNoEmd = true;
       // inNoEmd is set to true when we walk to this node 
       let node = context.node as Node | null;
-      while(node && !node.nextSibling) {
+      while (node && !node.nextSibling) {
         node = node.parentNode;
       }
 
@@ -742,7 +742,7 @@ function walk (walker: TreeWalker, context: Context) {
   let oldids = context.node.getAttribute('oldids');
   if (oldids) {
     if (!context.node.children) {
-      throw new Error("oldids found on unsupported element: " + context.node.nodeName);
+      throw new Error('oldids found on unsupported element: ' + context.node.nodeName);
     }
     oldids.split(/,/g).map(s => s.trim()).forEach(oid => {
       let s = spec.doc.createElement('span');
@@ -792,6 +792,6 @@ function walk (walker: TreeWalker, context: Context) {
 const jsDependencies = ['menu.js', 'findLocalReferences.js'];
 async function concatJs() {
   const dependencies = await Promise.all(jsDependencies
-    .map(dependency => utils.readFile(path.join(__dirname, "../js/" + dependency))));
+    .map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency))));
   return dependencies.reduce((js, dependency) => js + dependency, '');
 }

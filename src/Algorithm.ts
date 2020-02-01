@@ -2,7 +2,7 @@ import Builder from './Builder';
 import emd = require('ecmarkdown');
 import { Context } from './Context';
 import Grammar from './Grammar';
-var __awaiter = require('./awaiter');
+let __awaiter = require('./awaiter');
 
 /*@internal*/
 export default class Algorithm extends Builder {
@@ -18,7 +18,7 @@ export default class Algorithm extends Builder {
       context.node = node;
     }
     // replace spaces after !/? with &nbsp; to prevent bad line breaking
-    const contents = node.innerHTML.replace(/(\s+[\!\?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
+    const contents = node.innerHTML.replace(/(\s+[!?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
     const html = emd.document(contents);
     node.innerHTML = html;
     context.inAlg = true;

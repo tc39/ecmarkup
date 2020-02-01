@@ -1,4 +1,4 @@
-import Spec from "./Spec";
+import Spec from './Spec';
 import { Context } from './Context';
 import * as utils from './utils';
 

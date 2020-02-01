@@ -5,7 +5,7 @@ const assert = require('assert');
 const emu = require('../lib/ecmarkup');
 
 const files = fs.readdirSync('test')
-    .filter(function (f) { return f.slice(f.length - 5) === '.html'; });
+  .filter(function (f) { return f.slice(f.length - 5) === '.html'; });
 
 function build(file) {
   return emu.build(file, function (file) {
@@ -27,16 +27,18 @@ describe('baselines', function() {
           let str;
           try {
             str = fs.readFileSync(reference, 'utf8');
+          } catch (e) {
+            // ignored
           }
-          catch (e) { }
           if (contents !== str) {
             try {
               fs.mkdirSync('test/baselines/local'); 
-            } 
-            catch (e) { }
+            } catch (e) {
+              // ignored
+            }
             fs.writeFileSync(local, contents, 'utf8');
-            const error = new Error("Incorrect baseline");
-            error.expected = str || "";
+            const error = new Error('Incorrect baseline');
+            error.expected = str || '';
             error.actual = contents;
             throw error;
           }

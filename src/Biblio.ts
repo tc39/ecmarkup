@@ -1,4 +1,4 @@
-import Production from "./Production";
+import Production from './Production';
 
 class EnvRec extends Array<BiblioEntry> {
   _parent: EnvRec | undefined;
@@ -103,11 +103,11 @@ export default class Biblio {
     return this.lookup(ns, env => env._byAoid[aoid]);
   }
 
-  inScopeByType(ns: string, type: "op"): AlgorithmBiblioEntry[];
-  inScopeByType(ns: string, type: "production"): ProductionBiblioEntry[];
-  inScopeByType(ns: string, type: "clause"): ClauseBiblioEntry[];
-  inScopeByType(ns: string, type: "term"): TermBiblioEntry[];
-  inScopeByType(ns: string, type: "table" | "figure" | "example" | "note"): FigureBiblioEntry[];
+  inScopeByType(ns: string, type: 'op'): AlgorithmBiblioEntry[];
+  inScopeByType(ns: string, type: 'production'): ProductionBiblioEntry[];
+  inScopeByType(ns: string, type: 'clause'): ClauseBiblioEntry[];
+  inScopeByType(ns: string, type: 'term'): TermBiblioEntry[];
+  inScopeByType(ns: string, type: 'table' | 'figure' | 'example' | 'note'): FigureBiblioEntry[];
   inScopeByType(ns: string, type: string): BiblioEntry[];
   inScopeByType(ns: string, type: string) {
     let seen = new Set<string>();
@@ -227,20 +227,20 @@ export interface BiblioEntryBase {
 }
 
 export interface AlgorithmBiblioEntry extends BiblioEntryBase {
-  type: "op";
+  type: 'op';
   aoid: string;
   refId?: string;
 }
 
 export interface ProductionBiblioEntry extends BiblioEntryBase {
-  type: "production";
+  type: 'production';
   id?: string;
   name: string;
   /*@internal*/ _instance?: Production;
 }
 
 export interface ClauseBiblioEntry extends BiblioEntryBase {
-  type: "clause";
+  type: 'clause';
   id: string;
   aoid: string;
   title: string;
@@ -249,14 +249,14 @@ export interface ClauseBiblioEntry extends BiblioEntryBase {
 }
 
 export interface TermBiblioEntry extends BiblioEntryBase {
-  type: "term";
+  type: 'term';
   term: string;
   refId: string;
   id?: string;
 }
 
 export interface FigureBiblioEntry extends BiblioEntryBase {
-  type: "table" | "figure" | "example" | "note";
+  type: 'table' | 'figure' | 'example' | 'note';
   id: string;
   number: string | number;
   clauseId?: string;

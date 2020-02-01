@@ -49,7 +49,7 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
     const newXrefNodes = utils.replaceTextNode(node, template.content);
     const newXrefs = newXrefNodes.map(node =>
       new Xref(spec, node as HTMLElement, clause as Clause, clause.namespace, node.getAttribute('href')!, node.getAttribute('aoid')!)
-    )
+    );
     spec._xrefs = spec._xrefs.concat(newXrefs);
   }
 }
@@ -133,5 +133,5 @@ function narrowSpace(str: string) {
 }
 
 function regexpEscape(str: string) {
-  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }

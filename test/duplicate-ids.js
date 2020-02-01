@@ -9,7 +9,7 @@ const execPath = /^win/.test(process.platform) && /\s/.test(process.execPath)
 
 describe('detecting duplicate ids', () => {
   it('reports when --verbose flag is present', (done) => {
-    cp.execFile(execPath, ['./bin/ecmarkup.js', '--verbose', 'test/duplicate-ids.html'], { encoding: "utf8", shell: true, windowsVerbatimArguments: true }, (error, result) => {
+    cp.execFile(execPath, ['./bin/ecmarkup.js', '--verbose', 'test/duplicate-ids.html'], { encoding: 'utf8', shell: true, windowsVerbatimArguments: true }, (error, result) => {
       if (error) {
         assert.fail(error);
         done();
@@ -23,7 +23,7 @@ describe('detecting duplicate ids', () => {
     });
   }).timeout(3000);
   it('does not report when --verbose flag is not present', (done) => {
-    cp.execFile(execPath, ['./bin/ecmarkup.js', 'test/duplicate-ids.html'], { encoding: "utf8", shell: true, windowsVerbatimArguments: true }, (error, result) => {
+    cp.execFile(execPath, ['./bin/ecmarkup.js', 'test/duplicate-ids.html'], { encoding: 'utf8', shell: true, windowsVerbatimArguments: true }, (error, result) => {
       if (error) {
         assert.fail(error);
         done();

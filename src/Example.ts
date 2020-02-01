@@ -1,7 +1,7 @@
 import Builder from './Builder';
-import Spec from "./Spec";
-import Clause from "./Clause";
-import { Context } from "./Context";
+import Spec from './Spec';
+import Clause from './Clause';
+import { Context } from './Context';
 
 /*@internal*/
 export default class Example extends Builder {

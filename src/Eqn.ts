@@ -58,8 +58,8 @@ export default class Eqn extends Builder {
       }
     } else {
       contents = '<div>' + contents.split(/\r?\n/g)
-                                   .filter(s => s.trim().length > 0)
-                                   .join('</div><div>') + '</div>';
+        .filter(s => s.trim().length > 0)
+        .join('</div><div>') + '</div>';
     }
 
     node.innerHTML = contents;

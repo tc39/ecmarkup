@@ -52,7 +52,7 @@ export default class Note extends Builder {
     const noteContentContainer = this.spec.doc.createElement('div');
     noteContentContainer.setAttribute('class', 'note-contents');
     
-    while(this.node.childNodes.length > 0) {
+    while (this.node.childNodes.length > 0) {
       noteContentContainer.appendChild(this.node.childNodes[0]);
     }
 

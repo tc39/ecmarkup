@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-require("../lib/cli");
+'use strict';
+require('../lib/cli');
