@@ -30,7 +30,7 @@ import Biblio, { BiblioData } from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { CancellationToken } from 'prex';
 
-let __awaiter = require('./awaiter');
+var __awaiter = require('./awaiter'); // eslint-disable-line no-var
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
@@ -705,7 +705,7 @@ function walk (walker: TreeWalker, context: Context) {
     if (!context.inNoEmd) {
       // new nodes as a result of emd processing should be skipped
       context.inNoEmd = true;
-      // inNoEmd is set to true when we walk to this node 
+      // inNoEmd is set to true when we walk to this node
       let node = context.node as Node | null;
       while (node && !node.nextSibling) {
         node = node.parentNode;
@@ -775,7 +775,7 @@ function walk (walker: TreeWalker, context: Context) {
   if (firstChild) {
     while (true) {
       walk(walker, context);
-      const next = walker.nextSibling(); 
+      const next = walker.nextSibling();
       if (!next) break;
     }
     walker.parentNode();

@@ -3,7 +3,7 @@ import Biblio = require('./Biblio');
 import BiblioEntry = Biblio.BiblioEntry;
 import utils = require('./utils');
 import { CancellationToken } from 'prex';
-let __awaiter = require('./awaiter');
+var __awaiter = require('./awaiter'); // eslint-disable-line no-var
 
 export { Spec, BiblioEntry };
 

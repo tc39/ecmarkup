@@ -3,7 +3,7 @@ import Path = require('path');
 
 import Builder from './Builder';
 import Spec from './Spec';
-let __awaiter = require('./awaiter');
+var __awaiter = require('./awaiter'); // eslint-disable-line no-var
 
 /*@internal*/
 export default class Import extends Builder {

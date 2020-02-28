@@ -1,7 +1,7 @@
 import Builder from './Builder';
 import { CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 import { Context } from './Context';
-let __awaiter = require('./awaiter');
+var __awaiter = require('./awaiter'); // eslint-disable-line no-var
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
