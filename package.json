@@ -60,7 +60,7 @@
 		"eslint": "^6.8.0",
 		"mocha": "^5.2.0",
 		"safe-publish-latest": "^1.1.4",
-		"typescript": "^3.7.5"
+		"typescript": "^3.8.2"
 	},
 	"auto-changelog": {
 		"output": "CHANGELOG.md",
