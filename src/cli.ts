@@ -6,7 +6,7 @@ import ecmarkup = require('./ecmarkup');
 import fs = require('fs');
 import utils = require('./utils');
 import debounce = require('promise-debounce');
-let __awaiter = require('./awaiter');
+var __awaiter = require('./awaiter'); // eslint-disable-line no-var
 
 // back compat to old argument names
 if (args.css) {
