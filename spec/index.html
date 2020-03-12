@@ -248,6 +248,31 @@ toc: false
   <p><emu-xref aoid="Get"></emu-xref> is an abstract operation from ES6</p>
 </emu-clause>
 
+<emu-clause id="emu-not-ref" namespace="emu-not-ref">
+  <h1>emu-not-ref</h1>
+  <p>Suppresses automatic linking to definitions.</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html">
+  &lt;div id="not-ref-section-1">
+    &lt;p>An &lt;dfn>example&lt;/dfn> is used for illustrative purposes.&lt;/p>
+  &lt;/div>
+  &lt;div id="not-ref-section-2">
+    &lt;p>When a word defined in another section (or algorithm step) is used, as in this example, it is normally automatically linked to the section containing the definition.&lt;/p>
+    &lt;p>When such a word should not be automatically linked, for &lt;emu-not-ref>example&lt;/emu-not-ref> when using its colloquial definition, it can be wrapped with this tag to surpress the automatic linking.&lt;/p>
+  &lt;/div>
+  </code></pre>
+
+  <b>Result</b>
+  <div id="not-ref-section-1">
+    <p>An <dfn>example</dfn> is used for illustrative purposes.</p>
+  </div>
+  <div id="not-ref-section-2">
+    <p>When a word defined in another section (or algorithm step) is used, as in this example, it is normally automatically linked to the section containing the definition.</p>
+    <p>When such a word should not be automatically linked, for <emu-not-ref>example</emu-not-ref> when using its colloquial definition, it can be wrapped with this tag to surpress the automatic linking.</p>
+  </div>
+</emu-clause>
+
 <emu-clause id="emu-figure">
   <h1>emu-figure</h1>
   <p>Creates a figure that can be xrefed by ID using the `emu-xref` element. Add a caption using a child `emu-caption` element.</p>
