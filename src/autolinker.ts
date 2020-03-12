@@ -17,7 +17,8 @@ export const NO_CLAUSE_AUTOLINK = new Set([
   'VAR',
   'A',
   'DFN',
-  'SUB'
+  'SUB',
+  'EMU-NOT-REF',
 ]);
 
 export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, currentId: string | null, allowSameId: boolean) {
