@@ -238,7 +238,7 @@ function Menu() {
   document.addEventListener('keydown', this.documentKeydown.bind(this));
 
   // toc expansion
-  var tocItems = this.$menu.querySelectorAll('#menu-toc li');
+  var tocItems = this.$menu.querySelectorAll('#menu-toc li, #menu-pins .menu-pane-header');
   for (var i = 0; i < tocItems.length; i++) {
     var $item = tocItems[i];
     $item.addEventListener('click', function($item, event) {
@@ -848,3 +848,20 @@ document.addEventListener('DOMContentLoaded', function () {
   Toolbox.init();
   referencePane.init();
 })
+
+// collapsible pin pane
+document.addEventListener('DOMContentLoaded', collapsiblePinPane);
+
+function collapsiblePinPane() {
+  var MenuPins = document.getElementById('menu-pins');
+  var MenuPaneHeader = MenuPins.querySelector('.menu-pane-header');
+  MenuPaneHeader.setAttribute('id', 'menu-pins-header'); // Give the header an id for convenience.
+
+  var pinButton = document.createElement('span');
+  pinButton.textContent = "◢";
+  pinButton.setAttribute('class', 'item-toggle');
+  pinButton.style.cssFloat = 'right'; // Float the button to the right side, making it easier to be noticed.
+  pinButton.style.color = 'black'; // Set a different color for it, so the button won't be mixed with the background.
+
+  MenuPaneHeader.appendChild(pinButton);
+}
