@@ -1,11 +1,11 @@
-const args = require('./args').parse();
+import { argParser } from './args';
+const args = argParser.parse();
 
+import * as ecmarkup from './ecmarkup';
+import * as fs from 'fs';
+import * as utils from './utils';
 
-// requires after arg checking to avoid expensive load times
-import ecmarkup = require('./ecmarkup');
-import fs = require('fs');
-import utils = require('./utils');
-import debounce = require('promise-debounce');
+const debounce: ((_: () => Promise<void>) => (() => Promise<void>)) = require('promise-debounce');
 
 // back compat to old argument names
 if (args.css) {

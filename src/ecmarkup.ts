@@ -1,10 +1,10 @@
 import Spec from './Spec';
-import Biblio = require('./Biblio');
-import BiblioEntry = Biblio.BiblioEntry;
-import utils = require('./utils');
+import type Biblio from './Biblio';
+import type { BiblioEntry } from './Biblio';
+import * as utils from './utils';
 import { CancellationToken } from 'prex';
 
-export { Spec, BiblioEntry };
+export type { Spec, BiblioEntry };
 
 export class Boilerplate {
   address?: string;

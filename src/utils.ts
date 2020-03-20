@@ -1,8 +1,8 @@
-import jsdom = require('jsdom');
-import chalk = require('chalk');
-import Spec from './Spec';
-import emd = require('ecmarkdown');
-import fs = require('fs');
+import * as jsdom from 'jsdom';
+import * as chalk from 'chalk';
+import type Spec from './Spec';
+import * as emd from 'ecmarkdown';
+import * as fs from 'fs';
 
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Node) {

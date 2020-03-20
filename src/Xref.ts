@@ -1,7 +1,7 @@
 import Spec from './Spec';
 import Builder from './Builder';
 import { Context } from './Context';
-import utils = require('./utils');
+import * as utils from './utils';
 import * as Biblio from './Biblio';
 import Clause from './Clause';
 

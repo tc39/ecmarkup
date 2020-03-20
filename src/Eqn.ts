@@ -1,6 +1,6 @@
 import Builder from './Builder';
-import emd = require('ecmarkdown');
-import utils = require('./utils');
+import * as emd from 'ecmarkdown';
+import * as utils from './utils';
 import Spec from './Spec';
 import { AlgorithmBiblioEntry } from './Biblio';
 import { Context } from './Context';

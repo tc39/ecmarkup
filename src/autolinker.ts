@@ -2,8 +2,9 @@ import Spec from './Spec';
 import Clause from './Clause';
 import Xref from './Xref';
 import Biblio, { BiblioEntry } from './Biblio';
-import escape = require('html-escape');
-import utils = require('./utils');
+import * as utils from './utils';
+
+let escape: (_: string) => string = require('html-escape');
 
 export const NO_CLAUSE_AUTOLINK = new Set([
   'PRE',

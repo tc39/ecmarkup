@@ -1,5 +1,5 @@
-import utils = require('./utils');
-import Path = require('path');
+import * as utils from './utils';
+import * as path from 'path';
 
 import Builder from './Builder';
 import Spec from './Spec';
@@ -18,8 +18,8 @@ export default class Import extends Builder {
   static async build(spec: Spec, node: HTMLElement, root: string) {
     const href = node.getAttribute('href');
     if (!href) throw new Error('Import missing href attribute.');
-    const importPath = Path.join(root, href);
-    const relativeRoot = Path.dirname(importPath);
+    const importPath = path.join(root, href);
+    const relativeRoot = path.dirname(importPath);
     const imp = new Import(spec, node, importPath, relativeRoot);
     spec.imports.push(imp);
 
