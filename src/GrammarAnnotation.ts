@@ -3,7 +3,7 @@ import Spec from './Spec';
 import Production from './Production';
 
 /*@internal*/
-class GrammarAnnotation extends Builder {
+export default class GrammarAnnotation extends Builder {
   production: Production;
 
   constructor(spec: Spec, prod: Production, node: HTMLElement) {
@@ -25,6 +25,3 @@ class GrammarAnnotation extends Builder {
     this.node.appendChild(post);
   }
 }
-
-/*@internal*/
-export = GrammarAnnotation;

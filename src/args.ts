@@ -1,7 +1,7 @@
-import path = require('path');
-import nomnom = require('nomnom');
+import * as path from 'path';
+import * as nomnom from 'nomnom';
 
-const args = nomnom.script('ecmarkup')
+export const argParser = nomnom.script('ecmarkup')
   .help('Compile ecmarkup documents to html by passing your input file and output file.')
   .options({
     help: { abbr: 'h', flag: true, help: 'Display this help message' },
@@ -35,6 +35,3 @@ function printVersion() {
   const p = require(path.resolve(__dirname, '..', 'package.json'));
   return 'ecmarkup v' + p.version;
 }
-
-/*@internal*/
-export = args;

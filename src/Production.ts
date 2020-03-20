@@ -1,8 +1,8 @@
 import RHS from './RHS';
-import GrammarAnnotation = require('./GrammarAnnotation');
+import GrammarAnnotation from './GrammarAnnotation';
 import Terminal from './Terminal';
 import Builder from './Builder';
-import utils = require('./utils');
+import * as utils from './utils';
 import Spec from './Spec';
 import { ProductionBiblioEntry } from './Biblio';
 import { Context } from './Context';

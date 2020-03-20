@@ -1,5 +1,5 @@
 import Builder from './Builder';
-import emd = require('ecmarkdown');
+import * as emd from 'ecmarkdown';
 import { Context } from './Context';
 import Grammar from './Grammar';
 
