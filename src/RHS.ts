@@ -41,7 +41,7 @@ export default class RHS extends Builder {
         const text = node.textContent!.trim();
         const pieces = text.split(/\s/);
 
-        pieces.forEach(function (p) {
+        pieces.forEach(p => {
           if (p.length === 0) {
             return;
           }
@@ -49,7 +49,7 @@ export default class RHS extends Builder {
           est.textContent = p;
 
           parentNode.insertBefore(est, node);
-        }, this);
+        });
 
         parentNode.removeChild(node);
       }

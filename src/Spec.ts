@@ -129,6 +129,9 @@ export default class Spec {
       table: 0,
       figure: 0
     };
+    this._xrefs = [];
+    this._ntRefs = [];
+    this._prodRefs = [];
     this._textNodes = {};
 
     this.processMetadata();
@@ -215,10 +218,6 @@ export default class Spec {
       startEmd: null,
       currentId: null
     };
-
-    this._xrefs = [];
-    this._ntRefs = [];
-    this._prodRefs = [];
 
     const document = this.doc;
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);

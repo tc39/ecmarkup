@@ -8,7 +8,7 @@ export default class NonTerminal extends Builder {
   params: string | null;
   optional: boolean;
   namespace: string;
-  entry: BiblioEntry;
+  entry?: BiblioEntry;
 
   static elements = ['EMU-NT'];
 

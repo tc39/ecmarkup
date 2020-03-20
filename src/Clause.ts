@@ -10,9 +10,11 @@ import { Context } from './Context';
 export default class Clause extends Builder {
   id: string;
   namespace: string;
+  // @ts-ignore skipping the strictPropertyInitialization check
   header: HTMLHeadingElement;
   parentClause: Clause;
-  title: string;
+  title?: string;
+  // @ts-ignore skipping the strictPropertyInitialization check
   titleHTML: string;
   subclauses: Clause[];
   number: string;
