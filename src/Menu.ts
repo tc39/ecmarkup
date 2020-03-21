@@ -1,4 +1,4 @@
-import Spec from './Spec';
+import type Spec from './Spec';
 import Toc from './Toc';
 
 /*@internal*/

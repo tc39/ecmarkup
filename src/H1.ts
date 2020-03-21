@@ -1,4 +1,4 @@
-import { Context } from './Context';
+import type { Context } from './Context';
 import Builder from './Builder';
 
 /*@internal*/

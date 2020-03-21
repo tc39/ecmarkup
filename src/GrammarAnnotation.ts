@@ -1,6 +1,6 @@
 import Builder from './Builder';
-import Spec from './Spec';
-import Production from './Production';
+import type Spec from './Spec';
+import type Production from './Production';
 
 /*@internal*/
 export default class GrammarAnnotation extends Builder {

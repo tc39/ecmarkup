@@ -1,10 +1,10 @@
-import Note from './Note';
-import Example from './Example';
+import type Note from './Note';
+import type Example from './Example';
 import { logWarning } from './utils';
 import Builder from './Builder';
-import Spec from './Spec';
-import { ClauseBiblioEntry } from './Biblio';
-import { Context } from './Context';
+import type Spec from './Spec';
+import type { ClauseBiblioEntry } from './Biblio';
+import type { Context } from './Context';
 
 /*@internal*/
 export default class Clause extends Builder {

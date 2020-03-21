@@ -1,4 +1,4 @@
-import Production from './Production';
+import type Production from './Production';
 
 class EnvRec extends Array<BiblioEntry> {
   _parent: EnvRec | undefined;
