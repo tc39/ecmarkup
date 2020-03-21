@@ -30,7 +30,6 @@ import Biblio, { BiblioData } from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { CancellationToken } from 'prex';
 
-var __awaiter = require('./awaiter'); // eslint-disable-line no-var
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);

@@ -2,7 +2,6 @@ import Builder from './Builder';
 import emd = require('ecmarkdown');
 import { Context } from './Context';
 import Grammar from './Grammar';
-var __awaiter = require('./awaiter'); // eslint-disable-line no-var
 
 /*@internal*/
 export default class Algorithm extends Builder {
