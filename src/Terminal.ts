@@ -1,6 +1,7 @@
-import Builder from './Builder';
 import type Spec from './Spec';
 import type Production from './Production';
+
+import Builder from './Builder';
 
 /*@internal*/
 export default class Terminal extends Builder {

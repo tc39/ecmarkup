@@ -1,6 +1,7 @@
-import Builder from './Builder';
 import type { TermBiblioEntry } from './Biblio';
 import type { Context } from './Context';
+
+import Builder from './Builder';
 
 /*@internal*/
 export default class Dfn extends Builder {

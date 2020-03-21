@@ -1,8 +1,8 @@
-import * as utils from './utils';
-import * as path from 'path';
+import type Spec from './Spec';
 
 import Builder from './Builder';
-import type Spec from './Spec';
+import * as utils from './utils';
+import * as path from 'path';
 
 /*@internal*/
 export default class Import extends Builder {

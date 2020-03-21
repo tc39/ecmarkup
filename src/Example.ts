@@ -1,7 +1,8 @@
-import Builder from './Builder';
 import type Spec from './Spec';
 import type Clause from './Clause';
 import type { Context } from './Context';
+
+import Builder from './Builder';
 
 /*@internal*/
 export default class Example extends Builder {
