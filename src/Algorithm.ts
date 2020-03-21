@@ -1,6 +1,6 @@
 import Builder from './Builder';
 import * as emd from 'ecmarkdown';
-import { Context } from './Context';
+import type { Context } from './Context';
 import Grammar from './Grammar';
 
 /*@internal*/

@@ -1,6 +1,6 @@
 import Builder from './Builder';
-import { Context } from './Context';
-import Spec from './Spec';
+import type { Context } from './Context';
+import type Spec from './Spec';
 import { shouldInline } from './utils';
 
 /*@internal*/

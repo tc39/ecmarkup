@@ -6,6 +6,7 @@
         "strict": true,
         "declaration": true,
         "stripInternal": true,
+        "importsNotUsedAsValues": "error",
         "outDir": "../lib",
         "lib": ["es5", "es2015", "dom"],
         "typeRoots": [

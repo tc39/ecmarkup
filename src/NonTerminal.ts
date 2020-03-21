@@ -1,7 +1,7 @@
 import Builder from './Builder';
-import Spec from './Spec';
-import { Context } from './Context';
-import {BiblioEntry} from './Biblio';
+import type Spec from './Spec';
+import type { Context } from './Context';
+import type { BiblioEntry } from './Biblio';
 
 /*@internal*/
 export default class NonTerminal extends Builder {

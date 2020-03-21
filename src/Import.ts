@@ -2,7 +2,7 @@ import * as utils from './utils';
 import * as path from 'path';
 
 import Builder from './Builder';
-import Spec from './Spec';
+import type Spec from './Spec';
 
 /*@internal*/
 export default class Import extends Builder {
