@@ -1,11 +1,12 @@
+import type Spec from './Spec';
+import type { ProductionBiblioEntry } from './Biblio';
+import type { Context } from './Context';
+
 import RHS from './RHS';
 import GrammarAnnotation from './GrammarAnnotation';
 import Terminal from './Terminal';
 import Builder from './Builder';
 import * as utils from './utils';
-import type Spec from './Spec';
-import type { ProductionBiblioEntry } from './Biblio';
-import type { Context } from './Context';
 
 /*@internal*/
 export default class Production extends Builder {

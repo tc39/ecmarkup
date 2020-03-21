@@ -1,5 +1,6 @@
 import type Spec from './Spec';
 import type { Context } from './Context';
+
 import * as utils from './utils';
 
 const nodeIds = new Set<string>();

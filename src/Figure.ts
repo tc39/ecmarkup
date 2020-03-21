@@ -1,7 +1,8 @@
-import Builder from './Builder';
 import type Spec from './Spec';
 import type { FigureBiblioEntry } from './Biblio';
 import type { Context } from './Context';
+
+import Builder from './Builder';
 
 export default class Figure extends Builder {
   type: string;

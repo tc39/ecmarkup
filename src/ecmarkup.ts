@@ -1,6 +1,7 @@
-import Spec from './Spec';
 import type Biblio from './Biblio';
 import type { BiblioEntry } from './Biblio';
+
+import Spec from './Spec';
 import * as utils from './utils';
 import { CancellationToken } from 'prex';
 

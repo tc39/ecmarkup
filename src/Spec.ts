@@ -1,12 +1,14 @@
+import type { Options } from './ecmarkup';
+import type { Context } from './Context';
+import type { BiblioData } from './Biblio';
+import type Builder from './Builder';
+
 import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import * as utils from './utils';
 import * as hljs from 'highlight.js';
-import type { Options } from './ecmarkup';
 // Builders
-import type { Context } from './Context';
-import type Builder from './Builder';
 import Import from './Import';
 import H1 from './H1';
 import Clause from './Clause';
@@ -25,7 +27,6 @@ import Grammar from './Grammar';
 import Xref from './Xref';
 import Eqn from './Eqn';
 import Biblio from './Biblio';
-import type { BiblioData } from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { CancellationToken } from 'prex';
 

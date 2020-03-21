@@ -1,10 +1,11 @@
 import type Note from './Note';
 import type Example from './Example';
-import { logWarning } from './utils';
-import Builder from './Builder';
 import type Spec from './Spec';
 import type { ClauseBiblioEntry } from './Biblio';
 import type { Context } from './Context';
+
+import { logWarning } from './utils';
+import Builder from './Builder';
 
 /*@internal*/
 export default class Clause extends Builder {

@@ -1,8 +1,9 @@
 import type Spec from './Spec';
 import type Clause from './Clause';
-import Xref from './Xref';
 import type Biblio from './Biblio';
 import type { BiblioEntry } from './Biblio';
+
+import Xref from './Xref';
 import * as utils from './utils';
 
 let escape: (_: string) => string = require('html-escape');

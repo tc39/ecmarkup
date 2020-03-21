@@ -1,6 +1,7 @@
+import type Spec from './Spec';
+
 import * as jsdom from 'jsdom';
 import * as chalk from 'chalk';
-import type Spec from './Spec';
 import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
 
