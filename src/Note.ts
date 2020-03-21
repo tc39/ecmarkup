@@ -6,7 +6,7 @@ import { Context } from './Context';
 /*@internal*/
 export default class Note extends Builder {
   clause: Clause;
-  id: string;
+  id?: string;
   type: string; // normal, editor
   static elements = ['EMU-NOTE'];
 
