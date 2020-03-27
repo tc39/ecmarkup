@@ -59,7 +59,11 @@ const build = debounce(async function build() {
       }
     }
   } catch (e) {
-    process.stderr.write(e.stack);
+    if (args.watch) {
+      process.stderr.write(e.stack);
+    } else {
+      throw e;
+    }
   }
 });
 
