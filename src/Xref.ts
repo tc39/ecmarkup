@@ -1,9 +1,10 @@
-import Spec from './Spec';
+import type Spec from './Spec';
+import type { Context } from './Context';
+import type * as Biblio from './Biblio';
+import type Clause from './Clause';
+
 import Builder from './Builder';
-import { Context } from './Context';
-import utils = require('./utils');
-import * as Biblio from './Biblio';
-import Clause from './Clause';
+import * as utils from './utils';
 
 /*@internal*/
 export default class Xref extends Builder {

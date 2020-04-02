@@ -1,14 +1,14 @@
-import path = require('path');
-import fs = require('fs');
-import Path = require('path');
-import yaml = require('js-yaml');
+import type { Options } from './ecmarkup';
+import type { Context } from './Context';
+import type { BiblioData } from './Biblio';
+import type Builder from './Builder';
+
+import * as path from 'path';
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 import * as utils from './utils';
-import hljs = require('highlight.js');
-import { Options } from './ecmarkup';
-import _Builder = require('./Builder');
+import * as hljs from 'highlight.js';
 // Builders
-import { Context } from './Context';
-import Builder from './Builder';
 import Import from './Import';
 import H1 from './H1';
 import Clause from './Clause';
@@ -26,7 +26,7 @@ import ProdRef from './ProdRef';
 import Grammar from './Grammar';
 import Xref from './Xref';
 import Eqn from './Eqn';
-import Biblio, { BiblioData } from './Biblio';
+import Biblio from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { CancellationToken } from 'prex';
 
@@ -115,7 +115,7 @@ export default class Spec {
     this.spec = this;
     this.opts = {};
     this.rootPath = rootPath;
-    this.rootDir = Path.dirname(this.rootPath);
+    this.rootDir = path.dirname(this.rootPath);
     this.sourceText = sourceText;
     this.doc = dom.window.document;
     this.dom = dom;
@@ -316,7 +316,7 @@ export default class Spec {
       outDir: string;
 
     if (this.opts.outfile) {
-      outDir = Path.dirname(this.opts.outfile);
+      outDir = path.dirname(this.opts.outfile);
     } else {
       outDir = process.cwd();
     }
@@ -326,7 +326,7 @@ export default class Spec {
       for (let i = 0; i < scripts.length; i++) {
         const script = scripts[i];
         const src = script.getAttribute('src');
-        if (src && Path.normalize(Path.join(outDir, src)) === Path.normalize(this.opts.jsOut)) {
+        if (src && path.normalize(path.join(outDir, src)) === path.normalize(this.opts.jsOut)) {
           this._log(`Found existing js link to ${src}, skipping inlining...`);
           skipJs = true;
         }
@@ -338,7 +338,7 @@ export default class Spec {
       for (let i = 0; i < links.length; i++) {
         const link = links[i];
         const href = link.getAttribute('href');
-        if (href && Path.normalize(Path.join(outDir, href)) === Path.normalize(this.opts.cssOut)) {
+        if (href && path.normalize(path.join(outDir, href)) === path.normalize(this.opts.cssOut)) {
           this._log(`Found existing css link to ${href}, skipping inlining...`);
           skipCss = true;
         }
@@ -552,13 +552,13 @@ export default class Spec {
 
     if (this.opts.boilerplate) {
       if (this.opts.boilerplate.address) {
-        addressFile = Path.join(process.cwd(), this.opts.boilerplate.address);
+        addressFile = path.join(process.cwd(), this.opts.boilerplate.address);
       }
       if (this.opts.boilerplate.copyright) {
-        copyrightFile = Path.join(process.cwd(), this.opts.boilerplate.copyright);
+        copyrightFile = path.join(process.cwd(), this.opts.boilerplate.copyright);
       }
       if (this.opts.boilerplate.license) {
-        licenseFile = Path.join(process.cwd(), this.opts.boilerplate.license);
+        licenseFile = path.join(process.cwd(), this.opts.boilerplate.license);
       }
     }
 
@@ -666,7 +666,7 @@ function getBoilerplate(file: string) {
       boilerplateFile = file;
     }
   } catch (error) {
-    boilerplateFile = Path.join(__dirname, '../boilerplate', `${file}.html`);
+    boilerplateFile = path.join(__dirname, '../boilerplate', `${file}.html`);
   }
 
   return fs.readFileSync(boilerplateFile, 'utf8');

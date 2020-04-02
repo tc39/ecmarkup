@@ -5,7 +5,7 @@ const assert = require('assert');
 const emu = require('../lib/ecmarkup');
 
 const files = fs.readdirSync('test')
-  .filter(function (f) { return f.slice(f.length - 5) === '.html'; });
+  .filter(function (f) { return f.endsWith('.html') && !f.endsWith('.bad.html'); });
 
 function build(file) {
   return emu.build(file, function (file) {

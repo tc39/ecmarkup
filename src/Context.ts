@@ -1,7 +1,7 @@
-import Spec from './Spec';
-import Import from './Import';
-import Clause from './Clause';
-import { ClauseNumberIterator } from './clauseNums';
+import type Spec from './Spec';
+import type Import from './Import';
+import type Clause from './Clause';
+import type { ClauseNumberIterator } from './clauseNums';
 
 export interface Context {
   spec: Spec;

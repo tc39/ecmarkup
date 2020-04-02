@@ -1,6 +1,7 @@
+import type { Context } from './Context';
+
 import Builder from './Builder';
-import emd = require('ecmarkdown');
-import { Context } from './Context';
+import * as emd from 'ecmarkdown';
 import Grammar from './Grammar';
 
 /*@internal*/

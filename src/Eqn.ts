@@ -1,9 +1,10 @@
+import type Spec from './Spec';
+import type { AlgorithmBiblioEntry } from './Biblio';
+import type { Context } from './Context';
+
 import Builder from './Builder';
-import emd = require('ecmarkdown');
-import utils = require('./utils');
-import Spec from './Spec';
-import { AlgorithmBiblioEntry } from './Biblio';
-import { Context } from './Context';
+import * as emd from 'ecmarkdown';
+import * as utils from './utils';
 
 /*@internal*/
 export default class Eqn extends Builder {

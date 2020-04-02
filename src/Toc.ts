@@ -1,5 +1,5 @@
-import Spec from './Spec';
-import Clause from './Clause';
+import type Spec from './Spec';
+import type Clause from './Clause';
 
 /*@internal*/
 export default class Toc {

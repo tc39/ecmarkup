@@ -1,5 +1,6 @@
-import Spec from './Spec';
-import Production from './Production';
+import type Spec from './Spec';
+import type Production from './Production';
+
 import Builder from './Builder';
 
 /*@internal*/
