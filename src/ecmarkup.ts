@@ -28,7 +28,7 @@ export interface Options {
   verbose?: boolean;
   cssOut?: string;
   jsOut?: string;
-  assets?: 'none' | 'inline';
+  assets?: 'none' | 'inline' | 'external';
   outfile?: string;
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
