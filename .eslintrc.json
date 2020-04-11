@@ -39,6 +39,7 @@
   ],
   "rules": {
     "prettier/prettier": "error",
+    "no-inner-declarations": "off",
     "consistent-return": "off",
     "no-eq-null": "error",
     "no-floating-decimal": "error",

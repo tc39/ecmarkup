@@ -28,6 +28,7 @@ import Xref from './Xref';
 import Eqn from './Eqn';
 import Biblio from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
+import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
@@ -105,7 +106,7 @@ export default class Spec {
     fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
     dom: any,
     opts?: Options,
-    sourceText?: string,
+    sourceText?: string, // TODO we need not support this being undefined
     token = CancellationToken.none
   ) {
     opts = opts || {};
@@ -217,6 +218,16 @@ export default class Spec {
     };
 
     const document = this.doc;
+
+    if (this.opts.reportLintErrors) {
+      this._log('Linting...');
+      const source = this.sourceText;
+      if (source === undefined) {
+        throw new Error('Cannot lint when source text is not available');
+      }
+      lint(this.opts.reportLintErrors, source, this.dom, document);
+    }
+
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
 
     walk(walker, context);

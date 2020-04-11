@@ -34,8 +34,8 @@
 	"dependencies": {
 		"bluebird": "^3.7.2",
 		"chalk": "^1.1.3",
-		"ecmarkdown": "4.0.0",
-		"grammarkdown": "^2.1.2",
+		"ecmarkdown": "NEXT",
+		"grammarkdown": "^2.2.0",
 		"highlight.js": "^9.17.1",
 		"html-escape": "^1.0.2",
 		"js-yaml": "^3.13.1",

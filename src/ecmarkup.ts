@@ -1,4 +1,5 @@
 import type { BiblioEntry } from './Biblio';
+import type { LintingError } from './lint/lint';
 
 import Spec from './Spec';
 import * as utils from './utils';
@@ -24,6 +25,7 @@ export interface Options {
   contributors?: string;
   toc?: boolean;
   oldToc?: boolean;
+  lintSpec?: boolean;
   verbose?: boolean;
   cssOut?: string;
   jsOut?: string;
@@ -31,6 +33,7 @@ export interface Options {
   outfile?: string;
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
+  reportLintErrors?: (errors: LintingError[]) => void;
 }
 
 export async function build(
