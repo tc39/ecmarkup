@@ -133,7 +133,7 @@ export default class Clause extends Builder {
     clauseStack.push(clause);
   }
 
-  static exit({spec, node, clauseStack}: Context) {
+  static exit({spec, clauseStack}: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
     if (!clause.header) {

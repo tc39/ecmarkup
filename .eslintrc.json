@@ -46,6 +46,7 @@
     "no-floating-decimal": "error",
     "no-self-compare": "error",
     "no-throw-literal": "error",
+    "no-trailing-spaces": "error",
     "no-void": "error",
     "wrap-iife": [
       "error",
@@ -102,6 +103,7 @@
       "always"
     ],
     "no-var": "error",
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error"
   }
 }

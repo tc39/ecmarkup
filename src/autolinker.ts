@@ -35,7 +35,7 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
     }
 
     const entryId = entry.id || entry.refId;
-    
+
     const skipLinking = !allowSameId && currentId && entryId === currentId;
     if (skipLinking) {
       return match;
@@ -70,7 +70,7 @@ export function replacerForNamespace(namespace: string, biblio: Biblio) : [RegEx
   const clauseReplacer = new RegExp(Object.keys(autolinkmap)
     .sort(function (a, b) { return b.length - a.length; })
     .map(function (k) {
-      
+
       const entry = autolinkmap[k];
       const key = regexpEscape(entry.key!);
 

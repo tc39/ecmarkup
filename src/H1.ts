@@ -10,6 +10,5 @@ export default class H1 extends Builder {
       clause.header = node as HTMLHeadingElement;
     }
   }
-  static exit(context: Context) { }
   static elements = ['H1'];
 }

@@ -1,7 +1,7 @@
 import type { Options } from './ecmarkup';
 import type { Context } from './Context';
 import type { BiblioData } from './Biblio';
-import type Builder from './Builder';
+import type { BuilderInterface } from './Builder';
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -37,7 +37,7 @@ const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR
 
 
 interface VisitorMap {
-  [k: string]: typeof Builder
+  [k: string]: BuilderInterface
 }
 
 interface TextNodeContext {
@@ -47,7 +47,7 @@ interface TextNodeContext {
   currentId: string | null
 }
 
-let builders: typeof Builder[] = [
+let builders: BuilderInterface[] = [
   Clause,
   H1,
   Algorithm,

@@ -41,7 +41,10 @@ export default class Eqn extends Builder {
     const { spec, node, clauseStack } = context;
     const clause = clauseStack[clauseStack.length - 1];
     const id = clause ? clause.id : ''; // TODO: no eqns outside of clauses, eh?
-    const eqn = new Eqn(spec, node, id); // TODO: this variable is unused, but apparently it has side effects. Removing this line removes emu-xrefs
+
+    // TODO: this value is unused, but apparently it has side effects. Removing this line removes emu-xrefs
+    new Eqn(spec, node, id);
+
     let contents = emd.document(node.innerHTML).slice(3, -4);
 
     if (utils.shouldInline(node)) {
@@ -65,8 +68,6 @@ export default class Eqn extends Builder {
 
     node.innerHTML = contents;
   }
-
-  static exit(context: Context) { }
 
   static elements = ['EMU-EQN'];
 }

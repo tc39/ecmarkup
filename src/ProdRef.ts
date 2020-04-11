@@ -67,7 +67,7 @@ export default class ProdRef extends Builder {
     }
 
     copy.removeAttribute('id');
-    
+
     if (this.node.parentNode) {
       this.node.parentNode.replaceChild(copy, this.node);
     }
