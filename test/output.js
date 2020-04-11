@@ -1,6 +1,5 @@
 'use strict';
 const fs = require('fs');
-const assert = require('assert');
 
 const emu = require('../lib/ecmarkup');
 
@@ -32,7 +31,7 @@ describe('baselines', function() {
           }
           if (contents !== str) {
             try {
-              fs.mkdirSync('test/baselines/local'); 
+              fs.mkdirSync('test/baselines/local');
             } catch (e) {
               // ignored
             }

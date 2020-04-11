@@ -52,7 +52,7 @@ export default class Note extends Builder {
 
     const noteContentContainer = this.spec.doc.createElement('div');
     noteContentContainer.setAttribute('class', 'note-contents');
-    
+
     while (this.node.childNodes.length > 0) {
       noteContentContainer.appendChild(this.node.childNodes[0]);
     }
@@ -74,7 +74,7 @@ export default class Note extends Builder {
     if (number !== undefined) {
       label += ' ' + number;
     }
-    
+
     if (this.id) {
       // create link to note
       noteSpan.innerHTML = `<a href='#${this.id}'>${label}</a>`;

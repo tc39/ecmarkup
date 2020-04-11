@@ -1,4 +1,3 @@
-import type Biblio from './Biblio';
 import type { BiblioEntry } from './Biblio';
 
 import Spec from './Spec';

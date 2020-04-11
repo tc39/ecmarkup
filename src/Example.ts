@@ -19,7 +19,7 @@ export default class Example extends Builder {
       this.id = this.node.getAttribute('id')!;
     }
   }
-  
+
   static enter({spec, node, clauseStack}: Context) {
     const clause = clauseStack[clauseStack.length - 1];
     if (!clause) return; // don't process examples outside of clauses
