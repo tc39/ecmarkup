@@ -25,7 +25,7 @@ export default class Note extends Builder {
     }
   }
 
-  static enter({spec, node, clauseStack}: Context) {
+  static enter({ spec, node, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
     if (!clause) return; // do nothing with top-level note
 
@@ -46,7 +46,7 @@ export default class Note extends Builder {
         id: this.id,
         number: number || 1,
         clauseId: this.clause.id,
-        referencingIds: []
+        referencingIds: [],
       });
     }
 
@@ -66,7 +66,7 @@ export default class Note extends Builder {
     if (this.type === 'normal') {
       label = 'Note';
     } else if (this.type === 'editor') {
-      label = 'Editor\'s Note';
+      label = "Editor's Note";
     } else {
       this.spec._log(`Unknown note type ${this.type}. Skipping.`);
     }

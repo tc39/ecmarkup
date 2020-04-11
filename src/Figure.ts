@@ -34,14 +34,13 @@ export default class Figure extends Builder {
       this.caption += ': ' + node.getAttribute('caption');
     }
 
-
     if (this.id) {
       spec.biblio.add(<FigureBiblioEntry>{
         type: this.type as 'table' | 'figure' | 'example' | 'note',
         id: this.id,
         number: this.number,
         caption: this.caption,
-        referencingIds: []
+        referencingIds: [],
       });
     }
   }

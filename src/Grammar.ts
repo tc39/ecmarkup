@@ -4,11 +4,11 @@ import Builder from './Builder';
 import { CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
-const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
+const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;
 
 /*@internal*/
 export default class Grammar extends Builder {
-  static enter({spec, node, inAlg}: Context) {
+  static enter({ spec, node, inAlg }: Context) {
     // we process grammar nodes in algorithms separately (in Algorithm.ts)
     if (inAlg) return;
 
@@ -28,7 +28,7 @@ export default class Grammar extends Builder {
         } else {
           // the parser was *not* able to find a matching end tag. Try to recover by finding a
           // possible end tag, otherwise read the rest of the source text.
-          const start = globalEndTagRe.lastIndex = location.endOffset as number;
+          const start = (globalEndTagRe.lastIndex = location.endOffset as number);
           const match = globalEndTagRe.exec(spec.sourceText);
           const end = match ? match.index : spec.sourceText.length;
           content = spec.sourceText.slice(start, end);
@@ -57,10 +57,15 @@ export default class Grammar extends Builder {
 
     const options: CompilerOptions = {
       format: EmitFormat.ecmarkup,
-      noChecks: true
+      noChecks: true,
     };
 
-    node.innerHTML = GrammarFile.convert(content, options, /*hostFallback*/ undefined, spec.cancellationToken);
+    node.innerHTML = GrammarFile.convert(
+      content,
+      options,
+      /*hostFallback*/ undefined,
+      spec.cancellationToken
+    );
   }
 
   static elements = ['EMU-GRAMMAR'];

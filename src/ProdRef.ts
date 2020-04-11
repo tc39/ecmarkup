@@ -11,7 +11,7 @@ export default class ProdRef extends Builder {
 
   static elements = ['EMU-PRODREF'];
 
-  constructor (spec: Spec, node: HTMLElement, namespace: string) {
+  constructor(spec: Spec, node: HTMLElement, namespace: string) {
     super(spec, node);
     this.spec = spec;
     this.node = node;
@@ -19,7 +19,7 @@ export default class ProdRef extends Builder {
     this.name = node.getAttribute('name')!;
   }
 
-  static enter({node, spec, clauseStack}: Context) {
+  static enter({ node, spec, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
     const namespace = clause ? clause.namespace : spec.namespace;
     const prodref = new ProdRef(spec, node, namespace);
@@ -48,7 +48,12 @@ export default class ProdRef extends Builder {
     if (this.node.hasAttribute('a')) {
       this.node.setAttribute('collapsed', '');
       if (!prod.rhsesById[this.node.getAttribute('a')!]) {
-        console.error('Could not find alternative ' + this.node.getAttribute('a') + ' of production ' + prod.name);
+        console.error(
+          'Could not find alternative ' +
+            this.node.getAttribute('a') +
+            ' of production ' +
+            prod.name
+        );
         return;
       }
 
@@ -80,6 +85,5 @@ export default class ProdRef extends Builder {
         copy.setAttribute(attr.name, attr.value);
       }
     }
-
   }
 }

@@ -28,7 +28,7 @@ export default function iterator(): ClauseNumberIterator {
       currentLevel = level;
 
       return { value: ids.join('.'), done: false };
-    }
+    },
   };
 
   function nextAnnexNum(level: number): string | number {
@@ -48,6 +48,6 @@ export default function iterator(): ClauseNumberIterator {
 
   function nextClauseNum(level: number) {
     if (ids[level] === undefined) return 1;
-    return (<number>ids[level]) + 1;
+    return <number>ids[level] + 1;
   }
 }

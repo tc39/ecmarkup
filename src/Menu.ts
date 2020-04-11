@@ -34,7 +34,8 @@ export default class Menu {
 
     const searchContainer = this.spec.doc.createElement('div');
     searchContainer.setAttribute('id', 'menu-search');
-    searchContainer.innerHTML = '<input type=text id=menu-search-box placeholder=Search...><div id=menu-search-results class=inactive></div>';
+    searchContainer.innerHTML =
+      '<input type=text id=menu-search-box placeholder=Search...><div id=menu-search-results class=inactive></div>';
 
     const menuContainer = this.spec.doc.createElement('div');
     menuContainer.setAttribute('id', 'menu');
@@ -48,7 +49,7 @@ export default class Menu {
     menuSpacer.setAttribute('id', 'menu-spacer');
     this.spec.doc.body.insertBefore(menuSpacer, this.spec.doc.body.firstChild);
 
-    const menuToggle =  this.spec.doc.createElement('div');
+    const menuToggle = this.spec.doc.createElement('div');
     menuToggle.setAttribute('id', 'menu-toggle');
     menuToggle.textContent = '☰';
 
