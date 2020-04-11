@@ -39,7 +39,7 @@
   ],
   "rules": {
     "prettier/prettier": "error",
-    "consistent-return": 0,
+    "consistent-return": "off",
     "no-eq-null": "error",
     "no-floating-decimal": "error",
     "no-self-compare": "error",
