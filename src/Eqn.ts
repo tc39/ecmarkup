@@ -24,14 +24,14 @@ export default class Eqn extends Builder {
           type: 'op',
           aoid: this.aoid,
           id: this.id,
-          referencingIds: []
+          referencingIds: [],
         });
       } else {
         this.spec.biblio.add(<AlgorithmBiblioEntry>{
           type: 'op',
           aoid: this.aoid,
           refId: this.clauseId,
-          referencingIds: []
+          referencingIds: [],
         });
       }
     }
@@ -61,9 +61,13 @@ export default class Eqn extends Builder {
         node.setAttribute('class', classes.concat(['inline']).join(' '));
       }
     } else {
-      contents = '<div>' + contents.split(/\r?\n/g)
-        .filter(s => s.trim().length > 0)
-        .join('</div><div>') + '</div>';
+      contents =
+        '<div>' +
+        contents
+          .split(/\r?\n/g)
+          .filter(s => s.trim().length > 0)
+          .join('</div><div>') +
+        '</div>';
     }
 
     node.innerHTML = contents;

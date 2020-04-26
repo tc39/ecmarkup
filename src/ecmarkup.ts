@@ -33,7 +33,12 @@ export interface Options {
   ecma262Biblio?: boolean;
 }
 
-export async function build(path: string, fetch: (path: string, token: CancellationToken) => PromiseLike<string>, opts?: Options, token = CancellationToken.none): Promise<Spec> {
+export async function build(
+  path: string,
+  fetch: (path: string, token: CancellationToken) => PromiseLike<string>,
+  opts?: Options,
+  token = CancellationToken.none
+): Promise<Spec> {
   const html = await fetch(path, token);
   const dom = utils.htmlToDom(html);
   const spec = new Spec(path, fetch, dom, opts, /*sourceText*/ html, token);

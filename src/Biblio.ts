@@ -9,7 +9,7 @@ class EnvRec extends Array<BiblioEntry> {
   _byProductionName: { [key: string]: ProductionBiblioEntry };
   _byAoid: { [key: string]: AlgorithmBiblioEntry };
 
-  constructor (parent: EnvRec | undefined, namespace: string) {
+  constructor(parent: EnvRec | undefined, namespace: string) {
     super();
 
     this._parent = parent;
@@ -39,7 +39,7 @@ class EnvRec extends Array<BiblioEntry> {
           aoid: item.aoid,
           refId: item.id,
           location: item.location,
-          referencingIds: []
+          referencingIds: [],
         };
         this.push(op);
       }
@@ -66,16 +66,16 @@ Object.defineProperty(EnvRec, Symbol.species, { value: Array });
 
 /*@internal*/
 export default class Biblio {
-  private _byId: { [id: string]: BiblioEntry; };
+  private _byId: { [id: string]: BiblioEntry };
   private _location: string;
   private _root: EnvRec;
-  private _nsToEnvRec: { [namespace: string]: EnvRec | undefined; };
+  private _nsToEnvRec: { [namespace: string]: EnvRec | undefined };
 
   constructor(location: string) {
     this._byId = {};
     this._location = location;
     this._root = new EnvRec(undefined, 'global');
-    this._nsToEnvRec = {'global': this._root};
+    this._nsToEnvRec = { global: this._root };
 
     this.createNamespace(location, 'global');
   }
@@ -264,19 +264,23 @@ export interface FigureBiblioEntry extends BiblioEntryBase {
 }
 
 export type BiblioEntry =
-  AlgorithmBiblioEntry |
-  ProductionBiblioEntry |
-  ClauseBiblioEntry |
-  TermBiblioEntry |
-  FigureBiblioEntry;
+  | AlgorithmBiblioEntry
+  | ProductionBiblioEntry
+  | ClauseBiblioEntry
+  | TermBiblioEntry
+  | FigureBiblioEntry;
 
 function dumpEnv(env: EnvRec) {
   console.log('## ' + env._namespace);
-  console.log(env.map(function(entry) {
-    return JSON.stringify(entry);
-  }).join(', '));
+  console.log(
+    env
+      .map(function (entry) {
+        return JSON.stringify(entry);
+      })
+      .join(', ')
+  );
 
-  env._children.forEach(function(child) {
+  env._children.forEach(function (child) {
     dumpEnv(child);
   });
 }
@@ -291,16 +295,20 @@ function pushKey(arr: { [key: string]: BiblioEntry[] }, key: string, value: Bibl
 
 function getKey(item: BiblioEntry) {
   switch (item.type) {
-  case 'clause': return item.title;
-  case 'production': return item.name;
-  case 'op': return item.aoid;
-  case 'term': return item.term;
-  case 'table':
-  case 'figure':
-  case 'example':
-  case 'note':
-    return item.caption;
-  default:
-    throw new Error('Can\'t get key for ' + (<BiblioEntry>item).type);
+    case 'clause':
+      return item.title;
+    case 'production':
+      return item.name;
+    case 'op':
+      return item.aoid;
+    case 'term':
+      return item.term;
+    case 'table':
+    case 'figure':
+    case 'example':
+    case 'note':
+      return item.caption;
+    default:
+      throw new Error("Can't get key for " + (<BiblioEntry>item).type);
   }
 }

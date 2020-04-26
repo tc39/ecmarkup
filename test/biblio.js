@@ -8,7 +8,7 @@ const location = 'https://tc39.github.io/ecma262/';
 describe('Biblio', function () {
   let biblio;
 
-  beforeEach(function() {
+  beforeEach(function () {
     biblio = new Biblio(location);
   });
 
@@ -16,18 +16,18 @@ describe('Biblio', function () {
     const opEntry = {
       type: 'op',
       aoid: 'aoid',
-      refId: 'clauseId'
+      refId: 'clauseId',
     };
 
     biblio.add(opEntry, 'global');
     assert.equal(biblio.byAoid('aoid'), opEntry);
   });
 
-  specify('is created with a nested namespace for the doc\'s location', function () {
+  specify("is created with a nested namespace for the doc's location", function () {
     const opEntry = {
       type: 'op',
       aoid: 'aoid',
-      refId: 'clauseId'
+      refId: 'clauseId',
     };
 
     biblio.add(opEntry, location);
@@ -39,13 +39,13 @@ describe('Biblio', function () {
     const opEntry1 = {
       type: 'op',
       aoid: 'aoid1',
-      refId: 'clauseId'
+      refId: 'clauseId',
     };
 
     const opEntry2 = {
       type: 'op',
       aoid: 'aoid2',
-      refId: 'clauseId'
+      refId: 'clauseId',
     };
 
     biblio.add(opEntry1, location);
@@ -62,13 +62,13 @@ describe('Biblio', function () {
       const opEntry1 = {
         type: 'op',
         aoid: 'aoid',
-        refId: 'clauseId'
+        refId: 'clauseId',
       };
 
       const opEntry2 = {
         type: 'op',
         aoid: 'aoid',
-        refId: 'clauseId'
+        refId: 'clauseId',
       };
 
       biblio.add(opEntry1, location);

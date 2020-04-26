@@ -5,7 +5,7 @@ import * as ecmarkup from './ecmarkup';
 import * as fs from 'fs';
 import * as utils from './utils';
 
-const debounce: ((_: () => Promise<void>) => (() => Promise<void>)) = require('promise-debounce');
+const debounce: (_: () => Promise<void>) => () => Promise<void> = require('promise-debounce');
 
 // back compat to old argument names
 if (args.css) {
