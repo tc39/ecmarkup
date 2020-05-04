@@ -17,7 +17,14 @@ export default class Xref extends Builder {
 
   static elements = ['EMU-XREF'];
 
-  constructor(spec: Spec, node: HTMLElement, clause: Clause | null, namespace: string, href: string, aoid: string) {
+  constructor(
+    spec: Spec,
+    node: HTMLElement,
+    clause: Clause | null,
+    namespace: string,
+    href: string,
+    aoid: string
+  ) {
     super(spec, node);
     this.namespace = namespace;
     this.href = href;
@@ -39,7 +46,7 @@ export default class Xref extends Builder {
     }
 
     if (href && aoid) {
-      utils.logWarning('xref can\'t have both href and aoid.');
+      utils.logWarning("xref can't have both href and aoid.");
       return;
     }
 
@@ -53,7 +60,6 @@ export default class Xref extends Builder {
     spec._xrefs.push(xref);
   }
 
-
   build() {
     const spec = this.spec;
     const href = this.href;
@@ -63,7 +69,11 @@ export default class Xref extends Builder {
 
     if (href) {
       if (href[0] !== '#') {
-        utils.logWarning('xref to anything other than a fragment id is not supported (is ' + href + '). Try href="#sec-id" instead.');
+        utils.logWarning(
+          'xref to anything other than a fragment id is not supported (is ' +
+            href +
+            '). Try href="#sec-id" instead.'
+        );
         return;
       }
 
@@ -71,34 +81,34 @@ export default class Xref extends Builder {
 
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
-        utils.logWarning('can\'t find clause, production, note or example with id ' + href);
+        utils.logWarning("can't find clause, production, note or example with id " + href);
         return;
       }
 
       switch (this.entry.type) {
-      case 'clause':
-        buildClauseLink(node, this.entry);
-        break;
-      case 'production':
-        buildProductionLink(node, this.entry);
-        break;
-      case 'example':
-        buildFigureLink(spec, this.clause, node, this.entry, 'Example');
-        break;
-      case 'note':
-        buildFigureLink(spec, this.clause, node, this.entry, 'Note');
-        break;
-      case 'table':
-        buildFigureLink(spec, this.clause, node, this.entry, 'Table');
-        break;
-      case 'figure':
-        buildFigureLink(spec, this.clause, node, this.entry, 'Figure');
-        break;
-      case 'term':
-        buildTermLink(node, this.entry);
-        break;
-      default:
-        utils.logWarning('found unknown biblio entry (this is a bug, please file it)');
+        case 'clause':
+          buildClauseLink(node, this.entry);
+          break;
+        case 'production':
+          buildProductionLink(node, this.entry);
+          break;
+        case 'example':
+          buildFigureLink(spec, this.clause, node, this.entry, 'Example');
+          break;
+        case 'note':
+          buildFigureLink(spec, this.clause, node, this.entry, 'Note');
+          break;
+        case 'table':
+          buildFigureLink(spec, this.clause, node, this.entry, 'Table');
+          break;
+        case 'figure':
+          buildFigureLink(spec, this.clause, node, this.entry, 'Figure');
+          break;
+        case 'term':
+          buildTermLink(node, this.entry);
+          break;
+        default:
+          utils.logWarning('found unknown biblio entry (this is a bug, please file it)');
       }
     } else if (aoid) {
       this.entry = spec.biblio.byAoid(aoid, namespace);
@@ -108,7 +118,7 @@ export default class Xref extends Builder {
         return;
       }
 
-      utils.logWarning('can\'t find abstract op with aoid ' + aoid + ' in namespace ' + namespace);
+      utils.logWarning("can't find abstract op with aoid " + aoid + ' in namespace ' + namespace);
     }
   }
 }
@@ -149,7 +159,13 @@ function buildTermLink(xref: Element, entry: Biblio.TermBiblioEntry) {
     xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
   }
 }
-function buildFigureLink(spec: Spec, parentClause: Clause | null, xref: Element, entry: Biblio.FigureBiblioEntry, type: string) {
+function buildFigureLink(
+  spec: Spec,
+  parentClause: Clause | null,
+  xref: Element,
+  entry: Biblio.FigureBiblioEntry,
+  type: string
+) {
   if (xref.textContent!.trim() === '') {
     if (entry.clauseId) {
       // first need to find the associated clause
@@ -163,9 +179,15 @@ function buildFigureLink(spec: Spec, parentClause: Clause | null, xref: Element,
         xref.innerHTML = buildXrefLink(entry, type + ' ' + entry.number);
       } else {
         if (xref.hasAttribute('title')) {
-          xref.innerHTML = buildXrefLink(entry, clauseEntry.title + ' ' + type + ' ' + entry.number);
+          xref.innerHTML = buildXrefLink(
+            entry,
+            clauseEntry.title + ' ' + type + ' ' + entry.number
+          );
         } else {
-          xref.innerHTML = buildXrefLink(entry, clauseEntry.number + ' ' + type + ' ' + entry.number);
+          xref.innerHTML = buildXrefLink(
+            entry,
+            clauseEntry.number + ' ' + type + ' ' + entry.number
+          );
         }
       }
     } else {

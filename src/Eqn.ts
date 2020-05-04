@@ -24,14 +24,14 @@ export default class Eqn extends Builder {
           type: 'op',
           aoid: this.aoid,
           id: this.id,
-          referencingIds: []
+          referencingIds: [],
         });
       } else {
         this.spec.biblio.add(<AlgorithmBiblioEntry>{
           type: 'op',
           aoid: this.aoid,
           refId: this.clauseId,
-          referencingIds: []
+          referencingIds: [],
         });
       }
     }
@@ -41,7 +41,10 @@ export default class Eqn extends Builder {
     const { spec, node, clauseStack } = context;
     const clause = clauseStack[clauseStack.length - 1];
     const id = clause ? clause.id : ''; // TODO: no eqns outside of clauses, eh?
-    const eqn = new Eqn(spec, node, id); // TODO: this variable is unused, but apparently it has side effects. Removing this line removes emu-xrefs
+
+    // TODO: this value is unused, but apparently it has side effects. Removing this line removes emu-xrefs
+    new Eqn(spec, node, id);
+
     let contents = emd.document(node.innerHTML).slice(3, -4);
 
     if (utils.shouldInline(node)) {
@@ -58,15 +61,17 @@ export default class Eqn extends Builder {
         node.setAttribute('class', classes.concat(['inline']).join(' '));
       }
     } else {
-      contents = '<div>' + contents.split(/\r?\n/g)
-        .filter(s => s.trim().length > 0)
-        .join('</div><div>') + '</div>';
+      contents =
+        '<div>' +
+        contents
+          .split(/\r?\n/g)
+          .filter(s => s.trim().length > 0)
+          .join('</div><div>') +
+        '</div>';
     }
 
     node.innerHTML = contents;
   }
-
-  static exit(context: Context) { }
 
   static elements = ['EMU-EQN'];
 }
