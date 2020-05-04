@@ -589,14 +589,25 @@ tr.del > td {
   cursor: pointer;
 }
 
+#menu-pins-header .item-toggle { /*overwrite the transform style in the above css selector, so we can get a upward pin arrow*/
+  transform: rotate(-135deg);
+  transform-origin: center;
+  transition: transform 0s ease;
+}
+
 #menu-toc .item-toggle-none {
   display: inline-block;
   width: 20px;
 }
 
-#menu-toc li.active > .item-toggle,
-#menu-pins-header.active > .item-toggle {
+#menu-toc li.active > .item-toggle {
   transform: rotate(45deg) translate(-5px, -5px);
+}
+
+#menu-pins-header.active > .item-toggle{  /*extra css style for the downward pin arrow*/
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform 0s ease;
 }
 
 #menu-toc li > ol,
