@@ -45,7 +45,7 @@ export default class Eqn extends Builder {
     // TODO: this value is unused, but apparently it has side effects. Removing this line removes emu-xrefs
     new Eqn(spec, node, id);
 
-    let contents = emd.document(node.innerHTML).slice(3, -4);
+    let contents = emd.fragment(node.innerHTML);
 
     if (utils.shouldInline(node)) {
       const classString = node.getAttribute('class');
