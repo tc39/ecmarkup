@@ -18,8 +18,9 @@ export default class Algorithm extends Builder {
       context.node = node;
     }
     // replace spaces after !/? with &nbsp; to prevent bad line breaking
-    const contents = node.innerHTML.replace(/(\s+[!?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
-    const html = emd.document(contents);
+    const html = emd
+      .algorithm(node.innerHTML)
+      .replace(/((?:\s+|>)[!?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
     node.innerHTML = html;
     context.inAlg = true;
   }

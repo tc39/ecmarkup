@@ -7,11 +7,10 @@ import * as fs from 'fs';
 
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Node) {
-  // emd strips starting spaces which we want to preserve
-  const startSpace = node.textContent!.match(/^\s*/)![0];
+  let c = node.textContent!.replace(/</g, '&lt;');
 
   const template = spec.doc.createElement('template');
-  template.innerHTML = startSpace + emd.fragment(node.textContent!);
+  template.innerHTML = emd.fragment(c);
 
   replaceTextNode(node, template.content);
 }
