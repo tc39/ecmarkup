@@ -8,10 +8,7 @@ const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;
 
 /*@internal*/
 export default class Grammar extends Builder {
-  static enter({ spec, node, inAlg }: Context) {
-    // we process grammar nodes in algorithms separately (in Algorithm.ts)
-    if (inAlg) return;
-
+  static enter({ spec, node }: Context) {
     let content: string;
     let possiblyMalformed = true;
     if (spec.sourceText) {
