@@ -5,10 +5,6 @@ let emu = require('../lib/ecmarkup');
 
 let lintLocationMarker = {};
 
-function alg(desc) {
-  return Object.assign({}, desc, { html: `<emu-alg>${desc.html}</emu-alg>` });
-}
-
 function positioned(literalParts, ...interpolatedParts) {
   let markerIndex = interpolatedParts.indexOf(lintLocationMarker);
   if (markerIndex < 0 || markerIndex !== interpolatedParts.lastIndexOf(lintLocationMarker)) {
@@ -59,4 +55,4 @@ async function assertLint({ offset, line, column, html }, message = null) {
 }
 
 
-module.exports = { assertLint, lintLocationMarker, positioned, alg };
+module.exports = { assertLint, lintLocationMarker, positioned };

@@ -1,6 +1,6 @@
 'use strict';
 
-let { assertLint, lintLocationMarker: M, positioned, alg } = require('./lint-helpers');
+let { assertLint, lintLocationMarker: M, positioned } = require('./lint-helpers');
 
 describe('linting algorithms', function () {
   describe('line endings', function () {
@@ -50,8 +50,8 @@ describe('linting algorithms', function () {
     });
 
     it('negative', async function () {
-      await assertLint(alg({
-        html: `
+      await assertLint({ html: `
+        <emu-alg>
           1. If foo, bar.
           1. Else if foo, bar.
           1. Else, bar.
@@ -73,8 +73,8 @@ describe('linting algorithms', function () {
           1. Other.
           1. Other:
             1. Substep.
-        `,
-      }));
+        </emu-alg>
+      ` });
     });
   });
 });
