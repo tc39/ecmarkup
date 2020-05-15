@@ -3,13 +3,34 @@
 let assert = require('assert');
 let emu = require('../lib/ecmarkup');
 
-let lintLocationMarker = '@@@';
+let lintLocationMarker = {};
 
-function alg([before, after], marker) {
-  return `<emu-alg>${before}${marker}${after}</emu-alg>`;
+function alg(desc) {
+  return Object.assign({}, desc, { html: `<emu-alg>${desc.html}</emu-alg>` });
 }
 
-async function assertLint(src, message = null) {
+function positioned(literalParts, ...interpolatedParts) {
+  let markerIndex = interpolatedParts.indexOf(lintLocationMarker);
+  if (markerIndex < 0 || markerIndex !== interpolatedParts.lastIndexOf(lintLocationMarker)) {
+    throw new Error('alg template tag must interpolate the location marker exactly once');
+  }
+  let offset, line, column;
+  let str = literalParts[0];
+  for (let i = 0; i < literalParts.length - 1; ++i) {
+    if (i === markerIndex) {
+      offset = str.length;
+      let lines = str.split('\n');
+      line = lines.length;
+      column = lines[lines.length - 1].length + 1;
+    } else {
+      str += String(interpolatedParts[i]);
+    }
+    str += literalParts[i + 1];
+  }
+  return { offset, line, column, html: str };
+}
+
+async function assertLint({ offset, line, column, html }, message = null) {
   let reportLintErrors;
   let reported = false;
 
@@ -18,16 +39,6 @@ async function assertLint(src, message = null) {
       throw new Error('unexpected errors ' + JSON.stringify(errors));
     };
   } else {
-    let line, column;
-    src.split('\n').forEach((contents, lineNo) => {
-      let idx = contents.indexOf(lintLocationMarker);
-      if (idx !== -1) {
-        line = lineNo + 1;
-        column = idx + 1;
-      }
-    });
-    let offset = src.indexOf(lintLocationMarker);
-    src = src.substring(0, offset) + src.substring(offset + lintLocationMarker.length);
     reportLintErrors = errors => {
       reported = true;
       assert.equal(errors.length, 1, 'should have exactly one error');
@@ -39,7 +50,7 @@ async function assertLint(src, message = null) {
     };
   }
 
-  await emu.build('test-example.emu', async () => src, {
+  await emu.build('test-example.emu', async () => html, {
     ecma262Biblio: false,
     copyright: false,
     reportLintErrors,
@@ -47,4 +58,5 @@ async function assertLint(src, message = null) {
   assert.equal(reported, message !== null);
 }
 
-module.exports = { assertLint, lintLocationMarker, alg };
+
+module.exports = { assertLint, lintLocationMarker, positioned, alg };

@@ -1,12 +1,12 @@
 'use strict';
 
-let { assertLint, lintLocationMarker: M } = require('./lint-helpers');
+let { assertLint, positioned, lintLocationMarker: M } = require('./lint-helpers');
 
 describe('linting whole program', function () {
   describe('grammar validity', function () {
     it('unused parameters', async function () {
       await assertLint(
-        `
+        positioned`
           <emu-grammar type="definition">
             Statement[${M}a]: \`;\`
           </emu-grammar>
@@ -17,7 +17,7 @@ describe('linting whole program', function () {
 
     it('missing parameters', async function () {
       await assertLint(
-        `
+        positioned`
           <emu-grammar type="definition">
             Foo[a]:
               [+a] \`a\`
@@ -32,7 +32,7 @@ describe('linting whole program', function () {
 
     it('error in inline grammar', async function () {
       await assertLint(
-        `
+        positioned`
           <emu-grammar type="definition"> Statement[${M}a]: \`;\` </emu-grammar>
         `,
         "Parameter 'a' is unused."
@@ -43,7 +43,7 @@ describe('linting whole program', function () {
   describe('grammar+SDO validity', function () {
     it('undefined nonterminals in SDOs', async function () {
       await assertLint(
-        `
+        positioned`
           <emu-grammar>
             ${M}Statement: EmptyStatement
           </emu-grammar>
@@ -57,7 +57,7 @@ describe('linting whole program', function () {
 
     it('error in inline grammar', async function () {
       await assertLint(
-        `
+        positioned`
           <emu-grammar> ${M}Statement: EmptyStatement </emu-grammar>
           <emu-alg>
             1. Return Foo.
@@ -69,7 +69,7 @@ describe('linting whole program', function () {
 
     it('undefined productions in SDOs', async function () {
       await assertLint(
-        `
+        positioned`
           <emu-grammar type="definition">
               Statement: \`;\`
           </emu-grammar>

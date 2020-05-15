@@ -1,57 +1,57 @@
 'use strict';
 
-let { assertLint, lintLocationMarker: M, alg } = require('./lint-helpers');
+let { assertLint, lintLocationMarker: M, positioned, alg } = require('./lint-helpers');
 
 describe('linting algorithms', function () {
   describe('line endings', function () {
     it('simple', async function () {
       await assertLint(
-        alg`
+        positioned`<emu-alg>
           1. ${M}testing
-        `,
+        </emu-alg>`,
         'expected freeform line to end with "." (found "testing")'
       );
     });
 
     it('inline', async function () {
       await assertLint(
-        alg`1. ${M}testing`,
+        positioned`<emu-alg>1. ${M}testing</emu-alg>`,
         'expected freeform line to end with "." (found "testing")'
       );
     });
 
     it('repeat', async function () {
       await assertLint(
-        alg`
+        positioned`<emu-alg>
           1. ${M}Repeat, while _x_ < 10
             1. Foo.
-        `,
+        </emu-alg>`,
         'expected "Repeat" to end with ","'
       );
     });
 
     it('inline if', async function () {
       await assertLint(
-        alg`
+        positioned`<emu-alg>
           1. ${M}If _x_, then
-        `,
+        </emu-alg>`,
         'expected "If" without substeps to end with "." or ":" (found ", then")'
       );
     });
 
     it('multiline if', async function () {
       await assertLint(
-        alg`
+        positioned`<emu-alg>
           1. ${M}If _x_,
             1. Foo.
-        `,
+        </emu-alg>`,
         'expected "If" with substeps to end with ", then" (found ",")'
       );
     });
 
     it('negative', async function () {
-      await assertLint(`
-        <emu-alg>
+      await assertLint(alg({
+        html: `
           1. If foo, bar.
           1. Else if foo, bar.
           1. Else, bar.
@@ -73,8 +73,8 @@ describe('linting algorithms', function () {
           1. Other.
           1. Other:
             1. Substep.
-        </emu-alg>
-      `);
+        `,
+      }));
     });
   });
 });
