@@ -10,7 +10,7 @@ function alg([before, after], marker) {
 let M = '@@@'; // Marks the location of the error
 
 describe('linting', function () {
-  describe('grammar sanity', function () {
+  describe('grammar validity', function () {
     it('unused parameters', async function () {
       await assertLint(
         `
@@ -47,7 +47,7 @@ describe('linting', function () {
     });
   });
 
-  describe('grammar+SDO sanity', function () {
+  describe('grammar+SDO validity', function () {
     it('undefined nonterminals in SDOs', async function () {
       await assertLint(
         `
