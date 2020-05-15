@@ -100,12 +100,15 @@ describe('linting', function () {
         alg`
           1. ${M}testing
         `,
-        'expected line to end with "." (found "testing")'
+        'expected freeform line to end with "." (found "testing")'
       );
     });
 
     it('inline', async function () {
-      await assertLint(alg`1. ${M}testing`, 'expected line to end with "." (found "testing")');
+      await assertLint(
+        alg`1. ${M}testing`,
+        'expected freeform line to end with "." (found "testing")'
+      );
     });
 
     it('repeat', async function () {

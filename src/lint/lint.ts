@@ -1,8 +1,5 @@
-import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
+import { emit } from 'ecmarkdown';
 
-import { parseAlgorithm, visit, emit } from 'ecmarkdown';
-
-import { getLocation } from './utils';
 import { collectNodes } from './collect-nodes';
 import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';

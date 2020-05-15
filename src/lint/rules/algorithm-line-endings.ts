@@ -203,14 +203,14 @@ export default function (report: Reporter, node: Element): Observer {
             report({
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
-              message: `expected line with substeps to end with ":" (found "${last.contents}")`,
+              message: `expected freeform line with substeps to end with ":" (found "${last.contents}")`,
             });
           }
         } else if (!/(?:\.|\.\))$/.test(last.contents)) {
           report({
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
-            message: `expected line to end with "." (found "${last.contents}")`,
+            message: `expected freeform line to end with "." (found "${last.contents}")`,
           });
         }
       }
