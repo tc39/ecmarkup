@@ -14,6 +14,24 @@ import type {
 
 import { Grammar as GrammarFile, SyntaxKind } from 'grammarkdown';
 
+export function grammarkdownLocationToTrueLocation(
+  elementLoc: ReturnType<typeof getLocation>,
+  gmdLine: number,
+  gmdCharacter: number
+) {
+  // jsdom's lines and columns are both 1-based
+  // grammarkdown's lines and columns ("characters") are both 0-based
+  // we want 1-based for both
+  let line = elementLoc.startTag.line + gmdLine;
+  let column =
+    gmdLine === 0
+      ? elementLoc.startTag.col +
+        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
+        gmdCharacter
+      : gmdCharacter + 1;
+  return { line, column };
+}
+
 export function getLocation(dom: any, node: Element) {
   let loc = dom.nodeLocation(node);
   if (!loc || !loc.startTag || !loc.endTag) {

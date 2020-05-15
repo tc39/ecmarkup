@@ -16,7 +16,12 @@ import {
   skipTrivia,
 } from 'grammarkdown';
 
-import { getLocation, getProductions, rhsMatches } from './utils';
+import {
+  grammarkdownLocationToTrueLocation,
+  getLocation,
+  getProductions,
+  rhsMatches,
+} from './utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
 
 function composeObservers(...observers: Observer[]): Observer {
@@ -203,23 +208,14 @@ export function lint(
       .forEach(m => {
         let idx = +m.sourceFile!.filename;
         let grammarLoc = getLocation(dom, grammarNodes[idx]);
-        let line = m.range!.start.line;
-        let character = m.range!.start.character;
 
-        // jsdom's lines and columns are both 1-based
-        // grammarkdown's lines and columns (characters) are both 0-based
-        // we want 1-based for both
-        let trueLine = grammarLoc.startTag.line + line;
-        let trueCol = character;
-        if (line === 0) {
-          trueCol +=
-            grammarLoc.startTag.col +
-            (grammarLoc.startTag.endOffset - grammarLoc.startTag.startOffset);
-        } else {
-          trueCol += 1;
-        }
+        let { line, column } = grammarkdownLocationToTrueLocation(
+          grammarLoc,
+          m.range!.start.line,
+          m.range!.start.character
+        );
 
-        let error = { line: trueLine, column: trueCol, message: m.formattedMessage! };
+        let error = { line, column, message: m.formattedMessage! };
         lintingErrors.push(error);
 
         if (m.code === Diagnostics.Parameter_0_is_unused.code) {
@@ -264,21 +260,11 @@ export function lint(
     function getLocationInGrammar(pos: number) {
       let file = grammar.sourceFiles[0];
       let posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
-      let { line, character } = file.lineMap.positionAt(posWithoutWhitespace);
+      let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(
+        posWithoutWhitespace
+      );
 
-      // jsdom's lines and columns are both 1-based
-      // grammarkdown's lines and columns (characters) are both 0-based
-      // we want 1-based for both
-      let trueLine = grammarLoc.startTag.line + line;
-      let trueCol = character;
-      if (line === 0) {
-        trueCol +=
-          grammarLoc.startTag.col +
-          (grammarLoc.startTag.endOffset - grammarLoc.startTag.startOffset);
-      } else {
-        trueCol += 1;
-      }
-      return { line: trueLine, column: trueCol };
+      return grammarkdownLocationToTrueLocation(grammarLoc, gmdLine, gmdCharacter);
     }
 
     for (let [name, { production, rhses }] of productions) {
