@@ -36,6 +36,15 @@ describe('linting', function () {
         "There is no argument given for parameter 'a'."
       );
     });
+
+    it('error in inline grammar', async function () {
+      await assertLint(
+        `
+          <emu-grammar type="definition"> Statement[${M}a]: \`;\` </emu-grammar>
+        `,
+        "Parameter 'a' is unused."
+      );
+    });
   });
 
   describe('grammar+SDO sanity', function () {
@@ -45,6 +54,18 @@ describe('linting', function () {
           <emu-grammar>
             ${M}Statement: EmptyStatement
           </emu-grammar>
+          <emu-alg>
+            1. Return Foo.
+          </emu-alg>
+        `,
+        'Could not find a definition for LHS in syntax-directed operation'
+      );
+    });
+
+    it('error in inline grammar', async function () {
+      await assertLint(
+        `
+          <emu-grammar> ${M}Statement: EmptyStatement </emu-grammar>
           <emu-alg>
             1. Return Foo.
           </emu-alg>
@@ -77,16 +98,20 @@ describe('linting', function () {
     it('simple', async function () {
       await assertLint(
         alg`
-          ${M}1. testing
+          1. ${M}testing
         `,
         'expected line to end with "." (found "testing")'
       );
     });
 
+    it('inline', async function () {
+      await assertLint(alg`1. ${M}testing`, 'expected line to end with "." (found "testing")');
+    });
+
     it('repeat', async function () {
       await assertLint(
         alg`
-          ${M}1. Repeat, while _x_ < 10
+          1. ${M}Repeat, while _x_ < 10
             1. Foo.
         `,
         'expected "Repeat" to end with ","'
@@ -96,7 +121,7 @@ describe('linting', function () {
     it('inline if', async function () {
       await assertLint(
         alg`
-          ${M}1. If _x_, then
+          1. ${M}If _x_, then
         `,
         'expected "If" without substeps to end with "." or ":" (found ", then")'
       );
@@ -105,7 +130,7 @@ describe('linting', function () {
     it('multiline if', async function () {
       await assertLint(
         alg`
-          ${M}1. If _x_,
+          1. ${M}If _x_,
             1. Foo.
         `,
         'expected "If" with substeps to end with ", then" (found ",")'

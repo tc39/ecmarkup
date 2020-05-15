@@ -57,7 +57,7 @@ export function lint(
   // *******************
   // Walk the whole tree collecting interesting parts
 
-  let grammarNodes: Node[] = [];
+  let grammarNodes: Element[] = [];
   let grammarParts: string[] = [];
   let grammarStartOffsets: number[] = [];
   let grammarLineOffsets: number[] = [];
@@ -128,7 +128,7 @@ export function lint(
           grammarLineOffsets.push(loc.startTag.line);
           let realSource = sourceText.slice(start, end);
           grammarParts.push(realSource);
-          grammarNodes.push(node);
+          grammarNodes.push(node as Element);
         } else if (node.getAttribute('type') !== 'example') {
           let next = lintWalker.nextSibling() as Element;
           if (next) {
@@ -202,8 +202,23 @@ export function lint(
       .getDiagnosticInfos({ formatMessage: true, detailedMessage: false })
       .forEach(m => {
         let idx = +m.sourceFile!.filename;
-        let trueLine = grammarLineOffsets[idx] + m.range!.start.line;
-        let trueCol = m.range!.start.character + 1; // column numbers are traditionally one-based
+        let grammarLoc = getLocation(dom, grammarNodes[idx]);
+        let line = m.range!.start.line;
+        let character = m.range!.start.character;
+
+        // jsdom's lines and columns are both 1-based
+        // grammarkdown's lines and columns (characters) are both 0-based
+        // we want 1-based for both
+        let trueLine = grammarLoc.startTag.line + line;
+        let trueCol = character;
+        if (line === 0) {
+          trueCol +=
+            grammarLoc.startTag.col +
+            (grammarLoc.startTag.endOffset - grammarLoc.startTag.startOffset);
+        } else {
+          trueCol += 1;
+        }
+
         let error = { line: trueLine, column: trueCol, message: m.formattedMessage! };
         lintingErrors.push(error);
 
@@ -250,6 +265,10 @@ export function lint(
       let file = grammar.sourceFiles[0];
       let posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
       let { line, character } = file.lineMap.positionAt(posWithoutWhitespace);
+
+      // jsdom's lines and columns are both 1-based
+      // grammarkdown's lines and columns (characters) are both 0-based
+      // we want 1-based for both
       let trueLine = grammarLoc.startTag.line + line;
       let trueCol = character;
       if (line === 0) {
@@ -343,9 +362,12 @@ export function lint(
       column: number;
       message: string;
     }) => {
-      let trueLine = location.startTag.line + line - 1; // both jsdom and ecmarkdown have 1-based line numbers, so if we just add we are off by one
+      // jsdom's lines and columns are both 1-based
+      // ecmarkdown has 1-based line numbers and 0-based column numbers
+      // we want 1-based for both
+      let trueLine = location.startTag.line + line - 1;
       let trueCol = column;
-      if (line === 0) {
+      if (line === 1) {
         trueCol +=
           location.startTag.col + (location.startTag.endOffset - location.startTag.startOffset);
       } else {

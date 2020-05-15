@@ -9,7 +9,7 @@
 		"build-release": "tsc -p src",
 		"prepublish": "safe-publish-latest && npm run build-release",
 		"pretest": "npm run build",
-		"test": "mocha && npm run lint",
+		"test": "mocha",
 		"lint": "eslint --ext .js,.ts .",
 		"format": "prettier --write .",
 		"update-pages": "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
@@ -34,7 +34,7 @@
 	"dependencies": {
 		"bluebird": "^3.7.2",
 		"chalk": "^1.1.3",
-		"ecmarkdown": "NEXT",
+		"ecmarkdown": "/Users/kevin/code/ecmarkdown",
 		"grammarkdown": "^2.2.0",
 		"highlight.js": "^9.17.1",
 		"html-escape": "^1.0.2",
