@@ -9,7 +9,7 @@ function alg([before, after], marker) {
 
 let M = '@@@'; // Marks the location of the error
 
-describe('linting', function () {
+describe.only('linting', function () {
   describe('grammar sanity', function () {
     it('unused parameters', async function () {
       await assertLint(
