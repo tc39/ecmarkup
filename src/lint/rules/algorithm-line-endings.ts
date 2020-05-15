@@ -112,7 +112,7 @@ export default function (report: Reporter, node: Element): Observer {
               report({
                 line: node.contents[0].location!.start.line,
                 column: node.contents[0].location!.start.column,
-                message: `expected "If" with substeps to end with ", then" (found "${last.contents}")`,
+                message: `expected "If" with substeps to end with ", then" (found ${JSON.stringify(last.contents)})`,
               });
             }
           } else {
@@ -120,7 +120,7 @@ export default function (report: Reporter, node: Element): Observer {
               report({
                 line: node.contents[0].location!.start.line,
                 column: node.contents[0].location!.start.column,
-                message: `expected "If" with list to end with ":" (found "${last.contents}")`,
+                message: `expected "If" with list to end with ":" (found ${JSON.stringify(last.contents)})`,
               });
             }
           }
@@ -129,7 +129,7 @@ export default function (report: Reporter, node: Element): Observer {
             report({
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
-              message: `expected "If" without substeps to end with "." or ":" (found "${last.contents}")`,
+              message: `expected "If" without substeps to end with "." or ":" (found ${JSON.stringify(last.contents)})`,
             });
           }
         }
@@ -142,7 +142,7 @@ export default function (report: Reporter, node: Element): Observer {
             report({
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
-              message: `expected "Else" with substeps to end with "," (found "${last.contents}")`,
+              message: `expected "Else" with substeps to end with "," (found ${JSON.stringify(last.contents)})`,
             });
           }
         } else {
@@ -150,7 +150,7 @@ export default function (report: Reporter, node: Element): Observer {
             report({
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
-              message: `expected "Else" without substeps to end with "." or ":" (found "${last.contents}")`,
+              message: `expected "Else" without substeps to end with "." or ":" (found ${JSON.stringify(last.contents)})`,
             });
           }
         }
@@ -169,7 +169,7 @@ export default function (report: Reporter, node: Element): Observer {
           report({
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
-            message: `expected "Repeat" to start with "Repeat, while " or "Repeat, until " (found "${initialText}")`,
+            message: `expected "Repeat" to start with "Repeat, while " or "Repeat, until " (found ${JSON.stringify(initialText)})`,
           });
         }
         if (!/,$/.test(last.contents)) {
@@ -185,7 +185,7 @@ export default function (report: Reporter, node: Element): Observer {
             report({
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
-              message: `expected "For each" with substeps to end with ", do" (found "${last.contents}")`,
+              message: `expected "For each" with substeps to end with ", do" (found ${JSON.stringify(last.contents)})`,
             });
           }
         } else {
@@ -193,7 +193,7 @@ export default function (report: Reporter, node: Element): Observer {
             report({
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
-              message: `expected "For each" without substeps to end with "." (found "${last.contents}")`,
+              message: `expected "For each" without substeps to end with "." (found ${JSON.stringify(last.contents)})`,
             });
           }
         }
@@ -203,14 +203,14 @@ export default function (report: Reporter, node: Element): Observer {
             report({
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
-              message: `expected freeform line with substeps to end with ":" (found "${last.contents}")`,
+              message: `expected freeform line with substeps to end with ":" (found ${JSON.stringify(last.contents)})`,
             });
           }
         } else if (!/(?:\.|\.\))$/.test(last.contents)) {
           report({
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
-            message: `expected freeform line to end with "." (found "${last.contents}")`,
+            message: `expected freeform line to end with "." (found ${JSON.stringify(last.contents)})`,
           });
         }
       }
