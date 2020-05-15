@@ -27,6 +27,9 @@ export function collectGrammarDiagnostics(
   sdos: { grammar: Element; alg: Element }[],
   earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[]
 ) {
+  // *******************
+  // Parse the grammar with Grammarkdown and collect its diagnostics, if any
+
   let grammarParser = new GrammarParser();
   // TODO use CoreSyncHost once published
   let fakeHost: SyncHost = {
@@ -93,6 +96,7 @@ export function collectGrammarDiagnostics(
 
   // *******************
   // Check that SDOs and Early Errors are defined in terms of productions which actually exist
+  // Also filter out any "unused parameter" warnings for grammar productions for which the parameter is used in an early error or SDO
 
   let oneOffGrammars: { grammarEle: Element; grammar: GrammarFile }[] = [];
   let actualGrammarProductions = getProductions(grammar);
