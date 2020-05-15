@@ -1,6 +1,23 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
 
+/*
+Checks that every algorithm step has one of these forms:
+
+- `If foo, bar.`
+- `If foo, then,` + substeps
+- `Else if foo, bar.`
+- `Else if foo, then.` + substeps
+- `Else, baz.`
+- `Else,` + substeps
+- `Repeat,` + substeps
+- `Repeat, while foo,` + substeps
+- `Repeat, until foo,` + substeps
+- `For each foo, bar.`
+- `For each foo, do` + substeps
+- `Other.`
+- `Other:` + substeps
+*/
 export default function (report: Reporter, node: Element): Observer {
   if (node.getAttribute('type') === 'example') {
     return {};
