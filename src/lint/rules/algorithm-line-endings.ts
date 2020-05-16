@@ -5,9 +5,9 @@ import type { Reporter } from '../algorithm-error-reporter-type';
 Checks that every algorithm step has one of these forms:
 
 - `If foo, bar.`
-- `If foo, then,` + substeps
+- `If foo, then` + substeps
 - `Else if foo, bar.`
-- `Else if foo, then.` + substeps
+- `Else if foo, then` + substeps
 - `Else, baz.`
 - `Else,` + substeps
 - `Repeat,` + substeps
