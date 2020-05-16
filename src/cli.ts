@@ -1,8 +1,12 @@
+import type { Options } from './ecmarkup';
+import type { LintingError } from './lint/lint';
+
 import { argParser } from './args';
 const args = argParser.parse();
 
-import * as ecmarkup from './ecmarkup';
 import * as fs from 'fs';
+import * as chalk from 'chalk';
+import * as ecmarkup from './ecmarkup';
 import * as utils from './utils';
 
 const debounce: (_: () => Promise<void>) => () => Promise<void> = require('promise-debounce');
@@ -16,10 +20,33 @@ if (args.js) {
   args.jsOut = args.js;
 }
 
+if (args.lintSpec && args.watch) {
+  console.error('Cannot use --lint-spec with --watch');
+  process.exit(1);
+}
+
 const watching = new Map<string, fs.FSWatcher>();
 const build = debounce(async function build() {
   try {
-    const spec = await ecmarkup.build(args.infile, utils.readFile, args);
+    const opts: Options = { ...args };
+    if (args.lintSpec) {
+      opts.reportLintErrors = (errors: LintingError[]) => {
+        console.error(
+          chalk.underline('Linting errors:') +
+            '\n' +
+            errors.map(e => `${args.infile}:${e.line}:${e.column}: ${e.message}`).join('\n') +
+            '\n'
+        );
+        throw new Error(
+          `There ${
+            errors.length === 1
+              ? 'was a linting error'
+              : 'were ' + errors.length + ' linting errors'
+          }.`
+        );
+      };
+    }
+    const spec = await ecmarkup.build(args.infile, utils.readFile, opts);
 
     const pending: Promise<any>[] = [];
     if (args.biblio) {
