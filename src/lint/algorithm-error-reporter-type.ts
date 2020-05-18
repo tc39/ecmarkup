@@ -1,9 +1,13 @@
-export type Reporter = ({
-  line,
-  column,
-  message,
-}: {
+export type Reporter = (
+  lintingError: LintingError[],
+  sourceText: string,
+) => void;
+
+export type LintingError = {
+  ruleId: string;
+  message: string;
   line: number;
   column: number;
-  message: string;
-}) => void;
+  nodeType: string;
+};
+

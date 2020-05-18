@@ -1,5 +1,5 @@
 import type { BiblioEntry } from './Biblio';
-import type { LintingError } from './lint/lint';
+import type { Reporter } from './lint/algorithm-error-reporter-type';
 
 import Spec from './Spec';
 import * as utils from './utils';
@@ -33,7 +33,7 @@ export interface Options {
   outfile?: string;
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
-  reportLintErrors?: (errors: LintingError[]) => void;
+  reportLintErrors?: Reporter;
 }
 
 export async function build(

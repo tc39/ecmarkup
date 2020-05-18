@@ -26,33 +26,44 @@ function positioned(literalParts, ...interpolatedParts) {
   return { offset, line, column, html: str };
 }
 
-async function assertLint({ offset, line, column, html }, message = null) {
-  let reportLintErrors;
+async function assertLintFree(html) {
   let reported = false;
 
-  if (message === null) {
-    reportLintErrors = errors => {
-      throw new Error('unexpected errors ' + JSON.stringify(errors));
-    };
-  } else {
-    reportLintErrors = errors => {
-      reported = true;
-      assert.equal(errors.length, 1, 'should have exactly one error');
-      assert.deepStrictEqual(errors[0], {
-        line,
-        column,
-        message,
-      });
-    };
-  }
+  let reportLintErrors = errors => {
+    reported = true;
+    throw new Error('unexpected errors ' + JSON.stringify(errors));
+  };
 
   await emu.build('test-example.emu', async () => html, {
     ecma262Biblio: false,
     copyright: false,
     reportLintErrors,
   });
-  assert.equal(reported, message !== null);
+  assert.equal(reported, false);
+}
+
+async function assertLint({ offset, line, column, html }, { ruleId, nodeType, message }) {
+  let reported = false;
+
+  let reportLintErrors = errors => {
+    reported = true;
+    assert.equal(errors.length, 1, 'should have exactly one error');
+    assert.deepStrictEqual(errors[0], {
+      ruleId,
+      nodeType,
+      line,
+      column,
+      message,
+    });
+  };
+
+  await emu.build('test-example.emu', async () => html, {
+    ecma262Biblio: false,
+    copyright: false,
+    reportLintErrors,
+  });
+  assert.equal(reported, true);
 }
 
 
-module.exports = { assertLint, lintLocationMarker, positioned };
+module.exports = { assertLint, assertLintFree, lintLocationMarker, positioned };

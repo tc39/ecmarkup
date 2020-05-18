@@ -1,7 +1,6 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
 
-import type { Reporter } from './algorithm-error-reporter-type';
-import type { LintingError } from './lint';
+import type { LintingError } from './algorithm-error-reporter-type';
 
 import { parseAlgorithm, visit } from 'ecmarkdown';
 
@@ -36,15 +35,11 @@ export function collectAlgorithmDiagnostics(
     let element = algorithm.element;
     let location = getLocation(dom, element);
 
-    let reporter: Reporter = ({
+    let reporter = ({
       line,
       column,
-      message,
-    }: {
-      line: number;
-      column: number;
-      message: string;
-    }) => {
+      ...others
+    }: LintingError) => {
       // jsdom's lines and columns are both 1-based
       // ecmarkdown has 1-based line numbers and 0-based column numbers
       // we want 1-based for both
@@ -56,7 +51,7 @@ export function collectAlgorithmDiagnostics(
       } else {
         trueCol += 1;
       }
-      lintingErrors.push({ line: trueLine, column: trueCol, message });
+      lintingErrors.push({ line: trueLine, column: trueCol, ...others });
     };
 
     let observer = composeObservers(...algorithmRules.map(f => f(reporter, element)));

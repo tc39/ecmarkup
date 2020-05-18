@@ -25,6 +25,12 @@ export const argParser = nomnom
       default: false,
       help: 'Enforce some style and correctness checks',
     },
+    lintFormatter: {
+      full: 'lint-formatter',
+      metavar: 'FORMAT',
+      default: 'codeframe',
+      help: 'The linting output formatter. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.',
+    },
     verbose: { flag: true, default: false, help: 'Display document build progress' },
     version: {
       abbr: 'v',

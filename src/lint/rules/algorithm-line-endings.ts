@@ -1,5 +1,7 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
-import type { Reporter } from '../algorithm-error-reporter-type';
+import type { LintingError } from '../algorithm-error-reporter-type';
+
+const ruleId = 'algorithm-line-endings';
 
 /*
 Checks that every algorithm step has one of these forms:
@@ -18,10 +20,11 @@ Checks that every algorithm step has one of these forms:
 - `Other.`
 - `Other:` + substeps
 */
-export default function (report: Reporter, node: Element): Observer {
+export default function (report: (e: LintingError) => void, node: Element): Observer {
   if (node.getAttribute('type') === 'example') {
     return {};
   }
+  const nodeType = node.tagName;
   return {
     enter(node: EcmarkdownNode) {
       if (node.name !== 'ordered-list-item') {
@@ -33,6 +36,8 @@ export default function (report: Reporter, node: Element): Observer {
       }
       if (firstIndex === node.contents.length) {
         report({
+          ruleId,
+          nodeType,
           line: node.location!.start.line,
           column: node.location!.start.column,
           message: 'expected line to contain non-tag elements',
@@ -49,6 +54,8 @@ export default function (report: Reporter, node: Element): Observer {
         let lastIndex = node.contents.length - 2;
         if (lastIndex < 0) {
           report({
+            ruleId,
+            nodeType,
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
             message: 'could not find matching <figure> tag',
@@ -67,6 +74,8 @@ export default function (report: Reporter, node: Element): Observer {
           --lastIndex;
           if (lastIndex < 0) {
             report({
+              ruleId,
+              nodeType,
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
               message: 'could not find matching <figure> tag',
@@ -77,6 +86,8 @@ export default function (report: Reporter, node: Element): Observer {
         last = node.contents[lastIndex];
         if (last.name !== 'text') {
           report({
+            ruleId,
+            nodeType,
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
             message: `expected line to end with text (found ${last.name})`,
@@ -85,6 +96,8 @@ export default function (report: Reporter, node: Element): Observer {
         }
         if (!/:\n +$/.test(last.contents)) {
           report({
+            ruleId,
+            nodeType,
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
             message: 'expected line with figure to end with ":"',
@@ -95,6 +108,8 @@ export default function (report: Reporter, node: Element): Observer {
 
       if (last.name !== 'text') {
         report({
+          ruleId,
+          nodeType,
           line: node.contents[0].location!.start.line,
           column: node.contents[0].location!.start.column,
           message: `expected line to end with text (found ${last.name})`,
@@ -110,6 +125,8 @@ export default function (report: Reporter, node: Element): Observer {
           if (node.sublist!.name === 'ol') {
             if (!/, then$/.test(last.contents)) {
               report({
+                ruleId,
+                nodeType,
                 line: node.contents[0].location!.start.line,
                 column: node.contents[0].location!.start.column,
                 message: `expected "If" with substeps to end with ", then" (found ${JSON.stringify(
@@ -120,6 +137,8 @@ export default function (report: Reporter, node: Element): Observer {
           } else {
             if (!/:$/.test(last.contents)) {
               report({
+                ruleId,
+                nodeType,
                 line: node.contents[0].location!.start.line,
                 column: node.contents[0].location!.start.column,
                 message: `expected "If" with list to end with ":" (found ${JSON.stringify(
@@ -131,6 +150,8 @@ export default function (report: Reporter, node: Element): Observer {
         } else {
           if (!/(?:\.|\.\)|:)$/.test(last.contents)) {
             report({
+              ruleId,
+              nodeType,
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
               message: `expected "If" without substeps to end with "." or ":" (found ${JSON.stringify(
@@ -146,6 +167,8 @@ export default function (report: Reporter, node: Element): Observer {
           }
           if (!/,$/.test(last.contents)) {
             report({
+              ruleId,
+              nodeType,
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
               message: `expected "Else" with substeps to end with "," (found ${JSON.stringify(
@@ -156,6 +179,8 @@ export default function (report: Reporter, node: Element): Observer {
         } else {
           if (!/(?:\.|\.\)|:)$/.test(last.contents)) {
             report({
+              ruleId,
+              nodeType,
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
               message: `expected "Else" without substeps to end with "." or ":" (found ${JSON.stringify(
@@ -167,6 +192,8 @@ export default function (report: Reporter, node: Element): Observer {
       } else if (/^Repeat/.test(initialText)) {
         if (!hasSubsteps) {
           report({
+            ruleId,
+            nodeType,
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
             message: 'expected "Repeat" to have substeps',
@@ -177,6 +204,8 @@ export default function (report: Reporter, node: Element): Observer {
         }
         if (!/^Repeat, (?:while|until) /.test(initialText)) {
           report({
+            ruleId,
+            nodeType,
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
             message: `expected "Repeat" to start with "Repeat, while " or "Repeat, until " (found ${JSON.stringify(
@@ -186,6 +215,8 @@ export default function (report: Reporter, node: Element): Observer {
         }
         if (!/,$/.test(last.contents)) {
           report({
+            ruleId,
+            nodeType,
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
             message: 'expected "Repeat" to end with ","',
@@ -195,6 +226,8 @@ export default function (report: Reporter, node: Element): Observer {
         if (hasSubsteps) {
           if (!/, do$/.test(last.contents)) {
             report({
+              ruleId,
+              nodeType,
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
               message: `expected "For each" with substeps to end with ", do" (found ${JSON.stringify(
@@ -205,6 +238,8 @@ export default function (report: Reporter, node: Element): Observer {
         } else {
           if (!/(?:\.|\.\))$/.test(last.contents)) {
             report({
+              ruleId,
+              nodeType,
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
               message: `expected "For each" without substeps to end with "." (found ${JSON.stringify(
@@ -217,6 +252,8 @@ export default function (report: Reporter, node: Element): Observer {
         if (hasSubsteps) {
           if (!/:$/.test(last.contents)) {
             report({
+              ruleId,
+              nodeType,
               line: node.contents[0].location!.start.line,
               column: node.contents[0].location!.start.column,
               message: `expected freeform line with substeps to end with ":" (found ${JSON.stringify(
@@ -226,6 +263,8 @@ export default function (report: Reporter, node: Element): Observer {
           }
         } else if (!/(?:\.|\.\))$/.test(last.contents)) {
           report({
+            ruleId,
+            nodeType,
             line: node.contents[0].location!.start.line,
             column: node.contents[0].location!.start.column,
             message: `expected freeform line to end with "." (found ${JSON.stringify(
