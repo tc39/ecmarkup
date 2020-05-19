@@ -88,8 +88,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
           report({
             ruleId,
             nodeType,
-            line: node.contents[0].location!.start.line,
-            column: node.contents[0].location!.start.column,
+            line: last.location!.start.line,
+            column: last.location!.start.column,
             message: `expected line to end with text (found ${last.name})`,
           });
           return;
@@ -98,8 +98,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
           report({
             ruleId,
             nodeType,
-            line: node.contents[0].location!.start.line,
-            column: node.contents[0].location!.start.column,
+            line: last.location!.end.line,
+            column: last.location!.end.column,
             message: 'expected line with figure to end with ":"',
           });
         }
@@ -110,8 +110,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
         report({
           ruleId,
           nodeType,
-          line: node.contents[0].location!.start.line,
-          column: node.contents[0].location!.start.column,
+          line: last.location!.start.line,
+          column: last.location!.start.column,
           message: `expected line to end with text (found ${last.name})`,
         });
         return;
@@ -127,8 +127,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
               report({
                 ruleId,
                 nodeType,
-                line: node.contents[0].location!.start.line,
-                column: node.contents[0].location!.start.column,
+                line: last.location!.end.line,
+                column: last.location!.end.column,
                 message: `expected "If" with substeps to end with ", then" (found ${JSON.stringify(
                   last.contents
                 )})`,
@@ -139,8 +139,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
               report({
                 ruleId,
                 nodeType,
-                line: node.contents[0].location!.start.line,
-                column: node.contents[0].location!.start.column,
+                line: last.location!.end.line,
+                column: last.location!.end.column,
                 message: `expected "If" with list to end with ":" (found ${JSON.stringify(
                   last.contents
                 )})`,
@@ -152,8 +152,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
             report({
               ruleId,
               nodeType,
-              line: node.contents[0].location!.start.line,
-              column: node.contents[0].location!.start.column,
+              line: last.location!.end.line,
+              column: last.location!.end.column,
               message: `expected "If" without substeps to end with "." or ":" (found ${JSON.stringify(
                 last.contents
               )})`,
@@ -169,8 +169,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
             report({
               ruleId,
               nodeType,
-              line: node.contents[0].location!.start.line,
-              column: node.contents[0].location!.start.column,
+              line: last.location!.end.line,
+              column: last.location!.end.column,
               message: `expected "Else" with substeps to end with "," (found ${JSON.stringify(
                 last.contents
               )})`,
@@ -181,8 +181,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
             report({
               ruleId,
               nodeType,
-              line: node.contents[0].location!.start.line,
-              column: node.contents[0].location!.start.column,
+              line: last.location!.end.line,
+              column: last.location!.end.column,
               message: `expected "Else" without substeps to end with "." or ":" (found ${JSON.stringify(
                 last.contents
               )})`,
@@ -217,8 +217,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
           report({
             ruleId,
             nodeType,
-            line: node.contents[0].location!.start.line,
-            column: node.contents[0].location!.start.column,
+            line: last.location!.end.line,
+            column: last.location!.end.column,
             message: 'expected "Repeat" to end with ","',
           });
         }
@@ -228,8 +228,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
             report({
               ruleId,
               nodeType,
-              line: node.contents[0].location!.start.line,
-              column: node.contents[0].location!.start.column,
+              line: last.location!.end.line,
+              column: last.location!.end.column,
               message: `expected "For each" with substeps to end with ", do" (found ${JSON.stringify(
                 last.contents
               )})`,
@@ -240,8 +240,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
             report({
               ruleId,
               nodeType,
-              line: node.contents[0].location!.start.line,
-              column: node.contents[0].location!.start.column,
+              line: last.location!.end.line,
+              column: last.location!.end.column,
               message: `expected "For each" without substeps to end with "." (found ${JSON.stringify(
                 last.contents
               )})`,
@@ -254,8 +254,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
             report({
               ruleId,
               nodeType,
-              line: node.contents[0].location!.start.line,
-              column: node.contents[0].location!.start.column,
+              line: last.location!.end.line,
+              column: last.location!.end.column,
               message: `expected freeform line with substeps to end with ":" (found ${JSON.stringify(
                 last.contents
               )})`,
@@ -265,8 +265,8 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
           report({
             ruleId,
             nodeType,
-            line: node.contents[0].location!.start.line,
-            column: node.contents[0].location!.start.column,
+            line: last.location!.end.line,
+            column: last.location!.end.column,
             message: `expected freeform line to end with "." (found ${JSON.stringify(
               last.contents
             )})`,

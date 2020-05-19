@@ -10,7 +10,7 @@ describe('linting algorithms', function () {
     it('simple', async function () {
       await assertLint(
         positioned`<emu-alg>
-          1. ${M}testing
+          1. testing${M}
         </emu-alg>`,
         {
           ruleId,
@@ -21,7 +21,7 @@ describe('linting algorithms', function () {
     });
 
     it('inline', async function () {
-      await assertLint(positioned`<emu-alg>1. ${M}testing</emu-alg>`, {
+      await assertLint(positioned`<emu-alg>1. testing${M}</emu-alg>`, {
         ruleId,
         nodeType,
         message: 'expected freeform line to end with "." (found "testing")',
@@ -31,7 +31,7 @@ describe('linting algorithms', function () {
     it('repeat', async function () {
       await assertLint(
         positioned`<emu-alg>
-          1. ${M}Repeat, while _x_ < 10
+          1. Repeat, while _x_ < 10${M}
             1. Foo.
         </emu-alg>`,
         {
@@ -45,7 +45,7 @@ describe('linting algorithms', function () {
     it('inline if', async function () {
       await assertLint(
         positioned`<emu-alg>
-          1. ${M}If _x_, then
+          1. If _x_, then${M}
         </emu-alg>`,
         {
           ruleId,
@@ -58,7 +58,7 @@ describe('linting algorithms', function () {
     it('multiline if', async function () {
       await assertLint(
         positioned`<emu-alg>
-          1. ${M}If _x_,
+          1. If _x_,${M}
             1. Foo.
         </emu-alg>`,
         {
