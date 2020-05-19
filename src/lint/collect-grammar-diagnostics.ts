@@ -104,7 +104,6 @@ export function collectGrammarDiagnostics(
   // *******************
   // Check that SDOs and Early Errors are defined in terms of productions which actually exist
   // Also filter out any "unused parameter" warnings for grammar productions for which the parameter is used in an early error or SDO
-  const ruleId = 'undefined-nonterminal';
 
   let oneOffGrammars: { grammarEle: Element; grammar: GrammarFile }[] = [];
   let actualGrammarProductions = getProductions(grammar);
@@ -138,7 +137,7 @@ export function collectGrammarDiagnostics(
       if (originalRhses === undefined) {
         let { line, column } = getLocationInGrammar(production.pos);
         lintingErrors.push({
-          ruleId,
+          ruleId: 'undefined-nonterminal',
           nodeType,
           line,
           column,
@@ -150,7 +149,7 @@ export function collectGrammarDiagnostics(
         if (!originalRhses.some(o => rhsMatches(rhs, o))) {
           let { line, column } = getLocationInGrammar(rhs.pos);
           lintingErrors.push({
-            ruleId,
+            ruleId: 'undefined-nonterminal',
             nodeType,
             line,
             column,
@@ -166,7 +165,7 @@ export function collectGrammarDiagnostics(
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
               let { line, column } = getLocationInGrammar(s.symbol.pos);
               lintingErrors.push({
-                ruleId,
+                ruleId: `NLTH-in-SDO`,
                 nodeType,
                 line,
                 column,
@@ -181,7 +180,7 @@ export function collectGrammarDiagnostics(
           if (rhs.constraints !== undefined) {
             let { line, column } = getLocationInGrammar(rhs.constraints.pos);
             lintingErrors.push({
-              ruleId,
+              ruleId: `guard-in-SDO`,
               nodeType,
               line,
               column,
