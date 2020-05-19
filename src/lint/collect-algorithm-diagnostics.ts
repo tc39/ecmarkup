@@ -35,11 +35,7 @@ export function collectAlgorithmDiagnostics(
     let element = algorithm.element;
     let location = getLocation(dom, element);
 
-    let reporter = ({
-      line,
-      column,
-      ...others
-    }: LintingError) => {
+    let reporter = ({ line, column, ...others }: LintingError) => {
       // jsdom's lines and columns are both 1-based
       // ecmarkdown has 1-based line numbers and 0-based column numbers
       // we want 1-based for both

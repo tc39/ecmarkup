@@ -79,7 +79,7 @@ export function collectGrammarDiagnostics(
 
         let error = {
           ruleId: `grammarkdown:${m.code}`,
-          nodeType: m.node == null ? 'unknown' : tokenToString(m.node.kind, false),
+          nodeType: m.node === undefined ? 'unknown' : tokenToString(m.node.kind, false),
           line,
           column,
           message: m.formattedMessage!,

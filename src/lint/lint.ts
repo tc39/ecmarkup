@@ -15,12 +15,7 @@ Currently this checks
 There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
-export function lint(
-  report: Reporter,
-  sourceText: string,
-  dom: any,
-  document: Document
-) {
+export function lint(report: Reporter, sourceText: string, dom: any, document: Document) {
   let { mainGrammar, sdos, earlyErrors, algorithms } = collectNodes(sourceText, dom, document);
 
   let { grammar, oneOffGrammars, lintingErrors } = collectGrammarDiagnostics(

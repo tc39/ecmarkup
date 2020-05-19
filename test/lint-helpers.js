@@ -42,7 +42,7 @@ async function assertLintFree(html) {
   assert.equal(reported, false);
 }
 
-async function assertLint({ offset, line, column, html }, { ruleId, nodeType, message }) {
+async function assertLint({ line, column, html }, { ruleId, nodeType, message }) {
   let reported = false;
 
   let reportLintErrors = errors => {
@@ -64,6 +64,5 @@ async function assertLint({ offset, line, column, html }, { ruleId, nodeType, me
   });
   assert.equal(reported, true);
 }
-
 
 module.exports = { assertLint, assertLintFree, lintLocationMarker, positioned };

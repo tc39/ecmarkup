@@ -21,14 +21,11 @@ describe('linting algorithms', function () {
     });
 
     it('inline', async function () {
-      await assertLint(
-        positioned`<emu-alg>1. ${M}testing</emu-alg>`,
-        {
-          ruleId,
-          nodeType,
-          message: 'expected freeform line to end with "." (found "testing")',
-        }
-      );
+      await assertLint(positioned`<emu-alg>1. ${M}testing</emu-alg>`, {
+        ruleId,
+        nodeType,
+        message: 'expected freeform line to end with "." (found "testing")',
+      });
     });
 
     it('repeat', async function () {

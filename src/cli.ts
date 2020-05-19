@@ -40,17 +40,19 @@ const build = debounce(async function build() {
       opts.reportLintErrors = (errors: LintingError[], sourceText: string) => {
         if (errors.length < 1) return;
 
-        let results = [{
-          filePath: args.infile,
-          // for now, everything is an error (2 in eslint terms)
-          messages: errors.map(e => Object.assign({ severity: 2}, e)),
-          errorCount: errors.length,
-          warningCount: 0,
-          // for now, nothing is fixable
-          fixableErrorCount: 0,
-          fixableWarningCount: 0,
-          source: sourceText,
-        }];
+        let results = [
+          {
+            filePath: args.infile,
+            // for now, everything is an error (2 in eslint terms)
+            messages: errors.map(e => Object.assign({ severity: 2 }, e)),
+            errorCount: errors.length,
+            warningCount: 0,
+            // for now, nothing is fixable
+            fixableErrorCount: 0,
+            fixableWarningCount: 0,
+            source: sourceText,
+          },
+        ];
 
         console.error(formatter(results));
         process.exit(1);

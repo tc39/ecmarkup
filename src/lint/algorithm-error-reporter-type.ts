@@ -1,7 +1,4 @@
-export type Reporter = (
-  lintingError: LintingError[],
-  sourceText: string,
-) => void;
+export type Reporter = (lintingError: LintingError[], sourceText: string) => void;
 
 export type LintingError = {
   ruleId: string;
@@ -10,4 +7,3 @@ export type LintingError = {
   column: number;
   nodeType: string;
 };
-
