@@ -11,7 +11,11 @@ describe('linting whole program', function () {
             Statement[${M}a]: \`;\`
           </emu-grammar>
         `,
-        "Parameter 'a' is unused."
+        {
+          ruleId: 'grammarkdown:2008',
+          nodeType: '«Parameter»',
+          message: "Parameter 'a' is unused.",
+        }
       );
     });
 
@@ -26,7 +30,11 @@ describe('linting whole program', function () {
             Bar: ${M}Foo
           </emu-grammar>
         `,
-        "There is no argument given for parameter 'a'."
+        {
+          ruleId: 'grammarkdown:2007',
+          nodeType: '«identifier»',
+          message: "There is no argument given for parameter 'a'.",
+        }
       );
     });
 
@@ -35,7 +43,11 @@ describe('linting whole program', function () {
         positioned`
           <emu-grammar type="definition"> Statement[${M}a]: \`;\` </emu-grammar>
         `,
-        "Parameter 'a' is unused."
+        {
+          ruleId: 'grammarkdown:2008',
+          nodeType: '«Parameter»',
+          message: "Parameter 'a' is unused.",
+        }
       );
     });
   });
@@ -51,7 +63,11 @@ describe('linting whole program', function () {
             1. Return Foo.
           </emu-alg>
         `,
-        'Could not find a definition for LHS in syntax-directed operation'
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'EMU-GRAMMAR',
+          message: 'Could not find a definition for LHS in syntax-directed operation',
+        }
       );
     });
 
@@ -63,7 +79,11 @@ describe('linting whole program', function () {
             1. Return Foo.
           </emu-alg>
         `,
-        'Could not find a definition for LHS in syntax-directed operation'
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'EMU-GRAMMAR',
+          message: 'Could not find a definition for LHS in syntax-directed operation',
+        }
       );
     });
 
@@ -82,7 +102,11 @@ describe('linting whole program', function () {
             1. Return Foo.
           </emu-alg>
         `,
-        'Could not find a production matching RHS in syntax-directed operation'
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'EMU-GRAMMAR',
+          message: 'Could not find a production matching RHS in syntax-directed operation',
+        }
       );
     });
   });

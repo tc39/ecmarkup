@@ -3,8 +3,7 @@ import { emit } from 'ecmarkdown';
 import { collectNodes } from './collect-nodes';
 import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
-
-export type LintingError = { line: number; column: number; message: string };
+import type { Reporter } from './algorithm-error-reporter-type';
 
 /*
 Currently this checks
@@ -16,12 +15,7 @@ Currently this checks
 There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
-export function lint(
-  report: (errors: LintingError[]) => void,
-  sourceText: string,
-  dom: any,
-  document: Document
-) {
+export function lint(report: Reporter, sourceText: string, dom: any, document: Document) {
   let { mainGrammar, sdos, earlyErrors, algorithms } = collectNodes(sourceText, dom, document);
 
   let { grammar, oneOffGrammars, lintingErrors } = collectGrammarDiagnostics(
@@ -35,8 +29,8 @@ export function lint(
   lintingErrors.push(...collectAlgorithmDiagnostics(dom, sourceText, algorithms));
 
   if (lintingErrors.length > 0) {
-    lintingErrors.sort((a, b) => a.line - b.line);
-    report(lintingErrors);
+    report(lintingErrors, sourceText);
+    return;
   }
 
   // Stash intermediate results for later use

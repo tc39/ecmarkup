@@ -1,6 +1,9 @@
 'use strict';
 
-let { assertLint, lintLocationMarker: M, positioned } = require('./lint-helpers');
+let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require('./lint-helpers');
+
+const ruleId = 'algorithm-line-endings';
+const nodeType = 'EMU-ALG';
 
 describe('linting algorithms', function () {
   describe('line endings', function () {
@@ -9,15 +12,20 @@ describe('linting algorithms', function () {
         positioned`<emu-alg>
           1. ${M}testing
         </emu-alg>`,
-        'expected freeform line to end with "." (found "testing")'
+        {
+          ruleId,
+          nodeType,
+          message: 'expected freeform line to end with "." (found "testing")',
+        }
       );
     });
 
     it('inline', async function () {
-      await assertLint(
-        positioned`<emu-alg>1. ${M}testing</emu-alg>`,
-        'expected freeform line to end with "." (found "testing")'
-      );
+      await assertLint(positioned`<emu-alg>1. ${M}testing</emu-alg>`, {
+        ruleId,
+        nodeType,
+        message: 'expected freeform line to end with "." (found "testing")',
+      });
     });
 
     it('repeat', async function () {
@@ -26,7 +34,11 @@ describe('linting algorithms', function () {
           1. ${M}Repeat, while _x_ < 10
             1. Foo.
         </emu-alg>`,
-        'expected "Repeat" to end with ","'
+        {
+          ruleId,
+          nodeType,
+          message: 'expected "Repeat" to end with ","',
+        }
       );
     });
 
@@ -35,7 +47,11 @@ describe('linting algorithms', function () {
         positioned`<emu-alg>
           1. ${M}If _x_, then
         </emu-alg>`,
-        'expected "If" without substeps to end with "." or ":" (found ", then")'
+        {
+          ruleId,
+          nodeType,
+          message: 'expected "If" without substeps to end with "." or ":" (found ", then")',
+        }
       );
     });
 
@@ -45,12 +61,16 @@ describe('linting algorithms', function () {
           1. ${M}If _x_,
             1. Foo.
         </emu-alg>`,
-        'expected "If" with substeps to end with ", then" (found ",")'
+        {
+          ruleId,
+          nodeType,
+          message: 'expected "If" with substeps to end with ", then" (found ",")',
+        }
       );
     });
 
     it('negative', async function () {
-      await assertLint({ html: `
+      await assertLintFree(`
         <emu-alg>
           1. If foo, bar.
           1. Else if foo, bar.
@@ -74,7 +94,7 @@ describe('linting algorithms', function () {
           1. Other:
             1. Substep.
         </emu-alg>
-      ` });
+      `);
     });
   });
 });

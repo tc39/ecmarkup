@@ -1,4 +1,4 @@
-import type { LintingError } from './lint';
+import type { LintingError } from './algorithm-error-reporter-type';
 
 import {
   Grammar as GrammarFile,
@@ -11,6 +11,7 @@ import {
   Production,
   Parameter,
   skipTrivia,
+  tokenToString,
 } from 'grammarkdown';
 
 import {
@@ -76,7 +77,13 @@ export function collectGrammarDiagnostics(
           m.range!.start.character
         );
 
-        let error = { line, column, message: m.formattedMessage! };
+        let error = {
+          ruleId: `grammarkdown:${m.code}`,
+          nodeType: m.node === undefined ? 'unknown' : tokenToString(m.node.kind, false),
+          line,
+          column,
+          message: m.formattedMessage!,
+        };
         lintingErrors.push(error);
 
         if (m.code === Diagnostics.Parameter_0_is_unused.code) {
@@ -105,6 +112,7 @@ export function collectGrammarDiagnostics(
     ...earlyErrors.map(e => ({ grammar: e.grammar, rules: e.lists, type: 'early error' })),
   ];
   for (let { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
+    const nodeType = grammarEle.tagName;
     let grammarLoc = getLocation(dom, grammarEle);
     let grammarHost = SyncHost.forFile(
       sourceText.slice(grammarLoc.startTag.endOffset, grammarLoc.endTag.startOffset)
@@ -129,6 +137,8 @@ export function collectGrammarDiagnostics(
       if (originalRhses === undefined) {
         let { line, column } = getLocationInGrammar(production.pos);
         lintingErrors.push({
+          ruleId: 'undefined-nonterminal',
+          nodeType,
           line,
           column,
           message: `Could not find a definition for LHS in ${type}`,
@@ -139,6 +149,8 @@ export function collectGrammarDiagnostics(
         if (!originalRhses.some(o => rhsMatches(rhs, o))) {
           let { line, column } = getLocationInGrammar(rhs.pos);
           lintingErrors.push({
+            ruleId: 'undefined-nonterminal',
+            nodeType,
             line,
             column,
             message: `Could not find a production matching RHS in ${type}`,
@@ -153,6 +165,8 @@ export function collectGrammarDiagnostics(
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
               let { line, column } = getLocationInGrammar(s.symbol.pos);
               lintingErrors.push({
+                ruleId: `NLTH-in-SDO`,
+                nodeType,
                 line,
                 column,
                 message: `Productions referenced in ${type}s should not include "no LineTerminator here" restrictions`,
@@ -166,6 +180,8 @@ export function collectGrammarDiagnostics(
           if (rhs.constraints !== undefined) {
             let { line, column } = getLocationInGrammar(rhs.constraints.pos);
             lintingErrors.push({
+              ruleId: `guard-in-SDO`,
+              nodeType,
               line,
               column,
               message: `Productions referenced in ${type}s should not be gated on grammar parameters`,
