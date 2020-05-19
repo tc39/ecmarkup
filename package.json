@@ -8,7 +8,6 @@
 		"build": "tsc -p src -sourceMap",
 		"build-release": "tsc -p src",
 		"prepublish": "safe-publish-latest && npm run build-release",
-		"pretest": "npm run build",
 		"test": "mocha",
 		"lint": "eslint --ext .js,.ts .",
 		"format": "prettier --write .",
