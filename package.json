@@ -17,6 +17,14 @@
 		"postversion": "auto-changelog && git add CHANGELOG.md && git commit --no-edit --amend && git tag -f \"v$(node -e \"console.log(require('./package.json').version)\")\""
 	},
 	"bin": "bin/ecmarkup.js",
+	"files": [
+		"/bin",
+		"/lib",
+		"/js",
+		"/css",
+		"/boilerplate",
+		"/ecma262biblio.json"
+	],
 	"repository": "tc39/ecmarkup",
 	"keywords": [
 		"ecmascript",
