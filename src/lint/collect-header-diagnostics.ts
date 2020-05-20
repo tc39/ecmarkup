@@ -35,7 +35,7 @@ export function collectHeaderDiagnostics(
 
     let nameMatches = [
       /^(Runtime|Static) Semantics: [A-Z][A-Za-z0-9/]*\s*$/,
-      /^(Number|BigInt)::[a-z][A-Za-z0-9]*\s*$/,
+      /^[A-Z][A-Za-z0-9]*::[a-z][A-Za-z0-9]*\s*$/,
       /^\[\[[A-Z][A-Za-z0-9]*\]\]\s*$/,
       /^_[A-Z][A-Za-z0-9]*_\s*$/,
       /^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
