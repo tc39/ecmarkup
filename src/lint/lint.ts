@@ -3,6 +3,7 @@ import { emit } from 'ecmarkdown';
 import { collectNodes } from './collect-nodes';
 import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
+import { collectHeaderDiagnostics } from './collect-header-diagnostics';
 import type { Reporter } from './algorithm-error-reporter-type';
 
 /*
@@ -16,7 +17,11 @@ There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
 export function lint(report: Reporter, sourceText: string, dom: any, document: Document) {
-  let { mainGrammar, sdos, earlyErrors, algorithms } = collectNodes(sourceText, dom, document);
+  let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collectNodes(
+    sourceText,
+    dom,
+    document
+  );
 
   let { grammar, oneOffGrammars, lintingErrors } = collectGrammarDiagnostics(
     dom,
@@ -27,6 +32,8 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
   );
 
   lintingErrors.push(...collectAlgorithmDiagnostics(dom, sourceText, algorithms));
+
+  lintingErrors.push(...collectHeaderDiagnostics(dom, headers));
 
   if (lintingErrors.length > 0) {
     report(lintingErrors, sourceText);

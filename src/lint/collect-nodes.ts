@@ -3,6 +3,7 @@ import type { Node as EcmarkdownNode } from 'ecmarkdown';
 import { getLocation } from './utils';
 
 export function collectNodes(sourceText: string, dom: any, document: Document) {
+  let headers: { element: Element; contents: string }[] = [];
   let mainGrammar: { element: Element; source: string }[] = [];
   let sdos: { grammar: Element; alg: Element }[] = [];
   let earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[] = [];
@@ -28,6 +29,7 @@ export function collectNodes(sourceText: string, dom: any, document: Document) {
         let first = node.firstElementChild;
         if (first !== null && first.nodeName === 'H1') {
           let title = first.textContent ?? '';
+          headers.push({ element: first, contents: title });
           if (title.trim() === 'Static Semantics: Early Errors') {
             let grammar = null;
             let lists: HTMLUListElement[] = [];
@@ -101,5 +103,5 @@ export function collectNodes(sourceText: string, dom: any, document: Document) {
   }
   visitCurrentNode();
 
-  return { mainGrammar, sdos, earlyErrors, algorithms };
+  return { mainGrammar, headers, sdos, earlyErrors, algorithms };
 }
