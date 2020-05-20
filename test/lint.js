@@ -122,7 +122,7 @@ describe('linting whole program', function () {
           ruleId: 'header-format',
           nodeType: 'H1',
           message:
-            "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"something:\"",
+            "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"something: \"",
         }
       );
     });
@@ -136,7 +136,19 @@ describe('linting whole program', function () {
         {
           ruleId: 'header-format',
           nodeType: 'H1',
-          message: 'expected header to have a space before the argument list',
+          message: 'expected header to have a single space before the argument list',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="foo">
+            <h1>Example  ${M}( )</h1>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'H1',
+          message: 'expected header to have a single space before the argument list',
         }
       );
     });

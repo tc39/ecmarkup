@@ -18,9 +18,7 @@ export function collectHeaderDiagnostics(
     let name = contents.substring(0, contents.indexOf('('));
     let params = contents.substring(contents.indexOf('(') + 1, contents.length - 1);
 
-    if (/ $/.test(name)) {
-      name = name.substring(0, name.length - 1);
-    } else {
+    if (!/[\S] $/.test(name)) {
       let { line, column } = indexWithinElementToTrueLocation(
         getLocation(dom, element),
         contents,
@@ -31,17 +29,17 @@ export function collectHeaderDiagnostics(
         nodeType: 'H1',
         line,
         column,
-        message: 'expected header to have a space before the argument list',
+        message: 'expected header to have a single space before the argument list',
       });
     }
 
     let nameMatches = [
-      /^(Runtime|Static) Semantics: [A-Z][A-Za-z0-9/]*$/,
-      /^(Number|BigInt)::[a-z][A-Za-z0-9]*$/,
-      /^\[\[[A-Z][A-Za-z0-9]*\]\]$/,
-      /^_[A-Z][A-Za-z0-9]*_$/,
-      /^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?$/,
-      /^%[A-Z][A-Za-z0-9]*%(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?$/,
+      /^(Runtime|Static) Semantics: [A-Z][A-Za-z0-9/]*\s*$/,
+      /^(Number|BigInt)::[a-z][A-Za-z0-9]*\s*$/,
+      /^\[\[[A-Z][A-Za-z0-9]*\]\]\s*$/,
+      /^_[A-Z][A-Za-z0-9]*_\s*$/,
+      /^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
+      /^%[A-Z][A-Za-z0-9]*%(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
     ].some(r => r.test(name));
 
     if (!nameMatches) {
@@ -75,7 +73,7 @@ export function collectHeaderDiagnostics(
       let { line, column } = indexWithinElementToTrueLocation(
         getLocation(dom, element),
         contents,
-        name.length + 1
+        name.length
       );
       lintingErrors.push({
         ruleId,
