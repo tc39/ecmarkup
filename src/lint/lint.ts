@@ -18,7 +18,7 @@ https://github.com/tc39/ecmarkup/issues/173
 export function lint(report: Reporter, sourceText: string, dom: any, document: Document) {
   let { mainGrammar, sdos, earlyErrors, algorithms } = collectNodes(sourceText, dom, document);
 
-  let { grammar, oneOffGrammars, lintingErrors } = collectGrammarDiagnostics(
+  let { grammar, lintingErrors } = collectGrammarDiagnostics(
     dom,
     sourceText,
     mainGrammar,
@@ -45,15 +45,15 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
     // @ts-ignore we are intentionally adding a property here
     node.grammarkdownOut = source;
   });
-  for (let { grammarEle, grammar } of oneOffGrammars) {
-    grammar.emitSync(undefined, (file, source) => {
-      if ('grammarkdownOut' in grammarEle) {
-        throw new Error('unexpectedly regenerating grammarkdown output');
-      }
-      // @ts-ignore we are intentionally adding a property here
-      grammarEle.grammarkdownOut = source;
-    });
-  }
+  // for (let { grammarEle, grammar } of oneOffGrammars) {
+  //   grammar.emitSync(undefined, (file, source) => {
+  //     if ('grammarkdownOut' in grammarEle) {
+  //       throw new Error('unexpectedly regenerating grammarkdown output');
+  //     }
+  //     // @ts-ignore we are intentionally adding a property here
+  //     grammarEle.grammarkdownOut = source;
+  //   });
+  // }
   for (let { element, tree } of algorithms) {
     // @ts-ignore we are intentionally adding a property here
     element.ecmarkdownOut = emit(tree!);
