@@ -1,6 +1,6 @@
 import type { LintingError } from './algorithm-error-reporter-type';
 
-import { getLocation } from './utils';
+import { getLocation, indexWithinElementToTrueLocation } from './utils';
 
 const ruleId = 'header-format';
 
@@ -15,38 +15,17 @@ export function collectHeaderDiagnostics(
       continue;
     }
 
-    function indexToLineAndColumn(index: number) {
-      let headerLines = contents.split('\n');
-      let headerLine = 0;
-      let seen = 0;
-      while (true) {
-        if (seen + headerLines[headerLine].length >= index) {
-          break;
-        }
-        seen += headerLines[headerLine].length + 1; // +1 for the '\n'
-        ++headerLine;
-      }
-      let headerColumn = index - seen;
-
-      let elementLoc = getLocation(dom, element);
-      let line = elementLoc.startTag.line + headerLine;
-      let column =
-        headerLine === 0
-          ? elementLoc.startTag.col +
-            (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
-            headerColumn
-          : headerColumn + 1;
-
-      return { line, column };
-    }
-
     let name = contents.substring(0, contents.indexOf('('));
     let params = contents.substring(contents.indexOf('(') + 1, contents.length - 1);
 
     if (/ $/.test(name)) {
       name = name.substring(0, name.length - 1);
     } else {
-      let { line, column } = indexToLineAndColumn(name.length);
+      let { line, column } = indexWithinElementToTrueLocation(
+        getLocation(dom, element),
+        contents,
+        name.length
+      );
       lintingErrors.push({
         ruleId,
         nodeType: 'H1',
@@ -66,7 +45,11 @@ export function collectHeaderDiagnostics(
     ].some(r => r.test(name));
 
     if (!nameMatches) {
-      let { line, column } = indexToLineAndColumn(0);
+      let { line, column } = indexWithinElementToTrueLocation(
+        getLocation(dom, element),
+        contents,
+        0
+      );
       lintingErrors.push({
         ruleId,
         nodeType: 'H1',
@@ -89,7 +72,11 @@ export function collectHeaderDiagnostics(
       ].some(r => r.test(params));
 
     if (!paramsMatches) {
-      let { line, column } = indexToLineAndColumn(name.length + 1);
+      let { line, column } = indexWithinElementToTrueLocation(
+        getLocation(dom, element),
+        contents,
+        name.length + 1
+      );
       lintingErrors.push({
         ruleId,
         nodeType: 'H1',
