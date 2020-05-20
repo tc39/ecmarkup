@@ -9,7 +9,7 @@
 		"build-release": "tsc -p src",
 		"prepublish": "safe-publish-latest && npm run build-release",
 		"test": "mocha",
-		"test-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package && npm pack && tar zxvf \"ecmarkup-$npm_package_version.tgz\" && cp -r test package/test && cd package && ../node_modules/.bin/mocha && cd .. && rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
+		"test-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package && npm pack && tar zxvf \"ecmarkup-$npm_package_version.tgz\" && cp -r test package/test && cd package && mocha && cd .. && rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
 		"lint": "eslint --ext .js,.ts .",
 		"format": "prettier --write .",
 		"update-pages": "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
