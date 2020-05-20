@@ -34,11 +34,25 @@ export function collectHeaderDiagnostics(
     }
 
     let nameMatches = [
+      // Runtime Semantics: Foo
       /^(Runtime|Static) Semantics: [A-Z][A-Za-z0-9/]*\s*$/,
+
+      // Number::foo
       /^[A-Z][A-Za-z0-9]*::[a-z][A-Za-z0-9]*\s*$/,
+
+      // [[GetOwnProperty]]
       /^\[\[[A-Z][A-Za-z0-9]*\]\]\s*$/,
+
+      // _NativeError_
       /^_[A-Z][A-Za-z0-9]*_\s*$/,
+
+      // CreateForInIterator
+      // Object.fromEntries
+      // Array.prototype [ @@iterator ]
       /^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
+
+      // %ForInIteratorPrototype%.next
+      // %TypedArray%.prototype [ @@iterator ]
       /^%[A-Z][A-Za-z0-9]*%(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
     ].some(r => r.test(name));
 
@@ -62,10 +76,20 @@ export function collectHeaderDiagnostics(
     let paramsMatches =
       params.match(/\[/g)?.length === params.match(/\]/g)?.length &&
       [
+        // Foo ( )
         /^ $/,
+
+        // Object ( . . . )
         /^ \. \. \. $/,
+
+        // String.raw ( _template_, ..._substitutions_ )
         /^ (_[A-Za-z0-9]+_, )*\.\.\._[A-Za-z0-9]+_ $/,
+
+        // Function ( _p1_, _p2_, &hellip; , _pn_, _body_ )
         /^ (_[A-Za-z0-9]+_, )*… (, _[A-Za-z0-9]+_)+ $/,
+
+        // Example ( _foo_ , [ _bar_ ] )
+        // Example ( [ _foo_ ] )
         /^ (\[ )?_[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*( \[ , _[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*)*( \])* $/,
       ].some(r => r.test(params));
 
