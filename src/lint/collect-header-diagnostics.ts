@@ -26,7 +26,7 @@ export function collectHeaderDiagnostics(
       );
       lintingErrors.push({
         ruleId,
-        nodeType: 'H1',
+        nodeType: element.tagName,
         line,
         column,
         message: 'expected header to have a single space before the argument list',
@@ -64,7 +64,7 @@ export function collectHeaderDiagnostics(
       );
       lintingErrors.push({
         ruleId,
-        nodeType: 'H1',
+        nodeType: element.tagName,
         line,
         column,
         message: `expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found ${JSON.stringify(
@@ -101,7 +101,7 @@ export function collectHeaderDiagnostics(
       );
       lintingErrors.push({
         ruleId,
-        nodeType: 'H1',
+        nodeType: element.tagName,
         line,
         column,
         message: `expected parameter list to look like '( _a_, [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'`,
