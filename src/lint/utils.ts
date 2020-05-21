@@ -14,6 +14,34 @@ import type {
 
 import { Grammar as GrammarFile, SyntaxKind } from 'grammarkdown';
 
+export function indexWithinElementToTrueLocation(
+  elementLoc: ReturnType<typeof getLocation>,
+  string: string,
+  index: number
+) {
+  let headerLines = string.split('\n');
+  let headerLine = 0;
+  let seen = 0;
+  while (true) {
+    if (seen + headerLines[headerLine].length >= index) {
+      break;
+    }
+    seen += headerLines[headerLine].length + 1; // +1 for the '\n'
+    ++headerLine;
+  }
+  let headerColumn = index - seen;
+
+  let line = elementLoc.startTag.line + headerLine;
+  let column =
+    headerLine === 0
+      ? elementLoc.startTag.col +
+        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
+        headerColumn
+      : headerColumn + 1;
+
+  return { line, column };
+}
+
 export function grammarkdownLocationToTrueLocation(
   elementLoc: ReturnType<typeof getLocation>,
   gmdLine: number,
