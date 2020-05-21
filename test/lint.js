@@ -131,7 +131,7 @@ describe('linting whole program', function () {
       await assertLint(
         positioned`
           <emu-clause id="foo">
-            <h1>Example${M}( )</h1>
+            <h1>Exampl${M}e( )</h1>
         `,
         {
           ruleId: 'header-format',
@@ -143,7 +143,7 @@ describe('linting whole program', function () {
       await assertLint(
         positioned`
           <emu-clause id="foo">
-            <h1>Example  ${M}( )</h1>
+            <h1>Example ${M} ( )</h1>
         `,
         {
           ruleId: 'header-format',

@@ -22,7 +22,7 @@ export function collectHeaderDiagnostics(
       let { line, column } = indexWithinElementToTrueLocation(
         getLocation(dom, element),
         contents,
-        name.length
+        name.length - 1
       );
       lintingErrors.push({
         ruleId,
