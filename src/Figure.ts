@@ -34,19 +34,18 @@ export default class Figure extends Builder {
       this.caption += ': ' + node.getAttribute('caption');
     }
 
-
     if (this.id) {
       spec.biblio.add(<FigureBiblioEntry>{
         type: this.type as 'table' | 'figure' | 'example' | 'note',
         id: this.id,
         number: this.number,
         caption: this.caption,
-        referencingIds: []
+        referencingIds: [],
       });
     }
   }
 
-  static enter({ spec, node, clauseStack }: Context) {
+  static enter({ spec, node }: Context) {
     const figure = new Figure(spec, node);
     if (figure.captionElem && figure.captionElem.parentNode) {
       figure.captionElem.parentNode.removeChild(figure.captionElem);

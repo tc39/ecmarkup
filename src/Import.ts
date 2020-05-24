@@ -9,7 +9,7 @@ export default class Import extends Builder {
   public importLocation: string;
   public relativeRoot: string;
 
-  constructor (spec: Spec, node: HTMLElement, importLocation: string, relativeRoot: string) {
+  constructor(spec: Spec, node: HTMLElement, importLocation: string, relativeRoot: string) {
     super(spec, node);
     this.importLocation = importLocation;
     this.relativeRoot = relativeRoot;

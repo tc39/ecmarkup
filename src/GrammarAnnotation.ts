@@ -14,7 +14,7 @@ export default class GrammarAnnotation extends Builder {
 
   build() {
     if (!this.node.firstChild) return;
-    
+
     if (this.node.firstChild.nodeType === 3) {
       this.node.firstChild.textContent = '[' + this.node.firstChild.textContent;
     } else {

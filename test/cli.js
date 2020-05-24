@@ -10,7 +10,7 @@ describe('ecmarkup#cli', () => {
 
   it('exits with an error on error', () => {
     assert.throws(() => {
-      execSync('./bin/ecmarkup.js test/malformed.bad.html', { encoding: 'utf8' });
+      execSync('./bin/ecmarkup.js test/malformed.bad.html', { encoding: 'utf8', stdio: 'ignore' });
     });
   });
 });

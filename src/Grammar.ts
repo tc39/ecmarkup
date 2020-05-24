@@ -4,13 +4,17 @@ import Builder from './Builder';
 import { CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
-const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/ig;
+const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;
 
 /*@internal*/
 export default class Grammar extends Builder {
-  static enter({spec, node, inAlg}: Context) {
-    // we process grammar nodes in algorithms separately (in Algorithm.ts)
-    if (inAlg) return;
+  static enter({ spec, node }: Context) {
+    if ('grammarkdownOut' in node) {
+      // i.e., we already parsed this during the lint phase
+      // @ts-ignore
+      node.innerHTML = node.grammarkdownOut;
+      return;
+    }
 
     let content: string;
     let possiblyMalformed = true;
@@ -24,11 +28,12 @@ export default class Grammar extends Builder {
           // the parser was able to find a matching end tag.
           const start = location.startTag.endOffset as number;
           const end = location.endTag.startOffset as number;
-          content = spec.sourceText.slice(start, end);
+          content = spec.sourceText!.slice(start, end);
         } else {
+          // TODO this is not reached
           // the parser was *not* able to find a matching end tag. Try to recover by finding a
           // possible end tag, otherwise read the rest of the source text.
-          const start = globalEndTagRe.lastIndex = location.endOffset as number;
+          const start = (globalEndTagRe.lastIndex = location.endOffset as number);
           const match = globalEndTagRe.exec(spec.sourceText);
           const end = match ? match.index : spec.sourceText.length;
           content = spec.sourceText.slice(start, end);
@@ -38,6 +43,7 @@ export default class Grammar extends Builder {
           globalEndTagRe.lastIndex = 0;
         }
       } else {
+        // TODO this is not reached
         // can't read location for whatever reason, so fallback to innerHTML
         content = node.innerHTML;
       }
@@ -57,10 +63,15 @@ export default class Grammar extends Builder {
 
     const options: CompilerOptions = {
       format: EmitFormat.ecmarkup,
-      noChecks: true
+      noChecks: true,
     };
 
-    node.innerHTML = GrammarFile.convert(content, options, /*hostFallback*/ undefined, spec.cancellationToken);
+    node.innerHTML = GrammarFile.convert(
+      content,
+      options,
+      /*hostFallback*/ undefined,
+      spec.cancellationToken
+    );
   }
 
   static elements = ['EMU-GRAMMAR'];

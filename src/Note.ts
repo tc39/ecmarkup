@@ -25,7 +25,7 @@ export default class Note extends Builder {
     }
   }
 
-  static enter({spec, node, clauseStack}: Context) {
+  static enter({ spec, node, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
     if (!clause) return; // do nothing with top-level note
 
@@ -46,13 +46,13 @@ export default class Note extends Builder {
         id: this.id,
         number: number || 1,
         clauseId: this.clause.id,
-        referencingIds: []
+        referencingIds: [],
       });
     }
 
     const noteContentContainer = this.spec.doc.createElement('div');
     noteContentContainer.setAttribute('class', 'note-contents');
-    
+
     while (this.node.childNodes.length > 0) {
       noteContentContainer.appendChild(this.node.childNodes[0]);
     }
@@ -66,7 +66,7 @@ export default class Note extends Builder {
     if (this.type === 'normal') {
       label = 'Note';
     } else if (this.type === 'editor') {
-      label = 'Editor\'s Note';
+      label = "Editor's Note";
     } else {
       this.spec._log(`Unknown note type ${this.type}. Skipping.`);
     }
@@ -74,7 +74,7 @@ export default class Note extends Builder {
     if (number !== undefined) {
       label += ' ' + number;
     }
-    
+
     if (this.id) {
       // create link to note
       noteSpan.innerHTML = `<a href='#${this.id}'>${label}</a>`;

@@ -24,12 +24,7 @@ export default class Clause extends Builder {
   editorNotes: Note[];
   examples: Example[];
 
-  constructor(
-    spec: Spec,
-    node: HTMLElement,
-    parent: Clause,
-    number: string,
-  ) {
+  constructor(spec: Spec, node: HTMLElement, parent: Clause, number: string) {
     super(spec, node);
     this.parentClause = parent;
     this.id = node.getAttribute('id')!;
@@ -111,9 +106,9 @@ export default class Clause extends Builder {
     this.header.appendChild(utilsElem);
   }
 
-  static enter({spec, node, clauseStack, clauseNumberer}: Context) {
+  static enter({ spec, node, clauseStack, clauseNumberer }: Context) {
     if (!node.id) {
-      logWarning('Clause doesn\'t have an id: ' + node.outerHTML.slice(0, 100));
+      logWarning("Clause doesn't have an id: " + node.outerHTML.slice(0, 100));
     }
 
     let nextNumber = '';
@@ -133,13 +128,12 @@ export default class Clause extends Builder {
     clauseStack.push(clause);
   }
 
-  static exit({spec, node, clauseStack}: Context) {
+  static exit({ spec, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
     if (!clause.header) {
-      throw new Error('Couldn\'t find title for clause #' + clause.id);
+      throw new Error("Couldn't find title for clause #" + clause.id);
     }
-
 
     clause.title = clause.header.textContent!;
     clause.titleHTML = clause.header.innerHTML;
@@ -149,14 +143,17 @@ export default class Clause extends Builder {
     //clause.buildUtils();
 
     // clauses are always at the spec-level namespace.
-    spec.biblio.add(<ClauseBiblioEntry>{
-      type: 'clause',
-      id: clause.id,
-      aoid: clause.aoid,
-      title: clause.title,
-      titleHTML: clause.titleHTML,
-      number: clause.number,
-    }, spec.namespace);
+    spec.biblio.add(
+      <ClauseBiblioEntry>{
+        type: 'clause',
+        id: clause.id,
+        aoid: clause.aoid,
+        title: clause.title,
+        titleHTML: clause.titleHTML,
+        number: clause.number,
+      },
+      spec.namespace
+    );
 
     clauseStack.pop();
   }

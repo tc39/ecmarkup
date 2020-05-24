@@ -14,7 +14,12 @@ export const NO_CLAUSE_AUTOLINK = new Set([
   'EMU-PRODUCTION',
   'EMU-GRAMMAR',
   'EMU-XREF',
-  'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+  'H1',
+  'H2',
+  'H3',
+  'H4',
+  'H5',
+  'H6',
   'EMU-VAR',
   'EMU-VAL',
   'VAR',
@@ -24,7 +29,14 @@ export const NO_CLAUSE_AUTOLINK = new Set([
   'EMU-NOT-REF',
 ]);
 
-export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap, clause: Clause | Spec, currentId: string | null, allowSameId: boolean) {
+export function autolink(
+  node: Node,
+  replacer: RegExp,
+  autolinkmap: AutoLinkMap,
+  clause: Clause | Spec,
+  currentId: string | null,
+  allowSameId: boolean
+) {
   const spec = clause.spec;
   const template = spec.doc.createElement('template');
   const content = escape(node.textContent!);
@@ -35,7 +47,7 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
     }
 
     const entryId = entry.id || entry.refId;
-    
+
     const skipLinking = !allowSameId && currentId && entryId === currentId;
     if (skipLinking) {
       return match;
@@ -51,51 +63,61 @@ export function autolink(node: Node, replacer: RegExp, autolinkmap: AutoLinkMap,
   if (autolinked !== content) {
     template.innerHTML = autolinked;
     const newXrefNodes = utils.replaceTextNode(node, template.content);
-    const newXrefs = newXrefNodes.map(node =>
-      new Xref(spec, node as HTMLElement, clause as Clause, clause.namespace, node.getAttribute('href')!, node.getAttribute('aoid')!)
+    const newXrefs = newXrefNodes.map(
+      node =>
+        new Xref(
+          spec,
+          node as HTMLElement,
+          clause as Clause,
+          clause.namespace,
+          node.getAttribute('href')!,
+          node.getAttribute('aoid')!
+        )
     );
     spec._xrefs = spec._xrefs.concat(newXrefs);
   }
 }
 
-export function replacerForNamespace(namespace: string, biblio: Biblio) : [RegExp, AutoLinkMap] {
+export function replacerForNamespace(namespace: string, biblio: Biblio): [RegExp, AutoLinkMap] {
   const autolinkmap: AutoLinkMap = {};
 
-  biblio.inScopeByType(namespace, 'term')
-    .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
+  biblio
+    .inScopeByType(namespace, 'term')
+    .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
 
-  biblio.inScopeByType(namespace, 'op')
-    .forEach(entry => autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry);
+  biblio
+    .inScopeByType(namespace, 'op')
+    .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
 
-  const clauseReplacer = new RegExp(Object.keys(autolinkmap)
-    .sort(function (a, b) { return b.length - a.length; })
-    .map(function (k) {
-      
-      const entry = autolinkmap[k];
-      const key = regexpEscape(entry.key!);
+  const clauseReplacer = new RegExp(
+    Object.keys(autolinkmap)
+      .sort(function (a, b) {
+        return b.length - a.length;
+      })
+      .map(function (k) {
+        const entry = autolinkmap[k];
+        const key = regexpEscape(entry.key!);
 
-      if (entry.type === 'term') {
-        if (isCommonTerm(key)) {
-          return '\\b' +
-                  widenSpace(key) +
-                  '\\b(?!\\.\\w|%%|\\]\\])';
-        } else if (key[0].match(/[A-Za-z0-9]/)) {
-          return '\\b' +
-                  widenSpace(caseInsensitiveRegExp(key)) +
-                  '\\b(?!\\.\\w|%%|\\]\\])';
+        if (entry.type === 'term') {
+          if (isCommonTerm(key)) {
+            return '\\b' + widenSpace(key) + '\\b(?!\\.\\w|%%|\\]\\])';
+          } else if (key[0].match(/[A-Za-z0-9]/)) {
+            return '\\b' + widenSpace(caseInsensitiveRegExp(key)) + '\\b(?!\\.\\w|%%|\\]\\])';
+          } else {
+            return key;
+          }
         } else {
-          return key;
+          // type is "op"
+          if (isCommonAbstractOp(key)) {
+            return '\\b' + key + '\\b(?=\\()';
+          } else {
+            return '\\b' + key + '\\b(?!\\.\\w|%%|\\]\\])';
+          }
         }
-      } else {
-        // type is "op"
-        if (isCommonAbstractOp(key)) {
-          return '\\b' + key + '\\b(?=\\()';
-        } else {
-          return '\\b' + key + '\\b(?!\\.\\w|%%|\\]\\])';
-        }
-      }
-    })
-    .join('|'), 'g');
+      })
+      .join('|'),
+    'g'
+  );
 
   return [clauseReplacer, autolinkmap];
 }
@@ -105,7 +127,9 @@ export interface AutoLinkMap {
 }
 
 function isCommonAbstractOp(op: string) {
-  return op === 'Call' || op === 'Set' || op === 'Type' || op === 'UTC' || op === 'min' || op === 'max';
+  return (
+    op === 'Call' || op === 'Set' || op === 'Type' || op === 'UTC' || op === 'min' || op === 'max'
+  );
 }
 
 function isCommonTerm(op: string) {

@@ -50,10 +50,11 @@ export default class Production extends Builder {
 
     // primary if it's the first production with this name in this namespace or
     // the primary attribute is on this production or the parent emu-grammar clause.
-    this.primary = !entry ||
-                   entry.namespace !== this.namespace ||
-                   node.hasAttribute('primary') ||
-                   (<Element>node.parentNode).hasAttribute('primary');
+    this.primary =
+      !entry ||
+      entry.namespace !== this.namespace ||
+      node.hasAttribute('primary') ||
+      (<Element>node.parentNode).hasAttribute('primary');
 
     if (this.primary) {
       this.id = id;
@@ -67,7 +68,7 @@ export default class Production extends Builder {
         type: 'production',
         id: id,
         name: this.name,
-        referencingIds: []
+        referencingIds: [],
       };
 
       // non-enumerable to JSON-stringifying the biblio doesn't include this
@@ -85,7 +86,7 @@ export default class Production extends Builder {
     }
   }
 
-  static enter({spec, node, clauseStack}: Context) {
+  static enter({ spec, node, clauseStack }: Context) {
     const ntNode = spec.doc.createElement('emu-nt');
     const clause = clauseStack[clauseStack.length - 1];
     const prod = new Production(spec, node, clause ? clause.namespace : spec.namespace);
@@ -126,7 +127,6 @@ export default class Production extends Builder {
     if (prod.primary) {
       node.setAttribute('id', prod.id!);
     }
-
 
     if (utils.shouldInline(node)) {
       const cls = node.getAttribute('class') || '';

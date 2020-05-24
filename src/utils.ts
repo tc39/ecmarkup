@@ -7,16 +7,13 @@ import * as fs from 'fs';
 
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Node) {
-  // emd strips starting and ending spaces which we want to preserve
-  const startSpace = node.textContent!.match(/^\s*/)![0];
-  const endSpace = node.textContent!.match(/\s*$/)![0];
+  let c = node.textContent!.replace(/</g, '&lt;');
 
   const template = spec.doc.createElement('template');
-  template.innerHTML = startSpace + emd.fragment(node.textContent!) + endSpace;
+  template.innerHTML = emd.fragment(c);
 
   replaceTextNode(node, template.content);
 }
-
 
 /*@internal*/
 export function htmlToDom(html: string) {
@@ -64,13 +61,13 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
 
 /*@internal*/
 export function logVerbose(str: string) {
-  let dateString = (new Date()).toISOString();
+  let dateString = new Date().toISOString();
   console.log(chalk.gray('[' + dateString + '] ') + str);
 }
 
 /*@internal*/
 export function logWarning(str: string) {
-  let dateString = (new Date()).toISOString();
+  let dateString = new Date().toISOString();
   console.log(chalk.gray('[' + dateString + '] ') + chalk.red('Warning: ' + str));
 }
 
@@ -79,26 +76,33 @@ export function shouldInline(node: Node) {
   let parent = node.parentNode;
   if (!parent) return false;
 
-  while (parent && parent.parentNode &&
-    (parent.nodeName === 'EMU-GRAMMAR' || parent.nodeName === 'EMU-IMPORT' || parent.nodeName === 'INS' || parent.nodeName === 'DEL')
+  while (
+    parent &&
+    parent.parentNode &&
+    (parent.nodeName === 'EMU-GRAMMAR' ||
+      parent.nodeName === 'EMU-IMPORT' ||
+      parent.nodeName === 'INS' ||
+      parent.nodeName === 'DEL')
   ) {
     parent = parent.parentNode;
   }
 
-  return ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'].indexOf(parent.nodeName) === -1;
+  return (
+    ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'].indexOf(parent.nodeName) === -1
+  );
 }
 
 /*@internal*/
 export function readFile(file: string) {
   return new Promise<string>((resolve, reject) => {
-    fs.readFile(file, 'utf8', (err, data) => err ? reject(err) : resolve(data));
+    fs.readFile(file, 'utf8', (err, data) => (err ? reject(err) : resolve(data)));
   });
 }
 
 /*@internal*/
 export function writeFile(file: string, content: string) {
   return new Promise<void>((resolve, reject) => {
-    fs.writeFile(file, content, { encoding: 'utf8' }, err => err ? reject(err) : resolve());
+    fs.writeFile(file, content, { encoding: 'utf8' }, err => (err ? reject(err) : resolve()));
   });
 }
 

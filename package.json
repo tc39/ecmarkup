@@ -1,6 +1,6 @@
 {
 	"name": "ecmarkup",
-	"version": "3.19.1",
+	"version": "3.21.1",
 	"description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
 	"main": "lib/ecmarkup.js",
 	"typings": "lib/ecmarkup.d.ts",
@@ -8,16 +8,27 @@
 		"build": "tsc -p src -sourceMap",
 		"build-release": "tsc -p src",
 		"prepublish": "safe-publish-latest && npm run build-release",
-		"pretest": "npm run build",
-		"test": "mocha && npm run lint",
+		"test": "mocha",
+		"pretest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
+		"test-published-files": "npm pack && tar zxvf \"ecmarkup-$npm_package_version.tgz\" && cp -r test package/test && cd package && npm test && cd ..",
+		"posttest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
 		"lint": "eslint --ext .js,.ts .",
+		"format": "prettier --write .",
 		"update-pages": "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
 		"update-baselines": "echo 'for f in test/*.html; do node bin/ecmarkup.js $f test/baselines/reference/$(basename $f); done' | bash",
 		"version": "auto-changelog && git add CHANGELOG.md",
 		"postversion": "auto-changelog && git add CHANGELOG.md && git commit --no-edit --amend && git tag -f \"v$(node -e \"console.log(require('./package.json').version)\")\""
 	},
 	"bin": "bin/ecmarkup.js",
-	"repository": "bterlson/ecmarkup",
+	"files": [
+		"/bin",
+		"/lib",
+		"/js",
+		"/css",
+		"/boilerplate",
+		"/ecma262biblio.json"
+	],
+	"repository": "tc39/ecmarkup",
 	"keywords": [
 		"ecmascript",
 		"javascript",
@@ -33,14 +44,15 @@
 	"dependencies": {
 		"bluebird": "^3.7.2",
 		"chalk": "^1.1.3",
-		"ecmarkdown": "^3.0.9",
-		"grammarkdown": "^2.0.12",
+		"ecmarkdown": "5.0.1",
+		"eslint": "^6.8.0",
+		"grammarkdown": "^2.2.0",
 		"highlight.js": "^9.17.1",
 		"html-escape": "^1.0.2",
 		"js-yaml": "^3.13.1",
 		"jsdom": "11.10.0",
 		"nomnom": "^1.8.1",
-		"prex": "^0.4.6",
+		"prex": "^0.4.7",
 		"promise-debounce": "^1.0.1"
 	},
 	"devDependencies": {
@@ -54,8 +66,10 @@
 		"@typescript-eslint/eslint-plugin": "^2.21.0",
 		"@typescript-eslint/parser": "^2.21.0",
 		"auto-changelog": "^1.16.2",
-		"eslint": "^6.8.0",
+		"eslint-config-prettier": "^6.10.1",
+		"eslint-plugin-prettier": "^3.1.2",
 		"mocha": "^5.2.0",
+		"prettier": "^2.0.4",
 		"safe-publish-latest": "^1.1.4",
 		"typescript": "^3.8.2"
 	},
@@ -65,5 +79,10 @@
 		"unreleased": false,
 		"commitLimit": false,
 		"backfillLimit": false
+	},
+	"prettier": {
+		"singleQuote": true,
+		"arrowParens": "avoid",
+		"printWidth": 100
 	}
 }

@@ -1,7 +1,7 @@
 import type { Options } from './ecmarkup';
 import type { Context } from './Context';
 import type { BiblioData } from './Biblio';
-import type Builder from './Builder';
+import type { BuilderInterface } from './Builder';
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -28,26 +28,25 @@ import Xref from './Xref';
 import Eqn from './Eqn';
 import Biblio from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
+import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
 
-
-
 interface VisitorMap {
-  [k: string]: typeof Builder
+  [k: string]: BuilderInterface;
 }
 
 interface TextNodeContext {
-  clause: Spec | Clause,
-  node: Node,
-  inAlg: boolean,
-  currentId: string | null
+  clause: Spec | Clause;
+  node: Node;
+  inAlg: boolean;
+  currentId: string | null;
 }
 
-let builders: typeof Builder[] = [
+let builders: BuilderInterface[] = [
   Clause,
   H1,
   Algorithm,
@@ -60,11 +59,11 @@ let builders: typeof Builder[] = [
   Figure,
   NonTerminal,
   ProdRef,
-  Note
+  Note,
 ];
 
 const visitorMap = builders.reduce((map, T) => {
-  T.elements.forEach(e => map[e] = T);
+  T.elements.forEach(e => (map[e] = T));
   return map;
 }, {} as VisitorMap);
 
@@ -99,15 +98,15 @@ export default class Spec {
   _xrefs: Xref[];
   _ntRefs: NonTerminal[];
   _prodRefs: ProdRef[];
-  _textNodes: {[s: string]: [TextNodeContext]};
+  _textNodes: { [s: string]: [TextNodeContext] };
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
 
-  constructor (
+  constructor(
     rootPath: string,
     fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
     dom: any,
     opts?: Options,
-    sourceText?: string,
+    sourceText?: string, // TODO we need not support this being undefined
     token = CancellationToken.none
   ) {
     opts = opts || {};
@@ -126,7 +125,7 @@ export default class Spec {
     this.cancellationToken = token;
     this._figureCounts = {
       table: 0,
-      figure: 0
+      figure: 0,
     };
     this._xrefs = [];
     this._ntRefs = [];
@@ -215,10 +214,20 @@ export default class Spec {
       inAlg: false,
       inNoEmd: false,
       startEmd: null,
-      currentId: null
+      currentId: null,
     };
 
     const document = this.doc;
+
+    if (this.opts.reportLintErrors) {
+      this._log('Linting...');
+      const source = this.sourceText;
+      if (source === undefined) {
+        throw new Error('Cannot lint when source text is not available');
+      }
+      lint(this.opts.reportLintErrors, source, this.dom, document);
+    }
+
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
 
     walk(walker, context);
@@ -273,7 +282,7 @@ export default class Spec {
       }
 
       if (!xref.id) {
-        const id =  `_ref_${counter++}`;
+        const id = `_ref_${counter++}`;
         xref.node.setAttribute('id', id);
         xref.id = id;
       }
@@ -399,8 +408,11 @@ export default class Spec {
 
   private async loadBiblios() {
     this.cancellationToken.throwIfCancellationRequested();
-    await Promise.all(Array.from(this.doc.querySelectorAll('emu-biblio'))
-      .map(biblio => this.loadBiblio(path.join(this.rootDir, biblio.getAttribute('href')!))));
+    await Promise.all(
+      Array.from(this.doc.querySelectorAll('emu-biblio')).map(biblio =>
+        this.loadBiblio(path.join(this.rootDir, biblio.getAttribute('href')!))
+      )
+    );
   }
 
   private async loadBiblio(file: string) {
@@ -414,7 +426,9 @@ export default class Spec {
 
   public exportBiblio(): any {
     if (!this.opts.location) {
-      utils.logWarning('No spec location specified. Biblio not generated. Try --location or setting the location in the document\'s metadata block.');
+      utils.logWarning(
+        "No spec location specified. Biblio not generated. Try --location or setting the location in the document's metadata block."
+      );
       return {};
     }
 
@@ -478,7 +492,9 @@ export default class Spec {
 
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
-        utils.logWarning('Contributors not specified, skipping copyright boilerplate. Specify contributors in your frontmatter metadata.');
+        utils.logWarning(
+          'Contributors not specified, skipping copyright boilerplate. Specify contributors in your frontmatter metadata.'
+        );
       } else {
         this.buildCopyrightBoilerplate();
       }
@@ -527,10 +543,10 @@ export default class Spec {
     // shortname and status, ala 'Draft ECMA-262
     if (shortname && !omitShortname) {
       // for proposals, link shortname to location
-      const shortnameLinkHtml = status === 'proposal' && location ?
-        `<a href="${location}">${shortname}</a>` :
-        shortname;
-      const shortnameHtml = status.charAt(0).toUpperCase() + status.slice(1) + ' ' + shortnameLinkHtml;
+      const shortnameLinkHtml =
+        status === 'proposal' && location ? `<a href="${location}">${shortname}</a>` : shortname;
+      const shortnameHtml =
+        status.charAt(0).toUpperCase() + status.slice(1) + ' ' + shortnameLinkHtml;
 
       if (!this._updateBySelector('h1.shortname', shortnameHtml)) {
         const h1 = this.doc.createElement('h1');
@@ -580,7 +596,6 @@ export default class Spec {
 
     let copyrightClause = this.doc.querySelector('.copyright-and-software-license');
     if (!copyrightClause) {
-
       let last: HTMLElement | undefined;
       utils.domWalkBackward(this.doc.body, node => {
         if (last) return false;
@@ -608,7 +623,6 @@ export default class Spec {
       <h2>Software License</h2>
       ${license}
     `;
-
   }
 
   public autolink() {
@@ -620,7 +634,7 @@ export default class Spec {
       let nodes = this._textNodes[namespace];
 
       for (let j = 0; j < nodes.length; j++) {
-        const { node, clause , inAlg, currentId } = nodes[j];
+        const { node, clause, inAlg, currentId } = nodes[j];
         autolink(node, replacer, autolinkmap, clause, currentId, inAlg);
       }
     }
@@ -681,7 +695,7 @@ async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: strin
   }
 }
 
-function walk (walker: TreeWalker, context: Context) {
+function walk(walker: TreeWalker, context: Context) {
   // When we set either of these states we need to know to unset when we leave the element.
   let changedInNoAutolink = false;
   let changedInNoEmd = false;
@@ -694,7 +708,6 @@ function walk (walker: TreeWalker, context: Context) {
     context.startEmd = null;
     context.inNoEmd = false;
   }
-
 
   if (context.node.nodeType === 3) {
     // walked to a text node
@@ -727,9 +740,8 @@ function walk (walker: TreeWalker, context: Context) {
         node: context.node,
         clause: clause,
         inAlg: context.inAlg,
-        currentId: context.currentId
+        currentId: context.currentId,
       });
-
     }
     return;
   }
@@ -742,11 +754,14 @@ function walk (walker: TreeWalker, context: Context) {
     if (!context.node.children) {
       throw new Error('oldids found on unsupported element: ' + context.node.nodeName);
     }
-    oldids.split(/,/g).map(s => s.trim()).forEach(oid => {
-      let s = spec.doc.createElement('span');
-      s.setAttribute('id', oid);
-      context.node.insertBefore(s, context.node.children[0]);
-    });
+    oldids
+      .split(/,/g)
+      .map(s => s.trim())
+      .forEach(oid => {
+        let s = spec.doc.createElement('span');
+        s.setAttribute('id', oid);
+        context.node.insertBefore(s, context.node.children[0]);
+      });
   }
 
   let parentId = context.currentId;
@@ -789,7 +804,8 @@ function walk (walker: TreeWalker, context: Context) {
 
 const jsDependencies = ['menu.js', 'findLocalReferences.js'];
 async function concatJs() {
-  const dependencies = await Promise.all(jsDependencies
-    .map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency))));
+  const dependencies = await Promise.all(
+    jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency)))
+  );
   return dependencies.reduce((js, dependency) => js + dependency, '');
 }
