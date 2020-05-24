@@ -14,30 +14,37 @@ import type {
 
 import { Grammar as GrammarFile, SyntaxKind } from 'grammarkdown';
 
-export function indexWithinElementToTrueLocation(
-  elementLoc: ReturnType<typeof getLocation>,
-  string: string,
-  index: number
-) {
-  let headerLines = string.split('\n');
-  let headerLine = 0;
+export function offsetToLineAndColumn(string: string, offset: number) {
+  let lines = string.split('\n');
+  let line = 0;
   let seen = 0;
   while (true) {
-    if (seen + headerLines[headerLine].length >= index) {
+    if (seen + lines[line].length >= offset) {
       break;
     }
-    seen += headerLines[headerLine].length + 1; // +1 for the '\n'
-    ++headerLine;
+    seen += lines[line].length + 1; // +1 for the '\n'
+    ++line;
   }
-  let headerColumn = index - seen;
+  let column = offset - seen;
+  return { line: line + 1, column: column + 1 };
+}
 
-  let line = elementLoc.startTag.line + headerLine;
+export function offsetWithinElementToTrueLocation(
+  elementLoc: ReturnType<typeof getLocation>,
+  string: string,
+  offset: number
+) {
+  let { line: offsetLine, column: offsetColumn } = offsetToLineAndColumn(string, offset);
+
+  // both JSDOM and our line/column are 1-based, so subtract 1 to avoid double-counting
+  let line = elementLoc.startTag.line + offsetLine - 1;
   let column =
-    headerLine === 0
+    offsetLine === 1
       ? elementLoc.startTag.col +
         (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
-        headerColumn
-      : headerColumn + 1;
+        offsetColumn -
+        1
+      : offsetColumn;
 
   return { line, column };
 }
