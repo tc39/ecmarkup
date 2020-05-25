@@ -11,7 +11,7 @@ describe('spelling', function () {
       {
         ruleId: 'spelling',
         nodeType: 'text',
-        message: 'Prefer "the *this* value"',
+        message: 'Prefer "*this* value"',
       }
     );
   });
@@ -63,7 +63,20 @@ describe('spelling', function () {
       {
         ruleId: 'spelling',
         nodeType: 'text',
-        message: 'ECMA-262 uses UK spelling ("behaviour")',
+        message: 'ECMA-262 uses Oxford spelling ("behaviour")',
+      }
+    );
+  });
+
+  it('the empty string', async function () {
+    await assertLint(
+      positioned`
+        <p>_searchValue_ is ${M}the empty string</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message: 'Prefer "the empty String"',
       }
     );
   });
@@ -77,6 +90,7 @@ describe('spelling', function () {
         *+0*
         *-0*
         behaviour
+        the empty String
       </p>
     `);
   });

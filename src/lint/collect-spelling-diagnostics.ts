@@ -8,7 +8,7 @@ let ruleId = 'spelling';
 let matchers = [
   {
     pattern: /\*this\* object/giu,
-    message: 'Prefer "the *this* value"',
+    message: 'Prefer "*this* value"',
   },
   {
     pattern: /1's complement/giu,
@@ -24,7 +24,11 @@ let matchers = [
   },
   {
     pattern: /behavior/giu,
-    message: 'ECMA-262 uses UK spelling ("behaviour")',
+    message: 'ECMA-262 uses Oxford spelling ("behaviour")',
+  },
+  {
+    pattern: /[Tt]he empty string/gu,
+    message: 'Prefer "the empty String"',
   },
 ];
 
