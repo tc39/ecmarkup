@@ -55,7 +55,7 @@ export function collectSpellingDiagnostics(sourceText: string) {
     }
     if (errors.length === 0) {
       throw new Error(
-        'Ecmarkup has a bug: the spell checker reported an error, but could find one. Please report this at https://github.com/tc39/ecmarkup/issues/new.'
+        'Ecmarkup has a bug: the spell checker reported an error, but could not find one. Please report this at https://github.com/tc39/ecmarkup/issues/new.'
       );
     }
     return errors;
