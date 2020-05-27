@@ -2,6 +2,7 @@ import { emit } from 'ecmarkdown';
 
 import { collectNodes } from './collect-nodes';
 import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
+import { collectSpellingDiagnostics } from './collect-spelling-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
 import { collectHeaderDiagnostics } from './collect-header-diagnostics';
 import type { Reporter } from './algorithm-error-reporter-type';
@@ -12,6 +13,8 @@ Currently this checks
 - the productions in the definition of each early error and SDO are defined in the main grammar
 - those productions do not include `[no LineTerminator here]` restrictions or `[+flag]` gating
 - the algorithm linting rules imported above
+- headers of abstract operations have consistent spacing
+- certain common spelling errors
 
 There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
@@ -35,7 +38,10 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
 
   lintingErrors.push(...collectHeaderDiagnostics(dom, headers));
 
+  lintingErrors.push(...collectSpellingDiagnostics(sourceText));
+
   if (lintingErrors.length > 0) {
+    lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
     report(lintingErrors, sourceText);
     return;
   }

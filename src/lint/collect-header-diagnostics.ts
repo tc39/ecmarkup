@@ -1,6 +1,6 @@
 import type { LintingError } from './algorithm-error-reporter-type';
 
-import { getLocation, indexWithinElementToTrueLocation } from './utils';
+import { getLocation, offsetWithinElementToTrueLocation } from './utils';
 
 const ruleId = 'header-format';
 
@@ -19,7 +19,7 @@ export function collectHeaderDiagnostics(
     let params = contents.substring(contents.indexOf('(') + 1, contents.length - 1);
 
     if (!/[\S] $/.test(name)) {
-      let { line, column } = indexWithinElementToTrueLocation(
+      let { line, column } = offsetWithinElementToTrueLocation(
         getLocation(dom, element),
         contents,
         name.length - 1
@@ -57,7 +57,7 @@ export function collectHeaderDiagnostics(
     ].some(r => r.test(name));
 
     if (!nameMatches) {
-      let { line, column } = indexWithinElementToTrueLocation(
+      let { line, column } = offsetWithinElementToTrueLocation(
         getLocation(dom, element),
         contents,
         0
@@ -94,7 +94,7 @@ export function collectHeaderDiagnostics(
       ].some(r => r.test(params));
 
     if (!paramsMatches) {
-      let { line, column } = indexWithinElementToTrueLocation(
+      let { line, column } = offsetWithinElementToTrueLocation(
         getLocation(dom, element),
         contents,
         name.length
