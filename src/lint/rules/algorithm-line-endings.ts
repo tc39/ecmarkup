@@ -106,6 +106,22 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
         return;
       }
 
+      let hasSubsteps = node.sublist !== null;
+
+      // Special case: lines without substeps can end in `pre` tags.
+      if (last.name === 'opaqueTag' && /^\s*<pre>/.test(last.contents)) {
+        if (hasSubsteps) {
+          report({
+            ruleId,
+            nodeType,
+            line: node.contents[0].location!.start.line,
+            column: node.contents[0].location!.start.column,
+            message: `lines ending in <pre> tags must not have substeps`,
+          });
+        }
+        return;
+      }
+
       if (last.name !== 'text') {
         report({
           ruleId,
@@ -118,7 +134,6 @@ export default function (report: (e: LintingError) => void, node: Element): Obse
       }
 
       let initialText = first.name === 'text' ? first.contents : '';
-      let hasSubsteps = node.sublist !== null;
 
       if (/^(?:If |Else if)/.test(initialText)) {
         if (hasSubsteps) {
