@@ -69,6 +69,21 @@ describe('linting algorithms', function () {
       );
     });
 
+    it('pre', async function () {
+      await assertLint(
+        positioned`<emu-alg>
+            1. ${M}Let _constructorText_ be the source text
+            <pre><code class="javascript">constructor() {}</code></pre>
+              1. Foo.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'lines ending in <pre> tags must not have substeps',
+        }
+      );
+    });
+
     it('negative', async function () {
       await assertLintFree(`
         <emu-alg>
@@ -93,6 +108,9 @@ describe('linting algorithms', function () {
           1. Other.
           1. Other:
             1. Substep.
+          1. Let _constructorText_ be the source text
+          <pre><code class="javascript">constructor() {}</code></pre>
+          1. Set _constructor_ to ParseText(_constructorText_, |MethodDefinition[~Yield, ~Await]|).
         </emu-alg>
       `);
     });
