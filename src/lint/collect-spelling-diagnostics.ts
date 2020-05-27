@@ -30,6 +30,10 @@ let matchers = [
     pattern: /[Tt]he empty string/gu,
     message: 'Prefer "the empty String"',
   },
+  {
+    pattern: /[ \t]+\n/gu,
+    message: 'Trailing spaces are not allowed',
+  },
 ];
 
 export function collectSpellingDiagnostics(sourceText: string) {

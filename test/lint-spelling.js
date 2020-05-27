@@ -81,6 +81,19 @@ describe('spelling', function () {
     );
   });
 
+  it('trailing whitespace', async function () {
+    await assertLint(
+      positioned`
+        <p>something</p>${M}  
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message: 'Trailing spaces are not allowed',
+      }
+    );
+  });
+
   it('negative', async function () {
     await assertLintFree(`
       <p>
