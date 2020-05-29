@@ -98,6 +98,21 @@ describe('spelling', function () {
     await assertLint(
       positioned`
 <p></p>
+
+${M}
+<p></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message: 'No more than one blank line is allowed',
+      }
+    );
+
+    await assertLint(
+      positioned`
+<p></p>
+
 ${M}
 
 <p></p>

@@ -35,7 +35,7 @@ let matchers = [
     message: 'Trailing spaces are not allowed',
   },
   {
-    pattern: /(?<=\n)\n\n+/gu,
+    pattern: /(?<=(^|[^\n])\n\n)\n+/gu,
     message: 'No more than one blank line is allowed',
   },
   {
@@ -43,7 +43,7 @@ let matchers = [
     message: "There should not be a blank line between a clause's opening tag and its header",
   },
   {
-    pattern: /(?<=\n)\n[ \t]*<\/emu-clause>/giu,
+    pattern: /(?<=(^|[^\n])\n)\n+[ \t]*<\/emu-clause>/giu,
     message:
       'There should not be a blank line between the last line of a clause and its closing tag',
   },
