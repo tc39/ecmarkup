@@ -34,6 +34,23 @@ let matchers = [
     pattern: /[ \t]+\n/gu,
     message: 'Trailing spaces are not allowed',
   },
+  {
+    pattern: /(?<=(^|[^\n])\n\n)\n+/gu,
+    message: 'No more than one blank line is allowed',
+  },
+  {
+    pattern: /(?<=<emu-clause.*>\n)\n\s*<h1>/giu,
+    message: "There should not be a blank line between a clause's opening tag and its header",
+  },
+  {
+    pattern: /(?<=(^|[^\n])\n)\n+[ \t]*<\/emu-clause>/giu,
+    message:
+      'There should not be a blank line between the last line of a clause and its closing tag',
+  },
+  {
+    pattern: /\r/gu,
+    message: 'Only Unix-style (LF) linebreaks are allowed',
+  },
 ];
 
 export function collectSpellingDiagnostics(sourceText: string) {

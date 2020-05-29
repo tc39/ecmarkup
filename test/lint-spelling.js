@@ -94,6 +94,83 @@ describe('spelling', function () {
     );
   });
 
+  it('two blank lines', async function () {
+    await assertLint(
+      positioned`
+<p></p>
+
+${M}
+<p></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message: 'No more than one blank line is allowed',
+      }
+    );
+
+    await assertLint(
+      positioned`
+<p></p>
+
+${M}
+
+<p></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message: 'No more than one blank line is allowed',
+      }
+    );
+  });
+
+  it('header linebreak', async function () {
+    await assertLint(
+      positioned`
+<emu-clause id="example">
+${M}
+  <h1>Example</h1>
+</emu-clause>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message: "There should not be a blank line between a clause's opening tag and its header",
+      }
+    );
+  });
+
+  it('footer linebreak', async function () {
+    await assertLint(
+      positioned`
+<emu-clause id="example">
+  <h1>Example</h1>
+${M}
+</emu-clause>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message:
+          'There should not be a blank line between the last line of a clause and its closing tag',
+      }
+    );
+  });
+
+  it('CR', async function () {
+    await assertLint(
+      positioned`
+windows:${M}\r
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message: 'Only Unix-style (LF) linebreaks are allowed',
+      }
+    );
+  });
+
   it('negative', async function () {
     await assertLintFree(`
       <p>
@@ -105,6 +182,12 @@ describe('spelling', function () {
         behaviour
         the empty String
       </p>
+      <p>One blank line is fine:</p>
+
+      <p></p>
+      <emu-clause id="example">
+        <h1>Example</h1>
+      </emu-clause>
     `);
   });
 });
