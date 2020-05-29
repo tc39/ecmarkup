@@ -126,6 +126,23 @@ ${M}
     );
   });
 
+  it('footer linebreak', async function () {
+    await assertLint(
+      positioned`
+<emu-clause id="example">
+  <h1>Example</h1>
+${M}
+</emu-clause>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message:
+          'There should not be a blank line between the last line of a clause and its closing tag',
+      }
+    );
+  });
+
   it('CR', async function () {
     await assertLint(
       positioned`

@@ -43,6 +43,11 @@ let matchers = [
     message: "There should not be a blank line between a clause's opening tag and its header",
   },
   {
+    pattern: /(?<=\n)\n[ \t]*<\/emu-clause>/giu,
+    message:
+      'There should not be a blank line between the last line of a clause and its closing tag',
+  },
+  {
     pattern: /\r/gu,
     message: 'Only Unix-style (LF) linebreaks are allowed',
   },
