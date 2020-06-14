@@ -5,17 +5,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/solarized_light.min.css">
 <title>Ecmarkup</title>
 <pre class=metadata>
-repository: https://github.com/bterlson/ecmarkup
+repository: https://github.com/tc39/ecmarkup
 assets: none
 copyright: false
 </pre>
 <emu-biblio href="./biblio.json"></emu-biblio>
 <emu-intro id="intro">
   <h1>Ecmarkup</h1>
-  <p><a href="https://github.com/bterlson/ecmarkup">Ecmarkup</a> is a number of custom elements and a toolchain suitable for specifying semantics for ECMAScript and other programming languages.</p>
+  <p><a href="https://github.com/tc39/ecmarkup">Ecmarkup</a> is a number of custom elements and a toolchain suitable for specifying semantics for ECMAScript and other programming languages.</p>
   <p>Ecmarkup offers the following conveniences (among many others):</p>
   <ul>
-    <li><a href="https://github.com/domenic/ecmarkdown">Ecmarkdown</a> syntax for paragraphs and algorithms</li>
+    <li><a href="https://github.com/tc39/ecmarkdown">Ecmarkdown</a> syntax for paragraphs and algorithms</li>
     <li><a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a> for specifying grammar</li>
     <li>Terse markup for the authoring conventions used in ECMAScript specifications including clauses, notes, examples, figures, tables, and more.</li>
     <li>Easy cross-references by element ID to clauses, abstract operations, examples, figures, tables, and etc. in the current document, ES6, and other specs.</li>
@@ -24,7 +24,7 @@ copyright: false
     <li>Auto-links abstract operations and terms based on name with support for external bibliographies for cross-referencing between specs</li>
     <li>Source code syntax highlighting inside pre code blocks</li>
   </ul>
-  <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/bterlson/ecmarkup/blob/master/spec/index.html">on github</a>.</p>
+  <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/tc39/ecmarkup/blob/master/spec/index.html">on github</a>.</p>
 </emu-intro>
 
 <emu-clause id="getting-started">
@@ -93,7 +93,7 @@ ecmarkup spec.html out.html
     </table>
   </emu-table>
 
-  <p>There are also a number of elements and corresponding Ecmarkdown syntax to give inline styles to various parts of your document in accordance with ECMAScript conventions. More detail on Ecmarkdown syntax can be found <a href="https://github.com/domenic/ecmarkdown">on its readme</a>.</p>
+  <p>There are also a number of elements and corresponding Ecmarkdown syntax to give inline styles to various parts of your document in accordance with ECMAScript conventions. More detail on Ecmarkdown syntax can be found <a href="https://github.com/tc39/ecmarkdown">on its readme</a>.</p>
   <emu-table id="emd-overview">
     <emu-caption>Inline styles/conventions</emu-caption>
     <table>
@@ -198,6 +198,36 @@ toc: false
       1. let _recurse_ be the result of calling EmuAlgExample(`true`)
       2. Return the result of evaluating this |NonTerminalProduction|
   </emu-alg>
+
+  <h2>Replacement algorithms</h2>
+  <p>Algorithms may be specified to replace a labeled step, in which case the algorithm will adopt the numbering of that step. For example:</p>
+
+  <h3>Element</h3>
+  <pre><code class="language-html">
+    &lt;emu-alg>
+      1. Step.
+      1. Step 2.
+        1. [label="replace-me"] Replaced.
+          1. Substep.
+    &lt;/emu-alg>
+    &lt;p>The following is an alernative definition of step &lt;emu-xref href="#step-replace-me">&lt;/emu-xref>.&lt;/p>
+    &lt;emu-alg replaces-step="replace-me">
+      1. Replacement.
+        1. Substep.
+    &lt;/emu-alg>
+  </code></pre>
+  <h3>Result</h3>
+  <emu-alg>
+    1. Step.
+    1. Step 2.
+      1. [label="replace-me"] Replaced.
+        1. Substep.
+  </emu-alg>
+  <p>The following is an alernative definition of step <emu-xref href="#step-replace-me"></emu-xref>.</p>
+  <emu-alg replaces-step="replace-me">
+    1. Replacement.
+      1. Substep.
+  </emu-alg>
 </emu-clause>
 
 <emu-clause id="emu-eqn">
@@ -223,8 +253,8 @@ toc: false
 
 <emu-clause id="emu-xref">
   <h1>emu-xref</h1>
-  <p>Cross-reference another clause, production, note, example, or abstract operation. If the text content of this element is empty, a suitable default is used. The `title` attribute controls this default - when present, clauses are referred to using their title rather than number. This also applies to examples which are indexed first by their containing clause and then their example number.</p>
-  <p>Cross-references to an id check for clauses, productions, and examples in this order. For each type, the local document is consulted before looking for external sources including the default ES6 biblio.</p>
+  <p>Cross-reference another clause, production, note, example, abstract operation, or labeled step. If the text content of this element is empty, a suitable default is used. The `title` attribute controls this default - when present, clauses are referred to using their title rather than number. This also applies to examples which are indexed first by their containing clause and then their example number.</p>
+  <p>Cross-references to an id check for clauses, productions, examples, and steps in this order. For each type, the local document is consulted before looking for external sources including the default ES6 biblio.</p>
 
   <h2>Attributes</h2>
   <p><b>href:</b> Optional: URL of the target clause, production, or example to cross-reference.</p>
@@ -239,6 +269,8 @@ toc: false
     &lt;p>See &lt;emu-xref href="#emu-note" title>&lt;/emu-xref> for information on the emu-note element.&lt;/p>
     &lt;p>The &lt;emu-xref href="#emu-biblio">biblio element&lt;/emu-xref> supports xref to external specs.&lt;/p>
     &lt;p>&lt;emu-xref aoid="Get">&lt;/emu-xref> is an abstract operation from ES6&lt;/p>
+    &lt;p>&lt;emu-alg>1. [label="example-step-label"] Example labeled step.&lt;/emu-alg>&lt;/p>
+    &lt;p>You can reference step &lt;emu-xref href="#step-example-step-label">&lt;/emu-xref> like this&lt;/p>
   </code></pre>
 
   <b>Result</b>
@@ -246,6 +278,8 @@ toc: false
   <p>See <emu-xref href="#emu-note" title></emu-xref> for information on the emu-note element.</p>
   <p>The <emu-xref href="#emu-biblio">biblio element</emu-xref> will eventually support xref to external specs.</p>
   <p><emu-xref aoid="Get"></emu-xref> is an abstract operation from ES6</p>
+  <p><emu-alg>1. [label="example-step-label"] Example labeled step.</emu-alg></p>
+  <p>You can reference step <emu-xref href="#step-example-step-label"></emu-xref> like this</p>
 </emu-clause>
 
 <emu-clause id="emu-not-ref" namespace="emu-not-ref">

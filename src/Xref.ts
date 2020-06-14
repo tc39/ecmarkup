@@ -107,8 +107,13 @@ export default class Xref extends Builder {
         case 'term':
           buildTermLink(node, this.entry);
           break;
+        case 'step':
+          buildStepLink(node, this.entry);
+          break;
         default:
-          utils.logWarning('found unknown biblio entry (this is a bug, please file it)');
+          utils.logWarning(
+            `found unknown biblio entry ${this.entry.type} (this is a bug, please file it with ecmarkup)`
+          );
       }
     } else if (aoid) {
       this.entry = spec.biblio.byAoid(aoid, namespace);
@@ -196,6 +201,33 @@ function buildFigureLink(
   } else {
     xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
   }
+}
+
+let decimalBullet = Array.from({ length: 100 }).map((a, i) => '' + (i + 1));
+let alphaBullet = Array.from({ length: 26 }).map((a, i) =>
+  String.fromCharCode('a'.charCodeAt(0) + i)
+);
+// prettier-ignore
+let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
+let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
+
+function buildStepLink(xref: Element, entry: Biblio.StepBiblioEntry) {
+  if (xref.innerHTML !== '') {
+    utils.logWarning('the contents of emu-xrefs to steps are ignored');
+  }
+
+  let stepBullets = entry.stepNumbers.map((s, i) => {
+    let applicable = bullets[Math.min(i, 5)];
+    if (s > applicable.length) {
+      utils.logWarning(
+        `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`
+      );
+      return '?';
+    }
+    return applicable[s - 1];
+  });
+  let text = stepBullets.join('.');
+  xref.innerHTML = buildXrefLink(entry, text);
 }
 
 function buildXrefLink(entry: Biblio.BiblioEntry, contents: string | number | undefined | null) {

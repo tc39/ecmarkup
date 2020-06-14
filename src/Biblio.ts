@@ -149,6 +149,9 @@ export default class Biblio {
     entry.namespace = ns;
     env!.push(entry);
     if (entry.id) {
+      if ({}.hasOwnProperty.call(this, entry.id)) {
+        throw new Error('Duplicate biblio entry ' + JSON.stringify(entry.id) + '.');
+      }
       this._byId[entry.id] = entry;
     }
   }
@@ -263,12 +266,19 @@ export interface FigureBiblioEntry extends BiblioEntryBase {
   caption?: string;
 }
 
+export interface StepBiblioEntry extends BiblioEntryBase {
+  type: 'step';
+  id: string;
+  stepNumbers: number[];
+}
+
 export type BiblioEntry =
   | AlgorithmBiblioEntry
   | ProductionBiblioEntry
   | ClauseBiblioEntry
   | TermBiblioEntry
-  | FigureBiblioEntry;
+  | FigureBiblioEntry
+  | StepBiblioEntry;
 
 function dumpEnv(env: EnvRec) {
   console.log('## ' + env._namespace);
@@ -308,6 +318,8 @@ function getKey(item: BiblioEntry) {
     case 'example':
     case 'note':
       return item.caption;
+    case 'step':
+      return item.id;
     default:
       throw new Error("Can't get key for " + (<BiblioEntry>item).type);
   }

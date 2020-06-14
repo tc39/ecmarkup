@@ -1,6 +1,6 @@
 import type { Options } from './ecmarkup';
 import type { Context } from './Context';
-import type { BiblioData } from './Biblio';
+import type { BiblioData, StepBiblioEntry } from './Biblio';
 import type { BuilderInterface } from './Builder';
 
 import * as path from 'path';
@@ -92,6 +92,9 @@ export default class Spec {
   imports: Import[];
   node: HTMLElement;
   subclauses: Clause[];
+  replacementAlgorithmToContainedLabeledStepEntries: Map<Element, StepBiblioEntry[]>; // map from re to its labeled nodes
+  labeledStepsToBeRectified: Set<string>;
+  replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
 
   _figureCounts: { [type: string]: number };
@@ -122,6 +125,9 @@ export default class Spec {
     this.subclauses = [];
     this.imports = [];
     this.node = this.doc.body;
+    this.replacementAlgorithmToContainedLabeledStepEntries = new Map();
+    this.labeledStepsToBeRectified = new Set();
+    this.replacementAlgorithms = [];
     this.cancellationToken = token;
     this._figureCounts = {
       table: 0,
@@ -231,6 +237,8 @@ export default class Spec {
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
 
     walk(walker, context);
+
+    this.setReplacementAlgorithmOffsets();
 
     this.autolink();
 
@@ -623,6 +631,70 @@ export default class Spec {
       <h2>Software License</h2>
       ${license}
     `;
+  }
+
+  private setReplacementAlgorithmOffsets() {
+    this._log('Finding offsets for replacement algorithm steps...');
+    let pending: Map<string, Element[]> = new Map();
+
+    let setReplacementAlgorithmStart = (element: Element, stepNumbers: number[]) => {
+      let rootList = element.firstElementChild! as HTMLOListElement;
+      rootList.start = stepNumbers[stepNumbers.length - 1];
+      if (stepNumbers.length > 1) {
+        // Note the off-by-one here: a length of 1 indicates we are replacing a top-level step, which means we do not need to adjust the styling.
+        if (stepNumbers.length === 2) {
+          rootList.classList.add('nested-once');
+        } else if (stepNumbers.length === 3) {
+          rootList.classList.add('nested-twice');
+        } else if (stepNumbers.length === 4) {
+          rootList.classList.add('nested-thrice');
+        } else if (stepNumbers.length === 5) {
+          rootList.classList.add('nested-four-times');
+        } else {
+          // At the sixth level and deeper (so once we have nested five times) we use a consistent line numbering style, so no further cases are necessary
+          rootList.classList.add('nested-lots');
+        }
+      }
+
+      // Fix up the biblio entries for any labeled steps in the algorithm
+      for (let entry of this.replacementAlgorithmToContainedLabeledStepEntries.get(element)!) {
+        entry.stepNumbers = [...stepNumbers, ...entry.stepNumbers.slice(1)];
+        this.labeledStepsToBeRectified.delete(entry.id);
+
+        // Now that we've figured out where the step is, we can deal with algorithms replacing it
+        if (pending.has(entry.id)) {
+          let todo = pending.get(entry.id)!;
+          pending.delete(entry.id);
+          for (let replacementAlgorithm of todo) {
+            setReplacementAlgorithmStart(replacementAlgorithm, entry.stepNumbers);
+          }
+        }
+      }
+    };
+
+    for (let { element, target } of this.replacementAlgorithms) {
+      if (this.labeledStepsToBeRectified.has(target)) {
+        if (!pending.has(target)) {
+          pending.set(target, []);
+        }
+        pending.get(target)!.push(element);
+      } else {
+        // When the target is not itself within a replacement, or is within a replacement which we have already rectified, we can just use its step number directly
+        let targetEntry = this.biblio.byId(target);
+        if (targetEntry == null) {
+          utils.logWarning(`Could not find step ${target}`);
+        } else if (targetEntry.type !== 'step') {
+          utils.logWarning(`Expected algorithm to replace a step, not a ${targetEntry.type}`);
+        } else {
+          setReplacementAlgorithmStart(element, targetEntry.stepNumbers);
+        }
+      }
+    }
+    if (pending.size > 0) {
+      utils.logWarning(
+        'Could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?'
+      );
+    }
   }
 
   public autolink() {
