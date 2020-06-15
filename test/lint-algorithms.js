@@ -2,11 +2,12 @@
 
 let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require('./lint-helpers');
 
-const ruleId = 'algorithm-line-endings';
 const nodeType = 'EMU-ALG';
 
 describe('linting algorithms', function () {
   describe('line endings', function () {
+    const ruleId = 'algorithm-line-endings';
+
     it('simple', async function () {
       await assertLint(
         positioned`<emu-alg>
@@ -111,6 +112,99 @@ describe('linting algorithms', function () {
           1. Let _constructorText_ be the source text
           <pre><code class="javascript">constructor() {}</code></pre>
           1. Set _constructor_ to ParseText(_constructorText_, |MethodDefinition[~Yield, ~Await]|).
+        </emu-alg>
+      `);
+    });
+  });
+
+  describe('step numbering', function () {
+    const ruleId = 'algorithm-step-numbering';
+
+    it('simple', async function () {
+      await assertLint(
+        positioned`<emu-alg>
+          1. Step.
+          ${M}2. Step.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected step number to be "1." (found "2.")',
+        }
+      );
+      await assertLint(
+        positioned`<emu-alg>
+          1. Step.
+          1. Step.
+          ${M}2. Step.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected step number to be "1." (found "2.")',
+        }
+      );
+    });
+
+    it('nested', async function () {
+      await assertLint(
+        positioned`<emu-alg>
+          1. Step:
+            ${M}2. Substep.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected step number to be "1." (found "2.")',
+        }
+      );
+
+      await assertLint(
+        positioned`<emu-alg>
+          2. Step:
+            ${M}2. Substep.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected step number to be "1." (found "2.")',
+        }
+      );
+
+      await assertLint(
+        positioned`<emu-alg>
+          1. Step:
+            1. Substep.
+            ${M}2. Substep.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected step number to be "1." (found "2.")',
+        }
+      );
+    });
+
+    it('ten', async function () {
+      await assertLint(
+        positioned`<emu-alg>
+          1. Step.
+          ${M}10. Step.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected step number to be "1." (found "10.")',
+        }
+      );
+    });
+
+    it('negative', async function () {
+      await assertLintFree(`
+        <emu-alg>
+          2. Step.
+          3. Step.
+          40. Step.
         </emu-alg>
       `);
     });
