@@ -6,8 +6,9 @@ import { parseAlgorithm, visit } from 'ecmarkdown';
 
 import { getLocation } from './utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
+import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 
-let algorithmRules = [lintAlgorithmLineEndings];
+let algorithmRules = [lintAlgorithmLineEndings, lintAlgorithmStepNumbering];
 
 function composeObservers(...observers: Observer[]): Observer {
   return {
@@ -61,11 +62,14 @@ export function collectAlgorithmDiagnostics(
       lintingErrors.push({ line: trueLine, column: trueCol, ...others });
     };
 
-    let observer = composeObservers(...algorithmRules.map(f => f(reporter, element)));
-    let tree = parseAlgorithm(
-      sourceText.slice(location.startTag.endOffset, location.endTag.startOffset),
-      { trackPositions: true }
+    let algorithmSource = sourceText.slice(
+      location.startTag.endOffset,
+      location.endTag.startOffset
     );
+    let observer = composeObservers(
+      ...algorithmRules.map(f => f(reporter, element, algorithmSource))
+    );
+    let tree = parseAlgorithm(algorithmSource, { trackPositions: true });
     visit(tree, observer);
     algorithm.tree = tree;
   }
