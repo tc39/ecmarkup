@@ -35,6 +35,17 @@ export function collectAlgorithmDiagnostics(
     let element = algorithm.element;
     let location = getLocation(dom, element);
 
+    if (location.endTag == null) {
+      lintingErrors.push({
+        ruleId: 'missing-close-tag',
+        message: 'could not find closing tag for emu-alg',
+        line: location.startTag.line,
+        column: location.startTag.col,
+        nodeType: 'EMU-ALG',
+      });
+      continue;
+    }
+
     let reporter = ({ line, column, ...others }: LintingError) => {
       // jsdom's lines and columns are both 1-based
       // ecmarkdown has 1-based line numbers and 0-based column numbers

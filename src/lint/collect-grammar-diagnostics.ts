@@ -114,6 +114,18 @@ export function collectGrammarDiagnostics(
   for (let { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
     const nodeType = grammarEle.tagName;
     let grammarLoc = getLocation(dom, grammarEle);
+
+    if (grammarLoc.endTag == null) {
+      lintingErrors.push({
+        ruleId: 'missing-close-tag',
+        message: 'could not find closing tag for emu-grammar',
+        line: grammarLoc.startTag.line,
+        column: grammarLoc.startTag.col,
+        nodeType: 'EMU-GRAMMAR',
+      });
+      continue;
+    }
+
     let grammarHost = SyncHost.forFile(
       sourceText.slice(grammarLoc.startTag.endOffset, grammarLoc.endTag.startOffset)
     );

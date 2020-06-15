@@ -67,10 +67,21 @@ export function grammarkdownLocationToTrueLocation(
   return { line, column };
 }
 
-export function getLocation(dom: any, node: Element) {
+type Location = {
+  line: number;
+  col: number;
+  startOffset: number;
+  endOffset: number;
+};
+export type ElementLocation = {
+  startTag: Location;
+  endTag: Location | null;
+};
+
+export function getLocation(dom: any, node: Element): ElementLocation {
   let loc = dom.nodeLocation(node);
-  if (!loc || !loc.startTag || !loc.endTag) {
-    throw new Error('could not find location');
+  if (!loc || !loc.startTag) {
+    throw new Error('could not find location: this is a bug in ecmarkdown; please report it');
   }
   return loc;
 }
