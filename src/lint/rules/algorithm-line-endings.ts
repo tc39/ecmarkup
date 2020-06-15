@@ -29,11 +29,31 @@ export default function (report: Reporter, node: Element): Observer {
       if (node.name !== 'ordered-list-item') {
         return;
       }
+
       let firstIndex = 0;
-      while (firstIndex < node.contents.length && node.contents[firstIndex].name === 'tag') {
+      let lastIndex = node.contents.length - 1;
+
+      // Special case: ignore <ins>, <del>, or <mark> tags that surround a whole
+      // line, and lint the enclosed line as if there were no tag.
+      let first = node.contents[firstIndex];
+      let last = node.contents[lastIndex];
+      while (
+        first.name === 'tag' &&
+        last.name === 'tag' &&
+        ((first.contents === '<mark>' && last.contents === '</mark>') ||
+          (first.contents === '<ins>' && last.contents === '</ins>') ||
+          (first.contents === '<del>' && last.contents === '</del>'))
+      ) {
+        ++firstIndex;
+        --lastIndex;
+        first = node.contents[firstIndex];
+        last = node.contents[lastIndex];
+      }
+
+      while (firstIndex <= lastIndex && node.contents[firstIndex].name === 'tag') {
         ++firstIndex;
       }
-      if (firstIndex === node.contents.length) {
+      if (firstIndex > lastIndex) {
         report({
           ruleId,
           line: node.location!.start.line,
@@ -42,14 +62,13 @@ export default function (report: Reporter, node: Element): Observer {
         });
         return;
       }
-      let first = node.contents[firstIndex];
-
-      let last = node.contents[node.contents.length - 1];
+      first = node.contents[firstIndex];
+      last = node.contents[lastIndex];
 
       // Special case: if the step has a figure, it should end in `:`
       if (last.name === 'tag' && last.contents === '</figure>') {
         let count = 1;
-        let lastIndex = node.contents.length - 2;
+        --lastIndex;
         if (lastIndex < 0) {
           report({
             ruleId,

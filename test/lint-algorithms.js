@@ -98,6 +98,14 @@ describe('linting algorithms', () => {
       );
     });
 
+    it('rules still apply to ignored whole-line tags', async () => {
+      await assertLint(positioned`<emu-alg>1. <mark>testing${M}</mark></emu-alg>`, {
+        ruleId,
+        nodeType,
+        message: 'expected freeform line to end with "." (found "testing")',
+      });
+    });
+
     it('negative', async () => {
       await assertLintFree(`
         <emu-alg>
@@ -125,6 +133,11 @@ describe('linting algorithms', () => {
           1. Let _constructorText_ be the source text
           <pre><code class="javascript">constructor() {}</code></pre>
           1. Set _constructor_ to ParseText(_constructorText_, |MethodDefinition[~Yield, ~Await]|).
+          1. <mark>A highlighted line.</mark>
+          1. <ins>Amend the spec with this.</ins>
+          1. <del>Remove this from the spec.</del>
+          1. <del><mark>Nested tag.</mark></del>
+          1. <ins>Nested <mark>tag</mark>.</ins>
         </emu-alg>
       `);
     });
