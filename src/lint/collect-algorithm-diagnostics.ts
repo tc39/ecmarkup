@@ -37,7 +37,7 @@ export function collectAlgorithmDiagnostics(
 
     if (location.endTag == null) {
       lintingErrors.push({
-        ruleId: 'no-close-tag',
+        ruleId: 'missing-close-tag',
         message: 'could not find closing tag for emu-alg',
         line: location.startTag.line,
         column: location.startTag.col,

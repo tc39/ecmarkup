@@ -230,7 +230,7 @@ describe('linting whole program', function () {
           <!--</emu-grammar>-->
         `,
         {
-          ruleId: 'no-close-tag',
+          ruleId: 'missing-close-tag',
           nodeType: 'EMU-GRAMMAR',
           message: 'could not find closing tag for emu-grammar',
         }
@@ -245,7 +245,7 @@ describe('linting whole program', function () {
           <!--</emu-alg>-->
         `,
         {
-          ruleId: 'no-close-tag',
+          ruleId: 'missing-close-tag',
           nodeType: 'EMU-ALG',
           message: 'could not find closing tag for emu-alg',
         }

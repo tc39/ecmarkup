@@ -117,7 +117,7 @@ export function collectGrammarDiagnostics(
 
     if (grammarLoc.endTag == null) {
       lintingErrors.push({
-        ruleId: 'no-close-tag',
+        ruleId: 'missing-close-tag',
         message: 'could not find closing tag for emu-grammar',
         line: grammarLoc.startTag.line,
         column: grammarLoc.startTag.col,

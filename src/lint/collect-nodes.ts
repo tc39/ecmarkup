@@ -93,7 +93,7 @@ export function collectNodes(
           if (loc.endTag == null) {
             failed = true;
             errors.push({
-              ruleId: 'no-close-tag',
+              ruleId: 'missing-close-tag',
               message: 'could not find closing tag for emu-grammar',
               line: loc.startTag.line,
               column: loc.startTag.col,
