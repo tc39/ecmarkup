@@ -220,4 +220,36 @@ describe('linting whole program', function () {
       `);
     });
   });
+
+  describe('closing tags', function () {
+    it('grammar', async function () {
+      await assertLint(
+        positioned`
+          ${M}<emu-grammar type="definition">
+            Statement: \`;\`
+          <!--</emu-grammar>-->
+        `,
+        {
+          ruleId: 'no-close-tag',
+          nodeType: 'EMU-GRAMMAR',
+          message: 'could not find closing tag for emu-grammar',
+        }
+      );
+    });
+
+    it('algorithm', async function () {
+      await assertLint(
+        positioned`
+          ${M}<emu-alg>
+            1. Foo.
+          <!--</emu-alg>-->
+        `,
+        {
+          ruleId: 'no-close-tag',
+          nodeType: 'EMU-ALG',
+          message: 'could not find closing tag for emu-alg',
+        }
+      );
+    });
+  });
 });

@@ -1,13 +1,36 @@
+import type { LintingError } from './algorithm-error-reporter-type';
+
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
 import { getLocation } from './utils';
 
-export function collectNodes(sourceText: string, dom: any, document: Document) {
+type CollectNodesReturnType =
+  | {
+      success: true;
+      headers: { element: Element; contents: string }[];
+      mainGrammar: { element: Element; source: string }[];
+      sdos: { grammar: Element; alg: Element }[];
+      earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[];
+      algorithms: { element: Element; tree?: EcmarkdownNode }[];
+    }
+  | {
+      success: false;
+      errors: LintingError[];
+    };
+
+export function collectNodes(
+  sourceText: string,
+  dom: any,
+  document: Document
+): CollectNodesReturnType {
   let headers: { element: Element; contents: string }[] = [];
   let mainGrammar: { element: Element; source: string }[] = [];
   let sdos: { grammar: Element; alg: Element }[] = [];
   let earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[] = [];
   let algorithms: { element: Element; tree?: EcmarkdownNode }[] = [];
+
+  let failed = false;
+  let errors: LintingError[] = [];
 
   let inAnnexB = false;
   let lintWalker = document.createTreeWalker(document.body, 1 /* elements */);
@@ -67,10 +90,21 @@ export function collectNodes(sourceText: string, dom: any, document: Document) {
         // Look for grammar definitions and SDOs
         if (node.getAttribute('type') === 'definition') {
           let loc = getLocation(dom, node);
-          let start = loc.startTag.endOffset;
-          let end = loc.endTag.startOffset;
-          let realSource = sourceText.slice(start, end);
-          mainGrammar.push({ element: node as Element, source: realSource });
+          if (loc.endTag == null) {
+            failed = true;
+            errors.push({
+              ruleId: 'no-close-tag',
+              message: 'could not find closing tag for emu-grammar',
+              line: loc.startTag.line,
+              column: loc.startTag.col,
+              nodeType: 'EMU-GRAMMAR',
+            });
+          } else {
+            let start = loc.startTag.endOffset;
+            let end = loc.endTag.startOffset;
+            let realSource = sourceText.slice(start, end);
+            mainGrammar.push({ element: node as Element, source: realSource });
+          }
         } else if (node.getAttribute('type') !== 'example') {
           let next = lintWalker.nextSibling() as Element;
           if (next) {
@@ -103,5 +137,9 @@ export function collectNodes(sourceText: string, dom: any, document: Document) {
   }
   visitCurrentNode();
 
-  return { mainGrammar, headers, sdos, earlyErrors, algorithms };
+  if (failed) {
+    return { success: false, errors };
+  }
+
+  return { success: true, mainGrammar, headers, sdos, earlyErrors, algorithms };
 }

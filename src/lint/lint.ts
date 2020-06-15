@@ -20,11 +20,14 @@ There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
 export function lint(report: Reporter, sourceText: string, dom: any, document: Document) {
-  let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collectNodes(
-    sourceText,
-    dom,
-    document
-  );
+  let collection = collectNodes(sourceText, dom, document);
+  if (!collection.success) {
+    let lintingErrors = collection.errors;
+    lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
+    report(lintingErrors, sourceText);
+    return;
+  }
+  let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collection;
 
   let { grammar, lintingErrors } = collectGrammarDiagnostics(
     dom,
