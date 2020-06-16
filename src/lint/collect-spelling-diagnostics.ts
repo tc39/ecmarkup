@@ -51,6 +51,10 @@ let matchers = [
     pattern: /\r/gu,
     message: 'Only Unix-style (LF) linebreaks are allowed',
   },
+  {
+    pattern: /(?<=\b[Ss]teps? )\d/gu,
+    message: 'Prefer using labeled steps and <emu-xref> tags over hardcoding step numbers',
+  },
 ];
 
 export function collectSpellingDiagnostics(sourceText: string) {

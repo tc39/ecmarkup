@@ -171,6 +171,19 @@ windows:${M}\r
     );
   });
 
+  it('step numbers', async function () {
+    await assertLint(
+      positioned`
+        Something about step ${M}1.
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'text',
+        message: 'Prefer using labeled steps and <emu-xref> tags over hardcoding step numbers',
+      }
+    );
+  });
+
   it('negative', async function () {
     await assertLintFree(`
       <p>
@@ -188,6 +201,11 @@ windows:${M}\r
       <emu-clause id="example">
         <h1>Example</h1>
       </emu-clause>
+
+      <emu-alg>
+        1. [label="example-label"] Foo.
+      </emu-alg>
+      Something about step <emu-xref href="#step-example-label"></emu-xref>.
     `);
   });
 });
