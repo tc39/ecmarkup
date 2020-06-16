@@ -123,6 +123,17 @@ describe('linting algorithms', function () {
     it('simple', async function () {
       await assertLint(
         positioned`<emu-alg>
+          ${M}2. Step.
+          1. Step.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected step number to be "1." (found "2.")',
+        }
+      );
+      await assertLint(
+        positioned`<emu-alg>
           1. Step.
           ${M}2. Step.
         </emu-alg>`,
@@ -161,7 +172,7 @@ describe('linting algorithms', function () {
 
       await assertLint(
         positioned`<emu-alg>
-          2. Step:
+          1. Step:
             ${M}2. Substep.
         </emu-alg>`,
         {
@@ -202,9 +213,9 @@ describe('linting algorithms', function () {
     it('negative', async function () {
       await assertLintFree(`
         <emu-alg>
-          2. Step.
-          3. Step.
-          40. Step.
+          1. Step.
+          1. Step.
+          1. Step.
         </emu-alg>
       `);
     });

@@ -4,7 +4,7 @@ import type { LintingError } from '../algorithm-error-reporter-type';
 const ruleId = 'algorithm-step-numbering';
 
 /*
-Checks that step numbers are all `1`, with the exception of top-level lists whose first item is not `1`.
+Checks that step numbers are all `1`.
 */
 export default function (
   report: (e: LintingError) => void,
@@ -12,19 +12,9 @@ export default function (
   algorithmSource: string
 ): Observer {
   const nodeType = node.tagName;
-  let depth = -1;
-  let topLevelIsOne = false;
   return {
     enter(node: EcmarkdownNode) {
-      if (node.name === 'ol') {
-        ++depth;
-        if (depth === 0) {
-          topLevelIsOne = node.start === 1;
-        }
-      } else if (node.name === 'ordered-list-item') {
-        if (depth === 0 && !topLevelIsOne) {
-          return;
-        }
+      if (node.name === 'ordered-list-item') {
         let itemSource = algorithmSource.slice(
           node.location!.start.offset,
           node.location!.end.offset
@@ -39,11 +29,6 @@ export default function (
             message: `expected step number to be "1." (found ${JSON.stringify(match[2])})`,
           });
         }
-      }
-    },
-    exit(node: EcmarkdownNode) {
-      if (node.name === 'ol') {
-        --depth;
       }
     },
   };
