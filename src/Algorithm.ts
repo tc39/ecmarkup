@@ -24,7 +24,6 @@ export default class Algorithm extends Builder {
     let labeledStepEntries: StepBiblioEntry[] = [];
     let replaces = node.getAttribute('replaces-step');
     if (replaces) {
-      replaces = 'step-' + replaces;
       context.spec.replacementAlgorithms.push({
         element: node,
         target: replaces,

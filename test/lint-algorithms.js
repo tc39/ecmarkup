@@ -21,6 +21,19 @@ describe('linting algorithms', function () {
       );
     });
 
+    it('labeled', async function () {
+      await assertLint(
+        positioned`<emu-alg>
+          1. [id="step-test"] testing${M}
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected freeform line to end with "." (found "testing")',
+        }
+      );
+    });
+
     it('inline', async function () {
       await assertLint(positioned`<emu-alg>1. testing${M}</emu-alg>`, {
         ruleId,
@@ -216,6 +229,32 @@ describe('linting algorithms', function () {
           1. Step.
           1. Step.
           1. Step.
+        </emu-alg>
+      `);
+    });
+  });
+
+  describe('step labels', function () {
+    const ruleId = 'algorithm-step-labels';
+    it('rejects unprefixed labels', async function () {
+      await assertLint(
+        positioned`<emu-alg>
+          1. [id="${M}example"] Step.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'step labels should start with "step-"',
+        }
+      );
+    });
+
+    it('negative', async function () {
+      await assertLintFree(`
+        <emu-alg>
+          1. Step.
+          1. [id="step-example"] Step.
+          1. This is <span id="example">valid</span>.
         </emu-alg>
       `);
     });

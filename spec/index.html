@@ -207,10 +207,10 @@ toc: false
     &lt;emu-alg>
       1. Step.
       1. Step 2.
-        1. [label="replace-me"] Replaced.
+        1. [id="replace-me"] Replaced.
           1. Substep.
     &lt;/emu-alg>
-    &lt;p>The following is an alernative definition of step &lt;emu-xref href="#step-replace-me">&lt;/emu-xref>.&lt;/p>
+    &lt;p>The following is an alernative definition of step &lt;emu-xref href="#replace-me">&lt;/emu-xref>.&lt;/p>
     &lt;emu-alg replaces-step="replace-me">
       1. Replacement.
         1. Substep.
@@ -220,10 +220,10 @@ toc: false
   <emu-alg>
     1. Step.
     1. Step 2.
-      1. [label="replace-me"] Replaced.
+      1. [id="replace-me"] Replaced.
         1. Substep.
   </emu-alg>
-  <p>The following is an alernative definition of step <emu-xref href="#step-replace-me"></emu-xref>.</p>
+  <p>The following is an alernative definition of step <emu-xref href="#replace-me"></emu-xref>.</p>
   <emu-alg replaces-step="replace-me">
     1. Replacement.
       1. Substep.
@@ -269,8 +269,8 @@ toc: false
     &lt;p>See &lt;emu-xref href="#emu-note" title>&lt;/emu-xref> for information on the emu-note element.&lt;/p>
     &lt;p>The &lt;emu-xref href="#emu-biblio">biblio element&lt;/emu-xref> supports xref to external specs.&lt;/p>
     &lt;p>&lt;emu-xref aoid="Get">&lt;/emu-xref> is an abstract operation from ES6&lt;/p>
-    &lt;p>&lt;emu-alg>1. [label="example-step-label"] Example labeled step.&lt;/emu-alg>&lt;/p>
-    &lt;p>You can reference step &lt;emu-xref href="#step-example-step-label">&lt;/emu-xref> like this&lt;/p>
+    &lt;p>&lt;emu-alg>1. [id="example-step-label"] Example labeled step.&lt;/emu-alg>&lt;/p>
+    &lt;p>You can reference step &lt;emu-xref href="#example-step-label">&lt;/emu-xref> like this&lt;/p>
   </code></pre>
 
   <b>Result</b>
@@ -278,8 +278,8 @@ toc: false
   <p>See <emu-xref href="#emu-note" title></emu-xref> for information on the emu-note element.</p>
   <p>The <emu-xref href="#emu-biblio">biblio element</emu-xref> will eventually support xref to external specs.</p>
   <p><emu-xref aoid="Get"></emu-xref> is an abstract operation from ES6</p>
-  <p><emu-alg>1. [label="example-step-label"] Example labeled step.</emu-alg></p>
-  <p>You can reference step <emu-xref href="#step-example-step-label"></emu-xref> like this</p>
+  <p><emu-alg>1. [id="example-step-label"] Example labeled step.</emu-alg></p>
+  <p>You can reference step <emu-xref href="#example-step-label"></emu-xref> like this</p>
 </emu-clause>
 
 <emu-clause id="emu-not-ref" namespace="emu-not-ref">

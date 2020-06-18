@@ -203,9 +203,9 @@ windows:${M}\r
       </emu-clause>
 
       <emu-alg>
-        1. [label="example-label"] Foo.
+        1. [id="step-label"] Foo.
       </emu-alg>
-      Something about step <emu-xref href="#step-example-label"></emu-xref>.
+      Something about step <emu-xref href="#step-label"></emu-xref>.
     `);
   });
 });
