@@ -7,8 +7,13 @@ import { parseAlgorithm, visit } from 'ecmarkdown';
 import { getLocation } from './utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
+import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
 
-let algorithmRules = [lintAlgorithmLineEndings, lintAlgorithmStepNumbering];
+let algorithmRules = [
+  lintAlgorithmLineEndings,
+  lintAlgorithmStepNumbering,
+  lintAlgorithmStepLabels,
+];
 
 function composeObservers(...observers: Observer[]): Observer {
   return {
