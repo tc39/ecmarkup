@@ -396,7 +396,13 @@ toc: false
   "https://tc39.github.io/ecma262/": [
     {
       "type": "op",
-      "aoid": "ReturnIfAbrubt"
+      "id": "sec-returnifabrupt",
+      "aoid": "ReturnIfAbrupt"
+    },
+    {
+      "type": "op",
+      "id": "sec-get-o-p",
+      "aoid": "Get"
     }
   ]
 }</code></pre>
@@ -404,7 +410,7 @@ toc: false
   <pre><code class="language-html">
 &lt;emu-biblio href="./biblio.json">&lt;/emu-biblio>
 &lt;emu-alg>
-1. let _res_ be some value.
+1. let _res_ be Get(_obj_, _key_).
 2. ReturnIfAbrupt(_res_)
 &lt;/emu-alg>
   </code></pre>
