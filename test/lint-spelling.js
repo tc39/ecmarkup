@@ -192,6 +192,7 @@ windows:${M}\r
         two's complement
         *+0*
         *-0*
+        *0*<sub>ℤ</sub>
         behaviour
         the empty String
       </p>
