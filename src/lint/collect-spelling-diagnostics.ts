@@ -19,7 +19,7 @@ let matchers = [
     message: 'Prefer "two\'s complement"',
   },
   {
-    pattern: /\*0\*/gu,
+    pattern: /\*0\*(?!<sub>ℤ<\/sub>)/gu,
     message: 'The Number value 0 should be written "*+0*", to unambiguously exclude "*-0*"',
   },
   {
