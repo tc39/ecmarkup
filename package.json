@@ -84,5 +84,8 @@
 		"singleQuote": true,
 		"arrowParens": "avoid",
 		"printWidth": 100
+	},
+	"engines": {
+		"node": ">= 12 || ^11.10.1 || ^10.13 || ^8.10"
 	}
 }

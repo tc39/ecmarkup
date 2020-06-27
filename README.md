@@ -6,7 +6,7 @@ A web component-based source format for ECMAScript and related specifications. S
 
 ### Installing & Using
 
-Requires Node.js 4.0 or above.
+Requires node 8 or above.
 
 ```
 npm install ecmarkup
