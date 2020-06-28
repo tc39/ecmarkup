@@ -276,7 +276,8 @@ export default class Spec {
   }
 
   public toHTML() {
-    return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
+    let htmlEle = this.doc.documentElement;
+    return '<!doctype html>\n' + (htmlEle.hasAttributes() ? htmlEle.outerHTML : htmlEle.innerHTML);
   }
 
   private buildReferenceGraph() {
