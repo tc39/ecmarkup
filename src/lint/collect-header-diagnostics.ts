@@ -88,7 +88,7 @@ export function collectHeaderDiagnostics(
         // Function ( _p1_, _p2_, &hellip; , _pn_, _body_ )
         /^ (_[A-Za-z0-9]+_, )*… (, _[A-Za-z0-9]+_)+ $/,
 
-        // Example ( _foo_ , [ _bar_ ] )
+        // Example ( _foo_ [ , _bar_ ] )
         // Example ( [ _foo_ ] )
         /^ (\[ )?_[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*( \[ , _[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*)*( \])* $/,
       ].some(r => r.test(params));
@@ -104,7 +104,7 @@ export function collectHeaderDiagnostics(
         nodeType: element.tagName,
         line,
         column,
-        message: `expected parameter list to look like '( _a_, [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'`,
+        message: `expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'`,
       });
     }
   }
