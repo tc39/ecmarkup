@@ -163,7 +163,7 @@ describe('linting whole program', function () {
           ruleId: 'header-format',
           nodeType: 'H1',
           message:
-            "expected parameter list to look like '( _a_, [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'",
+            "expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'",
         }
       );
     });
