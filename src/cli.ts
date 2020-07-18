@@ -28,6 +28,15 @@ const watching = new Map<string, fs.FSWatcher>();
 const build = debounce(async function build() {
   try {
     const opts: Options = { ...args };
+    if (args.verbose) {
+      opts.log = utils.logVerbose;
+    }
+    let warned = false;
+    opts.warn = str => {
+      warned = true;
+      utils.logWarning(str);
+    };
+
     if (args.lintSpec) {
       let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
       try {
@@ -54,6 +63,7 @@ const build = debounce(async function build() {
           },
         ];
 
+        warned = true;
         console.error(formatter(results));
       };
     }
@@ -78,7 +88,7 @@ const build = debounce(async function build() {
 
     await Promise.all(pending);
 
-    if (args.strict && spec.warned) {
+    if (args.strict && warned) {
       if (args.verbose) {
         utils.logVerbose('Exiting with an error due to warnings');
       }

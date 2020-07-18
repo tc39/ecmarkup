@@ -26,7 +26,6 @@ export interface Options {
   toc?: boolean;
   oldToc?: boolean;
   lintSpec?: boolean;
-  verbose?: boolean;
   cssOut?: string;
   jsOut?: string;
   assets?: 'none' | 'inline' | 'external';
@@ -34,6 +33,8 @@ export interface Options {
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
   reportLintErrors?: Reporter;
+  log?: (msg: string) => void;
+  warn?: (msg: string) => void;
 }
 
 export async function build(

@@ -97,7 +97,8 @@ export default class Spec {
   labeledStepsToBeRectified: Set<string>;
   replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
-  warned: boolean;
+  log: (msg: string) => void;
+  warn: (msg: string) => void;
 
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
@@ -132,7 +133,8 @@ export default class Spec {
     this.labeledStepsToBeRectified = new Set();
     this.replacementAlgorithms = [];
     this.cancellationToken = token;
-    this.warned = false;
+    this.log = opts.log ?? (str => {});
+    this.warn = opts.warn ?? (str => {});
     this._figureCounts = {
       table: 0,
       figure: 0,
@@ -200,19 +202,19 @@ export default class Spec {
     7. Add CSS & JS dependencies.
     */
 
-    this._log('Loading biblios...');
+    this.log('Loading biblios...');
     if (this.opts.ecma262Biblio) {
       await this.loadECMA262Biblio();
     }
     await this.loadBiblios();
 
-    this._log('Loading imports...');
+    this.log('Loading imports...');
     await this.loadImports();
 
-    this._log('Building boilerplate...');
+    this.log('Building boilerplate...');
     this.buildBoilerplate();
 
-    this._log('Walking document, building various elements...');
+    this.log('Walking document, building various elements...');
     const context: Context = {
       spec: this,
       node: this.doc.body,
@@ -231,20 +233,12 @@ export default class Spec {
 
     if (this.opts.reportLintErrors) {
       let { reportLintErrors } = this.opts;
-      this._log('Linting...');
+      this.log('Linting...');
       const source = this.sourceText;
       if (source === undefined) {
         throw new Error('Cannot lint when source text is not available');
       }
-      lint(
-        (...args) => {
-          this.warned = true;
-          reportLintErrors(...args);
-        },
-        source,
-        this.dom,
-        document
-      );
+      lint(reportLintErrors, source, this.dom, document);
     }
 
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
@@ -255,13 +249,13 @@ export default class Spec {
 
     this.autolink();
 
-    this._log('Linking xrefs...');
+    this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
-    this._log('Linking non-terminal references...');
+    this.log('Linking non-terminal references...');
     this._ntRefs.forEach(nt => nt.build());
-    this._log('Linking production references...');
+    this.log('Linking production references...');
     this._prodRefs.forEach(prod => prod.build());
-    this._log('Building reference graph...');
+    this.log('Building reference graph...');
     this.buildReferenceGraph();
 
     this.highlightCode();
@@ -270,7 +264,7 @@ export default class Spec {
     this.buildSpecWrapper();
 
     if (this.opts.toc) {
-      this._log('Building table of contents...');
+      this.log('Building table of contents...');
 
       let toc: Toc | Menu;
       if (this.opts.oldToc) {
@@ -284,7 +278,7 @@ export default class Spec {
 
     await this.buildAssets();
 
-    this._log('Done.');
+    this.log('Done.');
     return this;
   }
 
@@ -330,12 +324,12 @@ export default class Spec {
     const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
 
     if (this.opts.jsOut) {
-      this._log(`Writing js file to ${this.opts.jsOut}...`);
+      this.log(`Writing js file to ${this.opts.jsOut}...`);
       await utils.writeFile(this.opts.jsOut, jsContents);
     }
 
     if (this.opts.cssOut) {
-      this._log(`Writing css file to ${this.opts.cssOut}...`);
+      this.log(`Writing css file to ${this.opts.cssOut}...`);
       await utils.writeFile(this.opts.cssOut, cssContents);
     }
 
@@ -358,7 +352,7 @@ export default class Spec {
         const script = scripts[i];
         const src = script.getAttribute('src');
         if (src && path.normalize(path.join(outDir, src)) === path.normalize(this.opts.jsOut)) {
-          this._log(`Found existing js link to ${src}, skipping inlining...`);
+          this.log(`Found existing js link to ${src}, skipping inlining...`);
           skipJs = true;
         }
       }
@@ -370,21 +364,21 @@ export default class Spec {
         const link = links[i];
         const href = link.getAttribute('href');
         if (href && path.normalize(path.join(outDir, href)) === path.normalize(this.opts.cssOut)) {
-          this._log(`Found existing css link to ${href}, skipping inlining...`);
+          this.log(`Found existing css link to ${href}, skipping inlining...`);
           skipCss = true;
         }
       }
     }
 
     if (!skipJs) {
-      this._log('Inlining JavaScript assets...');
+      this.log('Inlining JavaScript assets...');
       const script = this.doc.createElement('script');
       script.textContent = jsContents;
       this.doc.head.appendChild(script);
     }
 
     if (!skipCss) {
-      this._log('Inlining CSS assets...');
+      this.log('Inlining CSS assets...');
       const style = this.doc.createElement('style');
       style.textContent = cssContents;
       this.doc.head.appendChild(style);
@@ -461,7 +455,7 @@ export default class Spec {
   }
 
   private highlightCode() {
-    this._log('Highlighting syntax...');
+    this.log('Highlighting syntax...');
     const codes = this.doc.querySelectorAll('pre code');
     for (let i = 0; i < codes.length; i++) {
       const classAttr = codes[i].getAttribute('class');
@@ -648,7 +642,7 @@ export default class Spec {
   }
 
   private setReplacementAlgorithmOffsets() {
-    this._log('Finding offsets for replacement algorithm steps...');
+    this.log('Finding offsets for replacement algorithm steps...');
     let pending: Map<string, Element[]> = new Map();
 
     let setReplacementAlgorithmStart = (element: Element, stepNumbers: number[]) => {
@@ -712,7 +706,7 @@ export default class Spec {
   }
 
   public autolink() {
-    this._log('Autolinking terms and abstract ops...');
+    this.log('Autolinking terms and abstract ops...');
     let namespaces = Object.keys(this._textNodes);
     for (let i = 0; i < namespaces.length; i++) {
       let namespace = namespaces[i];
@@ -735,17 +729,6 @@ export default class Spec {
     }
 
     current.setAttribute('charset', 'utf-8');
-  }
-
-  /*@internal*/
-  _log(str: string) {
-    if (!this.opts.verbose) return;
-    utils.logVerbose(str);
-  }
-
-  public warn(str: string) {
-    this.warned = true;
-    utils.logWarning(str);
   }
 
   private _updateBySelector(selector: string, contents: string) {
