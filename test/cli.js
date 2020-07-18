@@ -20,7 +20,10 @@ describe('ecmarkup#cli', () => {
 
   it('exits with an error on warning when using --strict', () => {
     assert.throws(() => {
-      execSync('./bin/ecmarkup.js --strict test/duplicate-ids.html', { encoding: 'utf8', stdio: 'ignore' });
+      execSync('./bin/ecmarkup.js --strict test/duplicate-ids.html', {
+        encoding: 'utf8',
+        stdio: 'ignore',
+      });
     });
   });
 });

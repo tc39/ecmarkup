@@ -19,7 +19,7 @@ describe('detecting duplicate ids', () => {
       '<emu-clause> has duplicate id: sec-a',
       '<emu-clause> has duplicate id: sec-a',
       '<emu-table> has duplicate id: table-of-stuff',
-      '<emu-example> has duplicate id: an-example'
+      '<emu-example> has duplicate id: an-example',
     ]);
   });
 });

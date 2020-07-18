@@ -133,8 +133,8 @@ export default class Spec {
     this.labeledStepsToBeRectified = new Set();
     this.replacementAlgorithms = [];
     this.cancellationToken = token;
-    this.log = opts.log ?? (str => {});
-    this.warn = opts.warn ?? (str => {});
+    this.log = opts.log ?? (() => {});
+    this.warn = opts.warn ?? (() => {});
     this._figureCounts = {
       table: 0,
       figure: 0,
