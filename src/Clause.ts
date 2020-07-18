@@ -4,7 +4,6 @@ import type Spec from './Spec';
 import type { ClauseBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
-import { logWarning } from './utils';
 import Builder from './Builder';
 
 /*@internal*/
@@ -108,7 +107,7 @@ export default class Clause extends Builder {
 
   static enter({ spec, node, clauseStack, clauseNumberer }: Context) {
     if (!node.id) {
-      logWarning("Clause doesn't have an id: " + node.outerHTML.slice(0, 100));
+      spec.warn("Clause doesn't have an id: " + node.outerHTML.slice(0, 100));
     }
 
     let nextNumber = '';

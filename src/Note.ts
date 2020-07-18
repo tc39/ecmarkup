@@ -68,7 +68,7 @@ export default class Note extends Builder {
     } else if (this.type === 'editor') {
       label = "Editor's Note";
     } else {
-      this.spec._log(`Unknown note type ${this.type}. Skipping.`);
+      this.spec.warn(`Unknown note type ${this.type}. Skipping.`);
     }
 
     if (number !== undefined) {

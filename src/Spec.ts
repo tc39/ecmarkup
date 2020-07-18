@@ -96,6 +96,7 @@ export default class Spec {
   labeledStepsToBeRectified: Set<string>;
   replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
+  warned: boolean;
 
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
@@ -129,6 +130,7 @@ export default class Spec {
     this.labeledStepsToBeRectified = new Set();
     this.replacementAlgorithms = [];
     this.cancellationToken = token;
+    this.warned = false;
     this._figureCounts = {
       table: 0,
       figure: 0,
@@ -401,7 +403,7 @@ export default class Spec {
     try {
       data = yaml.safeLoad(block.textContent!);
     } catch (e) {
-      utils.logWarning('metadata block failed to parse');
+      this.warn('metadata block failed to parse');
       return;
     } finally {
       block.parentNode.removeChild(block);
@@ -435,7 +437,7 @@ export default class Spec {
 
   public exportBiblio(): any {
     if (!this.opts.location) {
-      utils.logWarning(
+      this.warn(
         "No spec location specified. Biblio not generated. Try --location or setting the location in the document's metadata block."
       );
       return {};
@@ -501,7 +503,7 @@ export default class Spec {
 
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
-        utils.logWarning(
+        this.warn(
           'Contributors not specified, skipping copyright boilerplate. Specify contributors in your frontmatter metadata.'
         );
       } else {
@@ -683,16 +685,16 @@ export default class Spec {
         // When the target is not itself within a replacement, or is within a replacement which we have already rectified, we can just use its step number directly
         let targetEntry = this.biblio.byId(target);
         if (targetEntry == null) {
-          utils.logWarning(`Could not find step ${target}`);
+          this.warn(`Could not find step ${target}`);
         } else if (targetEntry.type !== 'step') {
-          utils.logWarning(`Expected algorithm to replace a step, not a ${targetEntry.type}`);
+          this.warn(`Expected algorithm to replace a step, not a ${targetEntry.type}`);
         } else {
           setReplacementAlgorithmStart(element, targetEntry.stepNumbers);
         }
       }
     }
     if (pending.size > 0) {
-      utils.logWarning(
+      this.warn(
         'Could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?'
       );
     }
@@ -728,6 +730,11 @@ export default class Spec {
   _log(str: string) {
     if (!this.opts.verbose) return;
     utils.logVerbose(str);
+  }
+
+  public warn(str: string) {
+    this.warned = true;
+    utils.logWarning(str);
   }
 
   private _updateBySelector(selector: string, contents: string) {

@@ -1,7 +1,6 @@
 import type { Context } from './Context';
 import type { StepBiblioEntry } from './Biblio';
 
-import { logWarning } from './utils';
 import Builder from './Builder';
 import * as emd from 'ecmarkdown';
 
@@ -9,7 +8,7 @@ import * as emd from 'ecmarkdown';
 export default class Algorithm extends Builder {
   static enter(context: Context) {
     context.inAlg = true;
-    const { node } = context;
+    const { spec, node } = context;
 
     // prettier-ignore
     const rawHtml =
@@ -33,7 +32,7 @@ export default class Algorithm extends Builder {
 
     let labeledSteps = Array.from(node.querySelectorAll('li[id]'));
     if (replaces && labeledSteps.length > 0 && node.firstElementChild!.children.length > 1) {
-      logWarning(
+      spec.warn(
         'You should not label a step in a replacement algorithm which has multiple top-level steps because the resulting step number could be ambiguous.'
       );
     }
