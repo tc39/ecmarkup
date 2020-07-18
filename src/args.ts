@@ -32,6 +32,11 @@ export const argParser = nomnom
       help:
         'The linting output formatter. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.',
     },
+    strict: {
+      flag: true,
+      default: false,
+      help: 'Exit with an error if there are warnings. Cannot be used with --watch.',
+    },
     verbose: { flag: true, default: false, help: 'Display document build progress' },
     version: {
       abbr: 'v',

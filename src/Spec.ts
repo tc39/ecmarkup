@@ -228,12 +228,21 @@ export default class Spec {
     const document = this.doc;
 
     if (this.opts.reportLintErrors) {
+      let { reportLintErrors } = this.opts;
       this._log('Linting...');
       const source = this.sourceText;
       if (source === undefined) {
         throw new Error('Cannot lint when source text is not available');
       }
-      lint(this.opts.reportLintErrors, source, this.dom, document);
+      lint(
+        (...args) => {
+          this.warned = true;
+          reportLintErrors(...args);
+        },
+        source,
+        this.dom,
+        document
+      );
     }
 
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);

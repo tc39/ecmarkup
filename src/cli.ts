@@ -19,8 +19,8 @@ if (args.js) {
   args.jsOut = args.js;
 }
 
-if (args.lintSpec && args.watch) {
-  console.error('Cannot use --lint-spec with --watch');
+if (args.strict && args.watch) {
+  console.error('Cannot use --strict with --watch');
   process.exit(1);
 }
 
@@ -55,7 +55,6 @@ const build = debounce(async function build() {
         ];
 
         console.error(formatter(results));
-        process.exit(1);
       };
     }
     const spec = await ecmarkup.build(args.infile, utils.readFile, opts);
@@ -78,6 +77,13 @@ const build = debounce(async function build() {
     }
 
     await Promise.all(pending);
+
+    if (args.strict && spec.warned) {
+      if (args.verbose) {
+        utils.logVerbose('Exiting with an error due to warnings');
+      }
+      process.exit(1);
+    }
 
     if (args.watch) {
       const toWatch = new Set<string>(spec.imports.map(i => i.importLocation).concat(args.infile));
