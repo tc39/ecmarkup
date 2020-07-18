@@ -52,10 +52,9 @@ const build = debounce(async function build() {
         let results = [
           {
             filePath: args.infile,
-            // for now, everything is an error (2 in eslint terms)
-            messages: errors.map(e => ({ severity: 2, ...e })),
-            errorCount: errors.length,
-            warningCount: 0,
+            messages: errors.map(e => ({ severity: args.strict ? 2 : 1, ...e })),
+            errorCount: args.strict ? errors.length : 0,
+            warningCount: args.strict ? 0 : errors.length,
             // for now, nothing is fixable
             fixableErrorCount: 0,
             fixableWarningCount: 0,
