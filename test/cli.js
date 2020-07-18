@@ -8,9 +8,19 @@ describe('ecmarkup#cli', () => {
     execSync('./bin/ecmarkup.js test/example.html', { encoding: 'utf8' });
   });
 
+  it('exits cleanly on warning', () => {
+    execSync('./bin/ecmarkup.js test/duplicate-ids.html', { encoding: 'utf8', stdio: 'ignore' });
+  });
+
   it('exits with an error on error', () => {
     assert.throws(() => {
       execSync('./bin/ecmarkup.js test/malformed.bad.html', { encoding: 'utf8', stdio: 'ignore' });
+    });
+  });
+
+  it('exits with an error on warning when using --strict', () => {
+    assert.throws(() => {
+      execSync('./bin/ecmarkup.js --strict test/duplicate-ids.html', { encoding: 'utf8', stdio: 'ignore' });
     });
   });
 });
