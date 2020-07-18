@@ -91,6 +91,7 @@ export default class Spec {
   doc: Document;
   imports: Import[];
   node: HTMLElement;
+  nodeIds: Set<string>;
   subclauses: Clause[];
   replacementAlgorithmToContainedLabeledStepEntries: Map<Element, StepBiblioEntry[]>; // map from re to its labeled nodes
   labeledStepsToBeRectified: Set<string>;
@@ -126,6 +127,7 @@ export default class Spec {
     this.subclauses = [];
     this.imports = [];
     this.node = this.doc.body;
+    this.nodeIds = new Set();
     this.replacementAlgorithmToContainedLabeledStepEntries = new Map();
     this.labeledStepsToBeRectified = new Set();
     this.replacementAlgorithms = [];
