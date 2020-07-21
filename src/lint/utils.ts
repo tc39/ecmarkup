@@ -11,6 +11,7 @@ import type {
   OneOfSymbol,
   ArgumentList,
 } from 'grammarkdown';
+import type { MarkupData } from 'parse5';
 
 import { Grammar as GrammarFile, SyntaxKind } from 'grammarkdown';
 
@@ -67,16 +68,26 @@ export function grammarkdownLocationToTrueLocation(
   return { line, column };
 }
 
-type Location = {
-  line: number;
-  col: number;
-  startOffset: number;
-  endOffset: number;
-};
-export type ElementLocation = {
-  startTag: Location;
-  endTag: Location | null;
-};
+export function ecmarkdownLocationToTrueLocation(
+  elementLoc: ReturnType<typeof getLocation>,
+  emdLine: number,
+  emdColumn: number
+) {
+  // jsdom's lines and columns are both 1-based
+  // ecmarkdown's lines are 1-based, columns are 0-based
+  // we want 1-based for both
+  let line = elementLoc.startTag.line + emdLine - 1;
+  let column =
+    emdLine === 1
+      ? elementLoc.startTag.col +
+        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
+        emdColumn
+      : emdColumn + 1;
+  return { line, column };
+}
+
+// TODO don't reexport
+export type ElementLocation = MarkupData.ElementLocation;
 
 export function getLocation(dom: any, node: Element): ElementLocation {
   let loc = dom.nodeLocation(node);

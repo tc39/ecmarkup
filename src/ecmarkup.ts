@@ -13,6 +13,14 @@ export class Boilerplate {
   license?: string;
 }
 
+export type EcmarkupError = {
+  ruleId: string;
+  message: string;
+  line: number;
+  column: number;
+  nodeType: string;
+};
+
 export interface Options {
   status?: 'proposal' | 'draft' | 'standard';
   version?: string;
@@ -34,7 +42,7 @@ export interface Options {
   ecma262Biblio?: boolean;
   reportLintErrors?: Reporter;
   log?: (msg: string) => void;
-  warn?: (msg: string) => void;
+  warn?: (err: EcmarkupError) => void;
 }
 
 export async function build(

@@ -3,6 +3,7 @@ import type { Context } from './Context';
 import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
+import { getLocation } from './lint/utils';
 import Builder from './Builder';
 
 /*@internal*/
@@ -45,12 +46,26 @@ export default class Xref extends Builder {
     }
 
     if (href && aoid) {
-      spec.warn("xref can't have both href and aoid.");
+      let nodeLoc = getLocation(spec.dom, node);
+      spec.warn({
+        ruleId: 'xref-not-valid',
+        nodeType: 'emu-xref',
+        message: "xref can't have both href and aoid",
+        line: nodeLoc.startTag.line,
+        column: nodeLoc.startTag.col,
+      });
       return;
     }
 
     if (!href && !aoid) {
-      spec.warn('xref has no href or aoid.');
+      let nodeLoc = getLocation(spec.dom, node);
+      spec.warn({
+        ruleId: 'xref-not-valid',
+        nodeType: 'emu-xref',
+        message: 'xref has no href or aoid',
+        line: nodeLoc.startTag.line,
+        column: nodeLoc.startTag.col,
+      });
       return;
     }
 
@@ -67,11 +82,14 @@ export default class Xref extends Builder {
 
     if (href) {
       if (href[0] !== '#') {
-        spec.warn(
-          'xref to anything other than a fragment id is not supported (is ' +
-            href +
-            '). Try href="#sec-id" instead.'
-        );
+        let nodeLoc = getLocation(spec.dom, this.node);
+        spec.warn({
+          ruleId: 'xref-not-valid',
+          nodeType: 'emu-xref',
+          message: `xref to anything other than a fragment id is not supported (is ${href}). Try href="#sec-id" instead.`,
+          line: nodeLoc.startTag.line,
+          column: nodeLoc.startTag.col,
+        });
         return;
       }
 
@@ -79,7 +97,14 @@ export default class Xref extends Builder {
 
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
-        spec.warn("can't find clause, production, note or example with id " + href);
+        let nodeLoc = getLocation(spec.dom, this.node);
+        spec.warn({
+          ruleId: 'xref-not-found',
+          nodeType: 'emu-xref',
+          message: `can't find clause, production, note or example with id ${href}`,
+          line: nodeLoc.startTag.line,
+          column: nodeLoc.startTag.col,
+        });
         return;
       }
 
@@ -108,10 +133,16 @@ export default class Xref extends Builder {
         case 'step':
           buildStepLink(spec, node, this.entry);
           break;
-        default:
-          spec.warn(
-            `found unknown biblio entry ${this.entry.type} (this is a bug, please file it with ecmarkup)`
-          );
+        default: {
+          let nodeLoc = getLocation(spec.dom, this.node);
+          spec.warn({
+            ruleId: 'unknown-biblio',
+            nodeType: 'emu-xref',
+            message: `found unknown biblio entry ${this.entry.type} (this is a bug, please file it with ecmarkup)`,
+            line: nodeLoc.startTag.line,
+            column: nodeLoc.startTag.col,
+          });
+        }
       }
     } else if (aoid) {
       this.entry = spec.biblio.byAoid(aoid, namespace);
@@ -121,7 +152,14 @@ export default class Xref extends Builder {
         return;
       }
 
-      spec.warn("can't find abstract op with aoid " + aoid + ' in namespace ' + namespace);
+      let nodeLoc = getLocation(spec.dom, this.node);
+      spec.warn({
+        ruleId: 'xref-not-found',
+        nodeType: 'emu-xref',
+        message: `can't find abstract op with aoid ${aoid} in namespace ${namespace}`,
+        line: nodeLoc.startTag.line,
+        column: nodeLoc.startTag.col,
+      });
     }
   }
 }
@@ -174,7 +212,14 @@ function buildFigureLink(
       // first need to find the associated clause
       const clauseEntry = spec.biblio.byId(entry.clauseId);
       if (clauseEntry.type !== 'clause') {
-        spec.warn('could not find parent clause for ' + type + ' id ' + entry.id);
+        let nodeLoc = getLocation(spec.dom, entry.node);
+        spec.warn({
+          ruleId: 'high-step-number',
+          nodeType: 'emu-xref',
+          message: `could not find parent clause for ${type} id ${entry.id}`,
+          line: nodeLoc.startTag.line,
+          column: nodeLoc.startTag.col,
+        });
         return;
       }
 
@@ -211,15 +256,27 @@ let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBull
 
 function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry) {
   if (xref.innerHTML !== '') {
-    spec.warn('the contents of emu-xrefs to steps are ignored');
+    let nodeLoc = getLocation(spec.dom, xref);
+    spec.warn({
+      ruleId: 'step-xref-contents',
+      nodeType: 'emu-xref',
+      message: 'the contents of emu-xrefs to steps are ignored',
+      line: nodeLoc.startTag.line,
+      column: nodeLoc.startTag.col,
+    });
   }
 
   let stepBullets = entry.stepNumbers.map((s, i) => {
     let applicable = bullets[Math.min(i, 5)];
     if (s > applicable.length) {
-      spec.warn(
-        `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`
-      );
+      let nodeLoc = getLocation(spec.dom, xref);
+      spec.warn({
+        ruleId: 'high-step-number',
+        nodeType: 'emu-xref',
+        message: `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`,
+        line: nodeLoc.startTag.line,
+        column: nodeLoc.startTag.col,
+      });
       return '?';
     }
     return applicable[s - 1];

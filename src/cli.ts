@@ -32,10 +32,35 @@ const build = debounce(async function build() {
       opts.log = utils.logVerbose;
     }
     let warned = false;
-    opts.warn = str => {
-      warned = true;
-      utils.logWarning(str);
-    };
+    {
+      let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
+      try {
+        require.resolve(descriptor);
+      } catch {
+        descriptor = args.lintFormatter;
+      }
+      let formatter = require(descriptor);
+      opts.warn = err => {
+        warned = true;
+
+        // TODO fix this
+        let results = [
+          {
+            filePath: args.infile,
+            messages: [{ severity: args.strict ? 2 : 1, ...err }],
+            errorCount: args.strict ? 1 : 0,
+            warningCount: args.strict ? 0 : 1,
+            // for now, nothing is fixable
+            fixableErrorCount: 0,
+            fixableWarningCount: 0,
+            source: require('fs').readFileSync(args.infile, 'utf8'), // TODO not this
+          },
+        ];
+
+        console.error(formatter(results));
+        //utils.logWarning(str);
+      };
+    }
 
     if (args.lintSpec) {
       let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;

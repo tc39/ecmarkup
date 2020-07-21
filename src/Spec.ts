@@ -1,4 +1,4 @@
-import type { Options } from './ecmarkup';
+import type { EcmarkupError, Options } from './ecmarkup';
 import type { Context } from './Context';
 import type { BiblioData, StepBiblioEntry } from './Biblio';
 import type { BuilderInterface } from './Builder';
@@ -29,6 +29,7 @@ import Eqn from './Eqn';
 import Biblio from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { lint } from './lint/lint';
+import { getLocation } from './lint/utils';
 import { CancellationToken } from 'prex';
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
@@ -98,7 +99,7 @@ export default class Spec {
   replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
   log: (msg: string) => void;
-  warn: (msg: string) => void;
+  warn: (error: EcmarkupError) => void;
 
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
@@ -408,7 +409,14 @@ export default class Spec {
     try {
       data = yaml.safeLoad(block.textContent!);
     } catch (e) {
-      this.warn('metadata block failed to parse');
+      let nodeLoc = getLocation(this.dom, block);
+      this.warn({
+        ruleId: 'metadata-failed',
+        nodeType: 'metadata',
+        message: 'metadata block failed to parse',
+        line: nodeLoc.startTag.line,
+        column: nodeLoc.startTag.col,
+      });
       return;
     } finally {
       block.parentNode.removeChild(block);
@@ -442,9 +450,13 @@ export default class Spec {
 
   public exportBiblio(): any {
     if (!this.opts.location) {
-      this.warn(
-        "No spec location specified. Biblio not generated. Try --location or setting the location in the document's metadata block."
-      );
+      this.warn({
+        ruleId: 'no-location',
+        nodeType: 'html',
+        message: "no spec location specified; biblio not generated. try --location or setting the location in the document's metadata block",
+        line: 0,
+        column: 0,
+      });
       return {};
     }
 
@@ -508,9 +520,13 @@ export default class Spec {
 
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
-        this.warn(
-          'Contributors not specified, skipping copyright boilerplate. Specify contributors in your frontmatter metadata.'
-        );
+        this.warn({
+          ruleId: 'no-contributors',
+          nodeType: 'html',
+          message: 'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
+          line: 0,
+          column: 0,
+        });
       } else {
         this.buildCopyrightBoilerplate();
       }
@@ -690,18 +706,45 @@ export default class Spec {
         // When the target is not itself within a replacement, or is within a replacement which we have already rectified, we can just use its step number directly
         let targetEntry = this.biblio.byId(target);
         if (targetEntry == null) {
-          this.warn(`Could not find step ${target}`);
+          let nodeLoc = getLocation(this.dom, element);
+          let attrLoc = nodeLoc.startTag.attrs['replaces-step'];
+          let loc;
+          if (attrLoc == null || this.sourceText == null) {
+            loc = nodeLoc.startTag;
+          } else {
+            let tagText = this.sourceText.slice(attrLoc.startOffset, attrLoc.endOffset);
+            loc = { line: attrLoc.line, col: attrLoc.col + (tagText.match(/replaces-step="?/)?.[0].length ?? 0) };
+          }
+          this.warn({
+            ruleId: 'replacement-not-valid',
+            nodeType: 'emu-alg',
+            message: `could not find step ${target}`,
+            line: loc.line,
+            column: loc.col,
+          });
         } else if (targetEntry.type !== 'step') {
-          this.warn(`Expected algorithm to replace a step, not a ${targetEntry.type}`);
+          let nodeLoc = getLocation(this.dom, element);
+          this.warn({
+            ruleId: 'replacement-not-valid',
+            nodeType: 'emu-alg',
+            message: `expected algorithm to replace a step, not a ${targetEntry.type}`,
+            line: nodeLoc.startTag.line,
+            column: nodeLoc.startTag.col,
+          });
         } else {
           setReplacementAlgorithmStart(element, targetEntry.stepNumbers);
         }
       }
     }
     if (pending.size > 0) {
-      this.warn(
-        'Could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?'
-      );
+      // todo consider line/column missing cases
+      this.warn({
+        ruleId: 'replacement-algorithm-cycle',
+        nodeType: 'emu-xref',
+        message: 'Could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
+        line: 0,
+        column: 0,
+      });
     }
   }
 

@@ -4,6 +4,7 @@ import type Spec from './Spec';
 import type { ClauseBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
+import { getLocation } from './lint/utils';
 import Builder from './Builder';
 
 /*@internal*/
@@ -107,7 +108,14 @@ export default class Clause extends Builder {
 
   static enter({ spec, node, clauseStack, clauseNumberer }: Context) {
     if (!node.id) {
-      spec.warn("Clause doesn't have an id: " + node.outerHTML.slice(0, 100));
+      let nodeLoc = getLocation(spec.dom, node);
+      spec.warn({
+        ruleId: 'replacement-not-valid',
+        nodeType: 'emu-alg',
+        message: "clause doesn't have an id",
+        line: nodeLoc.startTag.line,
+        column: nodeLoc.startTag.col,
+      });
     }
 
     let nextNumber = '';

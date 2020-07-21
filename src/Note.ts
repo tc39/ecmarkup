@@ -2,6 +2,7 @@ import type Spec from './Spec';
 import type Clause from './Clause';
 import type { Context } from './Context';
 
+import { getLocation } from './lint/utils';
 import Builder from './Builder';
 
 /*@internal*/
@@ -44,6 +45,7 @@ export default class Note extends Builder {
       this.spec.biblio.add({
         type: 'note',
         id: this.id,
+        node: this.node,
         number: number || 1,
         clauseId: this.clause.id,
         referencingIds: [],
@@ -68,7 +70,14 @@ export default class Note extends Builder {
     } else if (this.type === 'editor') {
       label = "Editor's Note";
     } else {
-      this.spec.warn(`Unknown note type ${this.type}. Skipping.`);
+      let nodeLoc = getLocation(this.spec.dom, this.node);
+      this.spec.warn({
+        ruleId: 'invalid-note',
+        nodeType: 'emu-note',
+        message: `unknown note type ${this.type}`,
+        line: nodeLoc.startTag.line,
+        column: nodeLoc.startTag.col,
+      });
     }
 
     if (number !== undefined) {
