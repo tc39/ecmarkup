@@ -11,10 +11,12 @@ export default class Algorithm extends Builder {
     const { spec, node } = context;
 
     // prettier-ignore
-    const rawHtml =
-      'ecmarkdownOut' in node
-        ? (node as any).ecmarkdownOut
-        : emd.algorithm(node.innerHTML);
+    const emdTree =
+      'ecmarkdownTree' in node
+        ? (node as any).ecmarkdownTree
+        : emd.parseAlgorithm(node.innerHTML, { trackPositions: true });
+
+    const rawHtml = emd.emit(emdTree);
 
     // replace spaces after !/? with &nbsp; to prevent bad line breaking
     const html = rawHtml.replace(/((?:\s+|>)[!?])\s+(\w+\s*\()/g, '$1&nbsp;$2');

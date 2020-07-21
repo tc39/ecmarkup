@@ -46,7 +46,6 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
   if (lintingErrors.length > 0) {
     lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
     report(lintingErrors, sourceText);
-    return;
   }
 
   // Stash intermediate results for later use
@@ -72,6 +71,6 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
   // }
   for (let { element, tree } of algorithms) {
     // @ts-ignore we are intentionally adding a property here
-    element.ecmarkdownOut = emit(tree!);
+    element.ecmarkdownTree = tree;
   }
 }
