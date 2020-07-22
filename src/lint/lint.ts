@@ -21,16 +21,14 @@ There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
 export function lint(report: (err: EcmarkupError) => void, sourceText: string, dom: any, document: Document) {
-  let collection = collectNodes(sourceText, dom, document);
+  let collection = collectNodes(report, sourceText, dom, document);
   if (!collection.success) {
-    let lintingErrors = collection.errors;
-    lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
-    lintingErrors.forEach(report); // TODO report inline
     return;
   }
   let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collection;
 
-  let { grammar, lintingErrors } = collectGrammarDiagnostics(
+  let { grammar } = collectGrammarDiagnostics(
+    report,
     dom,
     sourceText,
     mainGrammar,
@@ -38,16 +36,11 @@ export function lint(report: (err: EcmarkupError) => void, sourceText: string, d
     earlyErrors
   );
 
-  lintingErrors.push(...collectAlgorithmDiagnostics(dom, sourceText, algorithms));
+  collectAlgorithmDiagnostics(report, dom, sourceText, algorithms);
 
-  lintingErrors.push(...collectHeaderDiagnostics(dom, headers));
+  collectHeaderDiagnostics(report, dom, headers);
 
-  lintingErrors.push(...collectSpellingDiagnostics(sourceText));
-
-  if (lintingErrors.length > 0) {
-    lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
-    lintingErrors.forEach(report); // TODO report inline
-  }
+  collectSpellingDiagnostics(report, sourceText);
 
   // Stash intermediate results for later use
   // This isn't actually necessary for linting, but we might as well avoid redoing work later when we can.

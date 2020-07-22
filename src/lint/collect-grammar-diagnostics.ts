@@ -23,6 +23,7 @@ import {  grammarkdownLocationToTrueLocation,
 } from '../utils'
 
 export function collectGrammarDiagnostics(
+  report: (e: EcmarkupError) => void,
   dom: any,
   sourceText: string,
   mainGrammar: { element: Element; source: string }[],
@@ -85,7 +86,6 @@ export function collectGrammarDiagnostics(
           column,
           message: m.formattedMessage!,
         };
-        lintingErrors.push(error);
 
         if (m.code === Diagnostics.Parameter_0_is_unused.code) {
           let param = m.node as Parameter;
@@ -98,6 +98,8 @@ export function collectGrammarDiagnostics(
           }
           let paramToError = unusedParameterErrors.get(nodeName)!;
           paramToError.set(paramName, error);
+        } else {
+          report(error);
         }
       });
   }
@@ -117,7 +119,7 @@ export function collectGrammarDiagnostics(
     let grammarLoc = getLocation(dom, grammarEle);
 
     if (grammarLoc.endTag == null) {
-      lintingErrors.push({
+      report({
         ruleId: 'missing-close-tag',
         message: 'could not find closing tag for emu-grammar',
         line: grammarLoc.startTag.line,
@@ -149,7 +151,7 @@ export function collectGrammarDiagnostics(
       let originalRhses = actualGrammarProductions.get(name)?.rhses;
       if (originalRhses === undefined) {
         let { line, column } = getLocationInGrammar(production.pos);
-        lintingErrors.push({
+        report({
           ruleId: 'undefined-nonterminal',
           nodeType,
           line,
@@ -161,7 +163,7 @@ export function collectGrammarDiagnostics(
       for (let rhs of rhses) {
         if (!originalRhses.some(o => rhsMatches(rhs, o))) {
           let { line, column } = getLocationInGrammar(rhs.pos);
-          lintingErrors.push({
+          report({
             ruleId: 'undefined-nonterminal',
             nodeType,
             line,
@@ -177,7 +179,7 @@ export function collectGrammarDiagnostics(
             }
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
               let { line, column } = getLocationInGrammar(s.symbol.pos);
-              lintingErrors.push({
+              report({
                 ruleId: `NLTH-in-SDO`,
                 nodeType,
                 line,
@@ -192,12 +194,12 @@ export function collectGrammarDiagnostics(
 
           if (rhs.constraints !== undefined) {
             let { line, column } = getLocationInGrammar(rhs.constraints.pos);
-            lintingErrors.push({
+            report({
               ruleId: `guard-in-SDO`,
               nodeType,
               line,
               column,
-              message: `Productions referenced in ${type}s should not be gated on grammar parameters`,
+              message: `productions referenced in ${type}s should not be gated on grammar parameters`,
             });
           }
         }
@@ -210,21 +212,20 @@ export function collectGrammarDiagnostics(
           // This isn't the most elegant check, but it works.
           if (rulesEles.some(r => r.innerHTML.indexOf('[' + paramName + ']') !== -1)) {
             paramToError.delete(paramName);
-            // Yes, there's definitely big-O faster ways of doing this, but in practice this is probably faster for the sizes we will encounter.
-            let index = lintingErrors.indexOf(error);
-            if (index === -1) {
-              throw new Error('unreachable: tried to clear non-existent error');
-            }
-            lintingErrors.splice(index, 1);
           }
         }
       }
     }
   }
 
+  for (let paramToError of unusedParameterErrors.values()) {
+    for (let error of paramToError.values()) {
+      report(error);
+    }
+  }
+
   return {
     grammar,
     oneOffGrammars,
-    lintingErrors,
   };
 }

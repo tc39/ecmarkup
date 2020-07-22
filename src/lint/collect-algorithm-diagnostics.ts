@@ -31,18 +31,17 @@ function composeObservers(...observers: Observer[]): Observer {
 }
 
 export function collectAlgorithmDiagnostics(
+  report: (e: EcmarkupError) => void,
   dom: any,
   sourceText: string,
   algorithms: { element: Element; tree?: EcmarkdownNode }[]
 ) {
-  let lintingErrors: EcmarkupError[] = [];
-
   for (let algorithm of algorithms) {
     let element = algorithm.element;
     let location = getLocation(dom, element);
 
     if (location.endTag == null) {
-      lintingErrors.push({
+      report({
         ruleId: 'missing-close-tag',
         message: 'could not find closing tag for emu-alg',
         line: location.startTag.line,
@@ -64,7 +63,7 @@ export function collectAlgorithmDiagnostics(
       } else {
         trueCol += 1;
       }
-      lintingErrors.push({ line: trueLine, column: trueCol, ...others });
+      report({ line: trueLine, column: trueCol, ...others });
     };
 
     let algorithmSource = sourceText.slice(
@@ -78,6 +77,4 @@ export function collectAlgorithmDiagnostics(
     visit(tree, observer);
     algorithm.tree = tree;
   }
-
-  return lintingErrors;
 }

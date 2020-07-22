@@ -19,6 +19,23 @@ describe('linting whole program', function () {
       );
     });
 
+    it('parameters used in SDO', async function () {
+      await assertLintFree(`
+        <emu-grammar type="definition">
+          Statement[a]: \`;\`
+        </emu-grammar>
+        <emu-clause id="example">
+        <h1>Static Semantics: Early Errors</h1>
+          <emu-grammar>Statement[a]: \`;\`</emu-grammar>
+          <ul>
+            <li>
+              It is a Syntax Error if this production has an <sub>[a]</sub> parameter.
+            </li>
+          </ul>
+        </emu-clause>
+      `);
+    });
+
     it('missing parameters', async function () {
       await assertLint(
         positioned`

@@ -5,11 +5,10 @@ import { getLocation, offsetWithinElementToTrueLocation } from '../utils';
 const ruleId = 'header-format';
 
 export function collectHeaderDiagnostics(
+  report: (e: EcmarkupError) => void,
   dom: any,
   headers: { element: Element; contents: string }[]
 ) {
-  let lintingErrors: EcmarkupError[] = [];
-
   for (let { element, contents } of headers) {
     if (!/\(.*\)$/.test(contents) || / Operator \( `[^`]+` \)$/.test(contents)) {
       continue;
@@ -24,7 +23,7 @@ export function collectHeaderDiagnostics(
         contents,
         name.length - 1
       );
-      lintingErrors.push({
+      report({
         ruleId,
         nodeType: element.tagName,
         line,
@@ -62,7 +61,7 @@ export function collectHeaderDiagnostics(
         contents,
         0
       );
-      lintingErrors.push({
+      report({
         ruleId,
         nodeType: element.tagName,
         line,
@@ -99,7 +98,7 @@ export function collectHeaderDiagnostics(
         contents,
         name.length
       );
-      lintingErrors.push({
+      report({
         ruleId,
         nodeType: element.tagName,
         line,
@@ -108,6 +107,4 @@ export function collectHeaderDiagnostics(
       });
     }
   }
-
-  return lintingErrors;
 }

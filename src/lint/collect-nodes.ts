@@ -15,10 +15,10 @@ type CollectNodesReturnType =
     }
   | {
       success: false;
-      errors: EcmarkupError[];
     };
 
 export function collectNodes(
+  report: (e: EcmarkupError) => void,
   sourceText: string,
   dom: any,
   document: Document
@@ -30,7 +30,6 @@ export function collectNodes(
   let algorithms: { element: Element; tree?: EcmarkdownNode }[] = [];
 
   let failed = false;
-  let errors: EcmarkupError[] = [];
 
   let inAnnexB = false;
   let lintWalker = document.createTreeWalker(document.body, 1 /* elements */);
@@ -60,6 +59,7 @@ export function collectNodes(
               if (child.nodeName === 'EMU-GRAMMAR') {
                 if (grammar !== null) {
                   if (lists.length === 0) {
+                    // TODO soft errors
                     throw new Error(
                       'unrecognized structure for early errors: grammar without errors'
                     );
@@ -71,7 +71,7 @@ export function collectNodes(
               } else if (child.nodeName === 'UL') {
                 if (grammar === null) {
                   throw new Error(
-                    'unrecognized structure for early errors: errors without correspondinig grammar'
+                    'unrecognized structure for early errors: errors without corresponding grammar'
                   );
                 }
                 lists.push(child as HTMLUListElement);
@@ -92,7 +92,7 @@ export function collectNodes(
           let loc = getLocation(dom, node);
           if (loc.endTag == null) {
             failed = true;
-            errors.push({
+            report({
               ruleId: 'missing-close-tag',
               message: 'could not find closing tag for emu-grammar',
               line: loc.startTag.line,
@@ -138,7 +138,7 @@ export function collectNodes(
   visitCurrentNode();
 
   if (failed) {
-    return { success: false, errors };
+    return { success: false };
   }
 
   return { success: true, mainGrammar, headers, sdos, earlyErrors, algorithms };

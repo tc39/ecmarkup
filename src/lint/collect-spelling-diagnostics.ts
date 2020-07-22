@@ -57,18 +57,19 @@ let matchers = [
   },
 ];
 
-export function collectSpellingDiagnostics(sourceText: string) {
+export function collectSpellingDiagnostics(report: (e: EcmarkupError) => void, sourceText: string) {
   let composed = new RegExp(matchers.map(m => `(?:${m.pattern.source})`).join('|'), 'u');
 
   // The usual case will be to have no errors, so we have a fast path for that case.
   // We only fall back to slower individual tests if there is at least one error.
   if (composed.test(sourceText)) {
-    let errors: EcmarkupError[] = [];
+    let reported = false;
     for (let { pattern, message } of matchers) {
       let match = pattern.exec(sourceText);
       while (match !== null) {
+        reported = true;
         let { line, column } = offsetToLineAndColumn(sourceText, match.index);
-        errors.push({
+        report({
           ruleId,
           nodeType: 'text',
           line,
@@ -78,12 +79,10 @@ export function collectSpellingDiagnostics(sourceText: string) {
         match = pattern.exec(sourceText);
       }
     }
-    if (errors.length === 0) {
+    if (!reported) {
       throw new Error(
         'Ecmarkup has a bug: the spell checker reported an error, but could not find one. Please report this at https://github.com/tc39/ecmarkup/issues/new.'
       );
     }
-    return errors;
   }
-  return [];
 }
