@@ -1,4 +1,4 @@
-import type { Options } from './ecmarkup';
+import type { EcmarkupError, Options } from './ecmarkup';
 
 import { argParser } from './args';
 const args = argParser.parse();
@@ -39,25 +39,11 @@ const build = debounce(async function build() {
       descriptor = args.lintFormatter;
     }
     let formatter = require(descriptor);
+    let warnings: EcmarkupError[] = [];
     opts.warn = err => {
       warned = true;
-
-      // TODO fix this
-      let results = [
-        {
-          filePath: args.infile,
-          messages: [{ severity: args.strict ? 2 : 1, ...err }],
-          errorCount: args.strict ? 1 : 0,
-          warningCount: args.strict ? 0 : 1,
-          // for now, nothing is fixable
-          fixableErrorCount: 0,
-          fixableWarningCount: 0,
-          source: err.source,
-        },
-      ];
-
-      console.error(formatter(results));
-      //utils.logWarning(str);
+      utils.logWarning(err.message); // TODO line column etc
+      warnings.push(err);
     };
 
     const spec = await ecmarkup.build(args.infile, utils.readFile, opts);
@@ -80,6 +66,24 @@ const build = debounce(async function build() {
     }
 
     await Promise.all(pending);
+
+    if (args.verbose && warned) {
+      // TODO allow warnings to have different corresponding files, sort by file as well
+      let results = warnings
+        .sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line))
+        .map(err => ({
+          filePath: args.infile,
+          messages: [{ severity: args.strict ? 2 : 1, ...err }],
+          errorCount: args.strict ? warnings.length : 0,
+          warningCount: args.strict ? 0 : warnings.length,
+          // for now, nothing is fixable
+          fixableErrorCount: 0,
+          fixableWarningCount: 0,
+          source: err.source,
+        }));
+
+      console.error(formatter(results));
+    }
 
     if (args.strict && warned) {
       if (args.verbose) {

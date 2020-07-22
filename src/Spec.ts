@@ -113,11 +113,7 @@ export type Warning =
       column: number;
     };
 
-function wrapWarn(
-  source: string,
-  dom: any,
-  warn: (err: EcmarkupError) => void
-) {
+function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) {
   return (e: Warning) => {
     let { message, ruleId } = e;
     let line: number, column: number;
@@ -129,14 +125,14 @@ function wrapWarn(
     } else {
       let nodeLoc = utils.getLocation(dom, e.node);
       if (e.type === 'node') {
-        line = nodeLoc.startTag.line;
-        column = nodeLoc.startTag.col;
+        ({ line, col: column } = nodeLoc.startTag);
       } else if (e.type === 'attr') {
         ({ line, column } = utils.attrValueLocation(source, nodeLoc, e.attr));
       } else if (e.type === 'contents') {
         let { nodeRelativeLine, nodeRelativeColumn } = e;
 
-        //  TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
+        // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
+        // TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
         let tagSrc = source.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
         let tagEnd = utils.offsetToLineAndColumn(
           tagSrc,
