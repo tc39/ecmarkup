@@ -129,65 +129,7 @@ export function offsetToLineAndColumn(string: string, offset: number) {
   return { line: line + 1, column: column + 1 };
 }
 
-export function offsetWithinElementToTrueLocation(
-  elementLoc: ReturnType<typeof getLocation>,
-  string: string,
-  offset: number
-) {
-  let { line: offsetLine, column: offsetColumn } = offsetToLineAndColumn(string, offset);
-
-  // both JSDOM and our line/column are 1-based, so subtract 1 to avoid double-counting
-  let line = elementLoc.startTag.line + offsetLine - 1;
-  let column =
-    offsetLine === 1
-      ? elementLoc.startTag.col +
-        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
-        offsetColumn -
-        1
-      : offsetColumn;
-
-  return { line, column };
-}
-
-export function grammarkdownLocationToTrueLocation(
-  elementLoc: ReturnType<typeof getLocation>,
-  gmdLine: number,
-  gmdCharacter: number
-) {
-  // jsdom's lines and columns are both 1-based
-  // grammarkdown's lines and columns ("characters") are both 0-based
-  // we want 1-based for both
-  let line = elementLoc.startTag.line + gmdLine;
-  let column =
-    gmdLine === 0
-      ? elementLoc.startTag.col +
-        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
-        gmdCharacter
-      : gmdCharacter + 1;
-  return { line, column };
-}
-
-export function ecmarkdownLocationToTrueLocation(
-  elementLoc: ReturnType<typeof getLocation>,
-  emdLine: number,
-  emdColumn: number
-) {
-  // jsdom's lines and columns are both 1-based
-  // ecmarkdown's lines are 1-based, columns are 0-based
-  // we want 1-based for both
-  let line = elementLoc.startTag.line + emdLine - 1;
-  let column =
-    emdLine === 1
-      ? elementLoc.startTag.col +
-        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
-        emdColumn
-      : emdColumn + 1;
-  return { line, column };
-}
-
-export type ElementLocation = MarkupData.ElementLocation;
-
-export function getLocation(dom: any, node: Element): ElementLocation {
+export function getLocation(dom: any, node: Element): MarkupData.ElementLocation {
   let loc = dom.nodeLocation(node);
   if (!loc || !loc.startTag) {
     throw new Error('could not find location: this is a bug in ecmarkdown; please report it');
@@ -195,7 +137,7 @@ export function getLocation(dom: any, node: Element): ElementLocation {
   return loc;
 }
 
-export function attrValueLocation(source: string | undefined, loc: ElementLocation, attr: string) {
+export function attrValueLocation(source: string | undefined, loc: MarkupData.ElementLocation, attr: string) {
   let attrLoc = loc.startTag.attrs[attr];
   if (attrLoc == null || source == null) {
     return loc.startTag;

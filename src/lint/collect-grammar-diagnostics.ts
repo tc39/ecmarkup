@@ -127,9 +127,8 @@ export function collectGrammarDiagnostics(
       let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(
         posWithoutWhitespace
       );
+      // grammarkdown use 0-based line and column, we want 1-based
       return { line: gmdLine + 1, column: gmdCharacter + 1 };
-
-      // return grammarkdownLocationToTrueLocation(grammarLoc, gmdLine, gmdCharacter);
     }
 
     for (let [name, { production, rhses }] of productions) {
