@@ -1,7 +1,7 @@
 import type Spec from './Spec';
 import type { Context } from './Context';
 
-import { getLocation } from './lint/utils';
+import { attrValueLocation, getLocation } from './lint/utils';
 
 // We use this instead of `typeof Builder` because using the class as the type also requires derived constructors to be subtypes of the base constructor, which is irritating.
 /*@internal*/
@@ -25,12 +25,14 @@ export default class Builder {
     if (nodeId !== null) {
       if (spec.nodeIds.has(nodeId)) {
         let nodeLoc = getLocation(spec.dom, node);
+        let loc = attrValueLocation(this.spec.sourceText, nodeLoc, 'id');
+        let nodeType = node.tagName.toLowerCase();
         spec.warn({
-          ruleId: 'replacement-not-valid',
-          nodeType: 'emu-alg',
-          message: `<${node.tagName.toLowerCase()}> has duplicate id: ${nodeId}`,
-          line: nodeLoc.startTag.line,
-          column: nodeLoc.startTag.col,
+          ruleId: 'duplicate-id',
+          nodeType,
+          message: `<${nodeType}> has duplicate id ${JSON.stringify(nodeId)}`,
+          line: loc.line,
+          column: loc.col,
         });
       }
       spec.nodeIds.add(nodeId);

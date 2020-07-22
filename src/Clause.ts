@@ -110,8 +110,8 @@ export default class Clause extends Builder {
     if (!node.id) {
       let nodeLoc = getLocation(spec.dom, node);
       spec.warn({
-        ruleId: 'replacement-not-valid',
-        nodeType: 'emu-alg',
+        ruleId: 'missing-id',
+        nodeType: 'emu-clause',
         message: "clause doesn't have an id",
         line: nodeLoc.startTag.line,
         column: nodeLoc.startTag.col,
@@ -139,6 +139,7 @@ export default class Clause extends Builder {
     const clause = clauseStack[clauseStack.length - 1];
 
     if (!clause.header) {
+      // TODO make this not a hard failure
       throw new Error("Couldn't find title for clause #" + clause.id);
     }
 

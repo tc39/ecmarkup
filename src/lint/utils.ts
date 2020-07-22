@@ -86,7 +86,6 @@ export function ecmarkdownLocationToTrueLocation(
   return { line, column };
 }
 
-// TODO don't reexport
 export type ElementLocation = MarkupData.ElementLocation;
 
 export function getLocation(dom: any, node: Element): ElementLocation {
@@ -95,6 +94,18 @@ export function getLocation(dom: any, node: Element): ElementLocation {
     throw new Error('could not find location: this is a bug in ecmarkdown; please report it');
   }
   return loc;
+}
+
+export function attrValueLocation(source: string | undefined, loc: ElementLocation, attr: string) {
+  let attrLoc = loc.startTag.attrs[attr];
+  if (attrLoc == null || source == null) {
+    return loc.startTag;
+  } else {
+    let tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
+    // RegExp.escape when
+    let matcher = new RegExp(attr.replace(/[\/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
+    return { line: attrLoc.line, col: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
+  }
 }
 
 export function getProductions(grammar: GrammarFile) {

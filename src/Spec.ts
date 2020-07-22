@@ -29,7 +29,7 @@ import Eqn from './Eqn';
 import Biblio from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { lint } from './lint/lint';
-import { getLocation } from './lint/utils';
+import { attrValueLocation, getLocation } from './lint/utils';
 import { CancellationToken } from 'prex';
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
@@ -77,6 +77,14 @@ export default interface Spec {
   namespace: string;
   toHTML(): string;
   exportBiblio(): any;
+}
+
+type Warning = {
+  ruleId: string;
+  message: string;
+  line: number;
+  column: number;
+  node: HTMLElement;
 }
 
 /*@internal*/
@@ -136,6 +144,25 @@ export default class Spec {
     this.cancellationToken = token;
     this.log = opts.log ?? (() => {});
     this.warn = opts.warn ?? (() => {});
+    // let warn = opts.warn;
+    // this.warn = warn ? (({ ruleId, message, line: nodeRelativeLine, column: nodeRelativeColumn, node }) => {
+    //   let nodeLoc = getLocation(this.doc, node);
+    //   let line = nodeLoc.startTag.line + nodeRelativeLine - 1;
+    //   let column =
+    //     nodeRelativeColumn === 1
+    //       ? nodeLoc.startTag.col +
+    //         (nodeLoc.startTag.endOffset - nodeLoc.startTag.startOffset) +
+    //         nodeRelativeColumn - 1
+    //       : nodeRelativeColumn;
+
+    //   warn!({
+    //     ruleId,
+    //     message,
+    //     nodeType: node.nodeName.toLowerCase(),
+    //     line,
+    //     column,
+    //   });
+    // }) : (() => {});
     this._figureCounts = {
       table: 0,
       figure: 0,
@@ -411,7 +438,7 @@ export default class Spec {
     } catch (e) {
       let nodeLoc = getLocation(this.dom, block);
       this.warn({
-        ruleId: 'metadata-failed',
+        ruleId: 'invalid-metadata',
         nodeType: 'metadata',
         message: 'metadata block failed to parse',
         line: nodeLoc.startTag.line,
@@ -707,29 +734,23 @@ export default class Spec {
         let targetEntry = this.biblio.byId(target);
         if (targetEntry == null) {
           let nodeLoc = getLocation(this.dom, element);
-          let attrLoc = nodeLoc.startTag.attrs['replaces-step'];
-          let loc;
-          if (attrLoc == null || this.sourceText == null) {
-            loc = nodeLoc.startTag;
-          } else {
-            let tagText = this.sourceText.slice(attrLoc.startOffset, attrLoc.endOffset);
-            loc = { line: attrLoc.line, col: attrLoc.col + (tagText.match(/replaces-step="?/)?.[0].length ?? 0) };
-          }
+          let loc = attrValueLocation(this.sourceText, nodeLoc, 'replaces-step');
           this.warn({
-            ruleId: 'replacement-not-valid',
+            ruleId: 'invalid-replacement',
             nodeType: 'emu-alg',
-            message: `could not find step ${target}`,
+            message: `could not find step ${JSON.stringify(target)}`,
             line: loc.line,
             column: loc.col,
           });
         } else if (targetEntry.type !== 'step') {
           let nodeLoc = getLocation(this.dom, element);
+          let loc = attrValueLocation(this.sourceText, nodeLoc, 'replaces-step');
           this.warn({
-            ruleId: 'replacement-not-valid',
+            ruleId: 'invalid-replacement',
             nodeType: 'emu-alg',
             message: `expected algorithm to replace a step, not a ${targetEntry.type}`,
-            line: nodeLoc.startTag.line,
-            column: nodeLoc.startTag.col,
+            line: loc.line,
+            column: loc.col,
           });
         } else {
           setReplacementAlgorithmStart(element, targetEntry.stepNumbers);
@@ -739,11 +760,11 @@ export default class Spec {
     if (pending.size > 0) {
       // todo consider line/column missing cases
       this.warn({
-        ruleId: 'replacement-algorithm-cycle',
-        nodeType: 'emu-xref',
-        message: 'Could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
-        line: 0,
-        column: 0,
+        ruleId: 'invalid-replacement',
+        nodeType: 'emu-alg',
+        message: 'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
+        line: 1,
+        column: 1,
       });
     }
   }

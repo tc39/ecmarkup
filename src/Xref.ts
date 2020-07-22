@@ -3,7 +3,7 @@ import type { Context } from './Context';
 import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
-import { getLocation } from './lint/utils';
+import { attrValueLocation, offsetToLineAndColumn, getLocation } from './lint/utils';
 import Builder from './Builder';
 
 /*@internal*/
@@ -48,7 +48,7 @@ export default class Xref extends Builder {
     if (href && aoid) {
       let nodeLoc = getLocation(spec.dom, node);
       spec.warn({
-        ruleId: 'xref-not-valid',
+        ruleId: 'invalid-xref',
         nodeType: 'emu-xref',
         message: "xref can't have both href and aoid",
         line: nodeLoc.startTag.line,
@@ -60,9 +60,9 @@ export default class Xref extends Builder {
     if (!href && !aoid) {
       let nodeLoc = getLocation(spec.dom, node);
       spec.warn({
-        ruleId: 'xref-not-valid',
+        ruleId: 'invalid-xref',
         nodeType: 'emu-xref',
-        message: 'xref has no href or aoid',
+        message: 'xref has neither href nor aoid',
         line: nodeLoc.startTag.line,
         column: nodeLoc.startTag.col,
       });
@@ -84,9 +84,9 @@ export default class Xref extends Builder {
       if (href[0] !== '#') {
         let nodeLoc = getLocation(spec.dom, this.node);
         spec.warn({
-          ruleId: 'xref-not-valid',
+          ruleId: 'invalid-xref',
           nodeType: 'emu-xref',
-          message: `xref to anything other than a fragment id is not supported (is ${href}). Try href="#sec-id" instead.`,
+          message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(href)}). try href="#sec-id" instead`,
           line: nodeLoc.startTag.line,
           column: nodeLoc.startTag.col,
         });
@@ -98,12 +98,13 @@ export default class Xref extends Builder {
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
         let nodeLoc = getLocation(spec.dom, this.node);
+        let loc = attrValueLocation(spec.sourceText, nodeLoc, 'href');
         spec.warn({
           ruleId: 'xref-not-found',
           nodeType: 'emu-xref',
-          message: `can't find clause, production, note or example with id ${href}`,
-          line: nodeLoc.startTag.line,
-          column: nodeLoc.startTag.col,
+          message: `can't find clause, production, note or example with id ${JSON.stringify(id)}`,
+          line: loc.line,
+          column: loc.col,
         });
         return;
       }
@@ -153,12 +154,14 @@ export default class Xref extends Builder {
       }
 
       let nodeLoc = getLocation(spec.dom, this.node);
+      let loc = attrValueLocation(spec.sourceText, nodeLoc, 'aoid');
+      let namespaceSuffix = namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
       spec.warn({
         ruleId: 'xref-not-found',
         nodeType: 'emu-xref',
-        message: `can't find abstract op with aoid ${aoid} in namespace ${namespace}`,
-        line: nodeLoc.startTag.line,
-        column: nodeLoc.startTag.col,
+        message: `can't find abstract op with aoid ${JSON.stringify(aoid)}` + namespaceSuffix,
+        line: loc.line,
+        column: loc.col,
       });
     }
   }
@@ -214,7 +217,7 @@ function buildFigureLink(
       if (clauseEntry.type !== 'clause') {
         let nodeLoc = getLocation(spec.dom, entry.node);
         spec.warn({
-          ruleId: 'high-step-number',
+          ruleId: 'invalid-xref',
           nodeType: 'emu-xref',
           message: `could not find parent clause for ${type} id ${entry.id}`,
           line: nodeLoc.startTag.line,
@@ -257,12 +260,17 @@ let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBull
 function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry) {
   if (xref.innerHTML !== '') {
     let nodeLoc = getLocation(spec.dom, xref);
+    // TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
+    let tagSrc = spec.sourceText!.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
+    let relativeLoc = offsetToLineAndColumn(tagSrc, nodeLoc.startTag.endOffset - nodeLoc.startOffset);
+    let line = nodeLoc.line + relativeLoc.line - 1;
+    let column = relativeLoc.line === 1 ? (nodeLoc.startTag.col + relativeLoc.column - 1) : relativeLoc.column;
     spec.warn({
       ruleId: 'step-xref-contents',
       nodeType: 'emu-xref',
       message: 'the contents of emu-xrefs to steps are ignored',
-      line: nodeLoc.startTag.line,
-      column: nodeLoc.startTag.col,
+      line,
+      column,
     });
   }
 
@@ -270,12 +278,13 @@ function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry)
     let applicable = bullets[Math.min(i, 5)];
     if (s > applicable.length) {
       let nodeLoc = getLocation(spec.dom, xref);
+      let loc = attrValueLocation(spec.sourceText, nodeLoc, 'href');
       spec.warn({
         ruleId: 'high-step-number',
         nodeType: 'emu-xref',
         message: `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`,
-        line: nodeLoc.startTag.line,
-        column: nodeLoc.startTag.col,
+        line: loc.line,
+        column: loc.col,
       });
       return '?';
     }

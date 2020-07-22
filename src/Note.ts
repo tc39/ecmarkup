@@ -2,7 +2,7 @@ import type Spec from './Spec';
 import type Clause from './Clause';
 import type { Context } from './Context';
 
-import { getLocation } from './lint/utils';
+import { attrValueLocation, getLocation } from './lint/utils';
 import Builder from './Builder';
 
 /*@internal*/
@@ -28,6 +28,8 @@ export default class Note extends Builder {
 
   static enter({ spec, node, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
+
+    // TODO reconsider
     if (!clause) return; // do nothing with top-level note
 
     const note = new Note(spec, node, clause);
@@ -71,12 +73,13 @@ export default class Note extends Builder {
       label = "Editor's Note";
     } else {
       let nodeLoc = getLocation(this.spec.dom, this.node);
+      let loc = attrValueLocation(this.spec.sourceText, nodeLoc, 'type');
       this.spec.warn({
         ruleId: 'invalid-note',
         nodeType: 'emu-note',
-        message: `unknown note type ${this.type}`,
-        line: nodeLoc.startTag.line,
-        column: nodeLoc.startTag.col,
+        message: `unknown note type ${JSON.stringify(this.type)}`,
+        line: loc.line,
+        column: loc.col,
       });
     }
 

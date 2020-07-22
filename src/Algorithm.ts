@@ -51,17 +51,6 @@ export default class Algorithm extends Builder {
     if (replaces && node.firstElementChild!.children.length > 1) {
       let labeledSteps = findLabeledSteps(emdTree);
       for (let step of labeledSteps) {
-        // TODO add test for this error
-        /*
-        <emu-alg>
-          1. [id="asdf"] Hi!
-        </emu-alg>
-
-        <emu-alg replaces-step="asdf">
-          1. Hi1.
-          1. [id="foo"] Whatever.
-        </emu-alg>
-        */
         let nodeLoc = getLocation(spec.dom, node);
         let itemSource = innerHTML.slice(
           step.location!.start.offset,
