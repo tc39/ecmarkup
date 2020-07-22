@@ -26,7 +26,9 @@ function positioned(literalParts, ...interpolatedParts) {
   return { offset, line, column, html: str };
 }
 
-async function assertError({ line, column, html }, { ruleId, nodeType, message }, opts) {
+async function assertError(obj, { ruleId, nodeType, message }, opts) {
+  let { line, column, html } =
+    typeof obj === 'string' ? { line: undefined, column: undefined, html: obj } : obj;
   let warnings = [];
 
   await emu.build('test-example.emu', async () => html, {

@@ -5,7 +5,7 @@ let { lintLocationMarker: M, positioned, assertError } = require('./utils.js');
 describe('errors', () => {
   it('no contributors', async () => {
     await assertError(
-      positioned`${M}`,
+      '',
       {
         ruleId: 'no-contributors',
         nodeType: 'html',
@@ -68,9 +68,8 @@ describe('errors', () => {
   });
 
   it('cycle in replacement algorithms', async () => {
-    // TODO no location
     await assertError(
-      positioned`${M}
+      `
       <emu-alg replaces-step="step-foo">
         1. [id="step-foo"] Foo.
       </emu-alg>
