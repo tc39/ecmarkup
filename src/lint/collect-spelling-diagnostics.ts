@@ -1,6 +1,6 @@
 import type { LintingError } from './algorithm-error-reporter-type';
 
-import { offsetToLineAndColumn } from './utils';
+import { offsetToLineAndColumn } from '../utils';
 
 let ruleId = 'spelling';
 

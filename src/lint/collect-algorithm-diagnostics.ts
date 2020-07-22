@@ -4,7 +4,7 @@ import type { LintingError } from './algorithm-error-reporter-type';
 
 import { parseAlgorithm, visit } from 'ecmarkdown';
 
-import { getLocation } from './utils';
+import { getLocation } from '../utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';

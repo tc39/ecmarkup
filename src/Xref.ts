@@ -3,7 +3,7 @@ import type { Context } from './Context';
 import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
-import { attrValueLocation, offsetToLineAndColumn, getLocation } from './lint/utils';
+import { attrValueLocation, offsetToLineAndColumn, getLocation } from './utils';
 import Builder from './Builder';
 
 /*@internal*/

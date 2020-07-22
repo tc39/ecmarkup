@@ -2,7 +2,7 @@ import type Spec from './Spec';
 import type Clause from './Clause';
 import type { Context } from './Context';
 
-import { attrValueLocation, getLocation } from './lint/utils';
+import { attrValueLocation, getLocation } from './utils';
 import Builder from './Builder';
 
 /*@internal*/

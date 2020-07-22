@@ -3,7 +3,7 @@ import type { Node as EcmarkdownNode, OrderedListItemNode, Observer } from 'ecma
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
-import { getLocation, ecmarkdownLocationToTrueLocation } from './lint/utils';
+import { getLocation, ecmarkdownLocationToTrueLocation } from './utils';
 import * as emd from 'ecmarkdown';
 
 function findLabeledSteps(root: EcmarkdownNode) {

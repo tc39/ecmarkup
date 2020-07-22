@@ -70,7 +70,9 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
   //   });
   // }
   for (let { element, tree } of algorithms) {
-    // @ts-ignore we are intentionally adding a property here
-    element.ecmarkdownTree = tree;
+    if (tree != null) {
+      // @ts-ignore we are intentionally adding a property here
+      element.ecmarkdownTree = tree;      
+    }
   }
 }

@@ -2,7 +2,7 @@ import type { LintingError } from './algorithm-error-reporter-type';
 
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
-import { getLocation } from './utils';
+import { getLocation } from '../utils';
 
 type CollectNodesReturnType =
   | {

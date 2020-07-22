@@ -15,11 +15,12 @@ import {
 } from 'grammarkdown';
 
 import {
-  grammarkdownLocationToTrueLocation,
-  getLocation,
   getProductions,
   rhsMatches,
 } from './utils';
+import {  grammarkdownLocationToTrueLocation,
+  getLocation,
+} from '../utils'
 
 export function collectGrammarDiagnostics(
   dom: any,

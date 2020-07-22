@@ -1,9 +1,12 @@
+import type { MarkupData } from 'parse5';
+
 import type Spec from './Spec';
 
 import * as jsdom from 'jsdom';
 import * as chalk from 'chalk';
 import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
+
 
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Node) {
@@ -110,4 +113,98 @@ export function writeFile(file: string, content: string) {
 export async function copyFile(src: string, dest: string) {
   const content = await readFile(src);
   await writeFile(dest, content);
+}
+
+
+export function offsetToLineAndColumn(string: string, offset: number) {
+  let lines = string.split('\n');
+  let line = 0;
+  let seen = 0;
+  while (true) {
+    if (seen + lines[line].length >= offset) {
+      break;
+    }
+    seen += lines[line].length + 1; // +1 for the '\n'
+    ++line;
+  }
+  let column = offset - seen;
+  return { line: line + 1, column: column + 1 };
+}
+
+export function offsetWithinElementToTrueLocation(
+  elementLoc: ReturnType<typeof getLocation>,
+  string: string,
+  offset: number
+) {
+  let { line: offsetLine, column: offsetColumn } = offsetToLineAndColumn(string, offset);
+
+  // both JSDOM and our line/column are 1-based, so subtract 1 to avoid double-counting
+  let line = elementLoc.startTag.line + offsetLine - 1;
+  let column =
+    offsetLine === 1
+      ? elementLoc.startTag.col +
+        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
+        offsetColumn -
+        1
+      : offsetColumn;
+
+  return { line, column };
+}
+
+export function grammarkdownLocationToTrueLocation(
+  elementLoc: ReturnType<typeof getLocation>,
+  gmdLine: number,
+  gmdCharacter: number
+) {
+  // jsdom's lines and columns are both 1-based
+  // grammarkdown's lines and columns ("characters") are both 0-based
+  // we want 1-based for both
+  let line = elementLoc.startTag.line + gmdLine;
+  let column =
+    gmdLine === 0
+      ? elementLoc.startTag.col +
+        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
+        gmdCharacter
+      : gmdCharacter + 1;
+  return { line, column };
+}
+
+export function ecmarkdownLocationToTrueLocation(
+  elementLoc: ReturnType<typeof getLocation>,
+  emdLine: number,
+  emdColumn: number
+) {
+  // jsdom's lines and columns are both 1-based
+  // ecmarkdown's lines are 1-based, columns are 0-based
+  // we want 1-based for both
+  let line = elementLoc.startTag.line + emdLine - 1;
+  let column =
+    emdLine === 1
+      ? elementLoc.startTag.col +
+        (elementLoc.startTag.endOffset - elementLoc.startTag.startOffset) +
+        emdColumn
+      : emdColumn + 1;
+  return { line, column };
+}
+
+export type ElementLocation = MarkupData.ElementLocation;
+
+export function getLocation(dom: any, node: Element): ElementLocation {
+  let loc = dom.nodeLocation(node);
+  if (!loc || !loc.startTag) {
+    throw new Error('could not find location: this is a bug in ecmarkdown; please report it');
+  }
+  return loc;
+}
+
+export function attrValueLocation(source: string | undefined, loc: ElementLocation, attr: string) {
+  let attrLoc = loc.startTag.attrs[attr];
+  if (attrLoc == null || source == null) {
+    return loc.startTag;
+  } else {
+    let tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
+    // RegExp.escape when
+    let matcher = new RegExp(attr.replace(/[\/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
+    return { line: attrLoc.line, col: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
+  }
 }

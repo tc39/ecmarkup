@@ -1,6 +1,6 @@
 import type { LintingError } from './algorithm-error-reporter-type';
 
-import { getLocation, offsetWithinElementToTrueLocation } from './utils';
+import { getLocation, offsetWithinElementToTrueLocation } from '../utils';
 
 const ruleId = 'header-format';
 

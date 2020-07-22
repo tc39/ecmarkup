@@ -29,7 +29,6 @@ import Eqn from './Eqn';
 import Biblio from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { lint } from './lint/lint';
-import { attrValueLocation, getLocation } from './lint/utils';
 import { CancellationToken } from 'prex';
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
@@ -436,7 +435,7 @@ export default class Spec {
     try {
       data = yaml.safeLoad(block.textContent!);
     } catch (e) {
-      let nodeLoc = getLocation(this.dom, block);
+      let nodeLoc = utils.getLocation(this.dom, block);
       this.warn({
         ruleId: 'invalid-metadata',
         nodeType: 'metadata',
@@ -733,8 +732,8 @@ export default class Spec {
         // When the target is not itself within a replacement, or is within a replacement which we have already rectified, we can just use its step number directly
         let targetEntry = this.biblio.byId(target);
         if (targetEntry == null) {
-          let nodeLoc = getLocation(this.dom, element);
-          let loc = attrValueLocation(this.sourceText, nodeLoc, 'replaces-step');
+          let nodeLoc = utils.getLocation(this.dom, element);
+          let loc = utils.attrValueLocation(this.sourceText, nodeLoc, 'replaces-step');
           this.warn({
             ruleId: 'invalid-replacement',
             nodeType: 'emu-alg',
@@ -743,8 +742,8 @@ export default class Spec {
             column: loc.col,
           });
         } else if (targetEntry.type !== 'step') {
-          let nodeLoc = getLocation(this.dom, element);
-          let loc = attrValueLocation(this.sourceText, nodeLoc, 'replaces-step');
+          let nodeLoc = utils.getLocation(this.dom, element);
+          let loc = utils.attrValueLocation(this.sourceText, nodeLoc, 'replaces-step');
           this.warn({
             ruleId: 'invalid-replacement',
             nodeType: 'emu-alg',

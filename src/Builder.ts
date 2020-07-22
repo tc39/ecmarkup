@@ -1,7 +1,7 @@
 import type Spec from './Spec';
 import type { Context } from './Context';
 
-import { attrValueLocation, getLocation } from './lint/utils';
+import { attrValueLocation, getLocation } from './utils';
 
 // We use this instead of `typeof Builder` because using the class as the type also requires derived constructors to be subtypes of the base constructor, which is irritating.
 /*@internal*/
