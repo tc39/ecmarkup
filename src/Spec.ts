@@ -128,8 +128,7 @@ function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError & { source
         line = nodeLoc.startTag.line;
         column = nodeLoc.startTag.col;
       } else if (e.type === 'attr') {
-        // TODO reconsider name of prop in method
-        ({ line, col: column } = utils.attrValueLocation(source, nodeLoc, e.attr));
+        ({ line, column } = utils.attrValueLocation(source, nodeLoc, e.attr));
       } else if (e.type === 'contents') {
         let { nodeRelativeLine, nodeRelativeColumn } = e;
 

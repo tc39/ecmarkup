@@ -145,6 +145,6 @@ export function attrValueLocation(source: string | undefined, loc: MarkupData.El
     let tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
     // RegExp.escape when
     let matcher = new RegExp(attr.replace(/[/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
-    return { line: attrLoc.line, col: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
+    return { line: attrLoc.line, column: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
   }
 }
