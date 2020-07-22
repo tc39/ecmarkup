@@ -59,11 +59,11 @@ async function assertErrorFree(html, opts) {
 }
 
 async function assertLint(a, b) {
-  assertError(a, b, { lintSpec: true });
+  await assertError(a, b, { lintSpec: true });
 }
 
 async function assertLintFree(html) {
-  assertErrorFree(html, { lintSpec: true });
+  await assertErrorFree(html, { lintSpec: true });
 }
 
 

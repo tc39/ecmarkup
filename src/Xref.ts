@@ -46,25 +46,21 @@ export default class Xref extends Builder {
     }
 
     if (href && aoid) {
-      let nodeLoc = getLocation(spec.dom, node);
       spec.warn({
+        type: 'node',
         ruleId: 'invalid-xref',
-        nodeType: 'emu-xref',
         message: "xref can't have both href and aoid",
-        line: nodeLoc.startTag.line,
-        column: nodeLoc.startTag.col,
+        node,
       });
       return;
     }
 
     if (!href && !aoid) {
-      let nodeLoc = getLocation(spec.dom, node);
       spec.warn({
+        type: 'node',
         ruleId: 'invalid-xref',
-        nodeType: 'emu-xref',
         message: 'xref has neither href nor aoid',
-        line: nodeLoc.startTag.line,
-        column: nodeLoc.startTag.col,
+        node,
       });
       return;
     }
@@ -82,13 +78,11 @@ export default class Xref extends Builder {
 
     if (href) {
       if (href[0] !== '#') {
-        let nodeLoc = getLocation(spec.dom, this.node);
         spec.warn({
+          type: 'node',
           ruleId: 'invalid-xref',
-          nodeType: 'emu-xref',
           message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(href)}). try href="#sec-id" instead`,
-          line: nodeLoc.startTag.line,
-          column: nodeLoc.startTag.col,
+          node: this.node,
         });
         return;
       }
@@ -97,14 +91,14 @@ export default class Xref extends Builder {
 
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
-        let nodeLoc = getLocation(spec.dom, this.node);
-        let loc = attrValueLocation(spec.sourceText, nodeLoc, 'href');
+        // let nodeLoc = getLocation(spec.dom, this.node);
+        // let loc = attrValueLocation(spec.sourceText, nodeLoc, 'href');
         spec.warn({
+          type: 'attr',
+          attr: 'href',
           ruleId: 'xref-not-found',
-          nodeType: 'emu-xref',
           message: `can't find clause, production, note or example with id ${JSON.stringify(id)}`,
-          line: loc.line,
-          column: loc.col,
+          node: this.node,
         });
         return;
       }
@@ -135,13 +129,11 @@ export default class Xref extends Builder {
           buildStepLink(spec, node, this.entry);
           break;
         default: {
-          let nodeLoc = getLocation(spec.dom, this.node);
           spec.warn({
+            type: 'node',
             ruleId: 'unknown-biblio',
-            nodeType: 'emu-xref',
             message: `found unknown biblio entry ${this.entry.type} (this is a bug, please file it with ecmarkup)`,
-            line: nodeLoc.startTag.line,
-            column: nodeLoc.startTag.col,
+            node: this.node,
           });
         }
       }
@@ -153,15 +145,15 @@ export default class Xref extends Builder {
         return;
       }
 
-      let nodeLoc = getLocation(spec.dom, this.node);
-      let loc = attrValueLocation(spec.sourceText, nodeLoc, 'aoid');
+      // let nodeLoc = getLocation(spec.dom, this.node);
+      // let loc = attrValueLocation(spec.sourceText, nodeLoc, 'aoid');
       let namespaceSuffix = namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
       spec.warn({
+        type: 'attr',
+        attr: 'aoid',
         ruleId: 'xref-not-found',
-        nodeType: 'emu-xref',
         message: `can't find abstract op with aoid ${JSON.stringify(aoid)}` + namespaceSuffix,
-        line: loc.line,
-        column: loc.col,
+        node: this.node,
       });
     }
   }
@@ -215,13 +207,11 @@ function buildFigureLink(
       // first need to find the associated clause
       const clauseEntry = spec.biblio.byId(entry.clauseId);
       if (clauseEntry.type !== 'clause') {
-        let nodeLoc = getLocation(spec.dom, entry.node);
         spec.warn({
+          type: 'node',
           ruleId: 'invalid-xref',
-          nodeType: 'emu-xref',
           message: `could not find parent clause for ${type} id ${entry.id}`,
-          line: nodeLoc.startTag.line,
-          column: nodeLoc.startTag.col,
+          node: entry.node,
         });
         return;
       }
@@ -261,30 +251,29 @@ function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry)
   if (xref.innerHTML !== '') {
     let nodeLoc = getLocation(spec.dom, xref);
     // TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
-    let tagSrc = spec.sourceText!.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
-    let relativeLoc = offsetToLineAndColumn(tagSrc, nodeLoc.startTag.endOffset - nodeLoc.startOffset);
-    let line = nodeLoc.line + relativeLoc.line - 1;
-    let column = relativeLoc.line === 1 ? (nodeLoc.startTag.col + relativeLoc.column - 1) : relativeLoc.column;
+    // let tagSrc = spec.sourceText!.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
+    // let relativeLoc = offsetToLineAndColumn(tagSrc, nodeLoc.startTag.endOffset - nodeLoc.startOffset);
+    // let line = nodeLoc.line + relativeLoc.line - 1;
+    // let column = relativeLoc.line === 1 ? (nodeLoc.startTag.col + relativeLoc.column - 1) : relativeLoc.column;
     spec.warn({
+      type: 'contents',
       ruleId: 'step-xref-contents',
-      nodeType: 'emu-xref',
       message: 'the contents of emu-xrefs to steps are ignored',
-      line,
-      column,
+      node: xref,
+      nodeRelativeLine: 1,
+      nodeRelativeColumn: 1,
     });
   }
 
   let stepBullets = entry.stepNumbers.map((s, i) => {
     let applicable = bullets[Math.min(i, 5)];
     if (s > applicable.length) {
-      let nodeLoc = getLocation(spec.dom, xref);
-      let loc = attrValueLocation(spec.sourceText, nodeLoc, 'href');
       spec.warn({
+        type: 'attr',
         ruleId: 'high-step-number',
-        nodeType: 'emu-xref',
         message: `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`,
-        line: loc.line,
-        column: loc.col,
+        node: xref,
+        attr: 'href',
       });
       return '?';
     }

@@ -13,7 +13,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'grammarkdown:2008',
-          nodeType: '«Parameter»',
+          nodeType: 'emu-grammar',
           message: "Parameter 'a' is unused.",
         }
       );
@@ -49,7 +49,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'grammarkdown:2007',
-          nodeType: '«identifier»',
+          nodeType: 'emu-grammar',
           message: "There is no argument given for parameter 'a'.",
         }
       );
@@ -62,7 +62,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'grammarkdown:2008',
-          nodeType: '«Parameter»',
+          nodeType: 'emu-grammar',
           message: "Parameter 'a' is unused.",
         }
       );
@@ -82,7 +82,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'undefined-nonterminal',
-          nodeType: 'EMU-GRAMMAR',
+          nodeType: 'emu-grammar',
           message: 'Could not find a definition for LHS in syntax-directed operation',
         }
       );
@@ -98,7 +98,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'undefined-nonterminal',
-          nodeType: 'EMU-GRAMMAR',
+          nodeType: 'emu-grammar',
           message: 'Could not find a definition for LHS in syntax-directed operation',
         }
       );
@@ -121,7 +121,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'undefined-nonterminal',
-          nodeType: 'EMU-GRAMMAR',
+          nodeType: 'emu-grammar',
           message: 'Could not find a production matching RHS in syntax-directed operation',
         }
       );
@@ -137,7 +137,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'header-format',
-          nodeType: 'H1',
+          nodeType: 'h1',
           message:
             "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"something: \"",
         }
@@ -152,7 +152,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'header-format',
-          nodeType: 'H1',
+          nodeType: 'h1',
           message: 'expected header to have a single space before the argument list',
         }
       );
@@ -164,7 +164,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'header-format',
-          nodeType: 'H1',
+          nodeType: 'h1',
           message: 'expected header to have a single space before the argument list',
         }
       );
@@ -178,7 +178,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'header-format',
-          nodeType: 'H1',
+          nodeType: 'h1',
           message:
             "expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'",
         }
@@ -248,7 +248,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'missing-close-tag',
-          nodeType: 'EMU-GRAMMAR',
+          nodeType: 'emu-grammar',
           message: 'could not find closing tag for emu-grammar',
         }
       );
@@ -263,7 +263,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'missing-close-tag',
-          nodeType: 'EMU-ALG',
+          nodeType: 'emu-alg',
           message: 'could not find closing tag for emu-alg',
         }
       );

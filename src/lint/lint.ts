@@ -1,4 +1,4 @@
-import type { EcmarkupError } from '../ecmarkup';
+import type { Warning } from '../Spec';
 import { emit } from 'ecmarkdown';
 
 import { collectNodes } from './collect-nodes';
@@ -20,7 +20,7 @@ Currently this checks
 There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
-export function lint(report: (err: EcmarkupError) => void, sourceText: string, dom: any, document: Document) {
+export function lint(report: (err: Warning) => void, sourceText: string, dom: any, document: Document) {
   let collection = collectNodes(report, sourceText, dom, document);
   if (!collection.success) {
     return;

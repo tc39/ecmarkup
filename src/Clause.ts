@@ -108,13 +108,11 @@ export default class Clause extends Builder {
 
   static enter({ spec, node, clauseStack, clauseNumberer }: Context) {
     if (!node.id) {
-      let nodeLoc = getLocation(spec.dom, node);
       spec.warn({
+        type: 'node',
         ruleId: 'missing-id',
-        nodeType: 'emu-clause',
         message: "clause doesn't have an id",
-        line: nodeLoc.startTag.line,
-        column: nodeLoc.startTag.col,
+        node,
       });
     }
 

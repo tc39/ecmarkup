@@ -24,15 +24,12 @@ export default class Builder {
 
     if (nodeId !== null) {
       if (spec.nodeIds.has(nodeId)) {
-        let nodeLoc = getLocation(spec.dom, node);
-        let loc = attrValueLocation(this.spec.sourceText, nodeLoc, 'id');
-        let nodeType = node.tagName.toLowerCase();
         spec.warn({
+          type: 'attr',
+          attr: 'id',
           ruleId: 'duplicate-id',
-          nodeType,
-          message: `<${nodeType}> has duplicate id ${JSON.stringify(nodeId)}`,
-          line: loc.line,
-          column: loc.col,
+          message: `<${node.tagName.toLowerCase()}> has duplicate id ${JSON.stringify(nodeId)}`,
+          node,
         });
       }
       spec.nodeIds.add(nodeId);

@@ -1,5 +1,5 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
-import type { EcmarkupError } from '../../ecmarkup';
+import type { Reporter } from '../algorithm-error-reporter-type';
 
 const ruleId = 'algorithm-step-labels';
 
@@ -7,11 +7,10 @@ const ruleId = 'algorithm-step-labels';
 Checks that step labels all start with `step-`.
 */
 export default function (
-  report: (e: EcmarkupError) => void,
+  report: Reporter,
   node: Element,
   algorithmSource: string
 ): Observer {
-  const nodeType = node.tagName;
   return {
     enter(node: EcmarkdownNode) {
       // console.log(node)
@@ -23,7 +22,6 @@ export default function (
         let offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
         report({
           ruleId,
-          nodeType,
           line: node.location!.start.line,
           column: node.location!.start.column + offset,
           message: `step labels should start with "step-"`,

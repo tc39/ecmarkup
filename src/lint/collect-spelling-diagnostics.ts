@@ -1,4 +1,4 @@
-import type { EcmarkupError } from '../ecmarkup';
+import type { Warning } from '../Spec';
 
 import { offsetToLineAndColumn } from '../utils';
 
@@ -57,7 +57,7 @@ let matchers = [
   },
 ];
 
-export function collectSpellingDiagnostics(report: (e: EcmarkupError) => void, sourceText: string) {
+export function collectSpellingDiagnostics(report: (e: Warning) => void, sourceText: string) {
   let composed = new RegExp(matchers.map(m => `(?:${m.pattern.source})`).join('|'), 'u');
 
   // The usual case will be to have no errors, so we have a fast path for that case.
@@ -70,8 +70,8 @@ export function collectSpellingDiagnostics(report: (e: EcmarkupError) => void, s
         reported = true;
         let { line, column } = offsetToLineAndColumn(sourceText, match.index);
         report({
+          type: 'raw',
           ruleId,
-          nodeType: 'text',
           line,
           column,
           message,

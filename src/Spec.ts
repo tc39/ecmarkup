@@ -78,12 +78,34 @@ export default interface Spec {
   exportBiblio(): any;
 }
 
-type Warning = {
+export type Warning = {
+  type: 'global'
+  ruleId: string;
+  message: string;
+} | {
+  type: 'node',
+  node: Element;
+  ruleId: string;
+  message: string;
+} | {
+  type: 'attr',
+  node: Element;
+  attr: string;
+  ruleId: string;
+  message: string;
+} | {
+  type: 'contents',
+  node: Element;
+  ruleId: string;
+  message: string;
+  nodeRelativeLine: number;
+  nodeRelativeColumn: number;
+} | {
+  type: 'raw',
   ruleId: string;
   message: string;
   line: number;
   column: number;
-  node: HTMLElement;
 }
 
 /*@internal*/
@@ -106,7 +128,7 @@ export default class Spec {
   replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
   log: (msg: string) => void;
-  warn: (error: EcmarkupError) => void;
+  warn: (error: Warning) => void;
 
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
@@ -144,7 +166,7 @@ export default class Spec {
     this.log = opts.log ?? (() => {});
     // this.warn = opts.warn ?? (() => {});
     let warn = opts.warn;
-    this.warn = warn ? (e: EcmarkupError) => {
+    this.warn = warn ? (e: Warning) => {
       // let nodeLoc = getLocation(this.doc, node);
       // let line = nodeLoc.startTag.line + nodeRelativeLine - 1;
       // let column =
@@ -153,10 +175,53 @@ export default class Spec {
       //       (nodeLoc.startTag.endOffset - nodeLoc.startTag.startOffset) +
       //       nodeRelativeColumn - 1
       //     : nodeRelativeColumn;
+      let { message, ruleId } = e;
+      let source = this.sourceText!;
+      let line: number, column: number;
+      if (e.type === 'global') {
+        line = 1;
+        column = 1;
+      } else if (e.type === 'raw') {
+        ({ line, column } = e);
+      } else {
+        let nodeLoc = utils.getLocation(dom, e.node);
+        if (e.type === 'node') {
+          line = nodeLoc.startTag.line;
+          column = nodeLoc.startTag.col;
+        } else if (e.type === 'attr') {
+          // TODO reconsider name of prop in method
+          ({line, col: column} = utils.attrValueLocation(source, nodeLoc, e.attr));
+        } else if (e.type === 'contents') {
+          let { nodeRelativeLine, nodeRelativeColumn } = e;
 
+          //  TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
+          let tagSrc = source.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
+          let tagEnd = utils.offsetToLineAndColumn(tagSrc, nodeLoc.startTag.endOffset - nodeLoc.startOffset);
+          line = nodeLoc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
+          if (nodeRelativeLine === 1) {
+            if (tagEnd.line === 1) {
+              column = nodeLoc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
+            } else {
+              column = tagEnd.column + nodeRelativeColumn - 1;
+            }
+          } else {
+            column = nodeRelativeColumn;
+          }
+        }
+      }
+
+      let nodeType = (e.type === 'global' || e.type === 'raw')
+        ? 'html'
+        : e.node.tagName.toLowerCase();
       warn!({
-        source: this.sourceText!,
-        ...e,
+        message,
+        ruleId,
+        source,
+        nodeType,
+        // @ts-ignore TS can't prove this is initialized, for some reason
+        line,
+        // @ts-ignore TS can't prove this is initialized, for some reason
+        column,
       });
     } : (() => {});
     this._figureCounts = {
@@ -433,11 +498,10 @@ export default class Spec {
     } catch (e) {
       let nodeLoc = utils.getLocation(this.dom, block);
       this.warn({
+        type: 'node',
         ruleId: 'invalid-metadata',
-        nodeType: 'metadata',
         message: 'metadata block failed to parse',
-        line: nodeLoc.startTag.line,
-        column: nodeLoc.startTag.col,
+        node: block,
       });
       return;
     } finally {
@@ -473,11 +537,9 @@ export default class Spec {
   public exportBiblio(): any {
     if (!this.opts.location) {
       this.warn({
+        type: 'global',
         ruleId: 'no-location',
-        nodeType: 'html',
         message: "no spec location specified; biblio not generated. try --location or setting the location in the document's metadata block",
-        line: 0,
-        column: 0,
       });
       return {};
     }
@@ -543,11 +605,9 @@ export default class Spec {
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
         this.warn({
+          type: 'global',
           ruleId: 'no-contributors',
-          nodeType: 'html',
           message: 'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
-          line: 1,
-          column: 1,
         });
       } else {
         this.buildCopyrightBoilerplate();
@@ -728,24 +788,20 @@ export default class Spec {
         // When the target is not itself within a replacement, or is within a replacement which we have already rectified, we can just use its step number directly
         let targetEntry = this.biblio.byId(target);
         if (targetEntry == null) {
-          let nodeLoc = utils.getLocation(this.dom, element);
-          let loc = utils.attrValueLocation(this.sourceText, nodeLoc, 'replaces-step');
           this.warn({
+            type: 'attr',
+            attr: 'replaces-step',
             ruleId: 'invalid-replacement',
-            nodeType: 'emu-alg',
             message: `could not find step ${JSON.stringify(target)}`,
-            line: loc.line,
-            column: loc.col,
+            node: element,
           });
         } else if (targetEntry.type !== 'step') {
-          let nodeLoc = utils.getLocation(this.dom, element);
-          let loc = utils.attrValueLocation(this.sourceText, nodeLoc, 'replaces-step');
           this.warn({
+            type: 'attr',
+            attr: 'replaces-step',
             ruleId: 'invalid-replacement',
-            nodeType: 'emu-alg',
             message: `expected algorithm to replace a step, not a ${targetEntry.type}`,
-            line: loc.line,
-            column: loc.col,
+            node: element,
           });
         } else {
           setReplacementAlgorithmStart(element, targetEntry.stepNumbers);
@@ -755,11 +811,9 @@ export default class Spec {
     if (pending.size > 0) {
       // todo consider line/column missing cases
       this.warn({
+        type: 'global',
         ruleId: 'invalid-replacement',
-        nodeType: 'emu-alg',
         message: 'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
-        line: 1,
-        column: 1,
       });
     }
   }

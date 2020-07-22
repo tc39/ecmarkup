@@ -1,4 +1,4 @@
-import type { EcmarkupError } from '../ecmarkup';
+import type { Warning } from '../Spec';
 
 import {
   Grammar as GrammarFile,
@@ -23,7 +23,7 @@ import {  grammarkdownLocationToTrueLocation,
 } from '../utils'
 
 export function collectGrammarDiagnostics(
-  report: (e: EcmarkupError) => void,
+  report: (e: Warning) => void,
   dom: any,
   sourceText: string,
   mainGrammar: { element: Element; source: string }[],
@@ -62,8 +62,8 @@ export function collectGrammarDiagnostics(
   grammar.parseSync();
   grammar.checkSync();
 
-  let lintingErrors: EcmarkupError[] = [];
-  let unusedParameterErrors: Map<string, Map<string, EcmarkupError>> = new Map();
+  let lintingErrors: Warning[] = [];
+  let unusedParameterErrors: Map<string, Map<string, Warning>> = new Map();
 
   if (grammar.diagnostics.size > 0) {
     // `detailedMessage: false` prevents prepending line numbers, which is good because we're going to make our own
@@ -73,18 +73,19 @@ export function collectGrammarDiagnostics(
         let idx = +m.sourceFile!.filename;
         let grammarLoc = getLocation(dom, mainGrammar[idx].element);
 
-        let { line, column } = grammarkdownLocationToTrueLocation(
-          grammarLoc,
-          m.range!.start.line,
-          m.range!.start.character
-        );
+        // let { line, column } = grammarkdownLocationToTrueLocation(
+        //   grammarLoc,
+        //   m.range!.start.line,
+        //   m.range!.start.character
+        // );
 
-        let error = {
+        let error: Warning = {
+          type: 'contents',
           ruleId: `grammarkdown:${m.code}`,
-          nodeType: m.node === undefined ? 'unknown' : tokenToString(m.node.kind, false),
-          line,
-          column,
           message: m.formattedMessage!,
+          node: mainGrammar[idx].element,
+          nodeRelativeLine: m.range!.start.line + 1,
+          nodeRelativeColumn: m.range!.start.character + 1,
         };
 
         if (m.code === Diagnostics.Parameter_0_is_unused.code) {
@@ -120,11 +121,10 @@ export function collectGrammarDiagnostics(
 
     if (grammarLoc.endTag == null) {
       report({
+        type: 'node',
         ruleId: 'missing-close-tag',
         message: 'could not find closing tag for emu-grammar',
-        line: grammarLoc.startTag.line,
-        column: grammarLoc.startTag.col,
-        nodeType: 'EMU-GRAMMAR',
+        node: grammarEle,
       });
       continue;
     }
@@ -143,8 +143,9 @@ export function collectGrammarDiagnostics(
       let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(
         posWithoutWhitespace
       );
+      return { line: gmdLine + 1, column: gmdCharacter + 1 };
 
-      return grammarkdownLocationToTrueLocation(grammarLoc, gmdLine, gmdCharacter);
+      // return grammarkdownLocationToTrueLocation(grammarLoc, gmdLine, gmdCharacter);
     }
 
     for (let [name, { production, rhses }] of productions) {
@@ -152,11 +153,12 @@ export function collectGrammarDiagnostics(
       if (originalRhses === undefined) {
         let { line, column } = getLocationInGrammar(production.pos);
         report({
+          type: 'contents',
           ruleId: 'undefined-nonterminal',
-          nodeType,
-          line,
-          column,
           message: `Could not find a definition for LHS in ${type}`,
+          node: grammarEle,
+          nodeRelativeLine: line,
+          nodeRelativeColumn: column,
         });
         continue;
       }
@@ -164,11 +166,12 @@ export function collectGrammarDiagnostics(
         if (!originalRhses.some(o => rhsMatches(rhs, o))) {
           let { line, column } = getLocationInGrammar(rhs.pos);
           report({
+            type: 'contents',
             ruleId: 'undefined-nonterminal',
-            nodeType,
-            line,
-            column,
             message: `Could not find a production matching RHS in ${type}`,
+            node: grammarEle,
+            nodeRelativeLine: line,
+            nodeRelativeColumn: column,
           });
         }
 
@@ -180,11 +183,12 @@ export function collectGrammarDiagnostics(
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
               let { line, column } = getLocationInGrammar(s.symbol.pos);
               report({
+                type: 'contents',
                 ruleId: `NLTH-in-SDO`,
-                nodeType,
-                line,
-                column,
                 message: `Productions referenced in ${type}s should not include "no LineTerminator here" restrictions`,
+                node: grammarEle,
+                nodeRelativeLine: line,
+                nodeRelativeColumn: column,
               });
             }
             // We could also enforce that lookahead restrictions are absent, but in some cases they actually do add clarity, so we just don't enforce it either way.
@@ -195,11 +199,12 @@ export function collectGrammarDiagnostics(
           if (rhs.constraints !== undefined) {
             let { line, column } = getLocationInGrammar(rhs.constraints.pos);
             report({
+              type: 'contents',
               ruleId: `guard-in-SDO`,
-              nodeType,
-              line,
-              column,
               message: `productions referenced in ${type}s should not be gated on grammar parameters`,
+              node: grammarEle,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
             });
           }
         }

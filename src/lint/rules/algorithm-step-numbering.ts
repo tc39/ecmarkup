@@ -1,5 +1,5 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
-import type { EcmarkupError } from '../../ecmarkup';
+import type { Reporter } from '../algorithm-error-reporter-type';
 
 const ruleId = 'algorithm-step-numbering';
 
@@ -7,11 +7,10 @@ const ruleId = 'algorithm-step-numbering';
 Checks that step numbers are all `1`.
 */
 export default function (
-  report: (e: EcmarkupError) => void,
+  report: Reporter,
   node: Element,
   algorithmSource: string
 ): Observer {
-  const nodeType = node.tagName;
   return {
     enter(node: EcmarkdownNode) {
       if (node.name === 'ordered-list-item') {
@@ -23,7 +22,6 @@ export default function (
         if (match[2] !== '1.') {
           report({
             ruleId,
-            nodeType,
             line: node.location!.start.line,
             column: node.location!.start.column + match[1].length,
             message: `expected step number to be "1." (found ${JSON.stringify(match[2])})`,

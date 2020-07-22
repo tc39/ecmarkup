@@ -26,7 +26,7 @@ describe('errors', () => {
       `,
       {
         ruleId: 'invalid-metadata',
-        nodeType: 'metadata',
+        nodeType: 'pre',
         message: 'metadata block failed to parse',
       }
     );
@@ -76,7 +76,7 @@ describe('errors', () => {
       `,
       {
         ruleId: 'invalid-replacement',
-        nodeType: 'emu-alg',
+        nodeType: 'html',
         message: 'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
       }
     );

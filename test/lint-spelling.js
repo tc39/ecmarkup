@@ -10,7 +10,7 @@ describe('spelling', function () {
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'Prefer "*this* value"',
       }
     );
@@ -23,7 +23,7 @@ describe('spelling', function () {
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'Prefer "one\'s complement"',
       }
     );
@@ -36,7 +36,7 @@ describe('spelling', function () {
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'Prefer "two\'s complement"',
       }
     );
@@ -49,7 +49,7 @@ describe('spelling', function () {
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'The Number value 0 should be written "*+0*", to unambiguously exclude "*-0*"',
       }
     );
@@ -62,7 +62,7 @@ describe('spelling', function () {
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'ECMA-262 uses Oxford spelling ("behaviour")',
       }
     );
@@ -75,7 +75,7 @@ describe('spelling', function () {
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'Prefer "the empty String"',
       }
     );
@@ -88,7 +88,7 @@ describe('spelling', function () {
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'Trailing spaces are not allowed',
       }
     );
@@ -104,7 +104,7 @@ ${M}
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'No more than one blank line is allowed',
       }
     );
@@ -119,7 +119,7 @@ ${M}
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'No more than one blank line is allowed',
       }
     );
@@ -135,7 +135,7 @@ ${M}
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: "There should not be a blank line between a clause's opening tag and its header",
       }
     );
@@ -151,7 +151,7 @@ ${M}
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message:
           'There should not be a blank line between the last line of a clause and its closing tag',
       }
@@ -165,7 +165,7 @@ windows:${M}\r
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'Only Unix-style (LF) linebreaks are allowed',
       }
     );
@@ -178,7 +178,7 @@ windows:${M}\r
       `,
       {
         ruleId: 'spelling',
-        nodeType: 'text',
+        nodeType: 'html',
         message: 'Prefer using labeled steps and <emu-xref> tags over hardcoding step numbers',
       }
     );

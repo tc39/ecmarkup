@@ -72,14 +72,12 @@ export default class Note extends Builder {
     } else if (this.type === 'editor') {
       label = "Editor's Note";
     } else {
-      let nodeLoc = getLocation(this.spec.dom, this.node);
-      let loc = attrValueLocation(this.spec.sourceText, nodeLoc, 'type');
       this.spec.warn({
+        type: 'attr',
+        attr: 'type',
         ruleId: 'invalid-note',
-        nodeType: 'emu-note',
         message: `unknown note type ${JSON.stringify(this.type)}`,
-        line: loc.line,
-        column: loc.col,
+        node: this.node,
       });
     }
 

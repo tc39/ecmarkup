@@ -1,4 +1,4 @@
-import type { EcmarkupError } from '../ecmarkup';
+import type { Warning } from '../Spec';
 
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
@@ -18,7 +18,7 @@ type CollectNodesReturnType =
     };
 
 export function collectNodes(
-  report: (e: EcmarkupError) => void,
+  report: (e: Warning) => void,
   sourceText: string,
   dom: any,
   document: Document
@@ -93,11 +93,10 @@ export function collectNodes(
           if (loc.endTag == null) {
             failed = true;
             report({
+              type: 'node',
               ruleId: 'missing-close-tag',
               message: 'could not find closing tag for emu-grammar',
-              line: loc.startTag.line,
-              column: loc.startTag.col,
-              nodeType: 'EMU-GRAMMAR',
+              node,
             });
           } else {
             let start = loc.startTag.endOffset;
