@@ -144,7 +144,7 @@ export function attrValueLocation(
 ) {
   let attrLoc = loc.startTag.attrs[attr];
   if (attrLoc == null || source == null) {
-    return loc.startTag;
+    return { line: loc.startTag.line, column: loc.startTag.col };
   } else {
     let tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
     // RegExp.escape when

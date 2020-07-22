@@ -18,6 +18,7 @@ export type EcmarkupError = {
   line: number;
   column: number;
   nodeType: string;
+  source: string;
 };
 
 export interface Options {
@@ -40,7 +41,7 @@ export interface Options {
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
   log?: (msg: string) => void;
-  warn?: (err: EcmarkupError & { source: string }) => void;
+  warn?: (err: EcmarkupError) => void;
 }
 
 export async function build(

@@ -116,7 +116,7 @@ export type Warning =
 function wrapWarn(
   source: string,
   dom: any,
-  warn: (err: EcmarkupError & { source: string }) => void
+  warn: (err: EcmarkupError) => void
 ) {
   return (e: Warning) => {
     let { message, ruleId } = e;
