@@ -258,14 +258,13 @@ export default class Spec {
 
     const document = this.doc;
 
-    if (this.opts.reportLintErrors) {
-      let { reportLintErrors } = this.opts;
+    if (this.opts.lintSpec) {
       this.log('Linting...');
       const source = this.sourceText;
       if (source === undefined) {
         throw new Error('Cannot lint when source text is not available');
       }
-      lint(reportLintErrors, source, this.dom, document);
+      lint(this.warn, source, this.dom, document);
     }
 
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
@@ -550,8 +549,8 @@ export default class Spec {
           ruleId: 'no-contributors',
           nodeType: 'html',
           message: 'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
-          line: 0,
-          column: 0,
+          line: 1,
+          column: 1,
         });
       } else {
         this.buildCopyrightBoilerplate();

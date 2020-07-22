@@ -1,4 +1,4 @@
-import type { LintingError } from './algorithm-error-reporter-type';
+import type { EcmarkupError } from '../ecmarkup';
 
 import { getLocation, offsetWithinElementToTrueLocation } from '../utils';
 
@@ -8,7 +8,7 @@ export function collectHeaderDiagnostics(
   dom: any,
   headers: { element: Element; contents: string }[]
 ) {
-  let lintingErrors: LintingError[] = [];
+  let lintingErrors: EcmarkupError[] = [];
 
   for (let { element, contents } of headers) {
     if (!/\(.*\)$/.test(contents) || / Operator \( `[^`]+` \)$/.test(contents)) {

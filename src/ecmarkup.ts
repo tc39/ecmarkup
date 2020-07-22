@@ -1,5 +1,4 @@
 import type { BiblioEntry } from './Biblio';
-import type { Reporter } from './lint/algorithm-error-reporter-type';
 
 import Spec from './Spec';
 import * as utils from './utils';
@@ -40,7 +39,6 @@ export interface Options {
   outfile?: string;
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
-  reportLintErrors?: Reporter;
   log?: (msg: string) => void;
   warn?: (err: EcmarkupError) => void;
 }

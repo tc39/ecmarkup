@@ -1,5 +1,5 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
-import type { LintingError } from '../algorithm-error-reporter-type';
+import type { EcmarkupError } from '../../ecmarkup';
 
 const ruleId = 'algorithm-line-endings';
 
@@ -20,7 +20,7 @@ Checks that every algorithm step has one of these forms:
 - `Other.`
 - `Other:` + substeps
 */
-export default function (report: (e: LintingError) => void, node: Element): Observer {
+export default function (report: (e: EcmarkupError) => void, node: Element): Observer {
   if (node.getAttribute('type') === 'example') {
     return {};
   }

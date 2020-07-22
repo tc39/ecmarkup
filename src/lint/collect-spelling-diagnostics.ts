@@ -1,4 +1,4 @@
-import type { LintingError } from './algorithm-error-reporter-type';
+import type { EcmarkupError } from '../ecmarkup';
 
 import { offsetToLineAndColumn } from '../utils';
 
@@ -63,7 +63,7 @@ export function collectSpellingDiagnostics(sourceText: string) {
   // The usual case will be to have no errors, so we have a fast path for that case.
   // We only fall back to slower individual tests if there is at least one error.
   if (composed.test(sourceText)) {
-    let errors: LintingError[] = [];
+    let errors: EcmarkupError[] = [];
     for (let { pattern, message } of matchers) {
       let match = pattern.exec(sourceText);
       while (match !== null) {

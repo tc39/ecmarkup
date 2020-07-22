@@ -1,4 +1,4 @@
-import type { LintingError } from './algorithm-error-reporter-type';
+import type { EcmarkupError } from '../ecmarkup';
 
 import {
   Grammar as GrammarFile,
@@ -61,8 +61,8 @@ export function collectGrammarDiagnostics(
   grammar.parseSync();
   grammar.checkSync();
 
-  let lintingErrors: LintingError[] = [];
-  let unusedParameterErrors: Map<string, Map<string, LintingError>> = new Map();
+  let lintingErrors: EcmarkupError[] = [];
+  let unusedParameterErrors: Map<string, Map<string, EcmarkupError>> = new Map();
 
   if (grammar.diagnostics.size > 0) {
     // `detailedMessage: false` prevents prepending line numbers, which is good because we're going to make our own

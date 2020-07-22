@@ -1,6 +1,6 @@
 'use strict';
 
-let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./lint-helpers');
+let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
 
 describe('spelling', function () {
   it('*this* object', async function () {

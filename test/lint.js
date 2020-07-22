@@ -1,6 +1,6 @@
 'use strict';
 
-let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./lint-helpers');
+let { assertError, assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
 
 describe('linting whole program', function () {
   describe('grammar validity', function () {

@@ -1,4 +1,4 @@
-import type { LintingError } from './algorithm-error-reporter-type';
+import type { EcmarkupError } from '../ecmarkup';
 
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
@@ -15,7 +15,7 @@ type CollectNodesReturnType =
     }
   | {
       success: false;
-      errors: LintingError[];
+      errors: EcmarkupError[];
     };
 
 export function collectNodes(
@@ -30,7 +30,7 @@ export function collectNodes(
   let algorithms: { element: Element; tree?: EcmarkdownNode }[] = [];
 
   let failed = false;
-  let errors: LintingError[] = [];
+  let errors: EcmarkupError[] = [];
 
   let inAnnexB = false;
   let lintWalker = document.createTreeWalker(document.body, 1 /* elements */);

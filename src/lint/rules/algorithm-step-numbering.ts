@@ -1,5 +1,5 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
-import type { LintingError } from '../algorithm-error-reporter-type';
+import type { EcmarkupError } from '../../ecmarkup';
 
 const ruleId = 'algorithm-step-numbering';
 
@@ -7,7 +7,7 @@ const ruleId = 'algorithm-step-numbering';
 Checks that step numbers are all `1`.
 */
 export default function (
-  report: (e: LintingError) => void,
+  report: (e: EcmarkupError) => void,
   node: Element,
   algorithmSource: string
 ): Observer {

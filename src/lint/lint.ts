@@ -1,3 +1,4 @@
+import type { EcmarkupError } from '../ecmarkup';
 import { emit } from 'ecmarkdown';
 
 import { collectNodes } from './collect-nodes';
@@ -5,7 +6,7 @@ import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
 import { collectSpellingDiagnostics } from './collect-spelling-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
 import { collectHeaderDiagnostics } from './collect-header-diagnostics';
-import type { Reporter } from './algorithm-error-reporter-type';
+
 
 /*
 Currently this checks
@@ -19,12 +20,12 @@ Currently this checks
 There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
-export function lint(report: Reporter, sourceText: string, dom: any, document: Document) {
+export function lint(report: (err: EcmarkupError) => void, sourceText: string, dom: any, document: Document) {
   let collection = collectNodes(sourceText, dom, document);
   if (!collection.success) {
     let lintingErrors = collection.errors;
     lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
-    report(lintingErrors, sourceText);
+    lintingErrors.forEach(report); // TODO report inline
     return;
   }
   let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collection;
@@ -45,7 +46,7 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
 
   if (lintingErrors.length > 0) {
     lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
-    report(lintingErrors, sourceText);
+    lintingErrors.forEach(report); // TODO report inline
   }
 
   // Stash intermediate results for later use

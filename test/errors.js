@@ -1,43 +1,22 @@
 'use strict';
 
-let assert = require('assert');
-let emu = require('../lib/ecmarkup');
-
-let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require('./lint-helpers');
-
-
-
-async function assertError({ line, column, html }, { ruleId, nodeType, message }) {
-  let warnings = [];
-
-  let warn = error => {
-    reported = true;
-    assert.equal(errors.length, 1, 'should have exactly one error');
-    assert.deepStrictEqual(errors[0], {
-      ruleId,
-      nodeType,
-      line,
-      column,
-      message,
-    });
-  };
-
-  await emu.build('test-example.emu', async () => html, {
-    ecma262Biblio: false,
-    copyright: false,
-    warn: e => warnings.push(e),
-  });
-
-  assert.deepStrictEqual(warnings, [{
-    ruleId,
-    nodeType,
-    line,
-    column,
-    message,
-  }]);
-}
+let { lintLocationMarker: M, positioned, assertError } = require('./utils.js');
 
 describe('errors', () => {
+  it('no contributors', async () => {
+    await assertError(
+      positioned`${M}`,
+      {
+        ruleId: 'no-contributors',
+        nodeType: 'html',
+        message: 'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
+      },
+      {
+        copyright: true,
+      }
+    );
+  });
+
   it('metadata failed', async () => {
     await assertError(
       positioned`

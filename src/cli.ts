@@ -1,5 +1,4 @@
 import type { Options } from './ecmarkup';
-import type { LintingError } from './lint/algorithm-error-reporter-type';
 
 import { argParser } from './args';
 const args = argParser.parse();
@@ -32,65 +31,35 @@ const build = debounce(async function build() {
       opts.log = utils.logVerbose;
     }
     let warned = false;
-    {
-      let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
-      try {
-        require.resolve(descriptor);
-      } catch {
-        descriptor = args.lintFormatter;
-      }
-      let formatter = require(descriptor);
-      opts.warn = err => {
-        warned = true;
 
-        // TODO fix this
-        let results = [
-          {
-            filePath: args.infile,
-            messages: [{ severity: args.strict ? 2 : 1, ...err }],
-            errorCount: args.strict ? 1 : 0,
-            warningCount: args.strict ? 0 : 1,
-            // for now, nothing is fixable
-            fixableErrorCount: 0,
-            fixableWarningCount: 0,
-            source: require('fs').readFileSync(args.infile, 'utf8'), // TODO not this
-          },
-        ];
-
-        console.error(formatter(results));
-        //utils.logWarning(str);
-      };
+    let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
+    try {
+      require.resolve(descriptor);
+    } catch {
+      descriptor = args.lintFormatter;
     }
+    let formatter = require(descriptor);
+    opts.warn = err => {
+      warned = true;
 
-    if (args.lintSpec) {
-      let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
-      try {
-        require.resolve(descriptor);
-      } catch {
-        descriptor = args.lintFormatter;
-      }
-      let formatter = require(descriptor);
+      // TODO fix this
+      let results = [
+        {
+          filePath: args.infile,
+          messages: [{ severity: args.strict ? 2 : 1, ...err }],
+          errorCount: args.strict ? 1 : 0,
+          warningCount: args.strict ? 0 : 1,
+          // for now, nothing is fixable
+          fixableErrorCount: 0,
+          fixableWarningCount: 0,
+          source: require('fs').readFileSync(args.infile, 'utf8'), // TODO not this
+        },
+      ];
 
-      opts.reportLintErrors = (errors: LintingError[], sourceText: string) => {
-        if (errors.length < 1) return;
+      console.error(formatter(results));
+      //utils.logWarning(str);
+    };
 
-        let results = [
-          {
-            filePath: args.infile,
-            messages: errors.map(e => ({ severity: args.strict ? 2 : 1, ...e })),
-            errorCount: args.strict ? errors.length : 0,
-            warningCount: args.strict ? 0 : errors.length,
-            // for now, nothing is fixable
-            fixableErrorCount: 0,
-            fixableWarningCount: 0,
-            source: sourceText,
-          },
-        ];
-
-        warned = true;
-        console.error(formatter(results));
-      };
-    }
     const spec = await ecmarkup.build(args.infile, utils.readFile, opts);
 
     const pending: Promise<any>[] = [];
