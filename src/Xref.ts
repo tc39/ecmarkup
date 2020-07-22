@@ -3,7 +3,6 @@ import type { Context } from './Context';
 import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
-import { attrValueLocation, offsetToLineAndColumn, getLocation } from './utils';
 import Builder from './Builder';
 
 /*@internal*/
@@ -93,8 +92,6 @@ export default class Xref extends Builder {
 
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
-        // let nodeLoc = getLocation(spec.dom, this.node);
-        // let loc = attrValueLocation(spec.sourceText, nodeLoc, 'href');
         spec.warn({
           type: 'attr',
           attr: 'href',
@@ -147,8 +144,6 @@ export default class Xref extends Builder {
         return;
       }
 
-      // let nodeLoc = getLocation(spec.dom, this.node);
-      // let loc = attrValueLocation(spec.sourceText, nodeLoc, 'aoid');
       let namespaceSuffix =
         namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
       spec.warn({
@@ -252,12 +247,6 @@ let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBull
 
 function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry) {
   if (xref.innerHTML !== '') {
-    let nodeLoc = getLocation(spec.dom, xref);
-    // TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
-    // let tagSrc = spec.sourceText!.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
-    // let relativeLoc = offsetToLineAndColumn(tagSrc, nodeLoc.startTag.endOffset - nodeLoc.startOffset);
-    // let line = nodeLoc.line + relativeLoc.line - 1;
-    // let column = relativeLoc.line === 1 ? (nodeLoc.startTag.col + relativeLoc.column - 1) : relativeLoc.column;
     spec.warn({
       type: 'contents',
       ruleId: 'step-xref-contents',

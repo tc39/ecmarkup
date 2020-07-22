@@ -1,4 +1,4 @@
-import type { EcmarkupError, Options } from './ecmarkup';
+import type { Options } from './ecmarkup';
 import type { Context } from './Context';
 import type { BiblioData, StepBiblioEntry } from './Biblio';
 import type { BuilderInterface } from './Builder';
@@ -505,7 +505,6 @@ export default class Spec {
     try {
       data = yaml.safeLoad(block.textContent!);
     } catch (e) {
-      let nodeLoc = utils.getLocation(this.dom, block);
       this.warn({
         type: 'node',
         ruleId: 'invalid-metadata',

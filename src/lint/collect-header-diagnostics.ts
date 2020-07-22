@@ -1,6 +1,6 @@
 import type { Warning } from '../Spec';
 
-import { getLocation, offsetWithinElementToTrueLocation, offsetToLineAndColumn } from '../utils';
+import { offsetToLineAndColumn } from '../utils';
 
 const ruleId = 'header-format';
 

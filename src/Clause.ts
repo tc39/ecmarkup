@@ -4,7 +4,6 @@ import type Spec from './Spec';
 import type { ClauseBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
-import { getLocation } from './utils';
 import Builder from './Builder';
 
 /*@internal*/

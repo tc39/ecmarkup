@@ -1,5 +1,4 @@
 import type { Warning } from '../Spec';
-import { emit } from 'ecmarkdown';
 
 import { collectNodes } from './collect-nodes';
 import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';

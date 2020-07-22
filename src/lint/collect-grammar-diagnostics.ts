@@ -11,11 +11,10 @@ import {
   Production,
   Parameter,
   skipTrivia,
-  tokenToString,
 } from 'grammarkdown';
 
 import { getProductions, rhsMatches } from './utils';
-import { grammarkdownLocationToTrueLocation, getLocation } from '../utils';
+import { getLocation } from '../utils';
 
 export function collectGrammarDiagnostics(
   report: (e: Warning) => void,
@@ -57,7 +56,6 @@ export function collectGrammarDiagnostics(
   grammar.parseSync();
   grammar.checkSync();
 
-  let lintingErrors: Warning[] = [];
   let unusedParameterErrors: Map<string, Map<string, Warning>> = new Map();
 
   if (grammar.diagnostics.size > 0) {
@@ -66,14 +64,6 @@ export function collectGrammarDiagnostics(
       .getDiagnosticInfos({ formatMessage: true, detailedMessage: false })
       .forEach(m => {
         let idx = +m.sourceFile!.filename;
-        let grammarLoc = getLocation(dom, mainGrammar[idx].element);
-
-        // let { line, column } = grammarkdownLocationToTrueLocation(
-        //   grammarLoc,
-        //   m.range!.start.line,
-        //   m.range!.start.character
-        // );
-
         let error: Warning = {
           type: 'contents',
           ruleId: `grammarkdown:${m.code}`,
@@ -111,7 +101,6 @@ export function collectGrammarDiagnostics(
     ...earlyErrors.map(e => ({ grammar: e.grammar, rules: e.lists, type: 'early error' })),
   ];
   for (let { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
-    const nodeType = grammarEle.tagName;
     let grammarLoc = getLocation(dom, grammarEle);
 
     if (grammarLoc.endTag == null) {
@@ -208,7 +197,7 @@ export function collectGrammarDiagnostics(
       // Filter out unused parameter errors for which the parameter is actually used in an SDO or Early Error
       if (unusedParameterErrors.has(name)) {
         let paramToError = unusedParameterErrors.get(name)!;
-        for (let [paramName, error] of paramToError) {
+        for (let paramName of paramToError.keys()) {
           // This isn't the most elegant check, but it works.
           if (rulesEles.some(r => r.innerHTML.indexOf('[' + paramName + ']') !== -1)) {
             paramToError.delete(paramName);

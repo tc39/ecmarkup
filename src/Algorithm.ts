@@ -1,9 +1,8 @@
 import type { Context } from './Context';
-import type { Node as EcmarkdownNode, OrderedListItemNode, Observer } from 'ecmarkdown';
+import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
-import { getLocation, ecmarkdownLocationToTrueLocation } from './utils';
 import * as emd from 'ecmarkdown';
 
 function findLabeledSteps(root: EcmarkdownNode) {

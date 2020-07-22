@@ -53,17 +53,6 @@ export function collectAlgorithmDiagnostics(
 
     // TODO this wrapper is maybe not necessary
     let reporter = ({ ruleId, message, line, column }: LintingError) => {
-      // jsdom's lines and columns are both 1-based
-      // ecmarkdown has 1-based line numbers and 0-based column numbers
-      // we want 1-based for both
-      // let trueLine = location.startTag.line + line - 1;
-      // let trueCol = column;
-      // if (line === 1) {
-      //   trueCol +=
-      //     location.startTag.col + (location.startTag.endOffset - location.startTag.startOffset);
-      // } else {
-      //   trueCol += 1;
-      // }
       report({
         type: 'contents',
         ruleId,

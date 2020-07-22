@@ -202,7 +202,7 @@ export function attrValueLocation(source: string | undefined, loc: ElementLocati
   } else {
     let tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
     // RegExp.escape when
-    let matcher = new RegExp(attr.replace(/[\/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
+    let matcher = new RegExp(attr.replace(/[/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
     return { line: attrLoc.line, col: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
   }
 }
