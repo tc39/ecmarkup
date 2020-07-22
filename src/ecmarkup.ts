@@ -40,7 +40,7 @@ export interface Options {
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
   log?: (msg: string) => void;
-  warn?: (err: EcmarkupError) => void;
+  warn?: (err: (EcmarkupError & { source: string })) => void;
 }
 
 export async function build(

@@ -52,7 +52,7 @@ const build = debounce(async function build() {
           // for now, nothing is fixable
           fixableErrorCount: 0,
           fixableWarningCount: 0,
-          source: require('fs').readFileSync(args.infile, 'utf8'), // TODO not this
+          source: err.source,
         },
       ];
 

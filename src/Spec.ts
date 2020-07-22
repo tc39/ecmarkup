@@ -142,26 +142,23 @@ export default class Spec {
     this.replacementAlgorithms = [];
     this.cancellationToken = token;
     this.log = opts.log ?? (() => {});
-    this.warn = opts.warn ?? (() => {});
-    // let warn = opts.warn;
-    // this.warn = warn ? (({ ruleId, message, line: nodeRelativeLine, column: nodeRelativeColumn, node }) => {
-    //   let nodeLoc = getLocation(this.doc, node);
-    //   let line = nodeLoc.startTag.line + nodeRelativeLine - 1;
-    //   let column =
-    //     nodeRelativeColumn === 1
-    //       ? nodeLoc.startTag.col +
-    //         (nodeLoc.startTag.endOffset - nodeLoc.startTag.startOffset) +
-    //         nodeRelativeColumn - 1
-    //       : nodeRelativeColumn;
+    // this.warn = opts.warn ?? (() => {});
+    let warn = opts.warn;
+    this.warn = warn ? (e: EcmarkupError) => {
+      // let nodeLoc = getLocation(this.doc, node);
+      // let line = nodeLoc.startTag.line + nodeRelativeLine - 1;
+      // let column =
+      //   nodeRelativeColumn === 1
+      //     ? nodeLoc.startTag.col +
+      //       (nodeLoc.startTag.endOffset - nodeLoc.startTag.startOffset) +
+      //       nodeRelativeColumn - 1
+      //     : nodeRelativeColumn;
 
-    //   warn!({
-    //     ruleId,
-    //     message,
-    //     nodeType: node.nodeName.toLowerCase(),
-    //     line,
-    //     column,
-    //   });
-    // }) : (() => {});
+      warn!({
+        source: this.sourceText!,
+        ...e,
+      });
+    } : (() => {});
     this._figureCounts = {
       table: 0,
       figure: 0,

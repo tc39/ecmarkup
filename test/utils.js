@@ -32,7 +32,7 @@ async function assertError({ line, column, html }, { ruleId, nodeType, message }
   await emu.build('test-example.emu', async () => html, {
     ecma262Biblio: false,
     copyright: false,
-    warn: e => warnings.push(e),
+    warn: e => warnings.push({ ruleId: e.ruleId, nodeType: e.nodeType, line: e.line, column: e.column, message: e.message }),
     ...opts,
   });
 
