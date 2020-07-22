@@ -7,7 +7,6 @@ import { collectSpellingDiagnostics } from './collect-spelling-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
 import { collectHeaderDiagnostics } from './collect-header-diagnostics';
 
-
 /*
 Currently this checks
 - grammarkdown's built-in sanity checks
@@ -20,7 +19,12 @@ Currently this checks
 There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
-export function lint(report: (err: Warning) => void, sourceText: string, dom: any, document: Document) {
+export function lint(
+  report: (err: Warning) => void,
+  sourceText: string,
+  dom: any,
+  document: Document
+) {
   let collection = collectNodes(report, sourceText, dom, document);
   if (!collection.success) {
     return;
@@ -66,7 +70,7 @@ export function lint(report: (err: Warning) => void, sourceText: string, dom: an
   for (let { element, tree } of algorithms) {
     if (tree != null) {
       // @ts-ignore we are intentionally adding a property here
-      element.ecmarkdownTree = tree;      
+      element.ecmarkdownTree = tree;
     }
   }
 }

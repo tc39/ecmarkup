@@ -14,13 +14,8 @@ import {
   tokenToString,
 } from 'grammarkdown';
 
-import {
-  getProductions,
-  rhsMatches,
-} from './utils';
-import {  grammarkdownLocationToTrueLocation,
-  getLocation,
-} from '../utils'
+import { getProductions, rhsMatches } from './utils';
+import { grammarkdownLocationToTrueLocation, getLocation } from '../utils';
 
 export function collectGrammarDiagnostics(
   report: (e: Warning) => void,

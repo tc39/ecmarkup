@@ -52,16 +52,14 @@ export default class Algorithm extends Builder {
       let labeledSteps = findLabeledSteps(emdTree);
       for (let step of labeledSteps) {
         // let nodeLoc = getLocation(spec.dom, node);
-        let itemSource = innerHTML.slice(
-          step.location!.start.offset,
-          step.location!.end.offset
-        );
+        let itemSource = innerHTML.slice(step.location!.start.offset, step.location!.end.offset);
         let offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
         // let loc = ecmarkdownLocationToTrueLocation(nodeLoc, step.location!.start.line, step.location!.start.column);
         spec.warn({
           type: 'contents',
           ruleId: 'labeled-step-in-replacement',
-          message: 'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
+          message:
+            'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
           node,
           nodeRelativeLine: step.location!.start.line,
           nodeRelativeColumn: step.location!.start.column + 1 + offset, // +1 because emd is 0-based; todo remove

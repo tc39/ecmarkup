@@ -6,11 +6,7 @@ const ruleId = 'algorithm-step-labels';
 /*
 Checks that step labels all start with `step-`.
 */
-export default function (
-  report: Reporter,
-  node: Element,
-  algorithmSource: string
-): Observer {
+export default function (report: Reporter, node: Element, algorithmSource: string): Observer {
   return {
     enter(node: EcmarkdownNode) {
       // console.log(node)

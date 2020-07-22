@@ -78,35 +78,40 @@ export default interface Spec {
   exportBiblio(): any;
 }
 
-export type Warning = {
-  type: 'global'
-  ruleId: string;
-  message: string;
-} | {
-  type: 'node',
-  node: Element;
-  ruleId: string;
-  message: string;
-} | {
-  type: 'attr',
-  node: Element;
-  attr: string;
-  ruleId: string;
-  message: string;
-} | {
-  type: 'contents',
-  node: Element;
-  ruleId: string;
-  message: string;
-  nodeRelativeLine: number;
-  nodeRelativeColumn: number;
-} | {
-  type: 'raw',
-  ruleId: string;
-  message: string;
-  line: number;
-  column: number;
-}
+export type Warning =
+  | {
+      type: 'global';
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'node';
+      node: Element;
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'attr';
+      node: Element;
+      attr: string;
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'contents';
+      node: Element;
+      ruleId: string;
+      message: string;
+      nodeRelativeLine: number;
+      nodeRelativeColumn: number;
+    }
+  | {
+      type: 'raw';
+      ruleId: string;
+      message: string;
+      line: number;
+      column: number;
+    };
 
 /*@internal*/
 export default class Spec {
@@ -166,64 +171,68 @@ export default class Spec {
     this.log = opts.log ?? (() => {});
     // this.warn = opts.warn ?? (() => {});
     let warn = opts.warn;
-    this.warn = warn ? (e: Warning) => {
-      // let nodeLoc = getLocation(this.doc, node);
-      // let line = nodeLoc.startTag.line + nodeRelativeLine - 1;
-      // let column =
-      //   nodeRelativeColumn === 1
-      //     ? nodeLoc.startTag.col +
-      //       (nodeLoc.startTag.endOffset - nodeLoc.startTag.startOffset) +
-      //       nodeRelativeColumn - 1
-      //     : nodeRelativeColumn;
-      let { message, ruleId } = e;
-      let source = this.sourceText!;
-      let line: number, column: number;
-      if (e.type === 'global') {
-        line = 1;
-        column = 1;
-      } else if (e.type === 'raw') {
-        ({ line, column } = e);
-      } else {
-        let nodeLoc = utils.getLocation(dom, e.node);
-        if (e.type === 'node') {
-          line = nodeLoc.startTag.line;
-          column = nodeLoc.startTag.col;
-        } else if (e.type === 'attr') {
-          // TODO reconsider name of prop in method
-          ({line, col: column} = utils.attrValueLocation(source, nodeLoc, e.attr));
-        } else if (e.type === 'contents') {
-          let { nodeRelativeLine, nodeRelativeColumn } = e;
-
-          //  TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
-          let tagSrc = source.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
-          let tagEnd = utils.offsetToLineAndColumn(tagSrc, nodeLoc.startTag.endOffset - nodeLoc.startOffset);
-          line = nodeLoc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
-          if (nodeRelativeLine === 1) {
-            if (tagEnd.line === 1) {
-              column = nodeLoc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
-            } else {
-              column = tagEnd.column + nodeRelativeColumn - 1;
-            }
+    this.warn = warn
+      ? (e: Warning) => {
+          // let nodeLoc = getLocation(this.doc, node);
+          // let line = nodeLoc.startTag.line + nodeRelativeLine - 1;
+          // let column =
+          //   nodeRelativeColumn === 1
+          //     ? nodeLoc.startTag.col +
+          //       (nodeLoc.startTag.endOffset - nodeLoc.startTag.startOffset) +
+          //       nodeRelativeColumn - 1
+          //     : nodeRelativeColumn;
+          let { message, ruleId } = e;
+          let source = this.sourceText!;
+          let line: number, column: number;
+          if (e.type === 'global') {
+            line = 1;
+            column = 1;
+          } else if (e.type === 'raw') {
+            ({ line, column } = e);
           } else {
-            column = nodeRelativeColumn;
-          }
-        }
-      }
+            let nodeLoc = utils.getLocation(dom, e.node);
+            if (e.type === 'node') {
+              line = nodeLoc.startTag.line;
+              column = nodeLoc.startTag.col;
+            } else if (e.type === 'attr') {
+              // TODO reconsider name of prop in method
+              ({ line, col: column } = utils.attrValueLocation(source, nodeLoc, e.attr));
+            } else if (e.type === 'contents') {
+              let { nodeRelativeLine, nodeRelativeColumn } = e;
 
-      let nodeType = (e.type === 'global' || e.type === 'raw')
-        ? 'html'
-        : e.node.tagName.toLowerCase();
-      warn!({
-        message,
-        ruleId,
-        source,
-        nodeType,
-        // @ts-ignore TS can't prove this is initialized, for some reason
-        line,
-        // @ts-ignore TS can't prove this is initialized, for some reason
-        column,
-      });
-    } : (() => {});
+              //  TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
+              let tagSrc = source.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
+              let tagEnd = utils.offsetToLineAndColumn(
+                tagSrc,
+                nodeLoc.startTag.endOffset - nodeLoc.startOffset
+              );
+              line = nodeLoc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
+              if (nodeRelativeLine === 1) {
+                if (tagEnd.line === 1) {
+                  column = nodeLoc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
+                } else {
+                  column = tagEnd.column + nodeRelativeColumn - 1;
+                }
+              } else {
+                column = nodeRelativeColumn;
+              }
+            }
+          }
+
+          let nodeType =
+            e.type === 'global' || e.type === 'raw' ? 'html' : e.node.tagName.toLowerCase();
+          warn!({
+            message,
+            ruleId,
+            source,
+            nodeType,
+            // @ts-ignore TS can't prove this is initialized, for some reason
+            line,
+            // @ts-ignore TS can't prove this is initialized, for some reason
+            column,
+          });
+        }
+      : () => {};
     this._figureCounts = {
       table: 0,
       figure: 0,
@@ -539,7 +548,8 @@ export default class Spec {
       this.warn({
         type: 'global',
         ruleId: 'no-location',
-        message: "no spec location specified; biblio not generated. try --location or setting the location in the document's metadata block",
+        message:
+          "no spec location specified; biblio not generated. try --location or setting the location in the document's metadata block",
       });
       return {};
     }
@@ -607,7 +617,8 @@ export default class Spec {
         this.warn({
           type: 'global',
           ruleId: 'no-contributors',
-          message: 'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
+          message:
+            'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
         });
       } else {
         this.buildCopyrightBoilerplate();
@@ -813,7 +824,8 @@ export default class Spec {
       this.warn({
         type: 'global',
         ruleId: 'invalid-replacement',
-        message: 'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
+        message:
+          'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
       });
     }
   }

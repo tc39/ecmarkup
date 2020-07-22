@@ -32,17 +32,26 @@ async function assertError({ line, column, html }, { ruleId, nodeType, message }
   await emu.build('test-example.emu', async () => html, {
     ecma262Biblio: false,
     copyright: false,
-    warn: e => warnings.push({ ruleId: e.ruleId, nodeType: e.nodeType, line: e.line, column: e.column, message: e.message }),
+    warn: e =>
+      warnings.push({
+        ruleId: e.ruleId,
+        nodeType: e.nodeType,
+        line: e.line,
+        column: e.column,
+        message: e.message,
+      }),
     ...opts,
   });
 
-  assert.deepStrictEqual(warnings, [{
-    ruleId,
-    nodeType,
-    line,
-    column,
-    message,
-  }]);
+  assert.deepStrictEqual(warnings, [
+    {
+      ruleId,
+      nodeType,
+      line,
+      column,
+      message,
+    },
+  ]);
 }
 
 async function assertErrorFree(html, opts) {
@@ -66,5 +75,11 @@ async function assertLintFree(html) {
   await assertErrorFree(html, { lintSpec: true });
 }
 
-
-module.exports = { lintLocationMarker, positioned, assertError, assertErrorFree, assertLint, assertLintFree };
+module.exports = {
+  lintLocationMarker,
+  positioned,
+  assertError,
+  assertErrorFree,
+  assertLint,
+  assertLintFree,
+};

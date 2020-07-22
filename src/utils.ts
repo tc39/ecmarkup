@@ -7,7 +7,6 @@ import * as chalk from 'chalk';
 import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
 
-
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Node) {
   let c = node.textContent!.replace(/</g, '&lt;');
@@ -114,7 +113,6 @@ export async function copyFile(src: string, dest: string) {
   const content = await readFile(src);
   await writeFile(dest, content);
 }
-
 
 export function offsetToLineAndColumn(string: string, offset: number) {
   let lines = string.split('\n');

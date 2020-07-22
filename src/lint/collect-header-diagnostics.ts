@@ -18,10 +18,7 @@ export function collectHeaderDiagnostics(
     let params = contents.substring(contents.indexOf('(') + 1, contents.length - 1);
 
     if (!/[\S] $/.test(name)) {
-      let { line, column } = offsetToLineAndColumn(
-        contents,
-        name.length - 1
-      );
+      let { line, column } = offsetToLineAndColumn(contents, name.length - 1);
 
       report({
         type: 'contents',
@@ -57,10 +54,7 @@ export function collectHeaderDiagnostics(
     ].some(r => r.test(name));
 
     if (!nameMatches) {
-      let { line, column } = offsetToLineAndColumn(
-        contents,
-        0
-      );
+      let { line, column } = offsetToLineAndColumn(contents, 0);
       report({
         type: 'contents',
         ruleId,
@@ -94,10 +88,7 @@ export function collectHeaderDiagnostics(
       ].some(r => r.test(params));
 
     if (!paramsMatches) {
-      let { line, column } = offsetToLineAndColumn(
-        contents,
-        name.length
-      );
+      let { line, column } = offsetToLineAndColumn(contents, name.length);
       report({
         type: 'contents',
         ruleId,

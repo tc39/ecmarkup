@@ -9,7 +9,8 @@ describe('errors', () => {
       {
         ruleId: 'no-contributors',
         nodeType: 'html',
-        message: 'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
+        message:
+          'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
       },
       {
         copyright: true,
@@ -77,7 +78,8 @@ describe('errors', () => {
       {
         ruleId: 'invalid-replacement',
         nodeType: 'html',
-        message: 'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
+        message:
+          'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
       }
     );
   });
@@ -96,7 +98,8 @@ describe('errors', () => {
       {
         ruleId: 'labeled-step-in-replacement',
         nodeType: 'emu-alg',
-        message: 'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
+        message:
+          'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
       }
     );
   });
@@ -148,11 +151,10 @@ describe('errors', () => {
       {
         ruleId: 'missing-id',
         nodeType: 'emu-clause',
-        message: 'clause doesn\'t have an id',
+        message: "clause doesn't have an id",
       }
     );
   });
-
 
   it('xref neither attribute', async () => {
     await assertError(
@@ -162,7 +164,7 @@ describe('errors', () => {
       {
         ruleId: 'invalid-xref',
         nodeType: 'emu-xref',
-        message: "xref has neither href nor aoid",
+        message: 'xref has neither href nor aoid',
       }
     );
   });
@@ -189,7 +191,8 @@ describe('errors', () => {
       {
         ruleId: 'invalid-xref',
         nodeType: 'emu-xref',
-        message: "xref to anything other than a fragment id is not supported (is \"http://example.com\"). try href=\"#sec-id\" instead",
+        message:
+          'xref to anything other than a fragment id is not supported (is "http://example.com"). try href="#sec-id" instead',
       }
     );
   });
@@ -202,7 +205,7 @@ describe('errors', () => {
       {
         ruleId: 'xref-not-found',
         nodeType: 'emu-xref',
-        message: "can't find clause, production, note or example with id \"foo\"",
+        message: 'can\'t find clause, production, note or example with id "foo"',
       }
     );
   });
@@ -215,7 +218,7 @@ describe('errors', () => {
       {
         ruleId: 'xref-not-found',
         nodeType: 'emu-xref',
-        message: "can't find abstract op with aoid \"Foo\"",
+        message: 'can\'t find abstract op with aoid "Foo"',
       }
     );
   });
@@ -231,7 +234,7 @@ describe('errors', () => {
       {
         ruleId: 'step-xref-contents',
         nodeType: 'emu-xref',
-        message: "the contents of emu-xrefs to steps are ignored",
+        message: 'the contents of emu-xrefs to steps are ignored',
       }
     );
   });
@@ -249,7 +252,7 @@ describe('errors', () => {
       {
         ruleId: 'step-xref-contents',
         nodeType: 'emu-xref',
-        message: "the contents of emu-xrefs to steps are ignored",
+        message: 'the contents of emu-xrefs to steps are ignored',
       }
     );
   });
@@ -294,9 +297,9 @@ describe('errors', () => {
       {
         ruleId: 'high-step-number',
         nodeType: 'emu-xref',
-        message: "ecmarkup does not know how to deal with step numbers as high as 29; if you need this, open an issue on ecmarkup",
+        message:
+          'ecmarkup does not know how to deal with step numbers as high as 29; if you need this, open an issue on ecmarkup',
       }
     );
   });
-
 });

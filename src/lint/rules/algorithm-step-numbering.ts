@@ -6,11 +6,7 @@ const ruleId = 'algorithm-step-numbering';
 /*
 Checks that step numbers are all `1`.
 */
-export default function (
-  report: Reporter,
-  node: Element,
-  algorithmSource: string
-): Observer {
+export default function (report: Reporter, node: Element, algorithmSource: string): Observer {
   return {
     enter(node: EcmarkdownNode) {
       if (node.name === 'ordered-list-item') {

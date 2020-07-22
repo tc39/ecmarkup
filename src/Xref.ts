@@ -81,7 +81,9 @@ export default class Xref extends Builder {
         spec.warn({
           type: 'node',
           ruleId: 'invalid-xref',
-          message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(href)}). try href="#sec-id" instead`,
+          message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(
+            href
+          )}). try href="#sec-id" instead`,
           node: this.node,
         });
         return;
@@ -147,7 +149,8 @@ export default class Xref extends Builder {
 
       // let nodeLoc = getLocation(spec.dom, this.node);
       // let loc = attrValueLocation(spec.sourceText, nodeLoc, 'aoid');
-      let namespaceSuffix = namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
+      let namespaceSuffix =
+        namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
       spec.warn({
         type: 'attr',
         attr: 'aoid',
