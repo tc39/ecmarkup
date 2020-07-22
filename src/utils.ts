@@ -137,7 +137,11 @@ export function getLocation(dom: any, node: Element): MarkupData.ElementLocation
   return loc;
 }
 
-export function attrValueLocation(source: string | undefined, loc: MarkupData.ElementLocation, attr: string) {
+export function attrValueLocation(
+  source: string | undefined,
+  loc: MarkupData.ElementLocation,
+  attr: string
+) {
   let attrLoc = loc.startTag.attrs[attr];
   if (attrLoc == null || source == null) {
     return loc.startTag;

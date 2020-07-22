@@ -113,7 +113,11 @@ export type Warning =
       column: number;
     };
 
-function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError & { source: string }) => void) {
+function wrapWarn(
+  source: string,
+  dom: any,
+  warn: (err: EcmarkupError & { source: string }) => void
+) {
   return (e: Warning) => {
     let { message, ruleId } = e;
     let line: number, column: number;
@@ -151,8 +155,7 @@ function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError & { source
       }
     }
 
-    let nodeType =
-      e.type === 'global' || e.type === 'raw' ? 'html' : e.node.tagName.toLowerCase();
+    let nodeType = e.type === 'global' || e.type === 'raw' ? 'html' : e.node.tagName.toLowerCase();
     warn({
       message,
       ruleId,
@@ -163,7 +166,7 @@ function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError & { source
       // @ts-ignore TS can't prove this is initialized, for some reason
       column,
     });
-  }
+  };
 }
 
 /*@internal*/
@@ -222,9 +225,7 @@ export default class Spec {
     this.replacementAlgorithms = [];
     this.cancellationToken = token;
     this.log = opts.log ?? (() => {});
-    this.warn = opts.warn
-      ? wrapWarn(sourceText!, dom, opts.warn)
-      : () => {};
+    this.warn = opts.warn ? wrapWarn(sourceText!, dom, opts.warn) : () => {};
     this._figureCounts = {
       table: 0,
       figure: 0,
