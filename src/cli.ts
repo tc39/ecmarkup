@@ -56,38 +56,60 @@ const build = debounce(async function build() {
       pending.push(utils.writeFile(args.biblio, JSON.stringify(spec.exportBiblio())));
     }
 
-    if (args.outfile) {
-      if (args.verbose) {
-        utils.logVerbose('Writing output to ' + args.outfile);
-      }
-      pending.push(utils.writeFile(args.outfile, spec.toHTML()));
-    } else {
-      process.stdout.write(spec.toHTML());
-    }
-
-    await Promise.all(pending);
-
     if (args.verbose && warned) {
       // TODO allow warnings to have different corresponding files, sort by file as well
-      let results = warnings
-        .sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line))
-        .map(err => ({
-          filePath: args.infile,
-          messages: [{ severity: args.strict ? 2 : 1, ...err }],
-          errorCount: args.strict ? warnings.length : 0,
-          warningCount: args.strict ? 0 : warnings.length,
-          // for now, nothing is fixable
-          fixableErrorCount: 0,
-          fixableWarningCount: 0,
-          source: err.source,
-        }));
+      warnings.sort((a, b) => {
+        if (a.line === b.line) {
+          if (a.column === b.column) {
+            return 0;
+          }
+          if (a.column == null) {
+            return -1;
+          }
+          if (b.column == null) {
+            return 1;
+          }
+          return a.column - b.column;
+        }
+        if (a.line == null) {
+          return -1;
+        }
+        if (b.line == null) {
+          return 1;
+        }
+        return a.line - b.line;
+      });
+      let results = warnings.map(err => ({
+        filePath: args.infile,
+        messages: [{ severity: args.strict ? 2 : 1, ...err }],
+        errorCount: args.strict ? 1 : 0,
+        warningCount: args.strict ? 0 : 1,
+        // for now, nothing is fixable
+        fixableErrorCount: 0,
+        fixableWarningCount: 0,
+        source: err.source,
+      }));
 
       console.error(formatter(results));
     }
 
+    if (!args.strict || !warned) {
+      if (args.outfile) {
+        if (args.verbose) {
+          utils.logVerbose('Writing output to ' + args.outfile);
+        }
+        pending.push(utils.writeFile(args.outfile, spec.toHTML()));
+      } else {
+        process.stdout.write(spec.toHTML());
+      }
+    }
+
+    await Promise.all(pending);
+
     if (args.strict && warned) {
-      if (args.verbose) {
-        utils.logVerbose('Exiting with an error due to warnings');
+      utils.logVerbose('Exiting with an error due to errors');
+      if (!args.verbose) {
+        utils.logVerbose('Rerun with --verbose to see detailed error information');
       }
       process.exit(1);
     }

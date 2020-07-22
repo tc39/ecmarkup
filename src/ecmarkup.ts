@@ -15,10 +15,10 @@ export class Boilerplate {
 export type EcmarkupError = {
   ruleId: string;
   message: string;
-  line: number;
-  column: number;
-  nodeType: string;
-  source: string;
+  source?: string;
+  line?: number;
+  column?: number;
+  nodeType?: string;
 };
 
 export interface Options {

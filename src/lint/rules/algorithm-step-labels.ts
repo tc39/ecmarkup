@@ -9,7 +9,6 @@ Checks that step labels all start with `step-`.
 export default function (report: Reporter, node: Element, algorithmSource: string): Observer {
   return {
     enter(node: EcmarkdownNode) {
-      // console.log(node)
       if (node.name === 'ordered-list-item' && node.id != null && !/^step-/.test(node.id)) {
         let itemSource = algorithmSource.slice(
           node.location!.start.offset,

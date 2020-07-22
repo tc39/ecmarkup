@@ -64,13 +64,13 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
 /*@internal*/
 export function logVerbose(str: string) {
   let dateString = new Date().toISOString();
-  console.log(chalk.gray('[' + dateString + '] ') + str);
+  console.error(chalk.gray('[' + dateString + '] ') + str);
 }
 
 /*@internal*/
 export function logWarning(str: string) {
   let dateString = new Date().toISOString();
-  console.log(chalk.gray('[' + dateString + '] ') + chalk.red('Warning: ' + str));
+  console.error(chalk.gray('[' + dateString + '] ') + chalk.red('Warning: ' + str));
 }
 
 /*@internal*/

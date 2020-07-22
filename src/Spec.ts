@@ -116,10 +116,10 @@ export type Warning =
 function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) {
   return (e: Warning) => {
     let { message, ruleId } = e;
-    let line: number, column: number;
+    let line: number | undefined, column: number | undefined;
     if (e.type === 'global') {
-      line = 1;
-      column = 1;
+      line = undefined;
+      column = undefined;
     } else if (e.type === 'raw') {
       ({ line, column } = e);
     } else {
@@ -155,7 +155,7 @@ function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) 
     warn({
       message,
       ruleId,
-      source,
+      source: e.type === 'global' ? undefined : source,
       nodeType,
       // @ts-ignore TS can't prove this is initialized, for some reason
       line,
