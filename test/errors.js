@@ -83,6 +83,30 @@ ${M}      </pre>
     );
   });
 
+  it('nontrivial cycle in replacement algorithms', async () => {
+    await assertError(
+      `
+      <emu-alg replaces-step="step-foo">
+        1. [id="step-bar"] Foo.
+      </emu-alg>
+
+      <emu-alg replaces-step="step-bar">
+        1. [id="step-baz"] Foo.
+      </emu-alg>
+
+      <emu-alg replaces-step="step-baz">
+        1. [id="step-foo"] Foo.
+      </emu-alg>
+      `,
+      {
+        ruleId: 'invalid-replacement',
+        nodeType: 'html',
+        message:
+          'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
+      }
+    );
+  });
+
   it('labeled step in multi-step replacement algorithm', async () => {
     await assertError(
       positioned`
