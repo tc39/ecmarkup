@@ -107,7 +107,12 @@ export default class Clause extends Builder {
 
   static enter({ spec, node, clauseStack, clauseNumberer }: Context) {
     if (!node.id) {
-      spec.warn("Clause doesn't have an id: " + node.outerHTML.slice(0, 100));
+      spec.warn({
+        type: 'node',
+        ruleId: 'missing-id',
+        message: "clause doesn't have an id",
+        node,
+      });
     }
 
     let nextNumber = '';
@@ -131,6 +136,7 @@ export default class Clause extends Builder {
     const clause = clauseStack[clauseStack.length - 1];
 
     if (!clause.header) {
+      // TODO make this not a hard failure
       throw new Error("Couldn't find title for clause #" + clause.id);
     }
 

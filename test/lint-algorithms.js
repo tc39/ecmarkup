@@ -1,8 +1,8 @@
 'use strict';
 
-let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require('./lint-helpers');
+let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require('./utils.js');
 
-const nodeType = 'EMU-ALG';
+const nodeType = 'emu-alg';
 
 describe('linting algorithms', function () {
   describe('line endings', function () {

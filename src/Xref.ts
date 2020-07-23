@@ -45,12 +45,22 @@ export default class Xref extends Builder {
     }
 
     if (href && aoid) {
-      spec.warn("xref can't have both href and aoid.");
+      spec.warn({
+        type: 'node',
+        ruleId: 'invalid-xref',
+        message: "xref can't have both href and aoid",
+        node,
+      });
       return;
     }
 
     if (!href && !aoid) {
-      spec.warn('xref has no href or aoid.');
+      spec.warn({
+        type: 'node',
+        ruleId: 'invalid-xref',
+        message: 'xref has neither href nor aoid',
+        node,
+      });
       return;
     }
 
@@ -67,11 +77,14 @@ export default class Xref extends Builder {
 
     if (href) {
       if (href[0] !== '#') {
-        spec.warn(
-          'xref to anything other than a fragment id is not supported (is ' +
-            href +
-            '). Try href="#sec-id" instead.'
-        );
+        spec.warn({
+          type: 'node',
+          ruleId: 'invalid-xref',
+          message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(
+            href
+          )}). try href="#sec-id" instead`,
+          node: this.node,
+        });
         return;
       }
 
@@ -79,7 +92,13 @@ export default class Xref extends Builder {
 
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
-        spec.warn("can't find clause, production, note or example with id " + href);
+        spec.warn({
+          type: 'attr',
+          attr: 'href',
+          ruleId: 'xref-not-found',
+          message: `can't find clause, production, note or example with id ${JSON.stringify(id)}`,
+          node: this.node,
+        });
         return;
       }
 
@@ -108,10 +127,14 @@ export default class Xref extends Builder {
         case 'step':
           buildStepLink(spec, node, this.entry);
           break;
-        default:
-          spec.warn(
-            `found unknown biblio entry ${this.entry.type} (this is a bug, please file it with ecmarkup)`
-          );
+        default: {
+          spec.warn({
+            type: 'node',
+            ruleId: 'unknown-biblio',
+            message: `found unknown biblio entry ${this.entry.type} (this is a bug, please file it with ecmarkup)`,
+            node: this.node,
+          });
+        }
       }
     } else if (aoid) {
       this.entry = spec.biblio.byAoid(aoid, namespace);
@@ -121,7 +144,15 @@ export default class Xref extends Builder {
         return;
       }
 
-      spec.warn("can't find abstract op with aoid " + aoid + ' in namespace ' + namespace);
+      let namespaceSuffix =
+        namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
+      spec.warn({
+        type: 'attr',
+        attr: 'aoid',
+        ruleId: 'xref-not-found',
+        message: `can't find abstract op with aoid ${JSON.stringify(aoid)}` + namespaceSuffix,
+        node: this.node,
+      });
     }
   }
 }
@@ -174,7 +205,12 @@ function buildFigureLink(
       // first need to find the associated clause
       const clauseEntry = spec.biblio.byId(entry.clauseId);
       if (clauseEntry.type !== 'clause') {
-        spec.warn('could not find parent clause for ' + type + ' id ' + entry.id);
+        spec.warn({
+          type: 'node',
+          ruleId: 'invalid-xref',
+          message: `could not find parent clause for ${type} id ${entry.id}`,
+          node: entry.node,
+        });
         return;
       }
 
@@ -211,15 +247,26 @@ let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBull
 
 function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry) {
   if (xref.innerHTML !== '') {
-    spec.warn('the contents of emu-xrefs to steps are ignored');
+    spec.warn({
+      type: 'contents',
+      ruleId: 'step-xref-contents',
+      message: 'the contents of emu-xrefs to steps are ignored',
+      node: xref,
+      nodeRelativeLine: 1,
+      nodeRelativeColumn: 1,
+    });
   }
 
   let stepBullets = entry.stepNumbers.map((s, i) => {
     let applicable = bullets[Math.min(i, 5)];
     if (s > applicable.length) {
-      spec.warn(
-        `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`
-      );
+      spec.warn({
+        type: 'attr',
+        ruleId: 'high-step-number',
+        message: `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`,
+        node: xref,
+        attr: 'href',
+      });
       return '?';
     }
     return applicable[s - 1];

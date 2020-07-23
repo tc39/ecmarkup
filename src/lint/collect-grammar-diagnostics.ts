@@ -1,4 +1,4 @@
-import type { LintingError } from './algorithm-error-reporter-type';
+import type { Warning } from '../Spec';
 
 import {
   Grammar as GrammarFile,
@@ -11,17 +11,13 @@ import {
   Production,
   Parameter,
   skipTrivia,
-  tokenToString,
 } from 'grammarkdown';
 
-import {
-  grammarkdownLocationToTrueLocation,
-  getLocation,
-  getProductions,
-  rhsMatches,
-} from './utils';
+import { getProductions, rhsMatches } from './utils';
+import { getLocation } from '../utils';
 
 export function collectGrammarDiagnostics(
+  report: (e: Warning) => void,
   dom: any,
   sourceText: string,
   mainGrammar: { element: Element; source: string }[],
@@ -60,8 +56,7 @@ export function collectGrammarDiagnostics(
   grammar.parseSync();
   grammar.checkSync();
 
-  let lintingErrors: LintingError[] = [];
-  let unusedParameterErrors: Map<string, Map<string, LintingError>> = new Map();
+  let unusedParameterErrors: Map<string, Map<string, Warning>> = new Map();
 
   if (grammar.diagnostics.size > 0) {
     // `detailedMessage: false` prevents prepending line numbers, which is good because we're going to make our own
@@ -69,22 +64,14 @@ export function collectGrammarDiagnostics(
       .getDiagnosticInfos({ formatMessage: true, detailedMessage: false })
       .forEach(m => {
         let idx = +m.sourceFile!.filename;
-        let grammarLoc = getLocation(dom, mainGrammar[idx].element);
-
-        let { line, column } = grammarkdownLocationToTrueLocation(
-          grammarLoc,
-          m.range!.start.line,
-          m.range!.start.character
-        );
-
-        let error = {
+        let error: Warning = {
+          type: 'contents',
           ruleId: `grammarkdown:${m.code}`,
-          nodeType: m.node === undefined ? 'unknown' : tokenToString(m.node.kind, false),
-          line,
-          column,
           message: m.formattedMessage!,
+          node: mainGrammar[idx].element,
+          nodeRelativeLine: m.range!.start.line + 1,
+          nodeRelativeColumn: m.range!.start.character + 1,
         };
-        lintingErrors.push(error);
 
         if (m.code === Diagnostics.Parameter_0_is_unused.code) {
           let param = m.node as Parameter;
@@ -97,6 +84,8 @@ export function collectGrammarDiagnostics(
           }
           let paramToError = unusedParameterErrors.get(nodeName)!;
           paramToError.set(paramName, error);
+        } else {
+          report(error);
         }
       });
   }
@@ -112,16 +101,14 @@ export function collectGrammarDiagnostics(
     ...earlyErrors.map(e => ({ grammar: e.grammar, rules: e.lists, type: 'early error' })),
   ];
   for (let { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
-    const nodeType = grammarEle.tagName;
     let grammarLoc = getLocation(dom, grammarEle);
 
     if (grammarLoc.endTag == null) {
-      lintingErrors.push({
+      report({
+        type: 'node',
         ruleId: 'missing-close-tag',
         message: 'could not find closing tag for emu-grammar',
-        line: grammarLoc.startTag.line,
-        column: grammarLoc.startTag.col,
-        nodeType: 'EMU-GRAMMAR',
+        node: grammarEle,
       });
       continue;
     }
@@ -140,32 +127,34 @@ export function collectGrammarDiagnostics(
       let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(
         posWithoutWhitespace
       );
-
-      return grammarkdownLocationToTrueLocation(grammarLoc, gmdLine, gmdCharacter);
+      // grammarkdown use 0-based line and column, we want 1-based
+      return { line: gmdLine + 1, column: gmdCharacter + 1 };
     }
 
     for (let [name, { production, rhses }] of productions) {
       let originalRhses = actualGrammarProductions.get(name)?.rhses;
       if (originalRhses === undefined) {
         let { line, column } = getLocationInGrammar(production.pos);
-        lintingErrors.push({
+        report({
+          type: 'contents',
           ruleId: 'undefined-nonterminal',
-          nodeType,
-          line,
-          column,
           message: `Could not find a definition for LHS in ${type}`,
+          node: grammarEle,
+          nodeRelativeLine: line,
+          nodeRelativeColumn: column,
         });
         continue;
       }
       for (let rhs of rhses) {
         if (!originalRhses.some(o => rhsMatches(rhs, o))) {
           let { line, column } = getLocationInGrammar(rhs.pos);
-          lintingErrors.push({
+          report({
+            type: 'contents',
             ruleId: 'undefined-nonterminal',
-            nodeType,
-            line,
-            column,
             message: `Could not find a production matching RHS in ${type}`,
+            node: grammarEle,
+            nodeRelativeLine: line,
+            nodeRelativeColumn: column,
           });
         }
 
@@ -176,12 +165,13 @@ export function collectGrammarDiagnostics(
             }
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
               let { line, column } = getLocationInGrammar(s.symbol.pos);
-              lintingErrors.push({
+              report({
+                type: 'contents',
                 ruleId: `NLTH-in-SDO`,
-                nodeType,
-                line,
-                column,
                 message: `Productions referenced in ${type}s should not include "no LineTerminator here" restrictions`,
+                node: grammarEle,
+                nodeRelativeLine: line,
+                nodeRelativeColumn: column,
               });
             }
             // We could also enforce that lookahead restrictions are absent, but in some cases they actually do add clarity, so we just don't enforce it either way.
@@ -191,12 +181,13 @@ export function collectGrammarDiagnostics(
 
           if (rhs.constraints !== undefined) {
             let { line, column } = getLocationInGrammar(rhs.constraints.pos);
-            lintingErrors.push({
+            report({
+              type: 'contents',
               ruleId: `guard-in-SDO`,
-              nodeType,
-              line,
-              column,
-              message: `Productions referenced in ${type}s should not be gated on grammar parameters`,
+              message: `productions referenced in ${type}s should not be gated on grammar parameters`,
+              node: grammarEle,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
             });
           }
         }
@@ -205,25 +196,24 @@ export function collectGrammarDiagnostics(
       // Filter out unused parameter errors for which the parameter is actually used in an SDO or Early Error
       if (unusedParameterErrors.has(name)) {
         let paramToError = unusedParameterErrors.get(name)!;
-        for (let [paramName, error] of paramToError) {
+        for (let paramName of paramToError.keys()) {
           // This isn't the most elegant check, but it works.
           if (rulesEles.some(r => r.innerHTML.indexOf('[' + paramName + ']') !== -1)) {
             paramToError.delete(paramName);
-            // Yes, there's definitely big-O faster ways of doing this, but in practice this is probably faster for the sizes we will encounter.
-            let index = lintingErrors.indexOf(error);
-            if (index === -1) {
-              throw new Error('unreachable: tried to clear non-existent error');
-            }
-            lintingErrors.splice(index, 1);
           }
         }
       }
     }
   }
 
+  for (let paramToError of unusedParameterErrors.values()) {
+    for (let error of paramToError.values()) {
+      report(error);
+    }
+  }
+
   return {
     grammar,
     oneOffGrammars,
-    lintingErrors,
   };
 }

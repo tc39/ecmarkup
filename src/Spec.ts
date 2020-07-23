@@ -1,4 +1,4 @@
-import type { Options } from './ecmarkup';
+import type { EcmarkupError, Options } from './ecmarkup';
 import type { Context } from './Context';
 import type { BiblioData, StepBiblioEntry } from './Biblio';
 import type { BuilderInterface } from './Builder';
@@ -78,6 +78,93 @@ export default interface Spec {
   exportBiblio(): any;
 }
 
+export type Warning =
+  | {
+      type: 'global';
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'node';
+      node: Element;
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'attr';
+      node: Element;
+      attr: string;
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'contents';
+      node: Element;
+      ruleId: string;
+      message: string;
+      nodeRelativeLine: number;
+      nodeRelativeColumn: number;
+    }
+  | {
+      type: 'raw';
+      ruleId: string;
+      message: string;
+      line: number;
+      column: number;
+    };
+
+function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) {
+  return (e: Warning) => {
+    let { message, ruleId } = e;
+    let line: number | undefined, column: number | undefined;
+    if (e.type === 'global') {
+      line = undefined;
+      column = undefined;
+    } else if (e.type === 'raw') {
+      ({ line, column } = e);
+    } else {
+      let nodeLoc = utils.getLocation(dom, e.node);
+      if (e.type === 'node') {
+        ({ line, col: column } = nodeLoc.startTag);
+      } else if (e.type === 'attr') {
+        ({ line, column } = utils.attrValueLocation(source, nodeLoc, e.attr));
+      } else if (e.type === 'contents') {
+        let { nodeRelativeLine, nodeRelativeColumn } = e;
+
+        // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
+        // TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
+        let tagSrc = source.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
+        let tagEnd = utils.offsetToLineAndColumn(
+          tagSrc,
+          nodeLoc.startTag.endOffset - nodeLoc.startOffset
+        );
+        line = nodeLoc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
+        if (nodeRelativeLine === 1) {
+          if (tagEnd.line === 1) {
+            column = nodeLoc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
+          } else {
+            column = tagEnd.column + nodeRelativeColumn - 1;
+          }
+        } else {
+          column = nodeRelativeColumn;
+        }
+      }
+    }
+
+    let nodeType = e.type === 'global' || e.type === 'raw' ? 'html' : e.node.tagName.toLowerCase();
+    warn({
+      message,
+      ruleId,
+      source: e.type === 'global' ? undefined : source,
+      nodeType,
+      // @ts-ignore TS can't prove this is initialized, for some reason
+      line,
+      // @ts-ignore TS can't prove this is initialized, for some reason
+      column,
+    });
+  };
+}
+
 /*@internal*/
 export default class Spec {
   spec: this;
@@ -98,7 +185,7 @@ export default class Spec {
   replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
   log: (msg: string) => void;
-  warn: (msg: string) => void;
+  warn: (err: Warning) => void | undefined;
 
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
@@ -134,7 +221,7 @@ export default class Spec {
     this.replacementAlgorithms = [];
     this.cancellationToken = token;
     this.log = opts.log ?? (() => {});
-    this.warn = opts.warn ?? (() => {});
+    this.warn = opts.warn ? wrapWarn(sourceText!, dom, opts.warn) : () => {};
     this._figureCounts = {
       table: 0,
       figure: 0,
@@ -231,14 +318,13 @@ export default class Spec {
 
     const document = this.doc;
 
-    if (this.opts.reportLintErrors) {
-      let { reportLintErrors } = this.opts;
+    if (this.opts.lintSpec) {
       this.log('Linting...');
       const source = this.sourceText;
       if (source === undefined) {
         throw new Error('Cannot lint when source text is not available');
       }
-      lint(reportLintErrors, source, this.dom, document);
+      lint(this.warn, source, this.dom, document);
     }
 
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
@@ -278,7 +364,6 @@ export default class Spec {
 
     await this.buildAssets();
 
-    this.log('Done.');
     return this;
   }
 
@@ -408,7 +493,23 @@ export default class Spec {
     try {
       data = yaml.safeLoad(block.textContent!);
     } catch (e) {
-      this.warn('metadata block failed to parse');
+      if (typeof e?.mark.line === 'number' && typeof e?.mark.column === 'number') {
+        this.warn({
+          type: 'contents',
+          ruleId: 'invalid-metadata',
+          message: `metadata block failed to parse: ${e.reason}`,
+          node: block,
+          nodeRelativeLine: e.mark.line + 1,
+          nodeRelativeColumn: e.mark.column + 1,
+        });
+      } else {
+        this.warn({
+          type: 'node',
+          ruleId: 'invalid-metadata',
+          message: 'metadata block failed to parse',
+          node: block,
+        });
+      }
       return;
     } finally {
       block.parentNode.removeChild(block);
@@ -442,9 +543,12 @@ export default class Spec {
 
   public exportBiblio(): any {
     if (!this.opts.location) {
-      this.warn(
-        "No spec location specified. Biblio not generated. Try --location or setting the location in the document's metadata block."
-      );
+      this.warn({
+        type: 'global',
+        ruleId: 'no-location',
+        message:
+          "no spec location specified; biblio not generated. try --location or setting the location in the document's metadata block",
+      });
       return {};
     }
 
@@ -508,9 +612,12 @@ export default class Spec {
 
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
-        this.warn(
-          'Contributors not specified, skipping copyright boilerplate. Specify contributors in your frontmatter metadata.'
-        );
+        this.warn({
+          type: 'global',
+          ruleId: 'no-contributors',
+          message:
+            'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
+        });
       } else {
         this.buildCopyrightBoilerplate();
       }
@@ -690,18 +797,34 @@ export default class Spec {
         // When the target is not itself within a replacement, or is within a replacement which we have already rectified, we can just use its step number directly
         let targetEntry = this.biblio.byId(target);
         if (targetEntry == null) {
-          this.warn(`Could not find step ${target}`);
+          this.warn({
+            type: 'attr',
+            attr: 'replaces-step',
+            ruleId: 'invalid-replacement',
+            message: `could not find step ${JSON.stringify(target)}`,
+            node: element,
+          });
         } else if (targetEntry.type !== 'step') {
-          this.warn(`Expected algorithm to replace a step, not a ${targetEntry.type}`);
+          this.warn({
+            type: 'attr',
+            attr: 'replaces-step',
+            ruleId: 'invalid-replacement',
+            message: `expected algorithm to replace a step, not a ${targetEntry.type}`,
+            node: element,
+          });
         } else {
           setReplacementAlgorithmStart(element, targetEntry.stepNumbers);
         }
       }
     }
     if (pending.size > 0) {
-      this.warn(
-        'Could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?'
-      );
+      // todo consider line/column missing cases
+      this.warn({
+        type: 'global',
+        ruleId: 'invalid-replacement',
+        message:
+          'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
+      });
     }
   }
 

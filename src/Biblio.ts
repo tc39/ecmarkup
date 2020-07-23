@@ -261,6 +261,7 @@ export interface TermBiblioEntry extends BiblioEntryBase {
 export interface FigureBiblioEntry extends BiblioEntryBase {
   type: 'table' | 'figure' | 'example' | 'note';
   id: string;
+  node: HTMLElement;
   number: string | number;
   clauseId?: string;
   caption?: string;

@@ -1,5 +1,4 @@
 import type { BiblioEntry } from './Biblio';
-import type { Reporter } from './lint/algorithm-error-reporter-type';
 
 import Spec from './Spec';
 import * as utils from './utils';
@@ -12,6 +11,15 @@ export class Boilerplate {
   copyright?: string;
   license?: string;
 }
+
+export type EcmarkupError = {
+  ruleId: string;
+  message: string;
+  source?: string;
+  line?: number;
+  column?: number;
+  nodeType?: string;
+};
 
 export interface Options {
   status?: 'proposal' | 'draft' | 'standard';
@@ -32,9 +40,8 @@ export interface Options {
   outfile?: string;
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
-  reportLintErrors?: Reporter;
   log?: (msg: string) => void;
-  warn?: (msg: string) => void;
+  warn?: (err: EcmarkupError) => void;
 }
 
 export async function build(

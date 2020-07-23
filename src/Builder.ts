@@ -22,7 +22,13 @@ export default class Builder {
 
     if (nodeId !== null) {
       if (spec.nodeIds.has(nodeId)) {
-        spec.warn(`<${node.tagName.toLowerCase()}> has duplicate id: ${nodeId}`);
+        spec.warn({
+          type: 'attr',
+          attr: 'id',
+          ruleId: 'duplicate-id',
+          message: `<${node.tagName.toLowerCase()}> has duplicate id ${JSON.stringify(nodeId)}`,
+          node,
+        });
       }
       spec.nodeIds.add(nodeId);
     }

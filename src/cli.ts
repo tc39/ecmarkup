@@ -1,5 +1,4 @@
-import type { Options } from './ecmarkup';
-import type { LintingError } from './lint/algorithm-error-reporter-type';
+import type { EcmarkupError, Options } from './ecmarkup';
 
 import { argParser } from './args';
 const args = argParser.parse();
@@ -32,41 +31,28 @@ const build = debounce(async function build() {
       opts.log = utils.logVerbose;
     }
     let warned = false;
-    opts.warn = str => {
+
+    let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
+    try {
+      require.resolve(descriptor);
+    } catch {
+      descriptor = args.lintFormatter;
+    }
+    let formatter = require(descriptor);
+    let warnings: EcmarkupError[] = [];
+    opts.warn = err => {
       warned = true;
-      utils.logWarning(str);
+      // prettier-ignore
+      let message = `${args.strict ? 'Error' : 'Warning'}: ${args.infile}:${err.line == null ? '' : `${err.line}:${err.column}:`} ${err.message}`;
+      utils.logWarning(message);
+      warnings.push(err);
     };
 
-    if (args.lintSpec) {
-      let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
-      try {
-        require.resolve(descriptor);
-      } catch {
-        descriptor = args.lintFormatter;
-      }
-      let formatter = require(descriptor);
-
-      opts.reportLintErrors = (errors: LintingError[], sourceText: string) => {
-        if (errors.length < 1) return;
-
-        let results = [
-          {
-            filePath: args.infile,
-            messages: errors.map(e => ({ severity: args.strict ? 2 : 1, ...e })),
-            errorCount: args.strict ? errors.length : 0,
-            warningCount: args.strict ? 0 : errors.length,
-            // for now, nothing is fixable
-            fixableErrorCount: 0,
-            fixableWarningCount: 0,
-            source: sourceText,
-          },
-        ];
-
-        warned = true;
-        console.error(formatter(results));
-      };
-    }
     const spec = await ecmarkup.build(args.infile, utils.readFile, opts);
+
+    if (args.verbose) {
+      utils.logVerbose(warned ? 'Completed with errors.' : 'Done.');
+    }
 
     const pending: Promise<any>[] = [];
     if (args.biblio) {
@@ -76,20 +62,62 @@ const build = debounce(async function build() {
       pending.push(utils.writeFile(args.biblio, JSON.stringify(spec.exportBiblio())));
     }
 
-    if (args.outfile) {
-      if (args.verbose) {
-        utils.logVerbose('Writing output to ' + args.outfile);
+    if (args.verbose && warned) {
+      // TODO allow warnings to have different corresponding files, sort by file as well
+      warnings.sort((a, b) => {
+        if (a.line === b.line) {
+          if (a.column === b.column) {
+            return 0;
+          }
+          if (a.column == null) {
+            return -1;
+          }
+          if (b.column == null) {
+            return 1;
+          }
+          return a.column - b.column;
+        }
+        if (a.line == null) {
+          return -1;
+        }
+        if (b.line == null) {
+          return 1;
+        }
+        return a.line - b.line;
+      });
+      let results = warnings.map(err => ({
+        filePath: args.infile,
+        messages: [{ severity: args.strict ? 2 : 1, ...err }],
+        errorCount: args.strict ? 1 : 0,
+        warningCount: args.strict ? 0 : 1,
+        // for now, nothing is fixable
+        fixableErrorCount: 0,
+        fixableWarningCount: 0,
+        source: err.source,
+      }));
+
+      console.error(formatter(results));
+    }
+
+    if (!args.strict || !warned) {
+      if (args.outfile) {
+        if (args.verbose) {
+          utils.logVerbose('Writing output to ' + args.outfile);
+        }
+        pending.push(utils.writeFile(args.outfile, spec.toHTML()));
+      } else {
+        process.stdout.write(spec.toHTML());
       }
-      pending.push(utils.writeFile(args.outfile, spec.toHTML()));
-    } else {
-      process.stdout.write(spec.toHTML());
     }
 
     await Promise.all(pending);
 
     if (args.strict && warned) {
-      if (args.verbose) {
-        utils.logVerbose('Exiting with an error due to warnings');
+      utils.logVerbose(
+        'Exiting with an error due to errors (omit --strict to write output anyway)'
+      );
+      if (!args.verbose) {
+        utils.logVerbose('Rerun with --verbose to see detailed error information');
       }
       process.exit(1);
     }

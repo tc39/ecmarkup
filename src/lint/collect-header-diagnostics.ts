@@ -1,15 +1,14 @@
-import type { LintingError } from './algorithm-error-reporter-type';
+import type { Warning } from '../Spec';
 
-import { getLocation, offsetWithinElementToTrueLocation } from './utils';
+import { offsetToLineAndColumn } from '../utils';
 
 const ruleId = 'header-format';
 
 export function collectHeaderDiagnostics(
+  report: (e: Warning) => void,
   dom: any,
   headers: { element: Element; contents: string }[]
 ) {
-  let lintingErrors: LintingError[] = [];
-
   for (let { element, contents } of headers) {
     if (!/\(.*\)$/.test(contents) || / Operator \( `[^`]+` \)$/.test(contents)) {
       continue;
@@ -19,17 +18,15 @@ export function collectHeaderDiagnostics(
     let params = contents.substring(contents.indexOf('(') + 1, contents.length - 1);
 
     if (!/[\S] $/.test(name)) {
-      let { line, column } = offsetWithinElementToTrueLocation(
-        getLocation(dom, element),
-        contents,
-        name.length - 1
-      );
-      lintingErrors.push({
+      let { line, column } = offsetToLineAndColumn(contents, name.length - 1);
+
+      report({
+        type: 'contents',
         ruleId,
-        nodeType: element.tagName,
-        line,
-        column,
         message: 'expected header to have a single space before the argument list',
+        node: element,
+        nodeRelativeLine: line,
+        nodeRelativeColumn: column,
       });
     }
 
@@ -57,19 +54,16 @@ export function collectHeaderDiagnostics(
     ].some(r => r.test(name));
 
     if (!nameMatches) {
-      let { line, column } = offsetWithinElementToTrueLocation(
-        getLocation(dom, element),
-        contents,
-        0
-      );
-      lintingErrors.push({
+      let { line, column } = offsetToLineAndColumn(contents, 0);
+      report({
+        type: 'contents',
         ruleId,
-        nodeType: element.tagName,
-        line,
-        column,
         message: `expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found ${JSON.stringify(
           name
         )}`,
+        node: element,
+        nodeRelativeLine: line,
+        nodeRelativeColumn: column,
       });
     }
 
@@ -94,20 +88,15 @@ export function collectHeaderDiagnostics(
       ].some(r => r.test(params));
 
     if (!paramsMatches) {
-      let { line, column } = offsetWithinElementToTrueLocation(
-        getLocation(dom, element),
-        contents,
-        name.length
-      );
-      lintingErrors.push({
+      let { line, column } = offsetToLineAndColumn(contents, name.length);
+      report({
+        type: 'contents',
         ruleId,
-        nodeType: element.tagName,
-        line,
-        column,
         message: `expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'`,
+        node: element,
+        nodeRelativeLine: line,
+        nodeRelativeColumn: column,
       });
     }
   }
-
-  return lintingErrors;
 }

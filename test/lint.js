@@ -1,6 +1,6 @@
 'use strict';
 
-let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./lint-helpers');
+let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
 
 describe('linting whole program', function () {
   describe('grammar validity', function () {
@@ -13,10 +13,27 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'grammarkdown:2008',
-          nodeType: '«Parameter»',
+          nodeType: 'emu-grammar',
           message: "Parameter 'a' is unused.",
         }
       );
+    });
+
+    it('parameters used in SDO', async function () {
+      await assertLintFree(`
+        <emu-grammar type="definition">
+          Statement[a]: \`;\`
+        </emu-grammar>
+        <emu-clause id="example">
+        <h1>Static Semantics: Early Errors</h1>
+          <emu-grammar>Statement[a]: \`;\`</emu-grammar>
+          <ul>
+            <li>
+              It is a Syntax Error if this production has an <sub>[a]</sub> parameter.
+            </li>
+          </ul>
+        </emu-clause>
+      `);
     });
 
     it('missing parameters', async function () {
@@ -32,7 +49,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'grammarkdown:2007',
-          nodeType: '«identifier»',
+          nodeType: 'emu-grammar',
           message: "There is no argument given for parameter 'a'.",
         }
       );
@@ -45,7 +62,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'grammarkdown:2008',
-          nodeType: '«Parameter»',
+          nodeType: 'emu-grammar',
           message: "Parameter 'a' is unused.",
         }
       );
@@ -65,7 +82,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'undefined-nonterminal',
-          nodeType: 'EMU-GRAMMAR',
+          nodeType: 'emu-grammar',
           message: 'Could not find a definition for LHS in syntax-directed operation',
         }
       );
@@ -81,7 +98,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'undefined-nonterminal',
-          nodeType: 'EMU-GRAMMAR',
+          nodeType: 'emu-grammar',
           message: 'Could not find a definition for LHS in syntax-directed operation',
         }
       );
@@ -104,7 +121,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'undefined-nonterminal',
-          nodeType: 'EMU-GRAMMAR',
+          nodeType: 'emu-grammar',
           message: 'Could not find a production matching RHS in syntax-directed operation',
         }
       );
@@ -120,7 +137,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'header-format',
-          nodeType: 'H1',
+          nodeType: 'h1',
           message:
             "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"something: \"",
         }
@@ -135,7 +152,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'header-format',
-          nodeType: 'H1',
+          nodeType: 'h1',
           message: 'expected header to have a single space before the argument list',
         }
       );
@@ -147,7 +164,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'header-format',
-          nodeType: 'H1',
+          nodeType: 'h1',
           message: 'expected header to have a single space before the argument list',
         }
       );
@@ -161,7 +178,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'header-format',
-          nodeType: 'H1',
+          nodeType: 'h1',
           message:
             "expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'",
         }
@@ -231,7 +248,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'missing-close-tag',
-          nodeType: 'EMU-GRAMMAR',
+          nodeType: 'emu-grammar',
           message: 'could not find closing tag for emu-grammar',
         }
       );
@@ -246,7 +263,7 @@ describe('linting whole program', function () {
         `,
         {
           ruleId: 'missing-close-tag',
-          nodeType: 'EMU-ALG',
+          nodeType: 'emu-alg',
           message: 'could not find closing tag for emu-alg',
         }
       );

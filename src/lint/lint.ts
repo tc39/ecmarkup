@@ -1,11 +1,10 @@
-import { emit } from 'ecmarkdown';
+import type { Warning } from '../Spec';
 
 import { collectNodes } from './collect-nodes';
 import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
 import { collectSpellingDiagnostics } from './collect-spelling-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
 import { collectHeaderDiagnostics } from './collect-header-diagnostics';
-import type { Reporter } from './algorithm-error-reporter-type';
 
 /*
 Currently this checks
@@ -19,17 +18,20 @@ Currently this checks
 There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
-export function lint(report: Reporter, sourceText: string, dom: any, document: Document) {
-  let collection = collectNodes(sourceText, dom, document);
+export function lint(
+  report: (err: Warning) => void,
+  sourceText: string,
+  dom: any,
+  document: Document
+) {
+  let collection = collectNodes(report, sourceText, dom, document);
   if (!collection.success) {
-    let lintingErrors = collection.errors;
-    lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
-    report(lintingErrors, sourceText);
     return;
   }
   let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collection;
 
-  let { grammar, lintingErrors } = collectGrammarDiagnostics(
+  let { grammar } = collectGrammarDiagnostics(
+    report,
     dom,
     sourceText,
     mainGrammar,
@@ -37,17 +39,11 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
     earlyErrors
   );
 
-  lintingErrors.push(...collectAlgorithmDiagnostics(dom, sourceText, algorithms));
+  collectAlgorithmDiagnostics(report, dom, sourceText, algorithms);
 
-  lintingErrors.push(...collectHeaderDiagnostics(dom, headers));
+  collectHeaderDiagnostics(report, dom, headers);
 
-  lintingErrors.push(...collectSpellingDiagnostics(sourceText));
-
-  if (lintingErrors.length > 0) {
-    lintingErrors.sort((a, b) => (a.line === b.line ? a.column - b.column : a.line - b.line));
-    report(lintingErrors, sourceText);
-    return;
-  }
+  collectSpellingDiagnostics(report, sourceText);
 
   // Stash intermediate results for later use
   // This isn't actually necessary for linting, but we might as well avoid redoing work later when we can.
@@ -71,7 +67,9 @@ export function lint(report: Reporter, sourceText: string, dom: any, document: D
   //   });
   // }
   for (let { element, tree } of algorithms) {
-    // @ts-ignore we are intentionally adding a property here
-    element.ecmarkdownOut = emit(tree!);
+    if (tree != null) {
+      // @ts-ignore we are intentionally adding a property here
+      element.ecmarkdownTree = tree;
+    }
   }
 }

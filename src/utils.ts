@@ -1,3 +1,5 @@
+import type { MarkupData } from 'parse5';
+
 import type Spec from './Spec';
 
 import * as jsdom from 'jsdom';
@@ -62,13 +64,13 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
 /*@internal*/
 export function logVerbose(str: string) {
   let dateString = new Date().toISOString();
-  console.log(chalk.gray('[' + dateString + '] ') + str);
+  console.error(chalk.gray('[' + dateString + '] ') + str);
 }
 
 /*@internal*/
 export function logWarning(str: string) {
   let dateString = new Date().toISOString();
-  console.log(chalk.gray('[' + dateString + '] ') + chalk.red('Warning: ' + str));
+  console.error(chalk.gray('[' + dateString + '] ') + chalk.red(str));
 }
 
 /*@internal*/
@@ -110,4 +112,43 @@ export function writeFile(file: string, content: string) {
 export async function copyFile(src: string, dest: string) {
   const content = await readFile(src);
   await writeFile(dest, content);
+}
+
+export function offsetToLineAndColumn(string: string, offset: number) {
+  let lines = string.split('\n');
+  let line = 0;
+  let seen = 0;
+  while (true) {
+    if (seen + lines[line].length >= offset) {
+      break;
+    }
+    seen += lines[line].length + 1; // +1 for the '\n'
+    ++line;
+  }
+  let column = offset - seen;
+  return { line: line + 1, column: column + 1 };
+}
+
+export function getLocation(dom: any, node: Element): MarkupData.ElementLocation {
+  let loc = dom.nodeLocation(node);
+  if (!loc || !loc.startTag) {
+    throw new Error('could not find location: this is a bug in ecmarkdown; please report it');
+  }
+  return loc;
+}
+
+export function attrValueLocation(
+  source: string | undefined,
+  loc: MarkupData.ElementLocation,
+  attr: string
+) {
+  let attrLoc = loc.startTag.attrs[attr];
+  if (attrLoc == null || source == null) {
+    return { line: loc.startTag.line, column: loc.startTag.col };
+  } else {
+    let tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
+    // RegExp.escape when
+    let matcher = new RegExp(attr.replace(/[/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
+    return { line: attrLoc.line, column: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
+  }
 }

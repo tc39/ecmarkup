@@ -1,8 +1,21 @@
 import type { Context } from './Context';
+import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
 import * as emd from 'ecmarkdown';
+
+function findLabeledSteps(root: EcmarkdownNode) {
+  let steps: OrderedListItemNode[] = [];
+  emd.visit(root, {
+    enter(node: EcmarkdownNode) {
+      if (node.name === 'ordered-list-item' && node.id != null) {
+        steps.push(node);
+      }
+    },
+  });
+  return steps;
+}
 
 /*@internal*/
 export default class Algorithm extends Builder {
@@ -10,11 +23,15 @@ export default class Algorithm extends Builder {
     context.inAlg = true;
     const { spec, node } = context;
 
+    let innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
+
     // prettier-ignore
-    const rawHtml =
-      'ecmarkdownOut' in node
-        ? (node as any).ecmarkdownOut
-        : emd.algorithm(node.innerHTML);
+    const emdTree =
+      'ecmarkdownTree' in node
+        ? (node as any).ecmarkdownTree
+        : emd.parseAlgorithm(innerHTML, { trackPositions: true });
+
+    const rawHtml = emd.emit(emdTree);
 
     // replace spaces after !/? with &nbsp; to prevent bad line breaking
     const html = rawHtml.replace(/((?:\s+|>)[!?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
@@ -30,14 +47,24 @@ export default class Algorithm extends Builder {
       context.spec.replacementAlgorithmToContainedLabeledStepEntries.set(node, labeledStepEntries);
     }
 
-    let labeledSteps = Array.from(node.querySelectorAll('li[id]'));
-    if (replaces && labeledSteps.length > 0 && node.firstElementChild!.children.length > 1) {
-      spec.warn(
-        'You should not label a step in a replacement algorithm which has multiple top-level steps because the resulting step number could be ambiguous.'
-      );
+    if (replaces && node.firstElementChild!.children.length > 1) {
+      let labeledSteps = findLabeledSteps(emdTree);
+      for (let step of labeledSteps) {
+        let itemSource = innerHTML.slice(step.location!.start.offset, step.location!.end.offset);
+        let offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
+        spec.warn({
+          type: 'contents',
+          ruleId: 'labeled-step-in-replacement',
+          message:
+            'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
+          node,
+          nodeRelativeLine: step.location!.start.line,
+          nodeRelativeColumn: step.location!.start.column + 1 + offset, // + 1 because ecmarkdown has 0-based columns; todo remove
+        });
+      }
     }
 
-    for (const step of labeledSteps) {
+    for (const step of Array.from(node.querySelectorAll('li[id]'))) {
       let entry: StepBiblioEntry = {
         type: 'step',
         id: step.id,

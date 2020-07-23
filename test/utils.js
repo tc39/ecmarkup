@@ -26,43 +26,62 @@ function positioned(literalParts, ...interpolatedParts) {
   return { offset, line, column, html: str };
 }
 
-async function assertLintFree(html) {
-  let reported = false;
-
-  let reportLintErrors = errors => {
-    reported = true;
-    throw new Error('unexpected errors ' + JSON.stringify(errors));
-  };
+async function assertError(obj, { ruleId, nodeType, message }, opts) {
+  let { line, column, html } =
+    typeof obj === 'string' ? { line: undefined, column: undefined, html: obj } : obj;
+  let warnings = [];
 
   await emu.build('test-example.emu', async () => html, {
     ecma262Biblio: false,
     copyright: false,
-    reportLintErrors,
+    warn: e =>
+      warnings.push({
+        ruleId: e.ruleId,
+        nodeType: e.nodeType,
+        line: e.line,
+        column: e.column,
+        message: e.message,
+      }),
+    ...opts,
   });
-  assert.equal(reported, false);
-}
 
-async function assertLint({ line, column, html }, { ruleId, nodeType, message }) {
-  let reported = false;
-
-  let reportLintErrors = errors => {
-    reported = true;
-    assert.equal(errors.length, 1, 'should have exactly one error');
-    assert.deepStrictEqual(errors[0], {
+  assert.deepStrictEqual(warnings, [
+    {
       ruleId,
       nodeType,
       line,
       column,
       message,
-    });
-  };
+    },
+  ]);
+}
+
+async function assertErrorFree(html, opts) {
+  let warnings = [];
 
   await emu.build('test-example.emu', async () => html, {
     ecma262Biblio: false,
     copyright: false,
-    reportLintErrors,
+    warn: e => warnings.push(e),
+    ...opts,
   });
-  assert.equal(reported, true);
+
+  assert.deepStrictEqual(warnings, []);
 }
 
-module.exports = { assertLint, assertLintFree, lintLocationMarker, positioned };
+async function assertLint(a, b) {
+  await assertError(a, b, { lintSpec: true });
+}
+
+async function assertLintFree(html) {
+  await assertErrorFree(html, { lintSpec: true });
+}
+
+module.exports = {
+  lintLocationMarker,
+  positioned,
+  assertError,
+  assertErrorFree,
+  assertLint,
+  assertLintFree,
+};

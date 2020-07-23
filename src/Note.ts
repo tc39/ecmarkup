@@ -27,6 +27,8 @@ export default class Note extends Builder {
 
   static enter({ spec, node, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
+
+    // TODO reconsider
     if (!clause) return; // do nothing with top-level note
 
     const note = new Note(spec, node, clause);
@@ -44,6 +46,7 @@ export default class Note extends Builder {
       this.spec.biblio.add({
         type: 'note',
         id: this.id,
+        node: this.node,
         number: number || 1,
         clauseId: this.clause.id,
         referencingIds: [],
@@ -68,7 +71,13 @@ export default class Note extends Builder {
     } else if (this.type === 'editor') {
       label = "Editor's Note";
     } else {
-      this.spec.warn(`Unknown note type ${this.type}. Skipping.`);
+      this.spec.warn({
+        type: 'attr',
+        attr: 'type',
+        ruleId: 'invalid-note',
+        message: `unknown note type ${JSON.stringify(this.type)}`,
+        node: this.node,
+      });
     }
 
     if (number !== undefined) {
