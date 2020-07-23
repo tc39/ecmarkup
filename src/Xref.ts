@@ -4,7 +4,6 @@ import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
 import Builder from './Builder';
-import * as utils from './utils';
 
 /*@internal*/
 export default class Xref extends Builder {
@@ -46,13 +45,12 @@ export default class Xref extends Builder {
     }
 
     if (href && aoid) {
-      utils.logWarning("xref can't have both href and aoid.");
+      spec.warn("xref can't have both href and aoid.");
       return;
     }
 
     if (!href && !aoid) {
-      utils.logWarning('xref has no href or aoid.');
-      console.log(node.outerHTML);
+      spec.warn('xref has no href or aoid.');
       return;
     }
 
@@ -69,7 +67,7 @@ export default class Xref extends Builder {
 
     if (href) {
       if (href[0] !== '#') {
-        utils.logWarning(
+        spec.warn(
           'xref to anything other than a fragment id is not supported (is ' +
             href +
             '). Try href="#sec-id" instead.'
@@ -81,7 +79,7 @@ export default class Xref extends Builder {
 
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
-        utils.logWarning("can't find clause, production, note or example with id " + href);
+        spec.warn("can't find clause, production, note or example with id " + href);
         return;
       }
 
@@ -108,10 +106,10 @@ export default class Xref extends Builder {
           buildTermLink(node, this.entry);
           break;
         case 'step':
-          buildStepLink(node, this.entry);
+          buildStepLink(spec, node, this.entry);
           break;
         default:
-          utils.logWarning(
+          spec.warn(
             `found unknown biblio entry ${this.entry.type} (this is a bug, please file it with ecmarkup)`
           );
       }
@@ -123,7 +121,7 @@ export default class Xref extends Builder {
         return;
       }
 
-      utils.logWarning("can't find abstract op with aoid " + aoid + ' in namespace ' + namespace);
+      spec.warn("can't find abstract op with aoid " + aoid + ' in namespace ' + namespace);
     }
   }
 }
@@ -176,7 +174,7 @@ function buildFigureLink(
       // first need to find the associated clause
       const clauseEntry = spec.biblio.byId(entry.clauseId);
       if (clauseEntry.type !== 'clause') {
-        utils.logWarning('could not find parent clause for ' + type + ' id ' + entry.id);
+        spec.warn('could not find parent clause for ' + type + ' id ' + entry.id);
         return;
       }
 
@@ -211,15 +209,15 @@ let alphaBullet = Array.from({ length: 26 }).map((a, i) =>
 let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
 let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
 
-function buildStepLink(xref: Element, entry: Biblio.StepBiblioEntry) {
+function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry) {
   if (xref.innerHTML !== '') {
-    utils.logWarning('the contents of emu-xrefs to steps are ignored');
+    spec.warn('the contents of emu-xrefs to steps are ignored');
   }
 
   let stepBullets = entry.stepNumbers.map((s, i) => {
     let applicable = bullets[Math.min(i, 5)];
     if (s > applicable.length) {
-      utils.logWarning(
+      spec.warn(
         `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`
       );
       return '?';

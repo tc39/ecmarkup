@@ -1,10 +1,6 @@
 import type Spec from './Spec';
 import type { Context } from './Context';
 
-import * as utils from './utils';
-
-const nodeIds = new Set<string>();
-
 // We use this instead of `typeof Builder` because using the class as the type also requires derived constructors to be subtypes of the base constructor, which is irritating.
 /*@internal*/
 export interface BuilderInterface {
@@ -25,17 +21,11 @@ export default class Builder {
     let nodeId = node.getAttribute('id')!;
 
     if (nodeId !== null) {
-      if (nodeIds.has(nodeId)) {
-        this._log(`<${node.tagName.toLowerCase()}> has duplicate id: ${nodeId}`);
+      if (spec.nodeIds.has(nodeId)) {
+        spec.warn(`<${node.tagName.toLowerCase()}> has duplicate id: ${nodeId}`);
       }
-      nodeIds.add(nodeId);
+      spec.nodeIds.add(nodeId);
     }
-  }
-
-  /*@internal*/
-  _log(str: string) {
-    if (!this.spec.opts.verbose) return;
-    utils.logWarning(str);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

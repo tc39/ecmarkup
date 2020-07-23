@@ -19,8 +19,8 @@ if (args.js) {
   args.jsOut = args.js;
 }
 
-if (args.lintSpec && args.watch) {
-  console.error('Cannot use --lint-spec with --watch');
+if (args.strict && args.watch) {
+  console.error('Cannot use --strict with --watch');
   process.exit(1);
 }
 
@@ -28,6 +28,15 @@ const watching = new Map<string, fs.FSWatcher>();
 const build = debounce(async function build() {
   try {
     const opts: Options = { ...args };
+    if (args.verbose) {
+      opts.log = utils.logVerbose;
+    }
+    let warned = false;
+    opts.warn = str => {
+      warned = true;
+      utils.logWarning(str);
+    };
+
     if (args.lintSpec) {
       let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
       try {
@@ -43,10 +52,9 @@ const build = debounce(async function build() {
         let results = [
           {
             filePath: args.infile,
-            // for now, everything is an error (2 in eslint terms)
-            messages: errors.map(e => ({ severity: 2, ...e })),
-            errorCount: errors.length,
-            warningCount: 0,
+            messages: errors.map(e => ({ severity: args.strict ? 2 : 1, ...e })),
+            errorCount: args.strict ? errors.length : 0,
+            warningCount: args.strict ? 0 : errors.length,
             // for now, nothing is fixable
             fixableErrorCount: 0,
             fixableWarningCount: 0,
@@ -54,8 +62,8 @@ const build = debounce(async function build() {
           },
         ];
 
+        warned = true;
         console.error(formatter(results));
-        process.exit(1);
       };
     }
     const spec = await ecmarkup.build(args.infile, utils.readFile, opts);
@@ -78,6 +86,13 @@ const build = debounce(async function build() {
     }
 
     await Promise.all(pending);
+
+    if (args.strict && warned) {
+      if (args.verbose) {
+        utils.logVerbose('Exiting with an error due to warnings');
+      }
+      process.exit(1);
+    }
 
     if (args.watch) {
       const toWatch = new Set<string>(spec.imports.map(i => i.importLocation).concat(args.infile));
