@@ -42,11 +42,17 @@ const build = debounce(async function build() {
     let warnings: EcmarkupError[] = [];
     opts.warn = err => {
       warned = true;
-      utils.logWarning(err.message); // TODO line column etc
+      // prettier-ignore
+      let message = `${args.strict ? 'Error' : 'Warning'}: ${args.infile}:${err.line == null ? '' : `${err.line}:${err.column}:`} ${err.message}`;
+      utils.logWarning(message);
       warnings.push(err);
     };
 
     const spec = await ecmarkup.build(args.infile, utils.readFile, opts);
+
+    if (args.verbose) {
+      utils.logVerbose(warned ? 'Completed with errors.' : 'Done.');
+    }
 
     const pending: Promise<any>[] = [];
     if (args.biblio) {

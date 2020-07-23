@@ -364,7 +364,6 @@ export default class Spec {
 
     await this.buildAssets();
 
-    this.log('Done.');
     return this;
   }
 

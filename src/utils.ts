@@ -70,7 +70,7 @@ export function logVerbose(str: string) {
 /*@internal*/
 export function logWarning(str: string) {
   let dateString = new Date().toISOString();
-  console.error(chalk.gray('[' + dateString + '] ') + chalk.red('Warning: ' + str));
+  console.error(chalk.gray('[' + dateString + '] ') + chalk.red(str));
 }
 
 /*@internal*/
