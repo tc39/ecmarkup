@@ -21,14 +21,14 @@ describe('errors', () => {
   it('metadata failed', async () => {
     await assertError(
       positioned`
-      ${M}<pre class=metadata>
+      <pre class=metadata>
         this isn't valid yaml: "
-      </pre>
+${M}      </pre>
       `,
       {
         ruleId: 'invalid-metadata',
         nodeType: 'pre',
-        message: 'metadata block failed to parse',
+        message: 'metadata block failed to parse: unexpected end of the stream within a double quoted scalar',
       }
     );
   });

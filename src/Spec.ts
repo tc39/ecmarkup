@@ -493,12 +493,23 @@ export default class Spec {
     try {
       data = yaml.safeLoad(block.textContent!);
     } catch (e) {
-      this.warn({
-        type: 'node',
-        ruleId: 'invalid-metadata',
-        message: 'metadata block failed to parse',
-        node: block,
-      });
+      if (typeof e?.mark.line === 'number' && typeof e?.mark.column === 'number') {
+        this.warn({
+          type: 'contents',
+          ruleId: 'invalid-metadata',
+          message: `metadata block failed to parse: ${e.reason}`,
+          node: block,
+          nodeRelativeLine: e.mark.line + 1,
+          nodeRelativeColumn: e.mark.column + 1,
+        });
+      } else {
+        this.warn({
+          type: 'node',
+          ruleId: 'invalid-metadata',
+          message: 'metadata block failed to parse',
+          node: block,
+        });
+      }
       return;
     } finally {
       block.parentNode.removeChild(block);
