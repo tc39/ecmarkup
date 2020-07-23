@@ -28,7 +28,8 @@ ${M}      </pre>
       {
         ruleId: 'invalid-metadata',
         nodeType: 'pre',
-        message: 'metadata block failed to parse: unexpected end of the stream within a double quoted scalar',
+        message:
+          'metadata block failed to parse: unexpected end of the stream within a double quoted scalar',
       }
     );
   });
