@@ -113,7 +113,9 @@ const build = debounce(async function build() {
     await Promise.all(pending);
 
     if (args.strict && warned) {
-      utils.logVerbose('Exiting with an error due to errors');
+      utils.logVerbose(
+        'Exiting with an error due to errors (omit --strict to write output anyway)'
+      );
       if (!args.verbose) {
         utils.logVerbose('Rerun with --verbose to see detailed error information');
       }
