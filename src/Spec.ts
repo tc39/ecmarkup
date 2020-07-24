@@ -948,7 +948,7 @@ function walk(walker: TreeWalker, context: Context) {
   // handle oldids
   let oldids = context.node.getAttribute('oldids');
   if (oldids) {
-    if (!context.node.children) {
+    if (!context.node.childNodes) {
       throw new Error('oldids found on unsupported element: ' + context.node.nodeName);
     }
     oldids
@@ -957,7 +957,7 @@ function walk(walker: TreeWalker, context: Context) {
       .forEach(oid => {
         let s = spec.doc.createElement('span');
         s.setAttribute('id', oid);
-        context.node.insertBefore(s, context.node.children[0]);
+        context.node.insertBefore(s, context.node.childNodes[0]);
       });
   }
 
