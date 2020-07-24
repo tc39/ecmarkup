@@ -132,14 +132,17 @@ describe('linting whole program', function () {
     it('name format', async function () {
       await assertLint(
         positioned`
-          <emu-clause id="foo">
-            <h1>${M}something: ( )</h1>
+          <emu-clause id="a">
+            <h1>unusual/valid ( )</h1>
+          </emu-clause>
+          <emu-clause id="b">
+            <h1>${M}foo: ( )</h1>
         `,
         {
           ruleId: 'header-format',
           nodeType: 'h1',
           message:
-            "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"something: \"",
+            "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"foo: \"",
         }
       );
     });
