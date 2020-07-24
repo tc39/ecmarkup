@@ -45,8 +45,9 @@ export function collectHeaderDiagnostics(
 
       // CreateForInIterator
       // Object.fromEntries
+      // ForIn/OfHeadEvaluation
       // Array.prototype [ @@iterator ]
-      /^[A-Za-z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
+      /^[A-Za-z][A-Za-z0-9/]*(\.[A-Za-z][A-Za-z0-9/]*)*( \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
 
       // %ForInIteratorPrototype%.next
       // %TypedArray%.prototype [ @@iterator ]
