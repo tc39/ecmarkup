@@ -208,6 +208,9 @@ describe('linting whole program', function () {
           <emu-clause id="i7">
             <h1>%Foo%.bar [ @@iterator ] ( )</h1>
           </emu-clause>
+          <emu-clause id="i8">
+            <h1>ForIn/OfHeadEvaluation ( )</h1>
+          </emu-clause>
       `);
     });
 
