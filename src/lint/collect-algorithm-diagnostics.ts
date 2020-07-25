@@ -59,7 +59,7 @@ export function collectAlgorithmDiagnostics(
         message,
         node: element,
         nodeRelativeLine: line,
-        nodeRelativeColumn: column + 1, // since EMD columns are 1-based
+        nodeRelativeColumn: column,
       });
     };
 
@@ -70,7 +70,7 @@ export function collectAlgorithmDiagnostics(
     let observer = composeObservers(
       ...algorithmRules.map(f => f(reporter, element, algorithmSource))
     );
-    let tree = parseAlgorithm(algorithmSource, { trackPositions: true });
+    let tree = parseAlgorithm(algorithmSource);
     visit(tree, observer);
     algorithm.tree = tree;
   }

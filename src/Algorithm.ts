@@ -29,7 +29,7 @@ export default class Algorithm extends Builder {
     const emdTree =
       'ecmarkdownTree' in node
         ? (node as any).ecmarkdownTree
-        : emd.parseAlgorithm(innerHTML, { trackPositions: true });
+        : emd.parseAlgorithm(innerHTML);
 
     const rawHtml = emd.emit(emdTree);
 
@@ -59,7 +59,7 @@ export default class Algorithm extends Builder {
             'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
           node,
           nodeRelativeLine: step.location!.start.line,
-          nodeRelativeColumn: step.location!.start.column + 1 + offset, // + 1 because ecmarkdown has 0-based columns; todo remove
+          nodeRelativeColumn: step.location!.start.column + offset,
         });
       }
     }
