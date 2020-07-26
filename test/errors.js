@@ -327,7 +327,7 @@ ${M}      </pre>
     );
   });
 
-  it('ecmarkdown failed', async () => {
+  it('ecmarkdown failed: fragment', async () => {
     await assertError(
       positioned`
       <p>
@@ -344,4 +344,32 @@ ${M}      </pre>
       }
     );
   });
+
+  it('ecmarkdown failed: algorithm', async () => {
+    await assertError(
+      positioned`
+      <emu-alg>${M}This is not an algrithm</emu-alg>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'emu-alg',
+        message: 'ecmarkdown failed to parse: Unexpected token text; expected ol',
+      }
+    );
+  });
+
+  it('ecmarkdown failed: algorithm with linting enabled', async () => {
+    await assertError(
+      positioned`
+      <emu-alg>${M}This is not an algrithm</emu-alg>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'emu-alg',
+        message: 'ecmarkdown failed to parse: Unexpected token text; expected ol',
+      },
+      { lintSpec: true }
+    );
+  });
+
 });

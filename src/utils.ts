@@ -7,6 +7,27 @@ import * as chalk from 'chalk';
 import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
 
+
+export function warnEmdFailure(report: Spec['warn'], node: Element | Text, e: SyntaxError & { line?: number, column?: number }) {
+  if (typeof e.line === 'number' && typeof e.column === 'number') {
+    report({
+      type: 'contents',
+      ruleId: 'invalid-emd',
+      message: `ecmarkdown failed to parse: ${e.message}`,
+      node,
+      nodeRelativeLine: e.line,
+      nodeRelativeColumn: e.column,
+    });
+  } else {
+    report({
+      type: 'node',
+      ruleId: 'invalid-emd',
+      message: `ecmarkdown failed to parse: ${e.message}`,
+      node,
+    });
+  }
+}
+
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Text) {
   let c = node.textContent!.replace(/</g, '&lt;');
@@ -15,23 +36,7 @@ export function emdTextNode(spec: Spec, node: Text) {
   try {
     processed = emd.fragment(c);
   } catch (e) {
-    if (typeof e.line === 'number' && typeof e.column === 'number') {
-      spec.warn({
-        type: 'contents',
-        ruleId: 'invalid-emd',
-        message: `ecmarkdown failed to parse: ${e.message}`,
-        node,
-        nodeRelativeLine: e.line,
-        nodeRelativeColumn: e.column,
-      });
-    } else {
-      spec.warn({
-        type: 'node',
-        ruleId: 'invalid-emd',
-        message: `ecmarkdown failed to parse: ${e.message}`,
-        node,
-      });
-    }
+    warnEmdFailure(spec.warn, node, e);
     processed = `#### ECMARKDOWN PARSE FAILED ###<pre>${c}</pre>`;
   }
 

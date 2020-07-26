@@ -5,7 +5,7 @@ import type { Warning } from '../Spec';
 
 import { parseAlgorithm, visit } from 'ecmarkdown';
 
-import { getLocation } from '../utils';
+import { getLocation, warnEmdFailure } from '../utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
@@ -70,8 +70,16 @@ export function collectAlgorithmDiagnostics(
     let observer = composeObservers(
       ...algorithmRules.map(f => f(reporter, element, algorithmSource))
     );
-    let tree = parseAlgorithm(algorithmSource);
-    visit(tree, observer);
+    let tree;
+    try {
+      let tree = parseAlgorithm(algorithmSource);
+    } catch (e) {
+      warnEmdFailure(report, element, e);
+    }
+    if (tree != null) {
+      visit(tree, observer);
+    }
+
     algorithm.tree = tree;
   }
 }

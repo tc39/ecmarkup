@@ -66,10 +66,10 @@ export function lint(
   //     grammarEle.grammarkdownOut = source;
   //   });
   // }
-  for (let { element, tree } of algorithms) {
-    if (tree != null) {
+  for (let pair of algorithms) {
+    if ('tree' in pair) {
       // @ts-ignore we are intentionally adding a property here
-      element.ecmarkdownTree = tree;
+      pair.element.ecmarkdownTree = pair.tree;
     }
   }
 }

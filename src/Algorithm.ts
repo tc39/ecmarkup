@@ -3,6 +3,7 @@ import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
+import { warnEmdFailure } from './utils';
 import * as emd from 'ecmarkdown';
 
 function findLabeledSteps(root: EcmarkdownNode) {
@@ -25,11 +26,20 @@ export default class Algorithm extends Builder {
 
     let innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
 
-    // prettier-ignore
-    const emdTree =
-      'ecmarkdownTree' in node
-        ? (node as any).ecmarkdownTree
-        : emd.parseAlgorithm(innerHTML);
+    let emdTree;
+    if ('ecmarkdownTree' in node) {
+      emdTree = (node as any).ecmarkdownTree;
+    } else {
+      try {
+        emdTree = emd.parseAlgorithm(innerHTML);
+      } catch (e) {
+        warnEmdFailure(spec.warn, node, e);
+      }
+    }
+    if (emdTree == null) {
+      node.innerHTML = `#### ECMARKDOWN PARSE FAILED ###<pre>${innerHTML}</pre>`
+      return;
+    }
 
     const rawHtml = emd.emit(emdTree);
 
