@@ -37,7 +37,7 @@ export default class Algorithm extends Builder {
       }
     }
     if (emdTree == null) {
-      node.innerHTML = `#### ECMARKDOWN PARSE FAILED ###<pre>${innerHTML}</pre>`
+      node.innerHTML = `#### ECMARKDOWN PARSE FAILED ###<pre>${innerHTML}</pre>`;
       return;
     }
 

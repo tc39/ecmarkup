@@ -7,8 +7,11 @@ import * as chalk from 'chalk';
 import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
 
-
-export function warnEmdFailure(report: Spec['warn'], node: Element | Text, e: SyntaxError & { line?: number, column?: number }) {
+export function warnEmdFailure(
+  report: Spec['warn'],
+  node: Element | Text,
+  e: SyntaxError & { line?: number; column?: number }
+) {
   if (typeof e.line === 'number' && typeof e.column === 'number') {
     report({
       type: 'contents',

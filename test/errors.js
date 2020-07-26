@@ -385,5 +385,4 @@ ${M}      </pre>
       { lintSpec: true }
     );
   });
-
 });
