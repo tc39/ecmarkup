@@ -8,11 +8,35 @@ import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
 
 /*@internal*/
-export function emdTextNode(spec: Spec, node: Node) {
+export function emdTextNode(spec: Spec, node: Text) {
   let c = node.textContent!.replace(/</g, '&lt;');
 
+  let processed;
+  try {
+    processed = emd.fragment(c);
+  } catch (e) {
+    if (typeof e.line === 'number' && typeof e.column === 'number') {
+      spec.warn({
+        type: 'contents',
+        ruleId: 'invalid-emd',
+        message: `ecmarkdown failed to parse: ${e.message}`,
+        node,
+        nodeRelativeLine: e.line,
+        nodeRelativeColumn: e.column,
+      });
+    } else {
+      spec.warn({
+        type: 'node',
+        ruleId: 'invalid-emd',
+        message: `ecmarkdown failed to parse: ${e.message}`,
+        node,
+      });
+    }
+    processed = `#### ECMARKDOWN PARSE FAILED ###<pre>${c}</pre>`;
+  }
+
   const template = spec.doc.createElement('template');
-  template.innerHTML = emd.fragment(c);
+  template.innerHTML = processed;
 
   replaceTextNode(node, template.content);
 }

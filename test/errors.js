@@ -326,4 +326,22 @@ ${M}      </pre>
       }
     );
   });
+
+  it('ecmarkdown failed', async () => {
+    await assertError(
+      positioned`
+      <p>
+      text:${M}
+
+
+      more text.
+      </p>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'text',
+        message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
+      }
+    );
+  });
 });
