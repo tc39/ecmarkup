@@ -333,13 +333,27 @@ ${M}      </pre>
       <p>
       text:${M}
 
-
       more text.
       </p>
       `,
       {
         ruleId: 'invalid-emd',
         nodeType: 'text',
+        message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
+      }
+    );
+  });
+
+  it('ecmarkdown failed: equation', async () => {
+    await assertError(
+      positioned`
+      <emu-eqn>text:${M}
+
+      more text.</emu-eqn>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'emu-eqn',
         message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
       }
     );
