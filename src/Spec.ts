@@ -128,7 +128,7 @@ function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) 
       nodeType = 'html';
     } else {
       if (e.type === 'node') {
-        if (e.node.nodeType === 3) {
+        if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
           let loc = dom.nodeLocation(e.node);
           if (loc == null) {
             throw new Error(
@@ -149,7 +149,7 @@ function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) 
       } else if (e.type === 'contents') {
         let { nodeRelativeLine, nodeRelativeColumn } = e;
 
-        if (e.node.nodeType === 3) {
+        if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
           // i.e. a text node, which does not have a tag
           let loc = dom.nodeLocation(e.node);
           if (loc == null) {

@@ -31,6 +31,10 @@ export function warnEmdFailure(
   }
 }
 
+export function wrapEmdFailure(src: string) {
+  return `#### ECMARKDOWN PARSE FAILED ####<pre>${src}</pre>`;
+}
+
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Text) {
   let c = node.textContent!.replace(/</g, '&lt;');
@@ -40,7 +44,7 @@ export function emdTextNode(spec: Spec, node: Text) {
     processed = emd.fragment(c);
   } catch (e) {
     warnEmdFailure(spec.warn, node, e);
-    processed = `#### ECMARKDOWN PARSE FAILED ###<pre>${c}</pre>`;
+    processed = wrapEmdFailure(c);
   }
 
   const template = spec.doc.createElement('template');

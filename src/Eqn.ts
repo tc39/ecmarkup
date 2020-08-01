@@ -50,7 +50,7 @@ export default class Eqn extends Builder {
       contents = emd.fragment(node.innerHTML);
     } catch (e) {
       utils.warnEmdFailure(spec.warn, node, e);
-      node.innerHTML = `#### ECMARKDOWN PARSE FAILED ###<pre>${node.innerHTML}</pre>`;
+      node.innerHTML = utils.wrapEmdFailure(node.innerHTML);
       return;
     }
 

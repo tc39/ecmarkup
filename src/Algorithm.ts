@@ -3,7 +3,7 @@ import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
-import { warnEmdFailure } from './utils';
+import { warnEmdFailure, wrapEmdFailure } from './utils';
 import * as emd from 'ecmarkdown';
 
 function findLabeledSteps(root: EcmarkdownNode) {
@@ -37,7 +37,7 @@ export default class Algorithm extends Builder {
       }
     }
     if (emdTree == null) {
-      node.innerHTML = `#### ECMARKDOWN PARSE FAILED ###<pre>${innerHTML}</pre>`;
+      node.innerHTML = wrapEmdFailure(innerHTML);
       return;
     }
 
