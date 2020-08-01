@@ -5,7 +5,7 @@ import type { Warning } from '../Spec';
 
 import { parseAlgorithm, visit } from 'ecmarkdown';
 
-import { getLocation } from '../utils';
+import { getLocation, warnEmdFailure } from '../utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
@@ -59,7 +59,7 @@ export function collectAlgorithmDiagnostics(
         message,
         node: element,
         nodeRelativeLine: line,
-        nodeRelativeColumn: column + 1, // since EMD columns are 1-based
+        nodeRelativeColumn: column,
       });
     };
 
@@ -70,8 +70,16 @@ export function collectAlgorithmDiagnostics(
     let observer = composeObservers(
       ...algorithmRules.map(f => f(reporter, element, algorithmSource))
     );
-    let tree = parseAlgorithm(algorithmSource, { trackPositions: true });
-    visit(tree, observer);
+    let tree;
+    try {
+      tree = parseAlgorithm(algorithmSource);
+    } catch (e) {
+      warnEmdFailure(report, element, e);
+    }
+    if (tree != null) {
+      visit(tree, observer);
+    }
+
     algorithm.tree = tree;
   }
 }

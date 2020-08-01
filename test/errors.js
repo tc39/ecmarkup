@@ -326,4 +326,63 @@ ${M}      </pre>
       }
     );
   });
+
+  it('ecmarkdown failed: fragment', async () => {
+    await assertError(
+      positioned`
+      <p>
+      text:${M}
+
+      more text.
+      </p>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'text',
+        message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
+      }
+    );
+  });
+
+  it('ecmarkdown failed: equation', async () => {
+    await assertError(
+      positioned`
+      <emu-eqn>text:${M}
+
+      more text.</emu-eqn>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'emu-eqn',
+        message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
+      }
+    );
+  });
+
+  it('ecmarkdown failed: algorithm', async () => {
+    await assertError(
+      positioned`
+      <emu-alg>${M}This is not an algrithm</emu-alg>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'emu-alg',
+        message: 'ecmarkdown failed to parse: Unexpected token text; expected ol',
+      }
+    );
+  });
+
+  it('ecmarkdown failed: algorithm with linting enabled', async () => {
+    await assertError(
+      positioned`
+      <emu-alg>${M}This is not an algrithm</emu-alg>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'emu-alg',
+        message: 'ecmarkdown failed to parse: Unexpected token text; expected ol',
+      },
+      { lintSpec: true }
+    );
+  });
 });

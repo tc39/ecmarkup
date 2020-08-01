@@ -7,12 +7,48 @@ import * as chalk from 'chalk';
 import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
 
+export function warnEmdFailure(
+  report: Spec['warn'],
+  node: Element | Text,
+  e: SyntaxError & { line?: number; column?: number }
+) {
+  if (typeof e.line === 'number' && typeof e.column === 'number') {
+    report({
+      type: 'contents',
+      ruleId: 'invalid-emd',
+      message: `ecmarkdown failed to parse: ${e.message}`,
+      node,
+      nodeRelativeLine: e.line,
+      nodeRelativeColumn: e.column,
+    });
+  } else {
+    report({
+      type: 'node',
+      ruleId: 'invalid-emd',
+      message: `ecmarkdown failed to parse: ${e.message}`,
+      node,
+    });
+  }
+}
+
+export function wrapEmdFailure(src: string) {
+  return `#### ECMARKDOWN PARSE FAILED ####<pre>${src}</pre>`;
+}
+
 /*@internal*/
-export function emdTextNode(spec: Spec, node: Node) {
+export function emdTextNode(spec: Spec, node: Text) {
   let c = node.textContent!.replace(/</g, '&lt;');
 
+  let processed;
+  try {
+    processed = emd.fragment(c);
+  } catch (e) {
+    warnEmdFailure(spec.warn, node, e);
+    processed = wrapEmdFailure(c);
+  }
+
   const template = spec.doc.createElement('template');
-  template.innerHTML = emd.fragment(c);
+  template.innerHTML = processed;
 
   replaceTextNode(node, template.content);
 }

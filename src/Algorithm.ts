@@ -3,6 +3,7 @@ import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
+import { warnEmdFailure, wrapEmdFailure } from './utils';
 import * as emd from 'ecmarkdown';
 
 function findLabeledSteps(root: EcmarkdownNode) {
@@ -25,11 +26,20 @@ export default class Algorithm extends Builder {
 
     let innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
 
-    // prettier-ignore
-    const emdTree =
-      'ecmarkdownTree' in node
-        ? (node as any).ecmarkdownTree
-        : emd.parseAlgorithm(innerHTML, { trackPositions: true });
+    let emdTree;
+    if ('ecmarkdownTree' in node) {
+      emdTree = (node as any).ecmarkdownTree;
+    } else {
+      try {
+        emdTree = emd.parseAlgorithm(innerHTML);
+      } catch (e) {
+        warnEmdFailure(spec.warn, node, e);
+      }
+    }
+    if (emdTree == null) {
+      node.innerHTML = wrapEmdFailure(innerHTML);
+      return;
+    }
 
     const rawHtml = emd.emit(emdTree);
 
@@ -59,7 +69,7 @@ export default class Algorithm extends Builder {
             'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
           node,
           nodeRelativeLine: step.location!.start.line,
-          nodeRelativeColumn: step.location!.start.column + 1 + offset, // + 1 because ecmarkdown has 0-based columns; todo remove
+          nodeRelativeColumn: step.location!.start.column + offset,
         });
       }
     }

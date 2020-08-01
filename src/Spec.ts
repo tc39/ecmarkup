@@ -86,7 +86,7 @@ export type Warning =
     }
   | {
       type: 'node';
-      node: Element;
+      node: Text | Element;
       ruleId: string;
       message: string;
     }
@@ -99,7 +99,7 @@ export type Warning =
     }
   | {
       type: 'contents';
-      node: Element;
+      node: Text | Element;
       ruleId: string;
       message: string;
       nodeRelativeLine: number;
@@ -116,46 +116,79 @@ export type Warning =
 function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) {
   return (e: Warning) => {
     let { message, ruleId } = e;
-    let line: number | undefined, column: number | undefined;
+    let line: number | undefined;
+    let column: number | undefined;
+    let nodeType: string;
     if (e.type === 'global') {
       line = undefined;
       column = undefined;
+      nodeType = 'html';
     } else if (e.type === 'raw') {
       ({ line, column } = e);
+      nodeType = 'html';
     } else {
-      let nodeLoc = utils.getLocation(dom, e.node);
       if (e.type === 'node') {
-        ({ line, col: column } = nodeLoc.startTag);
+        if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
+          let loc = dom.nodeLocation(e.node);
+          if (loc == null) {
+            throw new Error(
+              'Could not find location for text node. This is a bug in ecmarkdown; please report it.'
+            );
+          }
+          ({ line, col: column } = loc);
+          nodeType = 'text';
+        } else {
+          let nodeLoc = utils.getLocation(dom, e.node as Element);
+          ({ line, col: column } = nodeLoc.startTag);
+          nodeType = (e.node as Element).tagName.toLowerCase();
+        }
       } else if (e.type === 'attr') {
+        let nodeLoc = utils.getLocation(dom, e.node);
         ({ line, column } = utils.attrValueLocation(source, nodeLoc, e.attr));
+        nodeType = e.node.tagName.toLowerCase();
       } else if (e.type === 'contents') {
         let { nodeRelativeLine, nodeRelativeColumn } = e;
 
-        // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
-        // TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
-        let tagSrc = source.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
-        let tagEnd = utils.offsetToLineAndColumn(
-          tagSrc,
-          nodeLoc.startTag.endOffset - nodeLoc.startOffset
-        );
-        line = nodeLoc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
-        if (nodeRelativeLine === 1) {
-          if (tagEnd.line === 1) {
-            column = nodeLoc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
-          } else {
-            column = tagEnd.column + nodeRelativeColumn - 1;
+        if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
+          // i.e. a text node, which does not have a tag
+          let loc = dom.nodeLocation(e.node);
+          if (loc == null) {
+            throw new Error(
+              'Could not find location for text node. This is a bug in ecmarkdown; please report it.'
+            );
           }
+          line = loc.line + nodeRelativeLine - 1;
+          column = nodeRelativeLine === 1 ? loc.col + nodeRelativeColumn - 1 : nodeRelativeColumn;
+          nodeType = 'text';
         } else {
-          column = nodeRelativeColumn;
+          let nodeLoc = utils.getLocation(dom, e.node as Element);
+          // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
+          // TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
+          let tagSrc = source.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
+          let tagEnd = utils.offsetToLineAndColumn(
+            tagSrc,
+            nodeLoc.startTag.endOffset - nodeLoc.startOffset
+          );
+          line = nodeLoc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
+          if (nodeRelativeLine === 1) {
+            if (tagEnd.line === 1) {
+              column = nodeLoc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
+            } else {
+              column = tagEnd.column + nodeRelativeColumn - 1;
+            }
+          } else {
+            column = nodeRelativeColumn;
+          }
+          nodeType = (e.node as Element).tagName.toLowerCase();
         }
       }
     }
 
-    let nodeType = e.type === 'global' || e.type === 'raw' ? 'html' : e.node.tagName.toLowerCase();
     warn({
       message,
       ruleId,
       source: e.type === 'global' ? undefined : source,
+      // @ts-ignore TS can't prove this is initialized, for some reason
       nodeType,
       // @ts-ignore TS can't prove this is initialized, for some reason
       line,
@@ -924,7 +957,7 @@ function walk(walker: TreeWalker, context: Context) {
       }
       // else, inNoEmd will just continue to the end of the file
 
-      utils.emdTextNode(context.spec, context.node);
+      utils.emdTextNode(context.spec, (context.node as unknown) as Text);
     }
 
     if (!context.inNoAutolink) {
