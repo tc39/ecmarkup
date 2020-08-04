@@ -6,7 +6,6 @@ const ruleId = 'header-format';
 
 export function collectHeaderDiagnostics(
   report: (e: Warning) => void,
-  dom: any,
   headers: { element: Element; contents: string }[]
 ) {
   for (let { element, contents } of headers) {

@@ -3,6 +3,7 @@ import type { EcmarkupError, Options } from './ecmarkup';
 import { argParser } from './args';
 const args = argParser.parse();
 
+import * as path from 'path';
 import * as fs from 'fs';
 import * as ecmarkup from './ecmarkup';
 import * as utils from './utils';
@@ -42,8 +43,9 @@ const build = debounce(async function build() {
     let warnings: EcmarkupError[] = [];
     opts.warn = err => {
       warned = true;
+      let file = normalizePath(args.infile, err.file);
       // prettier-ignore
-      let message = `${args.strict ? 'Error' : 'Warning'}: ${args.infile}:${err.line == null ? '' : `${err.line}:${err.column}:`} ${err.message}`;
+      let message = `${args.strict ? 'Error' : 'Warning'}: ${file}:${err.line == null ? '' : `${err.line}:${err.column}:`} ${err.message}`;
       utils.logWarning(message);
       warnings.push(err);
     };
@@ -63,8 +65,12 @@ const build = debounce(async function build() {
     }
 
     if (args.verbose && warned) {
-      // TODO allow warnings to have different corresponding files, sort by file as well
       warnings.sort((a, b) => {
+        let aPath = normalizePath(args.infile, a.file);
+        let bPath = normalizePath(args.infile, b.file);
+        if (aPath !== bPath) {
+          return aPath.localeCompare(bPath);
+        }
         if (a.line === b.line) {
           if (a.column === b.column) {
             return 0;
@@ -86,7 +92,7 @@ const build = debounce(async function build() {
         return a.line - b.line;
       });
       let results = warnings.map(err => ({
-        filePath: args.infile,
+        filePath: normalizePath(args.infile, err.file),
         messages: [{ severity: args.strict ? 2 : 1, ...err }],
         errorCount: args.strict ? 1 : 0,
         warningCount: args.strict ? 0 : 1,
@@ -153,3 +159,7 @@ build().catch(e => {
   console.error(e);
   process.exit(1);
 });
+
+function normalizePath(root: string, relative: string | undefined) {
+  return path.relative(process.cwd(), relative ?? root);
+}

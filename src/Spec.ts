@@ -1,3 +1,4 @@
+import type { MarkupData } from 'parse5';
 import type { EcmarkupError, Options } from './ecmarkup';
 import type { Context } from './Context';
 import type { BiblioData, StepBiblioEntry } from './Biblio';
@@ -111,14 +112,17 @@ export type Warning =
       message: string;
       line: number;
       column: number;
+      file?: string;
+      source?: string;
     };
 
-function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) {
+function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void) {
   return (e: Warning) => {
     let { message, ruleId } = e;
     let line: number | undefined;
     let column: number | undefined;
     let nodeType: string;
+    let file: string | undefined = undefined;
     if (e.type === 'global') {
       line = undefined;
       column = undefined;
@@ -126,53 +130,67 @@ function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) 
     } else if (e.type === 'raw') {
       ({ line, column } = e);
       nodeType = 'html';
+      if (e.file != null) {
+        file = e.file;
+        source = e.source!;
+      }
     } else {
       if (e.type === 'node') {
         if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
-          let loc = dom.nodeLocation(e.node);
-          if (loc == null) {
-            throw new Error(
-              'Could not find location for text node. This is a bug in ecmarkdown; please report it.'
-            );
+          let loc = spec.locate(e.node);
+          file = loc.file;
+          if (loc.source != null) {
+            source = loc.source;
           }
           ({ line, col: column } = loc);
           nodeType = 'text';
         } else {
-          let nodeLoc = utils.getLocation(dom, e.node as Element);
-          ({ line, col: column } = nodeLoc.startTag);
+          let loc = spec.locate(e.node as Element);
+          file = loc.file;
+          if (loc.source != null) {
+            source = loc.source;
+          }
+          ({ line, col: column } = loc.startTag);
           nodeType = (e.node as Element).tagName.toLowerCase();
         }
       } else if (e.type === 'attr') {
-        let nodeLoc = utils.getLocation(dom, e.node);
-        ({ line, column } = utils.attrValueLocation(source, nodeLoc, e.attr));
+        let loc = spec.locate(e.node);
+        file = loc.file;
+        if (loc.source != null) {
+          source = loc.source;
+        }
+        ({ line, column } = utils.attrValueLocation(source, loc, e.attr));
         nodeType = e.node.tagName.toLowerCase();
       } else if (e.type === 'contents') {
         let { nodeRelativeLine, nodeRelativeColumn } = e;
 
         if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
           // i.e. a text node, which does not have a tag
-          let loc = dom.nodeLocation(e.node);
-          if (loc == null) {
-            throw new Error(
-              'Could not find location for text node. This is a bug in ecmarkdown; please report it.'
-            );
+          let loc = spec.locate(e.node);
+          file = loc.file;
+          if (loc.source != null) {
+            source = loc.source;
           }
           line = loc.line + nodeRelativeLine - 1;
           column = nodeRelativeLine === 1 ? loc.col + nodeRelativeColumn - 1 : nodeRelativeColumn;
           nodeType = 'text';
         } else {
-          let nodeLoc = utils.getLocation(dom, e.node as Element);
+          let loc = spec.locate(e.node);
+          file = loc.file;
+          if (loc.source != null) {
+            source = loc.source;
+          }
           // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
-          // TODO switch to using nodeLoc.startTag.end{Line,Col} once parse5 can be upgraded
-          let tagSrc = source.slice(nodeLoc.startTag.startOffset, nodeLoc.startTag.endOffset);
+          // TODO switch to using loc.startTag.end{Line,Col} once parse5 can be upgraded
+          let tagSrc = source.slice(loc.startTag.startOffset, loc.startTag.endOffset);
           let tagEnd = utils.offsetToLineAndColumn(
             tagSrc,
-            nodeLoc.startTag.endOffset - nodeLoc.startOffset
+            loc.startTag.endOffset - loc.startOffset
           );
-          line = nodeLoc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
+          line = loc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
           if (nodeRelativeLine === 1) {
             if (tagEnd.line === 1) {
-              column = nodeLoc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
+              column = loc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
             } else {
               column = tagEnd.column + nodeRelativeColumn - 1;
             }
@@ -187,7 +205,9 @@ function wrapWarn(source: string, dom: any, warn: (err: EcmarkupError) => void) 
     warn({
       message,
       ruleId,
+      // we omit source for global errors so that we don't get a codeframe
       source: e.type === 'global' ? undefined : source,
+      file,
       // @ts-ignore TS can't prove this is initialized, for some reason
       nodeType,
       // @ts-ignore TS can't prove this is initialized, for some reason
@@ -254,7 +274,7 @@ export default class Spec {
     this.replacementAlgorithms = [];
     this.cancellationToken = token;
     this.log = opts.log ?? (() => {});
-    this.warn = opts.warn ? wrapWarn(sourceText!, dom, opts.warn) : () => {};
+    this.warn = opts.warn ? wrapWarn(sourceText!, this, opts.warn) : () => {};
     this._figureCounts = {
       table: 0,
       figure: 0,
@@ -357,7 +377,7 @@ export default class Spec {
       if (source === undefined) {
         throw new Error('Cannot lint when source text is not available');
       }
-      lint(this.warn, source, this.dom, document);
+      lint(this.warn, source, this, document);
     }
 
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
@@ -403,6 +423,48 @@ export default class Spec {
   public toHTML() {
     let htmlEle = this.doc.documentElement;
     return '<!doctype html>\n' + (htmlEle.hasAttributes() ? htmlEle.outerHTML : htmlEle.innerHTML);
+  }
+
+  public locate(
+    node: Element | Node
+  ): { file?: string; source?: string } & MarkupData.ElementLocation {
+    let pointer: Element | Node | null = node;
+    while (pointer != null) {
+      if (pointer.nodeName === 'EMU-IMPORT') {
+        break;
+      }
+      pointer = pointer.parentElement;
+    }
+    if (pointer == null) {
+      let loc = this.dom.nodeLocation(node);
+      // we can't just spread `loc` because not all properties are own/enumerable
+      return {
+        startTag: loc.startTag,
+        endTag: loc.endTag,
+        startOffset: loc.startOffset,
+        endOffset: loc.endOffset,
+        attrs: loc.attrs,
+        line: loc.line,
+        col: loc.col,
+      };
+    } else {
+      // @ts-ignore
+      let loc = pointer.dom.nodeLocation(node);
+
+      return {
+        // @ts-ignore
+        file: pointer.importPath,
+        // @ts-ignore
+        source: pointer.source,
+        startTag: loc.startTag,
+        endTag: loc.endTag,
+        startOffset: loc.startOffset,
+        endOffset: loc.endOffset,
+        attrs: loc.attrs,
+        line: loc.line,
+        col: loc.col,
+      };
+    }
   }
 
   private buildReferenceGraph() {

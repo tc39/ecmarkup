@@ -15,6 +15,7 @@ export class Boilerplate {
 export type EcmarkupError = {
   ruleId: string;
   message: string;
+  file?: string;
   source?: string;
   line?: number;
   column?: number;

@@ -155,6 +155,9 @@ export function offsetToLineAndColumn(string: string, offset: number) {
   let line = 0;
   let seen = 0;
   while (true) {
+    if (line >= lines.length) {
+      throw new Error(`offset ${offset} exceeded string ${JSON.stringify(string)}`);
+    }
     if (seen + lines[line].length >= offset) {
       break;
     }
@@ -163,14 +166,6 @@ export function offsetToLineAndColumn(string: string, offset: number) {
   }
   let column = offset - seen;
   return { line: line + 1, column: column + 1 };
-}
-
-export function getLocation(dom: any, node: Element): MarkupData.ElementLocation {
-  let loc = dom.nodeLocation(node);
-  if (!loc || !loc.startTag) {
-    throw new Error('could not find location: this is a bug in ecmarkdown; please report it');
-  }
-  return loc;
 }
 
 export function attrValueLocation(
