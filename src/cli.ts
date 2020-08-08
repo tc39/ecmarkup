@@ -43,7 +43,7 @@ const build = debounce(async function build() {
     let warnings: EcmarkupError[] = [];
     opts.warn = err => {
       warned = true;
-      let file = normalizePath(args.infile, err.file);
+      let file = normalizePath(err.file ?? args.infile);
       // prettier-ignore
       let message = `${args.strict ? 'Error' : 'Warning'}: ${file}:${err.line == null ? '' : `${err.line}:${err.column}:`} ${err.message}`;
       utils.logWarning(message);
@@ -66,8 +66,8 @@ const build = debounce(async function build() {
 
     if (args.verbose && warned) {
       warnings.sort((a, b) => {
-        let aPath = normalizePath(args.infile, a.file);
-        let bPath = normalizePath(args.infile, b.file);
+        let aPath = normalizePath(a.file ?? args.infile);
+        let bPath = normalizePath(a.file ?? args.infile);
         if (aPath !== bPath) {
           return aPath.localeCompare(bPath);
         }
@@ -92,7 +92,7 @@ const build = debounce(async function build() {
         return a.line - b.line;
       });
       let results = warnings.map(err => ({
-        filePath: normalizePath(args.infile, err.file),
+        filePath: normalizePath(err.file ?? args.infile),
         messages: [{ severity: args.strict ? 2 : 1, ...err }],
         errorCount: args.strict ? 1 : 0,
         warningCount: args.strict ? 0 : 1,
@@ -160,6 +160,6 @@ build().catch(e => {
   process.exit(1);
 });
 
-function normalizePath(root: string, relative: string | undefined) {
-  return path.relative(process.cwd(), relative ?? root);
+function normalizePath(absolute: string) {
+  return path.relative(process.cwd(), absolute);
 }
