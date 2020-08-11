@@ -228,7 +228,7 @@ function Menu() {
   this.$specContainer = document.getElementById('spec-container');
   this.search = new Search(this);
 
-  this._pinnedIds = {}; 
+  this._pinnedIds = {};
   this.loadPinEntries();
 
   // toggle menu
@@ -307,7 +307,7 @@ Menu.prototype.revealInToc = function (path) {
   while (index < path.length) {
     var children = current.children;
     for (var i = 0; i < children.length; i++) {
-      if ('#' + path[index].id === children[i].children[1].getAttribute('href') ) {
+      if (path[index].id === children[i].children[1].getAttribute('href').split('#')[1]) {
         children[i].classList.add('revealed');
         if (index === path.length - 1) {
           children[i].classList.add('revealed-leaf');

@@ -19,6 +19,11 @@ export const argParser = nomnom
     jsOut: { full: 'js-out', metavar: 'FILE', help: 'Write Emu JS dependencies to FILE' },
     toc: { flag: true, help: "Don't include the table of contents" },
     oldToc: { full: 'old-toc', flag: true, help: 'Use the old table of contents styling' },
+    multipage: {
+      flag: true,
+      default: false,
+      help: 'Build a multipage version of the document alongside the default output',
+    },
     lintSpec: {
       full: 'lint-spec',
       flag: true,

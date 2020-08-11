@@ -36,6 +36,7 @@ export interface Options {
   lintSpec?: boolean;
   cssOut?: string;
   jsOut?: string;
+  multipage?: boolean;
   assets?: 'none' | 'inline' | 'external';
   outfile?: string;
   boilerplate?: Boilerplate;
