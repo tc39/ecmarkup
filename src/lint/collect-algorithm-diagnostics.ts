@@ -34,12 +34,12 @@ function composeObservers(...observers: Observer[]): Observer {
 export function collectAlgorithmDiagnostics(
   report: (e: Warning) => void,
   spec: Spec,
-  sourceText: string,
+  mainSource: string,
   algorithms: { element: Element; tree?: EcmarkdownNode }[]
 ) {
   for (let algorithm of algorithms) {
     let element = algorithm.element;
-    let { source, ...location } = spec.locate(element);
+    let { source: importSource, ...location } = spec.locate(element);
 
     if (location.endTag == null) {
       report({
@@ -63,7 +63,7 @@ export function collectAlgorithmDiagnostics(
       });
     };
 
-    let algorithmSource = (source ?? sourceText).slice(
+    let algorithmSource = (importSource ?? mainSource).slice(
       location.startTag.endOffset,
       location.endTag.startOffset
     );
