@@ -113,7 +113,10 @@ export function collectGrammarDiagnostics(
     }
 
     let grammarHost = SyncHost.forFile(
-      (importSource ?? mainSource).slice(grammarLoc.startTag.endOffset, grammarLoc.endTag.startOffset)
+      (importSource ?? mainSource).slice(
+        grammarLoc.startTag.endOffset,
+        grammarLoc.endTag.startOffset
+      )
     );
     let grammar = new GrammarFile([grammarHost.file], {}, grammarHost);
     grammar.parseSync();
