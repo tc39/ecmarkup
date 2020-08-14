@@ -18,7 +18,7 @@ import { getProductions, rhsMatches } from './utils';
 export function collectGrammarDiagnostics(
   report: (e: Warning) => void,
   spec: Spec,
-  sourceText: string,
+  mainSource: string,
   mainGrammar: { element: Element; source: string }[],
   sdos: { grammar: Element; alg: Element }[],
   earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[]
@@ -100,7 +100,7 @@ export function collectGrammarDiagnostics(
     ...earlyErrors.map(e => ({ grammar: e.grammar, rules: e.lists, type: 'early error' })),
   ];
   for (let { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
-    let { source, ...grammarLoc } = spec.locate(grammarEle);
+    let { source: importSource, ...grammarLoc } = spec.locate(grammarEle);
 
     if (grammarLoc.endTag == null) {
       report({
@@ -113,7 +113,7 @@ export function collectGrammarDiagnostics(
     }
 
     let grammarHost = SyncHost.forFile(
-      (source ?? sourceText).slice(grammarLoc.startTag.endOffset, grammarLoc.endTag.startOffset)
+      (importSource ?? mainSource).slice(grammarLoc.startTag.endOffset, grammarLoc.endTag.startOffset)
     );
     let grammar = new GrammarFile([grammarHost.file], {}, grammarHost);
     grammar.parseSync();

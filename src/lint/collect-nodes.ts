@@ -17,7 +17,7 @@ type CollectNodesReturnType =
 
 export function collectNodes(
   report: (e: Warning) => void,
-  sourceText: string,
+  mainSource: string,
   spec: Spec,
   document: Document
 ): CollectNodesReturnType {
@@ -87,7 +87,7 @@ export function collectNodes(
       } else if (node.nodeName === 'EMU-GRAMMAR') {
         // Look for grammar definitions and SDOs
         if (node.getAttribute('type') === 'definition') {
-          let { source, ...loc } = spec.locate(node);
+          let { source: importSource, ...loc } = spec.locate(node);
           if (loc.endTag == null) {
             failed = true;
             report({
@@ -99,7 +99,7 @@ export function collectNodes(
           } else {
             let start = loc.startTag.endOffset;
             let end = loc.endTag.startOffset;
-            let realSource = (source ?? sourceText).slice(start, end);
+            let realSource = (importSource ?? mainSource).slice(start, end);
             mainGrammar.push({ element: node as Element, source: realSource });
           }
         } else if (node.getAttribute('type') !== 'example') {

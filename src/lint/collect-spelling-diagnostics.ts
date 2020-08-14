@@ -60,12 +60,12 @@ let matchers = [
 
 export function collectSpellingDiagnostics(
   report: (e: Warning) => void,
-  sourceText: string,
+  mainSource: string,
   imports: Import[]
 ) {
   let composed = new RegExp(matchers.map(m => `(?:${m.pattern.source})`).join('|'), 'u');
 
-  let toTest: { source: string; importLocation?: string }[] = [{ source: sourceText }].concat(
+  let toTest: { source: string; importLocation?: string }[] = [{ source: mainSource }].concat(
     imports
   );
   for (let { source, importLocation } of toTest) {
