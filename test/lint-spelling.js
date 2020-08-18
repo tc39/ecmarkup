@@ -184,6 +184,20 @@ windows:${M}\r
     );
   });
 
+  it('clause numbers', async function () {
+    await assertLint(
+      positioned`
+        See clause ${M}1.
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message:
+          'clauses should be referenced using <emu-xref> tags rather than hardcoding clause numbers',
+      }
+    );
+  });
+
   it('negative', async function () {
     await assertLintFree(`
       <p>
@@ -206,7 +220,9 @@ windows:${M}\r
       <emu-alg>
         1. [id="step-label"] Foo.
       </emu-alg>
-      Something about step <emu-xref href="#step-label"></emu-xref>.
+      <p>Something about step <emu-xref href="#step-label"></emu-xref>.</p>
+      <p>See clause <emu-xref href="#example"></emu-xref>.</p>
+
     `);
   });
 });
