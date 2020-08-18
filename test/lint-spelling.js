@@ -211,6 +211,32 @@ windows:${M}\r
     );
   });
 
+  it('leading whitespace within tags', async function () {
+    await assertLint(
+      positioned`
+        <p>${M} This is an example.</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'tags should not contain leading whitespace',
+      }
+    );
+  });
+
+  it('trailing whitespace within tags', async function () {
+    await assertLint(
+      positioned`
+        <p>This is an example:${M} </p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'tags should not contain trailing whitespace',
+      }
+    );
+  });
+
   it('negative', async function () {
     await assertLintFree(`
       <p>
@@ -241,6 +267,9 @@ windows:${M}\r
       <td> Also to pad them a bit, in some cases.                   </td>
       </tr></table>
 
+      <p>
+        Paragraphs with the open/close tags on their own line are OK.
+      </p>
     `);
   });
 });

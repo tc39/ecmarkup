@@ -58,7 +58,7 @@ describe('linting whole program', function () {
     it('error in inline grammar', async function () {
       await assertLint(
         positioned`
-          <emu-grammar type="definition"> Statement[${M}a]: \`;\` </emu-grammar>
+          <emu-grammar type="definition">Statement[${M}a]: \`;\`</emu-grammar>
         `,
         {
           ruleId: 'grammarkdown:2008',
@@ -91,7 +91,7 @@ describe('linting whole program', function () {
     it('error in inline grammar', async function () {
       await assertLint(
         positioned`
-          <emu-grammar> ${M}Statement: EmptyStatement </emu-grammar>
+          <emu-grammar>${M}Statement: EmptyStatement</emu-grammar>
           <emu-alg>
             1. Return Foo.
           </emu-alg>
