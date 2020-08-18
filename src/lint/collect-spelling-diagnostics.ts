@@ -61,6 +61,10 @@ let matchers = [
     message:
       'clauses should be referenced using <emu-xref> tags rather than hardcoding clause numbers',
   },
+  {
+    pattern: /(?<=\S)  +(?! |<\/(td|th|dd|dt)>)/gu,
+    message: 'multiple consecutive spaces are not allowed',
+  },
 ];
 
 export function collectSpellingDiagnostics(

@@ -156,18 +156,6 @@ describe('linting whole program', function () {
           message: 'expected header to have a single space before the argument list',
         }
       );
-
-      await assertLint(
-        positioned`
-          <emu-clause id="foo">
-            <h1>Example ${M} ( )</h1>
-        `,
-        {
-          ruleId: 'header-format',
-          nodeType: 'h1',
-          message: 'expected header to have a single space before the argument list',
-        }
-      );
     });
 
     it('arg format', async function () {

@@ -84,7 +84,7 @@ describe('spelling', function () {
   it('trailing whitespace', async function () {
     await assertLint(
       positioned`
-        <p>something</p>${M}  
+        <p>something</p>${M} 
       `,
       {
         ruleId: 'spelling',
@@ -198,6 +198,19 @@ windows:${M}\r
     );
   });
 
+  it('multiple internal spaces', async function () {
+    await assertLint(
+      positioned`
+        I am writing on a typewriter.${M}  In the 21st century, for some reason.
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'multiple consecutive spaces are not allowed',
+      }
+    );
+  });
+
   it('negative', async function () {
     await assertLintFree(`
       <p>
@@ -222,6 +235,11 @@ windows:${M}\r
       </emu-alg>
       <p>Something about step <emu-xref href="#step-label"></emu-xref>.</p>
       <p>See clause <emu-xref href="#example"></emu-xref>.</p>
+
+      <table><tr><td>Spaces for aligning table cells are acceptable.</td>
+      <td> For example, it is nice for these to line up.            </td>
+      <td> Also to pad them a bit, in some cases.                   </td>
+      </tr></table>
 
     `);
   });
