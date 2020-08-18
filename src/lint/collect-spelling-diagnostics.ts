@@ -56,6 +56,11 @@ let matchers = [
     pattern: /(?<=\b[Ss]teps? )\d/gu,
     message: 'prefer using labeled steps and <emu-xref> tags over hardcoding step numbers',
   },
+  {
+    pattern: /(?<=\b[Cc]lauses? )\d/gu,
+    message:
+      'clauses should be referenced using <emu-xref> tags rather than hardcoding clause numbers',
+  },
 ];
 
 export function collectSpellingDiagnostics(
