@@ -1,8 +1,6 @@
-import type { Warning } from '../Spec';
+import type { default as Spec, Warning } from '../Spec';
 
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
-
-import { getLocation } from '../utils';
 
 type CollectNodesReturnType =
   | {
@@ -19,8 +17,8 @@ type CollectNodesReturnType =
 
 export function collectNodes(
   report: (e: Warning) => void,
-  sourceText: string,
-  dom: any,
+  mainSource: string,
+  spec: Spec,
   document: Document
 ): CollectNodesReturnType {
   let headers: { element: Element; contents: string }[] = [];
@@ -89,7 +87,7 @@ export function collectNodes(
       } else if (node.nodeName === 'EMU-GRAMMAR') {
         // Look for grammar definitions and SDOs
         if (node.getAttribute('type') === 'definition') {
-          let loc = getLocation(dom, node);
+          let { source: importSource, ...loc } = spec.locate(node);
           if (loc.endTag == null) {
             failed = true;
             report({
@@ -101,7 +99,7 @@ export function collectNodes(
           } else {
             let start = loc.startTag.endOffset;
             let end = loc.endTag.startOffset;
-            let realSource = sourceText.slice(start, end);
+            let realSource = (importSource ?? mainSource).slice(start, end);
             mainGrammar.push({ element: node as Element, source: realSource });
           }
         } else if (node.getAttribute('type') !== 'example') {

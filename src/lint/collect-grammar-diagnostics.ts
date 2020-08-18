@@ -1,4 +1,4 @@
-import type { Warning } from '../Spec';
+import type { default as Spec, Warning } from '../Spec';
 
 import {
   Grammar as GrammarFile,
@@ -14,12 +14,11 @@ import {
 } from 'grammarkdown';
 
 import { getProductions, rhsMatches } from './utils';
-import { getLocation } from '../utils';
 
 export function collectGrammarDiagnostics(
   report: (e: Warning) => void,
-  dom: any,
-  sourceText: string,
+  spec: Spec,
+  mainSource: string,
   mainGrammar: { element: Element; source: string }[],
   sdos: { grammar: Element; alg: Element }[],
   earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[]
@@ -101,7 +100,7 @@ export function collectGrammarDiagnostics(
     ...earlyErrors.map(e => ({ grammar: e.grammar, rules: e.lists, type: 'early error' })),
   ];
   for (let { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
-    let grammarLoc = getLocation(dom, grammarEle);
+    let { source: importSource, ...grammarLoc } = spec.locate(grammarEle);
 
     if (grammarLoc.endTag == null) {
       report({
@@ -114,7 +113,10 @@ export function collectGrammarDiagnostics(
     }
 
     let grammarHost = SyncHost.forFile(
-      sourceText.slice(grammarLoc.startTag.endOffset, grammarLoc.endTag.startOffset)
+      (importSource ?? mainSource).slice(
+        grammarLoc.startTag.endOffset,
+        grammarLoc.endTag.startOffset
+      )
     );
     let grammar = new GrammarFile([grammarHost.file], {}, grammarHost);
     grammar.parseSync();

@@ -1,4 +1,4 @@
-import type { Warning } from '../Spec';
+import type { default as Spec, Warning } from '../Spec';
 
 import { collectNodes } from './collect-nodes';
 import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
@@ -21,10 +21,10 @@ https://github.com/tc39/ecmarkup/issues/173
 export function lint(
   report: (err: Warning) => void,
   sourceText: string,
-  dom: any,
+  spec: Spec,
   document: Document
 ) {
-  let collection = collectNodes(report, sourceText, dom, document);
+  let collection = collectNodes(report, sourceText, spec, document);
   if (!collection.success) {
     return;
   }
@@ -32,18 +32,18 @@ export function lint(
 
   let { grammar } = collectGrammarDiagnostics(
     report,
-    dom,
+    spec,
     sourceText,
     mainGrammar,
     sdos,
     earlyErrors
   );
 
-  collectAlgorithmDiagnostics(report, dom, sourceText, algorithms);
+  collectAlgorithmDiagnostics(report, spec, sourceText, algorithms);
 
-  collectHeaderDiagnostics(report, dom, headers);
+  collectHeaderDiagnostics(report, headers);
 
-  collectSpellingDiagnostics(report, sourceText);
+  collectSpellingDiagnostics(report, sourceText, spec.imports);
 
   // Stash intermediate results for later use
   // This isn't actually necessary for linting, but we might as well avoid redoing work later when we can.

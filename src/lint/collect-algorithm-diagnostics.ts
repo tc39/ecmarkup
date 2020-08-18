@@ -1,11 +1,11 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
 
 import type { LintingError } from './algorithm-error-reporter-type';
-import type { Warning } from '../Spec';
+import type { default as Spec, Warning } from '../Spec';
 
 import { parseAlgorithm, visit } from 'ecmarkdown';
 
-import { getLocation, warnEmdFailure } from '../utils';
+import { warnEmdFailure } from '../utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
@@ -33,13 +33,13 @@ function composeObservers(...observers: Observer[]): Observer {
 
 export function collectAlgorithmDiagnostics(
   report: (e: Warning) => void,
-  dom: any,
-  sourceText: string,
+  spec: Spec,
+  mainSource: string,
   algorithms: { element: Element; tree?: EcmarkdownNode }[]
 ) {
   for (let algorithm of algorithms) {
     let element = algorithm.element;
-    let location = getLocation(dom, element);
+    let { source: importSource, ...location } = spec.locate(element);
 
     if (location.endTag == null) {
       report({
@@ -63,7 +63,7 @@ export function collectAlgorithmDiagnostics(
       });
     };
 
-    let algorithmSource = sourceText.slice(
+    let algorithmSource = (importSource ?? mainSource).slice(
       location.startTag.endOffset,
       location.endTag.startOffset
     );

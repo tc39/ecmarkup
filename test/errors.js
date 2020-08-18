@@ -1,5 +1,8 @@
 'use strict';
 
+let assert = require('assert');
+let emu = require('../lib/ecmarkup');
+
 let { lintLocationMarker: M, positioned, assertError } = require('./utils.js');
 
 describe('errors', () => {
@@ -30,6 +33,9 @@ ${M}      </pre>
         nodeType: 'pre',
         message:
           'metadata block failed to parse: unexpected end of the stream within a double quoted scalar',
+      },
+      {
+        asImport: false,
       }
     );
   });
@@ -384,5 +390,58 @@ ${M}      </pre>
       },
       { lintSpec: true }
     );
+  });
+
+  it('error in nested import', async () => {
+    let warnings = [];
+
+    let { line, column, html } = positioned`
+      <emu-clause id="example">
+        <h1>Title</h1>
+        <emu-note type="${M}unknown"></emu-note>
+      </emu-clause>
+    `;
+    let fetch = name => {
+      switch (name) {
+        case 'foo/index.html': {
+          return `<emu-import href="bar/one.html"></emu-import>`;
+        }
+        case 'foo/bar/one.html': {
+          return `<emu-import href="../../baz/two.html"></emu-import>`;
+        }
+        case 'baz/two.html': {
+          return html;
+        }
+        default: {
+          throw new Error('unexpected file ' + name);
+        }
+      }
+    };
+    await emu.build('foo/index.html', fetch, {
+      ecma262Biblio: false,
+      copyright: false,
+      warn: e =>
+        warnings.push({
+          ruleId: e.ruleId,
+          nodeType: e.nodeType,
+          line: e.line,
+          column: e.column,
+          message: e.message,
+          file: e.file,
+          source: e.source,
+        }),
+    });
+
+    assert.deepStrictEqual(warnings, [
+      {
+        ruleId: 'invalid-note',
+        nodeType: 'emu-note',
+        message: 'unknown note type "unknown"',
+        line,
+        column,
+        file: 'baz/two.html',
+        source: line == null ? undefined : html,
+      },
+    ]);
   });
 });

@@ -1,4 +1,5 @@
 import type { Warning } from '../Spec';
+import type { default as Import } from '../Import';
 
 import { offsetToLineAndColumn } from '../utils';
 
@@ -57,32 +58,43 @@ let matchers = [
   },
 ];
 
-export function collectSpellingDiagnostics(report: (e: Warning) => void, sourceText: string) {
+export function collectSpellingDiagnostics(
+  report: (e: Warning) => void,
+  mainSource: string,
+  imports: Import[]
+) {
   let composed = new RegExp(matchers.map(m => `(?:${m.pattern.source})`).join('|'), 'u');
 
-  // The usual case will be to have no errors, so we have a fast path for that case.
-  // We only fall back to slower individual tests if there is at least one error.
-  if (composed.test(sourceText)) {
-    let reported = false;
-    for (let { pattern, message } of matchers) {
-      let match = pattern.exec(sourceText);
-      while (match !== null) {
-        reported = true;
-        let { line, column } = offsetToLineAndColumn(sourceText, match.index);
-        report({
-          type: 'raw',
-          ruleId,
-          line,
-          column,
-          message,
-        });
-        match = pattern.exec(sourceText);
+  let toTest: { source: string; importLocation?: string }[] = [{ source: mainSource }].concat(
+    imports
+  );
+  for (let { source, importLocation } of toTest) {
+    // The usual case will be to have no errors, so we have a fast path for that case.
+    // We only fall back to slower individual tests if there is at least one error.
+    if (composed.test(source)) {
+      let reported = false;
+      for (let { pattern, message } of matchers) {
+        let match = pattern.exec(source);
+        while (match !== null) {
+          reported = true;
+          let { line, column } = offsetToLineAndColumn(source, match.index);
+          report({
+            type: 'raw',
+            ruleId,
+            line,
+            column,
+            message,
+            source,
+            file: importLocation,
+          });
+          match = pattern.exec(source);
+        }
       }
-    }
-    if (!reported) {
-      throw new Error(
-        'Ecmarkup has a bug: the spell checker reported an error, but could not find one. Please report this at https://github.com/tc39/ecmarkup/issues/new.'
-      );
+      if (!reported) {
+        throw new Error(
+          'Ecmarkup has a bug: the spell checker reported an error, but could not find one. Please report this at https://github.com/tc39/ecmarkup/issues/new.'
+        );
+      }
     }
   }
 }

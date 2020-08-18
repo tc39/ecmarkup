@@ -31,7 +31,8 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
     typeof obj === 'string' ? { line: undefined, column: undefined, html: obj } : obj;
   let warnings = [];
 
-  await emu.build('test-example.emu', async () => html, {
+  let rootFile = 'test-example.emu';
+  await emu.build(rootFile, async () => html, {
     ecma262Biblio: false,
     copyright: false,
     warn: e =>
@@ -41,6 +42,8 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
         line: e.line,
         column: e.column,
         message: e.message,
+        file: e.file,
+        source: e.source,
       }),
     ...opts,
   });
@@ -52,6 +55,45 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
       line,
       column,
       message,
+      file: undefined,
+      source: line == null ? undefined : html,
+    },
+  ]);
+
+  if (opts != null && opts.asImport === false) {
+    return;
+  }
+
+  // because location information is complicated in imports, do it again in an emu-import
+  warnings = [];
+
+  let importWrapper = `<emu-import href="./import.emu"></emu-import>`;
+  let fetch = name => (name === rootFile ? importWrapper : html);
+  await emu.build(rootFile, fetch, {
+    ecma262Biblio: false,
+    copyright: false,
+    warn: e =>
+      warnings.push({
+        ruleId: e.ruleId,
+        nodeType: e.nodeType,
+        line: e.line,
+        column: e.column,
+        message: e.message,
+        file: e.file,
+        source: e.source,
+      }),
+    ...opts,
+  });
+
+  assert.deepStrictEqual(warnings, [
+    {
+      ruleId,
+      nodeType,
+      line,
+      column,
+      message,
+      file: line == null ? undefined : 'import.emu',
+      source: line == null ? undefined : html,
     },
   ]);
 }
