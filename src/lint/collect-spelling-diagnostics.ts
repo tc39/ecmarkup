@@ -9,19 +9,19 @@ let ruleId = 'spelling';
 let matchers = [
   {
     pattern: /\*this\* object/giu,
-    message: 'Prefer "*this* value"',
+    message: 'prefer "*this* value"',
   },
   {
     pattern: /1's complement/giu,
-    message: 'Prefer "one\'s complement"',
+    message: 'prefer "one\'s complement"',
   },
   {
     pattern: /2's complement/giu,
-    message: 'Prefer "two\'s complement"',
+    message: 'prefer "two\'s complement"',
   },
   {
     pattern: /\*0\*(?!<sub>ℤ<\/sub>)/gu,
-    message: 'The Number value 0 should be written "*+0*", to unambiguously exclude "*-0*"',
+    message: 'the Number value 0 should be written "*+0*", to unambiguously exclude "*-0*"',
   },
   {
     pattern: /behavior/giu,
@@ -29,32 +29,32 @@ let matchers = [
   },
   {
     pattern: /[Tt]he empty string/gu,
-    message: 'Prefer "the empty String"',
+    message: 'prefer "the empty String"',
   },
   {
     pattern: /[ \t]+\n/gu,
-    message: 'Trailing spaces are not allowed',
+    message: 'trailing spaces are not allowed',
   },
   {
     pattern: /(?<=(^|[^\n])\n\n)\n+/gu,
-    message: 'No more than one blank line is allowed',
+    message: 'no more than one blank line is allowed',
   },
   {
     pattern: /(?<=<emu-clause.*>\n)\n\s*<h1>/giu,
-    message: "There should not be a blank line between a clause's opening tag and its header",
+    message: "there should not be a blank line between a clause's opening tag and its header",
   },
   {
     pattern: /(?<=(^|[^\n])\n)\n+[ \t]*<\/emu-clause>/giu,
     message:
-      'There should not be a blank line between the last line of a clause and its closing tag',
+      'there should not be a blank line between the last line of a clause and its closing tag',
   },
   {
     pattern: /\r/gu,
-    message: 'Only Unix-style (LF) linebreaks are allowed',
+    message: 'only Unix-style (LF) linebreaks are allowed',
   },
   {
     pattern: /(?<=\b[Ss]teps? )\d/gu,
-    message: 'Prefer using labeled steps and <emu-xref> tags over hardcoding step numbers',
+    message: 'prefer using labeled steps and <emu-xref> tags over hardcoding step numbers',
   },
 ];
 
