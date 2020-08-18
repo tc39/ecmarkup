@@ -211,6 +211,9 @@ describe('linting whole program', function () {
           <emu-clause id="i8">
             <h1>ForIn/OfHeadEvaluation ( )</h1>
           </emu-clause>
+          <emu-clause id="i9">
+            <h1>Object.prototype.__defineGetter__ ( )</h1>
+          </emu-clause>
       `);
     });
 
