@@ -20,28 +20,27 @@ describe('baselines', () => {
     const local = 'test/baselines/local/' + file;
     const reference = 'test/baselines/reference/' + file;
     file = 'test/' + file;
-    it(file, () =>
-      build(file).then(spec => {
-        const contents = spec.toHTML();
-        let str;
+    it(file, async () => {
+      let spec = await build(file);
+      const contents = spec.toHTML();
+      let str;
+      try {
+        str = fs.readFileSync(reference, 'utf8');
+      } catch (e) {
+        // ignored
+      }
+      if (contents !== str) {
         try {
-          str = fs.readFileSync(reference, 'utf8');
+          fs.mkdirSync('test/baselines/local');
         } catch (e) {
           // ignored
         }
-        if (contents !== str) {
-          try {
-            fs.mkdirSync('test/baselines/local');
-          } catch (e) {
-            // ignored
-          }
-          fs.writeFileSync(local, contents, 'utf8');
-          const error = new Error('Incorrect baseline');
-          error.expected = str || '';
-          error.actual = contents;
-          throw error;
-        }
-      })
-    );
+        fs.writeFileSync(local, contents, 'utf8');
+        const error = new Error('Incorrect baseline');
+        error.expected = str || '';
+        error.actual = contents;
+        throw error;
+      }
+    });
   });
 });
