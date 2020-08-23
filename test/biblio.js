@@ -5,14 +5,14 @@ const BiblioModule = require('../lib/Biblio');
 const Biblio = BiblioModule.default;
 const location = 'https://tc39.github.io/ecma262/';
 
-describe('Biblio', function () {
+describe('Biblio', () => {
   let biblio;
 
-  beforeEach(function () {
+  beforeEach(() => {
     biblio = new Biblio(location);
   });
 
-  specify('is created with a root namespace named "global"', function () {
+  specify('is created with a root namespace named "global"', () => {
     const opEntry = {
       type: 'op',
       aoid: 'aoid',
@@ -23,7 +23,7 @@ describe('Biblio', function () {
     assert.equal(biblio.byAoid('aoid'), opEntry);
   });
 
-  specify("is created with a nested namespace for the doc's location", function () {
+  specify("is created with a nested namespace for the doc's location", () => {
     const opEntry = {
       type: 'op',
       aoid: 'aoid',
@@ -35,7 +35,7 @@ describe('Biblio', function () {
     assert.equal(biblio.byAoid('aoid', location), opEntry);
   });
 
-  specify('stringifies with only the local scope', function () {
+  specify('stringifies with only the local scope', () => {
     const opEntry1 = {
       type: 'op',
       aoid: 'aoid1',
@@ -57,8 +57,8 @@ describe('Biblio', function () {
     assert(str.indexOf('aoid2') === -1);
   });
 
-  describe('inScopeByType', function () {
-    specify('de-dupes by key', function () {
+  describe('inScopeByType', () => {
+    specify('de-dupes by key', () => {
       const opEntry1 = {
         type: 'op',
         aoid: 'aoid',
