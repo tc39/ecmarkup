@@ -91,10 +91,8 @@ export function replacerForNamespace(namespace: string, biblio: Biblio): [RegExp
 
   const clauseReplacer = new RegExp(
     Object.keys(autolinkmap)
-      .sort(function (a, b) {
-        return b.length - a.length;
-      })
-      .map(function (k) {
+      .sort((a, b) => b.length - a.length)
+      .map(k => {
         const entry = autolinkmap[k];
         const key = regexpEscape(entry.key!);
 

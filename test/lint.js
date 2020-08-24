@@ -2,9 +2,9 @@
 
 let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
 
-describe('linting whole program', function () {
-  describe('grammar validity', function () {
-    it('unused parameters', async function () {
+describe('linting whole program', () => {
+  describe('grammar validity', () => {
+    it('unused parameters', async () => {
       await assertLint(
         positioned`
           <emu-grammar type="definition">
@@ -19,7 +19,7 @@ describe('linting whole program', function () {
       );
     });
 
-    it('parameters used in SDO', async function () {
+    it('parameters used in SDO', async () => {
       await assertLintFree(`
         <emu-grammar type="definition">
           Statement[a]: \`;\`
@@ -36,7 +36,7 @@ describe('linting whole program', function () {
       `);
     });
 
-    it('missing parameters', async function () {
+    it('missing parameters', async () => {
       await assertLint(
         positioned`
           <emu-grammar type="definition">
@@ -55,7 +55,7 @@ describe('linting whole program', function () {
       );
     });
 
-    it('error in inline grammar', async function () {
+    it('error in inline grammar', async () => {
       await assertLint(
         positioned`
           <emu-grammar type="definition">Statement[${M}a]: \`;\`</emu-grammar>
@@ -69,8 +69,8 @@ describe('linting whole program', function () {
     });
   });
 
-  describe('grammar+SDO validity', function () {
-    it('undefined nonterminals in SDOs', async function () {
+  describe('grammar+SDO validity', () => {
+    it('undefined nonterminals in SDOs', async () => {
       await assertLint(
         positioned`
           <emu-grammar>
@@ -88,7 +88,7 @@ describe('linting whole program', function () {
       );
     });
 
-    it('error in inline grammar', async function () {
+    it('error in inline grammar', async () => {
       await assertLint(
         positioned`
           <emu-grammar>${M}Statement: EmptyStatement</emu-grammar>
@@ -104,7 +104,7 @@ describe('linting whole program', function () {
       );
     });
 
-    it('undefined productions in SDOs', async function () {
+    it('undefined productions in SDOs', async () => {
       await assertLint(
         positioned`
           <emu-grammar type="definition">
@@ -128,8 +128,8 @@ describe('linting whole program', function () {
     });
   });
 
-  describe('header format', function () {
-    it('name format', async function () {
+  describe('header format', () => {
+    it('name format', async () => {
       await assertLint(
         positioned`
           <emu-clause id="foo">
@@ -144,7 +144,7 @@ describe('linting whole program', function () {
       );
     });
 
-    it('spacing', async function () {
+    it('spacing', async () => {
       await assertLint(
         positioned`
           <emu-clause id="foo">
@@ -158,7 +158,7 @@ describe('linting whole program', function () {
       );
     });
 
-    it('arg format', async function () {
+    it('arg format', async () => {
       await assertLint(
         positioned`
           <emu-clause id="foo">
@@ -173,7 +173,7 @@ describe('linting whole program', function () {
       );
     });
 
-    it('legal names', async function () {
+    it('legal names', async () => {
       await assertLintFree(`
           <emu-clause id="i1">
             <h1>Example ( )</h1>
@@ -205,7 +205,7 @@ describe('linting whole program', function () {
       `);
     });
 
-    it('legal argument lists', async function () {
+    it('legal argument lists', async () => {
       await assertLintFree(`
           <emu-clause id="i1">
             <h1>Example ( )</h1>
@@ -232,8 +232,8 @@ describe('linting whole program', function () {
     });
   });
 
-  describe('closing tags', function () {
-    it('grammar', async function () {
+  describe('closing tags', () => {
+    it('grammar', async () => {
       await assertLint(
         positioned`
           ${M}<emu-grammar type="definition">
@@ -248,7 +248,7 @@ describe('linting whole program', function () {
       );
     });
 
-    it('algorithm', async function () {
+    it('algorithm', async () => {
       await assertLint(
         positioned`
           ${M}<emu-alg>
