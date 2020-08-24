@@ -266,6 +266,10 @@ windows:${M}\r
       <td> For example, it is nice for these to line up.            </td>
       <td> Also to pad them a bit, in some cases.                   </td>
       </tr></table>
+      <p>
+        Spaces in <ins>insertions and </ins>deletions<del> and other edits</del>
+        are also fine.
+      </p>
 
       <p>
         Paragraphs with the open/close tags on their own line are OK.

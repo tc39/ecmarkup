@@ -66,11 +66,11 @@ let matchers = [
     message: 'multiple consecutive spaces are not allowed',
   },
   {
-    pattern: /(?<=<[a-z]+( [a-z]+(="[^"\n]+")?)*>)(?<!(td|th|dd|dt)>) /gu,
+    pattern: /(?<=<[a-z]+( [a-z]+(="[^"\n]+")?)*>)(?<!(td|th|dd|dt|ins|del)>) /gu,
     message: 'tags should not contain leading whitespace',
   },
   {
-    pattern: /(?<=[^ \n]) +<\/(?!td|th|dd|dt)/gu,
+    pattern: /(?<=[^ \n]) +<\/(?!td|th|dd|dt|ins|del)/gu,
     message: 'tags should not contain trailing whitespace',
   },
 ];
