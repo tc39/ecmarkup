@@ -283,15 +283,9 @@ export type BiblioEntry =
 
 function dumpEnv(env: EnvRec) {
   console.log('## ' + env._namespace);
-  console.log(
-    env
-      .map(function (entry) {
-        return JSON.stringify(entry);
-      })
-      .join(', ')
-  );
+  console.log(env.map(entry => JSON.stringify(entry)).join(', '));
 
-  env._children.forEach(function (child) {
+  env._children.forEach(child => {
     dumpEnv(child);
   });
 }

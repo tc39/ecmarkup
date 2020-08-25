@@ -2,8 +2,8 @@
 
 let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
 
-describe('spelling', function () {
-  it('*this* object', async function () {
+describe('spelling', () => {
+  it('*this* object', async () => {
     await assertLint(
       positioned`
         <p>If the ${M}*this* object ...</p>
@@ -16,7 +16,7 @@ describe('spelling', function () {
     );
   });
 
-  it("1's complement", async function () {
+  it("1's complement", async () => {
     await assertLint(
       positioned`
         <p>It returns the ${M}1's complement of _x_.</p>
@@ -29,7 +29,7 @@ describe('spelling', function () {
     );
   });
 
-  it("2's complement", async function () {
+  it("2's complement", async () => {
     await assertLint(
       positioned`
         <p>BigInts act as ${M}2's complement binary strings</p>
@@ -42,7 +42,7 @@ describe('spelling', function () {
     );
   });
 
-  it('*0*', async function () {
+  it('*0*', async () => {
     await assertLint(
       positioned`
         <emu-alg>1. If _x_ is ${M}*0*, then foo.</emu-alg>
@@ -55,7 +55,7 @@ describe('spelling', function () {
     );
   });
 
-  it('behavior', async function () {
+  it('behavior', async () => {
     await assertLint(
       positioned`
         <p>Most hosts will be able to simply define HostGetImportMetaProperties, and leave HostFinalizeImportMeta with its default ${M}behavior.</p>
@@ -68,7 +68,7 @@ describe('spelling', function () {
     );
   });
 
-  it('the empty string', async function () {
+  it('the empty string', async () => {
     await assertLint(
       positioned`
         <p>_searchValue_ is ${M}the empty string</p>
@@ -81,7 +81,7 @@ describe('spelling', function () {
     );
   });
 
-  it('trailing whitespace', async function () {
+  it('trailing whitespace', async () => {
     await assertLint(
       positioned`
         <p>something</p>${M} 
@@ -94,7 +94,7 @@ describe('spelling', function () {
     );
   });
 
-  it('two blank lines', async function () {
+  it('two blank lines', async () => {
     await assertLint(
       positioned`
 <p></p>
@@ -125,7 +125,7 @@ ${M}
     );
   });
 
-  it('header linebreak', async function () {
+  it('header linebreak', async () => {
     await assertLint(
       positioned`
 <emu-clause id="example">
@@ -141,7 +141,7 @@ ${M}
     );
   });
 
-  it('footer linebreak', async function () {
+  it('footer linebreak', async () => {
     await assertLint(
       positioned`
 <emu-clause id="example">
@@ -158,7 +158,7 @@ ${M}
     );
   });
 
-  it('CR', async function () {
+  it('CR', async () => {
     await assertLint(
       positioned`
 windows:${M}\r
@@ -171,7 +171,7 @@ windows:${M}\r
     );
   });
 
-  it('step numbers', async function () {
+  it('step numbers', async () => {
     await assertLint(
       positioned`
         Something about step ${M}1.
@@ -184,7 +184,7 @@ windows:${M}\r
     );
   });
 
-  it('clause numbers', async function () {
+  it('clause numbers', async () => {
     await assertLint(
       positioned`
         See clause ${M}1.
@@ -198,7 +198,7 @@ windows:${M}\r
     );
   });
 
-  it('multiple internal spaces', async function () {
+  it('multiple internal spaces', async () => {
     await assertLint(
       positioned`
         I am writing on a typewriter.${M}  In the 21st century, for some reason.
@@ -211,7 +211,7 @@ windows:${M}\r
     );
   });
 
-  it('leading whitespace within tags', async function () {
+  it('leading whitespace within tags', async () => {
     await assertLint(
       positioned`
         <p>${M} This is an example.</p>
@@ -224,7 +224,7 @@ windows:${M}\r
     );
   });
 
-  it('trailing whitespace within tags', async function () {
+  it('trailing whitespace within tags', async () => {
     await assertLint(
       positioned`
         <p>This is an example:${M} </p>
@@ -237,7 +237,7 @@ windows:${M}\r
     );
   });
 
-  it('negative', async function () {
+  it('negative', async () => {
     await assertLintFree(`
       <p>
         the *this* value

@@ -4,11 +4,11 @@ let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require(
 
 const nodeType = 'emu-alg';
 
-describe('linting algorithms', function () {
-  describe('line endings', function () {
+describe('linting algorithms', () => {
+  describe('line endings', () => {
     const ruleId = 'algorithm-line-endings';
 
-    it('simple', async function () {
+    it('simple', async () => {
       await assertLint(
         positioned`<emu-alg>
           1. testing${M}
@@ -21,7 +21,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('labeled', async function () {
+    it('labeled', async () => {
       await assertLint(
         positioned`<emu-alg>
           1. [id="step-test"] testing${M}
@@ -34,7 +34,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('inline', async function () {
+    it('inline', async () => {
       await assertLint(positioned`<emu-alg>1. testing${M}</emu-alg>`, {
         ruleId,
         nodeType,
@@ -42,7 +42,7 @@ describe('linting algorithms', function () {
       });
     });
 
-    it('repeat', async function () {
+    it('repeat', async () => {
       await assertLint(
         positioned`<emu-alg>
           1. Repeat, while _x_ < 10${M}
@@ -56,7 +56,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('inline if', async function () {
+    it('inline if', async () => {
       await assertLint(
         positioned`<emu-alg>
           1. If _x_, then${M}
@@ -69,7 +69,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('multiline if', async function () {
+    it('multiline if', async () => {
       await assertLint(
         positioned`<emu-alg>
           1. If _x_,${M}
@@ -83,7 +83,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('pre', async function () {
+    it('pre', async () => {
       await assertLint(
         positioned`<emu-alg>
             1. ${M}Let _constructorText_ be the source text
@@ -98,7 +98,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('negative', async function () {
+    it('negative', async () => {
       await assertLintFree(`
         <emu-alg>
           1. If foo, bar.
@@ -130,10 +130,10 @@ describe('linting algorithms', function () {
     });
   });
 
-  describe('step numbering', function () {
+  describe('step numbering', () => {
     const ruleId = 'algorithm-step-numbering';
 
-    it('simple', async function () {
+    it('simple', async () => {
       await assertLint(
         positioned`<emu-alg>
           ${M}2. Step.
@@ -170,7 +170,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('nested', async function () {
+    it('nested', async () => {
       await assertLint(
         positioned`<emu-alg>
           1. Step:
@@ -209,7 +209,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('ten', async function () {
+    it('ten', async () => {
       await assertLint(
         positioned`<emu-alg>
           1. Step.
@@ -223,7 +223,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('negative', async function () {
+    it('negative', async () => {
       await assertLintFree(`
         <emu-alg>
           1. Step.
@@ -234,9 +234,9 @@ describe('linting algorithms', function () {
     });
   });
 
-  describe('step labels', function () {
+  describe('step labels', () => {
     const ruleId = 'algorithm-step-labels';
-    it('rejects unprefixed labels', async function () {
+    it('rejects unprefixed labels', async () => {
       await assertLint(
         positioned`<emu-alg>
           1. [id="${M}example"] Step.
@@ -249,7 +249,7 @@ describe('linting algorithms', function () {
       );
     });
 
-    it('negative', async function () {
+    it('negative', async () => {
       await assertLintFree(`
         <emu-alg>
           1. Step.
