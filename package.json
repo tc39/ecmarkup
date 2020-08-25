@@ -7,6 +7,7 @@
 	"scripts": {
 		"build": "tsc -p src -sourceMap",
 		"build-release": "tsc -p src",
+		"build-spec": "node bin/ecmarkup.js spec/index.html docs/index.html --css-out docs/elements.css --js-out docs/ecmarkup.js",
 		"prepublish": "safe-publish-latest && npm run build-release",
 		"test": "mocha",
 		"pretest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
@@ -14,7 +15,6 @@
 		"posttest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
 		"lint": "eslint --ext .js,.ts .",
 		"format": "prettier --write .",
-		"update-pages": "node bin/ecmarkup.js spec/index.html _index.html && git checkout gh-pages && rm index.html && mv _index.html index.html && git add index.html && git commit -m \"update pages\" && git checkout master",
 		"update-baselines": "echo 'for f in test/*.html; do echo processing \"$f\"; node bin/ecmarkup.js $f test/baselines/reference/$(basename $f); done' | bash",
 		"version": "auto-changelog && git add CHANGELOG.md",
 		"postversion": "auto-changelog && git add CHANGELOG.md && git commit --no-edit --amend && git tag -f \"v$(node -e \"console.log(require('./package.json').version)\")\""
