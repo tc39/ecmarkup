@@ -48,7 +48,7 @@ export function collectNodes(
         // Look for early errors
         let first = node.firstElementChild;
         if (first !== null && first.nodeName === 'H1') {
-          let title = first.textContent ?? '';
+          let title = textContentExcludingDeleted(first);
           headers.push({ element: first, contents: title });
           if (title.trim() === 'Static Semantics: Early Errors') {
             let grammar = null;
@@ -139,4 +139,16 @@ export function collectNodes(
   }
 
   return { success: true, mainGrammar, headers, sdos, earlyErrors, algorithms };
+}
+
+function textContentExcludingDeleted(node: Node): string {
+  let retval = '';
+  node.childNodes.forEach(value => {
+    if (value.nodeType === 3) {
+      retval += value.nodeValue;
+    } else if (value.nodeType !== 1 || (value as Element).tagName !== 'DEL') {
+      retval += textContentExcludingDeleted(value);
+    }
+  });
+  return retval;
 }

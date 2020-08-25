@@ -171,6 +171,18 @@ describe('linting whole program', () => {
             "expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'",
         }
       );
+      await assertLint(
+        positioned`
+          <emu-clause id="foo">
+            <h1>Example ${M}( _a_ [ , <del>_b_</del> ] )</h1>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'h1',
+          message:
+            "expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'",
+        }
+      );
     });
 
     it('legal names', async () => {
@@ -227,6 +239,15 @@ describe('linting whole program', () => {
           </emu-clause>
           <emu-clause id="i7">
             <h1>Function ( _p1_, _p2_, &hellip; , _pn_, _body_ )</h1>
+          </emu-clause>
+          <emu-clause id="i8">
+            <h1>Example ( _a_, <del>_b_</del><ins>_c_</ins> )</h1>
+          </emu-clause>
+          <emu-clause id="i9">
+            <h1>Example ( _a_<ins> [ , _b_ ]</ins> )</h1>
+          </emu-clause>
+          <emu-clause id="i10">
+            <h1>Example ( _a_ <del>[ , _b_ ] </del>)</h1>
           </emu-clause>
       `);
     });
