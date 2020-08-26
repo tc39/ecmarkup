@@ -6,6 +6,7 @@ body {
   padding: 0;
   margin: 0;
   color: #111;
+  background-color: #fff;
 }
 
 #spec-container {
@@ -23,15 +24,18 @@ body.oldtoc {
 a {
     text-decoration: none;
     color: #206ca7;
+    background-color: transparent;
 }
 
 a:visited {
   color: #206ca7;
+  background-color: transparent;
 }
 
 a:hover {
     text-decoration: underline;
     color: #239dee;
+    background-color: transparent;
 }
 
 
@@ -47,6 +51,7 @@ pre code {
 
 pre code.hljs {
   background-color: #fff;
+  color: inherit;
   margin: 0;
   padding: 0;
 }
@@ -62,6 +67,7 @@ ol.toc ol.toc {
 }
 
 var {
+  background-color: transparent;
   color: #2aa198;
   transition: background-color 0.25s ease;
   cursor: pointer;
@@ -69,6 +75,7 @@ var {
 
 var.referenced {
   background-color: #ffff33;
+  color: #2aa198;
 }
 
 emu-const {
@@ -134,6 +141,7 @@ emu-eqn div:first-child {
 emu-note {
     margin: 1em 0;
     color: #666;
+    background-color: transparent;
     border-left: 5px solid #ccc;
     display: flex;
     flex-direction: row;
@@ -248,6 +256,7 @@ emu-nt {
 
 emu-nt a, emu-nt a:visited {
   color: #333;
+  background-color: transparent;
 }
 
 emu-rhs emu-nt {
@@ -286,10 +295,12 @@ emu-params, emu-opt {
 
 emu-params, emu-constraints {
   color: #2aa198;
+  background-color: transparent;
 }
 
 emu-opt {
   color: #b58900;
+  background-color: transparent;
 }
 
 emu-gprose {
@@ -302,12 +313,14 @@ emu-production emu-gprose {
 }
 
 h1.shortname {
+  background-color: transparent;
   color: #f60;
   font-size: 1.5em;
   margin: 0;
 }
 
 h1.version {
+  background-color: transparent;
   color: #f60;
   font-size: 1.5em;
   margin: 0;
@@ -316,6 +329,7 @@ h1.version {
 h1.title {
   margin-top: 0;
   color: #f60;
+  background-color: transparent;
 }
 
 h1.first {
@@ -386,6 +400,7 @@ h4 span.utils span.anchor a:hover,
 h5 span.utils span.anchor a:hover,
 h6 span.utils span.anchor a:hover {
   color: #333;
+  background-color: transparent;
 }
 
 emu-intro h1, emu-clause h1, emu-annex h1 { font-size: 2em; }
@@ -420,6 +435,7 @@ figure object { display: block; margin: 0 auto; }
 figure table.real-table { margin: 0 auto; }
 figure figcaption {
     display: block;
+    background-color: transparent;
     color: #555555;
     font-weight: bold;
     text-align: center;
@@ -440,6 +456,7 @@ emu-table td, emu-table th, table.real-table td, table.real-table th {
 }
 emu-table th, emu-table thead td, table.real-table th {
     background-color: #eeeeee;
+    color: initial;
 }
 
 /* Note: the left content edges of table.lightweight-table >tbody >tr >td
@@ -457,12 +474,14 @@ table.lightweight-table td, table.lightweight-table th {
 /* diff styles */
 ins {
     background-color: #e0f8e0;
+    color: initial;
     text-decoration: none;
     border-bottom: 1px solid #396;
 }
 
 del {
     background-color: #fee;
+    color: initial;
 }
 
 ins.block, del.block,
@@ -480,10 +499,12 @@ tr.ins > td > ins {
 
 tr.ins > td {
   background-color: #e0f8e0;
+  color: initial;
 }
 
 tr.del > td {
   background-color: #fee;
+  color: initial;
 }
 
 /* Menu Styles */
@@ -519,6 +540,7 @@ tr.del > td {
   max-width: 500px;
   box-sizing: border-box;
   background-color: #ddd;
+  color: inherit;
   overflow: hidden;
   transition: opacity 0.1s linear;
   padding: 0 5px;
@@ -537,6 +559,7 @@ tr.del > td {
 }
 
 #menu a {
+  background-color: transparent;
   color: #1567a2;
 }
 
@@ -573,6 +596,7 @@ tr.del > td {
   box-sizing: border-box;
   line-height: 1em;
   background-color: #ccc;
+  color: inherit;
   border-radius: 4px;
 }
 #menu-toc > ol {
@@ -607,6 +631,7 @@ tr.del > td {
   text-align: center;
   width: 20px;
 
+  background-color: transparent;
   color: #aab;
 
   -webkit-touch-callout: none;
@@ -638,19 +663,13 @@ tr.del > td {
 
 #menu-toc li.revealed > a {
   background-color: #bbb;
+  color: initial;
   font-weight: bold;
-  /*
-  background-color: #222;
-  color: #c6d8e4;
-  */
 }
 
-#menu-toc li.revealed-leaf> a {
+#menu-toc li.revealed-leaf > a {
+  background-color: transparent;
   color: #206ca7;
-  /*
-  background-color: #222;
-  color: #c6d8e4;
-  */
 }
 
 #menu-toc li.revealed > .item-toggle {
@@ -718,6 +737,7 @@ tr.del > td {
   font-size: 1em;
   padding: 2px;
   background-color: #bbb;
+  color: initial;
   border: 1px solid #999;
 }
 
@@ -732,6 +752,7 @@ li.menu-search-result-clause:before {
     display: inline-block;
     text-align: right;
     padding-right: 1ex;
+    background-color: transparent;
     color: #666;
     font-size: 75%;
 }
@@ -741,6 +762,7 @@ li.menu-search-result-op:before {
     display: inline-block;
     text-align: right;
     padding-right: 1ex;
+    background-color: transparent;
     color: #666;
     font-size: 75%;
 }
@@ -751,6 +773,7 @@ li.menu-search-result-prod:before {
     display: inline-block;
     text-align: right;
     padding-right: 1ex;
+    background-color: transparent;
     color: #666;
     font-size: 75%
 }
@@ -762,6 +785,7 @@ li.menu-search-result-term:before {
     display: inline-block;
     text-align: right;
     padding-right: 1ex;
+    background-color: transparent;
     color: #666;
     font-size: 75%
 }
@@ -854,6 +878,7 @@ li.menu-search-result-term:before {
 	border: 1px solid #aaa;
   display: none;
   color: #eee;
+  background-color: transparent;
   padding: 5px;
   border-radius: 3px;
 }
@@ -903,6 +928,7 @@ li.menu-search-result-term:before {
   height: 250px;
   display: none;
   background-color: #ddd;
+  color: initial;
   z-index: 1;
 }
 
