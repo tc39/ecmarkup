@@ -272,4 +272,31 @@ describe('linting algorithms', () => {
       `);
     });
   });
+
+  describe('for each element', () => {
+    const ruleId = 'for-each-element';
+    it('rejects loops without types', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. For each ${M}_x_ of _y_, do foo.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected "for each" to have a type name or "element" before the loop variable',
+        }
+      );
+    });
+
+    it('negative', async () => {
+      await assertLintFree(`
+        <emu-alg>
+          1. For each String _x_ of _y_, do foo.
+          1. For each element _x_ of _y_, do foo.
+          1. For each integer _x_ such that _x_ &in; _S_, do foo.
+        </emu-alg>
+      `);
+    });
+  });
 });

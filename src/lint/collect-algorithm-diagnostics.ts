@@ -9,11 +9,13 @@ import { warnEmdFailure } from '../utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
+import lintForEachElement from './rules/for-each-element';
 
 let algorithmRules = [
   lintAlgorithmLineEndings,
   lintAlgorithmStepNumbering,
   lintAlgorithmStepLabels,
+  lintForEachElement,
 ];
 
 function composeObservers(...observers: Observer[]): Observer {
