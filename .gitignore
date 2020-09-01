@@ -1,4 +1,6 @@
 node_modules
-index.html
+/index.html
 lib
 test/baselines/local
+package
+ecmarkup-*.tgz

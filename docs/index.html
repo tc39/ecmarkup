@@ -1,0 +1,588 @@
+<!doctype html>
+<head><meta charset="utf-8">
+<script src="ecmarkup.js"></script>
+<link rel="stylesheet" href="elements.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/solarized_light.min.css">
+<title>Ecmarkup</title>
+<script type="application/json" id="menu-search-biblio">[{"type":"clause","id":"intro","aoid":null,"title":"Ecmarkup","titleHTML":"Ecmarkup","number":"","namespace":"<no location>","location":"","referencingIds":[],"key":"Ecmarkup"},{"type":"clause","id":"getting-started","aoid":null,"title":"Getting Started","titleHTML":"Getting Started","number":"1","namespace":"<no location>","location":"","referencingIds":[],"key":"Getting Started"},{"type":"table","id":"build-options","node":{},"number":1,"caption":"Table 1: Build options","referencingIds":["_ref_13"],"namespace":"<no location>","location":"","key":"Table 1: Build options"},{"type":"table","id":"document-options","node":{},"number":2,"caption":"Table 2: Document options","referencingIds":["_ref_14"],"namespace":"<no location>","location":"","key":"Table 2: Document options"},{"type":"clause","id":"useful-options","aoid":null,"title":"Options","titleHTML":"Options","number":"2","namespace":"<no location>","location":"","referencingIds":[],"key":"Options"},{"type":"clause","id":"stylesheets-and-scripts","aoid":null,"title":"Stylesheets and Scripts","titleHTML":"Stylesheets and Scripts","number":"3","namespace":"<no location>","location":"","referencingIds":[],"key":"Stylesheets and Scripts"},{"type":"table","id":"emd-overview","node":{},"number":4,"caption":"Table 4: Inline styles/conventions","referencingIds":["_ref_4"],"namespace":"<no location>","location":"","key":"Table 4: Inline styles/conventions"},{"type":"clause","id":"editorial-conventions","aoid":null,"title":"Editorial Conventions","titleHTML":"Editorial Conventions","number":"4","namespace":"<no location>","location":"","referencingIds":[],"key":"Editorial Conventions"},{"type":"clause","id":"metadata","aoid":null,"title":"Metadata","titleHTML":"Metadata","number":"5","namespace":"<no location>","location":"","referencingIds":[],"key":"Metadata"},{"type":"clause","id":"emu-intro","aoid":null,"title":"emu-intro","titleHTML":"emu-intro","number":"6.1","namespace":"<no location>","location":"","referencingIds":["_ref_1"],"key":"emu-intro"},{"type":"clause","id":"emu-clause","aoid":null,"title":"emu-clause","titleHTML":"emu-clause","number":"6.2","namespace":"<no location>","location":"","referencingIds":["_ref_0","_ref_16"],"key":"emu-clause"},{"type":"clause","id":"emu-annex","aoid":null,"title":"emu-annex","titleHTML":"emu-annex","number":"6.3","namespace":"<no location>","location":"","referencingIds":["_ref_2"],"key":"emu-annex"},{"type":"clause","id":"clauses","aoid":null,"title":"Clauses","titleHTML":"Clauses","number":"6","namespace":"<no location>","location":"","referencingIds":[],"key":"Clauses"},{"type":"step","id":"replace-me","stepNumbers":[2,1],"referencingIds":["_ref_15"],"namespace":"<no location>","location":"","key":"replace-me"},{"type":"op","aoid":"EmuAlg","refId":"emu-alg","location":"","referencingIds":[],"key":"EmuAlg"},{"type":"clause","id":"emu-alg","aoid":"EmuAlg","title":"emu-alg","titleHTML":"emu-alg","number":"7","namespace":"<no location>","location":"","referencingIds":["_ref_3","_ref_20"],"key":"emu-alg"},{"type":"clause","id":"emu-eqn","aoid":null,"title":"emu-eqn","titleHTML":"emu-eqn","number":"8","namespace":"<no location>","location":"","referencingIds":["_ref_5"],"key":"emu-eqn"},{"type":"clause","id":"emu-note","aoid":null,"title":"emu-note","titleHTML":"emu-note","number":"9","namespace":"<no location>","location":"","referencingIds":["_ref_6","_ref_17"],"key":"emu-note"},{"type":"step","id":"example-step-label","stepNumbers":[1],"referencingIds":["_ref_19"],"namespace":"<no location>","location":"","key":"example-step-label"},{"type":"clause","id":"emu-xref","aoid":null,"title":"emu-xref","titleHTML":"emu-xref","number":"10","namespace":"<no location>","location":"","referencingIds":["_ref_12"],"key":"emu-xref"},{"type":"clause","id":"emu-not-ref","aoid":null,"title":"emu-not-ref","titleHTML":"emu-not-ref","number":"11","namespace":"<no location>","location":"","referencingIds":["_ref_21"],"key":"emu-not-ref"},{"type":"clause","id":"emu-figure","aoid":null,"title":"emu-figure","titleHTML":"emu-figure","number":"12","namespace":"<no location>","location":"","referencingIds":["_ref_7"],"key":"emu-figure"},{"type":"clause","id":"emu-table","aoid":null,"title":"emu-table","titleHTML":"emu-table","number":"13","namespace":"<no location>","location":"","referencingIds":["_ref_8"],"key":"emu-table"},{"type":"clause","id":"emu-example","aoid":null,"title":"emu-example","titleHTML":"emu-example","number":"14","namespace":"<no location>","location":"","referencingIds":["_ref_9"],"key":"emu-example"},{"type":"clause","id":"emu-biblio","aoid":null,"title":"emu-biblio","titleHTML":"emu-biblio","number":"15","namespace":"<no location>","location":"","referencingIds":["_ref_18"],"key":"emu-biblio"},{"type":"production","id":"prod-WhileStatement","name":"WhileStatement","referencingIds":[],"namespace":"<no location>","location":"","key":"WhileStatement"},{"type":"production","id":"prod-ArgumentList","name":"ArgumentList","referencingIds":["_ref_22"],"namespace":"<no location>","location":"","key":"ArgumentList"},{"type":"production","id":"prod-IterationStatement","name":"IterationStatement","referencingIds":[],"namespace":"<no location>","location":"","key":"IterationStatement"},{"type":"production","id":"prod-Identifier","name":"Identifier","referencingIds":[],"namespace":"<no location>","location":"","key":"Identifier"},{"type":"production","id":"prod-SourceCharacter","name":"SourceCharacter","referencingIds":[],"namespace":"<no location>","location":"","key":"SourceCharacter"},{"type":"production","id":"prod-ExpressionStatement","name":"ExpressionStatement","referencingIds":["_ref_23"],"namespace":"<no location>","location":"","key":"ExpressionStatement"},{"type":"production","id":"prod-DecimalDigit","name":"DecimalDigit","referencingIds":[],"namespace":"<no location>","location":"","key":"DecimalDigit"},{"type":"production","id":"prod-StatementList","name":"StatementList","referencingIds":[],"namespace":"<no location>","location":"","key":"StatementList"},{"type":"clause","id":"emu-grammar","aoid":null,"title":"emu-grammar","titleHTML":"emu-grammar","number":"16.1","namespace":"<no location>","location":"","referencingIds":["_ref_10"],"key":"emu-grammar"},{"type":"clause","id":"emu-production","aoid":null,"title":"emu-production","titleHTML":"emu-production","number":"16.2","namespace":"<no location>","location":"","referencingIds":["_ref_11"],"key":"emu-production"},{"type":"clause","id":"emu-rhs","aoid":null,"title":"emu-rhs","titleHTML":"emu-rhs","number":"16.3","namespace":"<no location>","location":"","referencingIds":[],"key":"emu-rhs"},{"type":"clause","id":"emu-nt","aoid":null,"title":"emu-nt","titleHTML":"emu-nt","number":"16.4","namespace":"<no location>","location":"","referencingIds":[],"key":"emu-nt"},{"type":"clause","id":"emu-t","aoid":null,"title":"emu-t","titleHTML":"emu-t","number":"16.5","namespace":"<no location>","location":"","referencingIds":[],"key":"emu-t"},{"type":"clause","id":"emu-gmod","aoid":null,"title":"emu-gmod","titleHTML":"emu-gmod","number":"16.6","namespace":"<no location>","location":"","referencingIds":[],"key":"emu-gmod"},{"type":"clause","id":"emu-gann","aoid":null,"title":"emu-gann","titleHTML":"emu-gann","number":"16.7","namespace":"<no location>","location":"","referencingIds":[],"key":"emu-gann"},{"type":"clause","id":"emu-gprose","aoid":null,"title":"emu-gprose","titleHTML":"emu-gprose","number":"16.8","namespace":"<no location>","location":"","referencingIds":[],"key":"emu-gprose"},{"type":"clause","id":"emu-prodref","aoid":null,"title":"emu-prodref","titleHTML":"emu-prodref","number":"16.9","namespace":"<no location>","location":"","referencingIds":[],"key":"emu-prodref"},{"type":"clause","id":"grammar","aoid":null,"title":"Specifying Grammar","titleHTML":"Specifying Grammar","number":"16","namespace":"<no location>","location":"","referencingIds":[],"key":"Specifying Grammar"},{"type":"clause","id":"imports","aoid":null,"title":"Imports","titleHTML":"Imports","number":"17","namespace":"<no location>","location":"","referencingIds":[],"key":"Imports"},{"type":"clause","id":"oldids","aoid":null,"title":"Old IDs","titleHTML":"Old IDs","number":"18.1","namespace":"<no location>","location":"","referencingIds":[],"key":"Old IDs"},{"type":"production","id":"prod-HoistableDeclaration","name":"HoistableDeclaration","referencingIds":["_ref_24"],"namespace":"<no location>","location":"","key":"HoistableDeclaration"},{"type":"clause","id":"ins-del","aoid":null,"title":"ins & del","titleHTML":"ins &amp; del","number":"18.2","namespace":"<no location>","location":"","referencingIds":[],"key":"ins & del"},{"type":"clause","id":"pre-code","aoid":null,"title":"Code Listings","titleHTML":"Code Listings","number":"18.3","namespace":"<no location>","location":"","referencingIds":[],"key":"Code Listings"},{"type":"clause","id":"css","aoid":null,"title":"Other Styles & Conventions","titleHTML":"Other Styles &amp; Conventions","number":"18","namespace":"<no location>","location":"","referencingIds":[],"key":"Other Styles & Conventions"},{"type":"term","term":"example","refId":"emu-not-ref","referencingIds":[],"namespace":"emu-not-ref","location":"","key":"example"}]</script></head><body><div id="menu-toggle">☰</div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#intro" title="Ecmarkup">Ecmarkup</a></li><li><span class="item-toggle-none"></span><a href="#getting-started" title="Getting Started"><span class="secnum">1</span> Getting Started</a></li><li><span class="item-toggle-none"></span><a href="#useful-options" title="Options"><span class="secnum">2</span> Options</a></li><li><span class="item-toggle-none"></span><a href="#stylesheets-and-scripts" title="Stylesheets and Scripts"><span class="secnum">3</span> Stylesheets and Scripts</a></li><li><span class="item-toggle-none"></span><a href="#editorial-conventions" title="Editorial Conventions"><span class="secnum">4</span> Editorial Conventions</a></li><li><span class="item-toggle-none"></span><a href="#metadata" title="Metadata"><span class="secnum">5</span> Metadata</a></li><li><span class="item-toggle">◢</span><a href="#clauses" title="Clauses"><span class="secnum">6</span> Clauses</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#emu-intro" title="emu-intro"><span class="secnum">6.1</span> emu-intro</a></li><li><span class="item-toggle-none"></span><a href="#emu-clause" title="emu-clause"><span class="secnum">6.2</span> emu-clause</a></li><li><span class="item-toggle-none"></span><a href="#emu-annex" title="emu-annex"><span class="secnum">6.3</span> emu-annex</a></li></ol></li><li><span class="item-toggle-none"></span><a href="#emu-alg" title="emu-alg"><span class="secnum">7</span> emu-alg</a></li><li><span class="item-toggle-none"></span><a href="#emu-eqn" title="emu-eqn"><span class="secnum">8</span> emu-eqn</a></li><li><span class="item-toggle-none"></span><a href="#emu-note" title="emu-note"><span class="secnum">9</span> emu-note</a></li><li><span class="item-toggle-none"></span><a href="#emu-xref" title="emu-xref"><span class="secnum">10</span> emu-xref</a></li><li><span class="item-toggle-none"></span><a href="#emu-not-ref" title="emu-not-ref"><span class="secnum">11</span> emu-not-ref</a></li><li><span class="item-toggle-none"></span><a href="#emu-figure" title="emu-figure"><span class="secnum">12</span> emu-figure</a></li><li><span class="item-toggle-none"></span><a href="#emu-table" title="emu-table"><span class="secnum">13</span> emu-table</a></li><li><span class="item-toggle-none"></span><a href="#emu-example" title="emu-example"><span class="secnum">14</span> emu-example</a></li><li><span class="item-toggle-none"></span><a href="#emu-biblio" title="emu-biblio"><span class="secnum">15</span> emu-biblio</a></li><li><span class="item-toggle">◢</span><a href="#grammar" title="Specifying Grammar"><span class="secnum">16</span> Specifying Grammar</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#emu-grammar" title="emu-grammar"><span class="secnum">16.1</span> emu-grammar</a></li><li><span class="item-toggle-none"></span><a href="#emu-production" title="emu-production"><span class="secnum">16.2</span> emu-production</a></li><li><span class="item-toggle-none"></span><a href="#emu-rhs" title="emu-rhs"><span class="secnum">16.3</span> emu-rhs</a></li><li><span class="item-toggle-none"></span><a href="#emu-nt" title="emu-nt"><span class="secnum">16.4</span> emu-nt</a></li><li><span class="item-toggle-none"></span><a href="#emu-t" title="emu-t"><span class="secnum">16.5</span> emu-t</a></li><li><span class="item-toggle-none"></span><a href="#emu-gmod" title="emu-gmod"><span class="secnum">16.6</span> emu-gmod</a></li><li><span class="item-toggle-none"></span><a href="#emu-gann" title="emu-gann"><span class="secnum">16.7</span> emu-gann</a></li><li><span class="item-toggle-none"></span><a href="#emu-gprose" title="emu-gprose"><span class="secnum">16.8</span> emu-gprose</a></li><li><span class="item-toggle-none"></span><a href="#emu-prodref" title="emu-prodref"><span class="secnum">16.9</span> emu-prodref</a></li></ol></li><li><span class="item-toggle-none"></span><a href="#imports" title="Imports"><span class="secnum">17</span> Imports</a></li><li><span class="item-toggle">◢</span><a href="#css" title="Other Styles &amp; Conventions"><span class="secnum">18</span> Other Styles &amp; Conventions</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#oldids" title="Old IDs"><span class="secnum">18.1</span> Old IDs</a></li><li><span class="item-toggle-none"></span><a href="#ins-del" title="ins &amp; del"><span class="secnum">18.2</span> ins &amp; del</a></li><li><span class="item-toggle-none"></span><a href="#pre-code" title="Code Listings"><span class="secnum">18.3</span> Code Listings</a></li></ol></li></ol></div></div><div id="spec-container">
+<emu-biblio href="./biblio.json"></emu-biblio>
+<emu-intro id="intro">
+  <h1 class="first">Ecmarkup</h1>
+  <p><a href="https://github.com/tc39/ecmarkup">Ecmarkup</a> is a number of custom elements and a toolchain suitable for specifying semantics for ECMAScript and other programming languages.</p>
+  <p>Ecmarkup offers the following conveniences (among many others):</p>
+  <ul>
+    <li><a href="https://github.com/tc39/ecmarkdown">Ecmarkdown</a> syntax for paragraphs and algorithms</li>
+    <li><a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a> for specifying grammar</li>
+    <li>Terse markup for the authoring conventions used in ECMAScript specifications including clauses, notes, examples, figures, tables, and more.</li>
+    <li>Easy cross-references by element ID to clauses, <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref>, examples, figures, tables, and etc. in the current document, ES6, and other specs.</li>
+    <li>Generates table of contents</li>
+    <li>Generates clause ids based on document position</li>
+    <li>Auto-links <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref> and terms based on name with support for external bibliographies for cross-referencing between specs</li>
+    <li>Source code syntax highlighting inside pre code blocks</li>
+  </ul>
+  <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/tc39/ecmarkup/blob/master/spec/index.html">on github</a>.</p>
+</emu-intro>
+
+<emu-clause id="getting-started">
+  <h1><span class="secnum">1</span> Getting Started</h1>
+  <pre>npm install -g ecmarkup
+ecmarkup --help
+ecmarkup spec.html out.html
+  </pre>
+</emu-clause>
+<emu-clause id="useful-options">
+  <h1><span class="secnum">2</span> Options</h1>
+  <p>Build options and document options can be passed in via the command line or specified in the front-matter of your document.</p>
+  <emu-table id="build-options"><figure><figcaption>Table 1: Build options</figcaption>
+    
+    <table>
+      <tbody><tr><th>Option</th><th>Description</th></tr>
+      <tr><td>watch</td><td>Rebuild when files change</td></tr>
+      <tr><td>verbose</td><td>Print verbose logging info</td></tr>
+      <tr><td>biblio</td><td>Emit a biblio file to the specified location</td></tr>
+      <tr><td>assets</td><td>"none" for no css/js, "inline" for inline css/js</td></tr>
+      <tr><td>css-out</td><td>Emit the Ecmarkup CSS file to the specified location</td></tr>
+      <tr><td>js-out</td><td>Emit the Ecmarkup JS file to the specified location</td></tr>
+    </tbody></table>
+  </figure></emu-table>
+
+  <emu-table id="document-options"><figure><figcaption>Table 2: Document options</figcaption>
+    
+    <table>
+      <tbody><tr><th>Option</th><th>Description</th></tr>
+      <tr><td>title</td><td>Title of specification, for example <code>ECMAScript 2016</code> or <code>Async Functions</code>.</td></tr>
+      <tr><td>status</td><td>Status of specification. Can be <code>proposal</code>, <code>draft</code>, or <code>standard</code>. Default is <code>proposal</code>.</td></tr>
+      <tr><td>stage</td><td>Stage of proposal. Must be a number if provided, but is optional. Sets <code>version</code> to <code>Stage N Draft</code>, but can be overridden.</td></tr>
+      <tr><td>version</td><td>Version of specification, for example <code>6&lt;sup&gt;th&lt;/sup&gt; Edition</code> or <code>Draft 1</code>. Optional.</td></tr>
+      <tr><td>date</td><td>Date the spec was generated. Used for various pieces of boilerplate that include dates. Defaults to today's date.</td></tr>
+      <tr><td>shortname</td><td>Shortname of specification, for example <code>ECMA-262</code> or <code>ECMA-402</code>.</td></tr>
+      <tr><td>location</td><td>URL of this specification. Use in conjunction with the biblio file to enable external specs to reference this one.</td></tr>
+      <tr><td>copyright</td><td>Emit copyright and software license information. Boolean, default true.</td></tr>
+      <tr><td>contributors</td><td>Contributors to this specification, ie. those who own the copyright. If your proposal includes text from any Ecma specification, you should include "Ecma International" in this list.</td></tr>
+      <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
+      <tr><td>old-toc</td><td>Emit the old style of table of contents. Boolean, default false.</td></tr>
+      <tr><td>ecma-262-biblio</td><td>Load the ECMA-262 biblio file. Boolean, default true.</td></tr>
+    </tbody></table>
+  </figure></emu-table>
+</emu-clause>
+
+<emu-clause id="stylesheets-and-scripts">
+  <h1><span class="secnum">3</span> Stylesheets and Scripts</h1>
+  <p>Ecmarkup requires css styles and, if you're using the sidebar table of contents, javascript as well. By default CSS and JS dependencies are inlined into the document. You can override this by setting assets to "none" (for example if you want to manually link to external assets). Passing cssOut and jsOut will write the respective files to disk at the given location.</p>
+</emu-clause>
+<emu-clause id="editorial-conventions">
+  <h1><span class="secnum">4</span> Editorial Conventions</h1>
+  <p>There are a large number of features in Ecmarkup. Detailed documentation can be found in later sections. This section provides a high-level overview of what capabilities are available and when to use them.</p>
+
+  <emu-table><figure><figcaption>Table 3: Structuring your Ecmarkup document</figcaption>
+    
+    <table>
+      <tbody><tr><th>Notational Convention</th><th>Ecmarkup Functionality</th></tr>
+      <tr><td>Clauses</td><td><emu-xref href="#emu-clause" title="" id="_ref_0"><a href="#emu-clause">emu-clause</a></emu-xref>, <emu-xref href="#emu-intro" title="" id="_ref_1"><a href="#emu-intro">emu-intro</a></emu-xref>, and <emu-xref href="#emu-annex" title="" id="_ref_2"><a href="#emu-annex">emu-annex</a></emu-xref></td></tr>
+      <tr><td>Algorithms</td><td><emu-xref href="#emu-alg" title="" id="_ref_3"><a href="#emu-alg">emu-alg</a></emu-xref> with Ecmarkdown (see also <emu-xref href="#emd-overview" id="_ref_4"><a href="#emd-overview">Table 4</a></emu-xref>). Equations such as <emu-xref title="" href="#sec-year-number"><a href="https://tc39.es/ecma262/#sec-year-number">Year Number</a></emu-xref> use <emu-xref href="#emu-eqn" title="" id="_ref_5"><a href="#emu-eqn">emu-eqn</a></emu-xref></td></tr>
+      <tr><td>Notes</td><td><emu-xref href="#emu-note" title="" id="_ref_6"><a href="#emu-note">emu-note</a></emu-xref></td></tr>
+      <tr><td>Figures (such as images)</td><td><emu-xref href="#emu-figure" title="" id="_ref_7"><a href="#emu-figure">emu-figure</a></emu-xref> and <code>emu-caption</code></td></tr>
+      <tr><td>Tables</td><td><emu-xref href="#emu-table" title="" id="_ref_8"><a href="#emu-table">emu-table</a></emu-xref> and <code>emu-caption</code></td></tr>
+      <tr><td>Examples</td><td><emu-xref href="#emu-example" title="" id="_ref_9"><a href="#emu-example">emu-example</a></emu-xref> and <code>emu-caption</code></td></tr>
+      <tr><td>Grammar</td><td><emu-xref href="#emu-grammar" title="" id="_ref_10"><a href="#emu-grammar">emu-grammar</a></emu-xref> using <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown syntax</a> or <emu-xref href="#emu-production" title="" id="_ref_11"><a href="#emu-production">emu-production</a></emu-xref> and child elements</td></tr>
+      <tr><td>Cross-references</td><td><emu-xref href="#emu-xref" title="" id="_ref_12"><a href="#emu-xref">emu-xref</a></emu-xref> (can reference clauses, productions, <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref>, tables, figuers, and examples)</td></tr>
+    </tbody></table>
+  </figure></emu-table>
+
+  <p>There are also a number of elements and corresponding Ecmarkdown syntax to give inline styles to various parts of your document in accordance with ECMAScript conventions. More detail on Ecmarkdown syntax can be found <a href="https://github.com/tc39/ecmarkdown">on its readme</a>.</p>
+  <emu-table id="emd-overview"><figure><figcaption>Table 4: Inline styles/conventions</figcaption>
+    
+    <table>
+      <tbody><tr>
+        <th>Notational Convention</th>
+        <th>Ecmarkdown Syntax</th>
+        <th>Ecmarkup Functionality</th>
+      </tr>
+      <tr>
+        <td>Variables, such as those in defined in algorithms, parameters in <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref>, etc.</td>
+        <td><code>_variable_</code></td>
+        <td><code>&lt;var&gt;variable&lt;/var&gt;</code></td>
+      </tr>
+      <tr>
+        <td>ECMAScript Language Type Values, eg. <emu-val>undefined</emu-val>, <emu-val>true</emu-val>, <emu-val>1</emu-val>, <emu-val>"string"</emu-val>, <emu-val>TypeError</emu-val>, etc.</td>
+        <td><code>*TypeError*</code></td>
+        <td><code>&lt;emu-val&gt;TypeError&lt;/emu-val&gt;</code></td>
+      </tr>
+      <tr>
+        <td>Specification types and their instances, eg. <emu-const>throw</emu-const> and <emu-const>empty</emu-const>.</td>
+        <td><code>~throw~</code></td>
+        <td><code>&lt;emu-const&gt;throw&lt;emu-const&gt;</code></td>
+      </tr>
+      <tr>
+        <td>Source Code, eg. <code>Function.prototype</code>.</td>
+        <td><code>`code`</code></td>
+        <td><code>&lt;code&gt;code&lt;/code&gt;</code></td>
+      </tr>
+      <tr>
+        <td>Non-terminal references, eg. as <emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt> and <emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a></emu-nt>.</td>
+        <td><code>|FunctionExpression|</code></td>
+        <td><code>&lt;emu-nt&gt;FunctionExpression&lt;/emu-nt&gt;</code></td>
+      </tr>
+    </tbody></table>
+  </figure></emu-table>
+</emu-clause>
+<emu-clause id="metadata">
+  <h1><span class="secnum">5</span> Metadata</h1>
+  <p>There are a number of settings that allow customizations or enable generation of boilerplate. Metadata can be included in the document and passed on the command line, for example <code>--no-toc --title "Document 1"</code>. Metadata given on the command line takes precedence.</p>
+  <p>To add metadata to your document, use yaml syntax inside a <code>&lt;pre class=metadata&gt;</code> element somewhere in the root of your document.</p>
+  <p>All of the command line options can be provided in the metadata block. See <emu-xref href="#build-options" id="_ref_13"><a href="#build-options">Table 1</a></emu-xref> and <emu-xref href="#document-options" id="_ref_14"><a href="#document-options">Table 2</a></emu-xref> for a list (or consult <code>--help</code>).</p>
+  <h2>Example document with metadata</h2>
+<pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">pre</span> <span class="hljs-attr">class</span>=<span class="hljs-string">metadata</span>&gt;</span>
+Title: Document 1
+toc: false
+<span class="hljs-tag">&lt;/<span class="hljs-name">pre</span>&gt;</span></code></pre>
+</emu-clause>
+<emu-clause id="clauses">
+  <h1><span class="secnum">6</span> Clauses</h1>
+  <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in descendent text nodes as well. Text nodes are parsed as Ecmarkdown Fragments.</p>
+
+  <emu-clause id="emu-intro">
+    <h1><span class="secnum">6.1</span> emu-intro</h1>
+    <p>Non-normative introductory information.</p>
+
+    <h2>Attributes</h2>
+    <p><b>id:</b> Clause id. Must be unique.</p>
+    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-clause">
+    <h1><span class="secnum">6.2</span> emu-clause</h1>
+    <p>Normative clause.</p>
+
+    <h2>Attributes</h2>
+    <p><b>id:</b> Clause id. Must be unique.</p>
+    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-annex">
+    <h1><span class="secnum">6.3</span> emu-annex</h1>
+    <p>Annex clause.</p>
+
+    <h2>Attributes</h2>
+    <p><b>normative:</b> If present, annex is normative. Default is non-normative.</p>
+    <p><b>id:</b> Clause id. Must be unique.</p>
+    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="emu-alg" aoid="EmuAlg">
+  <h1><span class="secnum">7</span> emu-alg</h1>
+  <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref> inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
+
+  <h2>Example</h2>
+  <emu-note><span class="note">Note</span><div class="note-contents">The emu-alg clause has an aoid of "EmuAlg".</div></emu-note>
+  <h3>Element</h3>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-alg</span> <span class="hljs-attr">aoid</span>=<span class="hljs-string">"EmuAlgExample"</span>&gt;</span>
+  1. let _clauseAbstractOp_ be the result of calling EmuAlg()
+  2. Step 2
+    1. let _recurse_ be the result of calling EmuAlgExample(`true`)
+    2. Return the result of evaluating this |NonTerminalProduction|
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-alg</span>&gt;</span></code></pre>
+  <h3>Result</h3>
+  <emu-alg aoid="EmuAlgExample"><ol><li>let <var>clauseAbstractOp</var> be the result of calling <emu-xref aoid="EmuAlg" id="_ref_20"><a href="#emu-alg">EmuAlg</a></emu-xref>()</li><li>Step 2<ol><li>let <var>recurse</var> be the result of calling EmuAlgExample(<code>true</code>)</li><li>Return the result of evaluating this <emu-nt>NonTerminalProduction</emu-nt></li></ol></li></ol></emu-alg>
+
+  <h2>Replacement algorithms</h2>
+  <p>Algorithms may be specified to replace a labeled step, in which case the algorithm will adopt the numbering of that step. For example:</p>
+
+  <h3>Element</h3>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-alg</span>&gt;</span>
+  1. Step.
+  1. Step 2.
+    1. [id="replace-me"] Replaced.
+      1. Substep.
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-alg</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>The following is an alernative definition of step <span class="hljs-tag">&lt;<span class="hljs-name">emu-xref</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"#replace-me"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-xref</span>&gt;</span>.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">emu-alg</span> <span class="hljs-attr">replaces-step</span>=<span class="hljs-string">"replace-me"</span>&gt;</span>
+  1. Replacement.
+    1. Substep.
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-alg</span>&gt;</span></code></pre>
+  <h3>Result</h3>
+  <emu-alg><ol><li>Step.</li><li>Step 2.<ol><li id="replace-me">Replaced.<ol><li>Substep.</li></ol></li></ol></li></ol></emu-alg>
+  <p>The following is an alernative definition of step <emu-xref href="#replace-me" id="_ref_15"><a href="#replace-me">2.a</a></emu-xref>.</p>
+  <emu-alg replaces-step="replace-me"><ol start="1" class="nested-once"><li>Replacement.<ol><li>Substep.</li></ol></li></ol></emu-alg>
+</emu-clause>
+
+<emu-clause id="emu-eqn">
+  <h1><span class="secnum">8</span> emu-eqn</h1>
+  <p>An equation, similar to those found in ES6 <emu-xref href="#sec-year-number"><a href="https://tc39.es/ecma262/#sec-year-number">20.4.1.3</a></emu-xref>.</p>
+
+  <h2>Attributes</h2>
+  <p><b>aoid:</b> Required: the abstract operation id that this equation defines.</p>
+  <p><b>id:</b> Optional id. If present, links will go directly to the eqn definition. Otherwise, links go to the parent clause.</p>
+</emu-clause>
+<emu-clause id="emu-note">
+  <h1><span class="secnum">9</span> emu-note</h1>
+  <p>Non-normative explanatory text. Comes in two flavors - regular notes and Editor's notes. Regular notes are intended for the implementers and end users of this specification. Editor's notes are notes to and from the Editors and will generally be removed prior to a specification being finalized and ratified.</p>
+
+  <h2>Attributes</h2>
+  <p><b>type:</b> The type of note, either blank or "editor".</p>
+
+  <h2>Example</h2>
+  <p>For authentication only, servers and clients MUST support SASL Salted Challenge Response Authentication Mechanism [SCRAM].</p>
+  <emu-note><span class="note">Note</span><div class="note-contents">But we know you won't.</div></emu-note>
+  <emu-note type="editor"><span class="note">Editor's Note</span><div class="note-contents">This joke brought to you by RFC6919.</div></emu-note>
+</emu-clause>
+
+<emu-clause id="emu-xref">
+  <h1><span class="secnum">10</span> emu-xref</h1>
+  <p>Cross-reference another clause, production, note, example, abstract operation, or labeled step. If the text content of this element is empty, a suitable default is used. The <code>title</code> attribute controls this default - when present, clauses are referred to using their title rather than number. This also applies to examples which are indexed first by their containing clause and then their example number.</p>
+  <p>Cross-references to an id check for clauses, productions, examples, and steps in this order. For each type, the local document is consulted before looking for external sources including the default ES6 biblio.</p>
+
+  <h2>Attributes</h2>
+  <p><b>href:</b> Optional: URL of the target clause, production, or example to cross-reference.</p>
+  <p><b>title:</b> Optional: If present, xref will be filled in with the referenced clause's title. Otherwise, the clause's section number is used.</p>
+  <p><b>aoid:</b> Optional: aoid of an abstract operation to reference.</p>
+
+  <p>One of aoid or href must be specified.</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>The clause element is specified in <span class="hljs-tag">&lt;<span class="hljs-name">emu-xref</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"#emu-clause"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-xref</span>&gt;</span>.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>See <span class="hljs-tag">&lt;<span class="hljs-name">emu-xref</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"#emu-note"</span> <span class="hljs-attr">title</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-xref</span>&gt;</span> for information on the emu-note element.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>The <span class="hljs-tag">&lt;<span class="hljs-name">emu-xref</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"#emu-biblio"</span>&gt;</span>biblio element<span class="hljs-tag">&lt;/<span class="hljs-name">emu-xref</span>&gt;</span> supports xref to external specs.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-xref</span> <span class="hljs-attr">aoid</span>=<span class="hljs-string">"Get"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-xref</span>&gt;</span> is an abstract operation from ES6<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-alg</span>&gt;</span>1. [id="example-step-label"] Example labeled step.<span class="hljs-tag">&lt;/<span class="hljs-name">emu-alg</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>You can reference step <span class="hljs-tag">&lt;<span class="hljs-name">emu-xref</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"#example-step-label"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-xref</span>&gt;</span> like this<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></code></pre>
+
+  <b>Result</b>
+  <p>The clause element is specified in <emu-xref href="#emu-clause" id="_ref_16"><a href="#emu-clause">6.2</a></emu-xref>.</p>
+  <p>See <emu-xref href="#emu-note" title="" id="_ref_17"><a href="#emu-note">emu-note</a></emu-xref> for information on the emu-note element.</p>
+  <p>The <emu-xref href="#emu-biblio" id="_ref_18"><a href="#emu-biblio">biblio element</a></emu-xref> will eventually support xref to external specs.</p>
+  <p><emu-xref aoid="Get"><a href="https://tc39.es/ecma262/#sec-get-o-p">Get</a></emu-xref> is an abstract operation from ES6</p>
+  <p><emu-alg><ol><li id="example-step-label">Example labeled step.</li></ol></emu-alg></p>
+  <p>You can reference step <emu-xref href="#example-step-label" id="_ref_19"><a href="#example-step-label">1</a></emu-xref> like this</p>
+</emu-clause>
+
+<emu-clause id="emu-not-ref" namespace="emu-not-ref">
+  <h1><span class="secnum">11</span> emu-not-ref</h1>
+  <p>Suppresses automatic linking to definitions.</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"not-ref-section-1"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>An <span class="hljs-tag">&lt;<span class="hljs-name">dfn</span>&gt;</span>example<span class="hljs-tag">&lt;/<span class="hljs-name">dfn</span>&gt;</span> is used for illustrative purposes.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"not-ref-section-2"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>When a word defined in another section (or algorithm step) is used, as in this example, it is normally automatically linked to the section containing the definition.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>When such a word should not be automatically linked, for <span class="hljs-tag">&lt;<span class="hljs-name">emu-not-ref</span>&gt;</span>example<span class="hljs-tag">&lt;/<span class="hljs-name">emu-not-ref</span>&gt;</span> when using its colloquial definition, it can be wrapped with this tag to surpress the automatic linking.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></code></pre>
+
+  <b>Result</b>
+  <div id="not-ref-section-1">
+    <p>An <dfn>example</dfn> is used for illustrative purposes.</p>
+  </div>
+  <div id="not-ref-section-2">
+    <p>When a word defined in another section (or algorithm step) is used, as in this <emu-xref href="#emu-not-ref" id="_ref_21"><a href="#emu-not-ref">example</a></emu-xref>, it is normally automatically linked to the section containing the definition.</p>
+    <p>When such a word should not be automatically linked, for <emu-not-ref>example</emu-not-ref> when using its colloquial definition, it can be wrapped with this tag to surpress the automatic linking.</p>
+  </div>
+</emu-clause>
+
+<emu-clause id="emu-figure">
+  <h1><span class="secnum">12</span> emu-figure</h1>
+  <p>Creates a figure that can be xrefed by ID using the <code>emu-xref</code> element. Add a caption using a child <code>emu-caption</code> element.</p>
+  <h2>Attributes</h2>
+  <p><b>informative:</b> Optional: If present, the figure is informative. Otherwise it is normative.</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-figure</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-caption</span>&gt;</span>Example figure<span class="hljs-tag">&lt;<span class="hljs-name">emu-caption</span>&gt;</span>
+  [[insert some awesome graphic here, maybe something like figure 2]]
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-figure</span>&gt;</span></code></pre>
+  <emu-figure><figure><figcaption>Figure 1: Example figure<emu-caption>
+    [[insert some awesome graphic here, maybe something like figure 2]]
+  </emu-caption></figcaption>
+    </figure></emu-figure>
+</emu-clause>
+
+<emu-clause id="emu-table">
+  <h1><span class="secnum">13</span> emu-table</h1>
+  <p>Creates a table that can be xrefed by ID using the <code>emu-xref</code> element. Add a caption using a child <code>emu-caption</code> element.</p>
+  <h2>Attributes</h2>
+  <p><b>caption:</b> Optional: Caption for the example</p>
+  <p><b>informative:</b> Optional: If present, the table is informative. Otherwise it is normative.</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-table</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-caption</span>&gt;</span>Example table<span class="hljs-tag">&lt;<span class="hljs-name">emu-caption</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">table</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">th</span>&gt;</span>Column 1<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">th</span>&gt;</span>Column 2<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>Value<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>Value 2<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>Value<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>Value 2<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>Value<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>Value 2<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>Value<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>Value 2<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-table</span>&gt;</span></code></pre>
+  <emu-table><figure><figcaption>Table 5: Example table<emu-caption>
+    <table>
+      <tbody><tr><th>Column 1</th><th>Column 2</th></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+      <tr><td>Value</td><td>Value 2</td></tr>
+    </tbody></table>
+  </emu-caption></figcaption>
+    </figure></emu-table>
+</emu-clause>
+
+<emu-clause id="emu-example">
+  <h1><span class="secnum">14</span> emu-example</h1>
+  <p>Creates an informative example. Examples are numbered based on how many are present in the example's containing clause. Can be xrefed by ID using <code>emu-xref</code>.</p>
+
+  <h2>Attributes</h2>
+  <p><b>caption:</b> Optional: Caption for the example</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-example</span> <span class="hljs-attr">caption</span>=<span class="hljs-string">"Example Example"</span>&gt;</span>
+  This is an example.
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-example</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">emu-example</span> <span class="hljs-attr">caption</span>=<span class="hljs-string">"Another Example Example"</span>&gt;</span>
+  This is also an example.
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-example</span>&gt;</span></code></pre>
+  <emu-example caption="Example Example"><figure><figcaption>Example 1 (Informative): Example Example</figcaption>
+    This is an example.
+  </figure></emu-example>
+
+  <emu-example caption="Another Example Example"><figure><figcaption>Example 2 (Informative): Another Example Example</figcaption>
+    This is also an example.
+  </figure></emu-example>
+</emu-clause>
+<emu-clause id="emu-biblio">
+  <h1><span class="secnum">15</span> emu-biblio</h1>
+  <p>Links a bibliography file. The bibliography file is a JSON document containing URLs for referenced documents along with any algorithms they define.</p>
+
+  <h2>Attributes</h2>
+  <p><b>href:</b> Required: URL to the biblio file.</p>
+
+  <h2>Example</h2>
+  <b>biblio.json</b>
+  <pre><code class="language-json hljs">{
+  <span class="hljs-attr">"https://tc39.github.io/ecma262/"</span>: [
+    {
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"op"</span>,
+      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"sec-returnifabrupt"</span>,
+      <span class="hljs-attr">"aoid"</span>: <span class="hljs-string">"ReturnIfAbrupt"</span>
+    },
+    {
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"op"</span>,
+      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"sec-get-o-p"</span>,
+      <span class="hljs-attr">"aoid"</span>: <span class="hljs-string">"Get"</span>
+    }
+  ]
+}</code></pre>
+  <b>spec.emu</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-biblio</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"./biblio.json"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-biblio</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">emu-alg</span>&gt;</span>
+1. let _res_ be Get(_obj_, _key_).
+2. ReturnIfAbrupt(_res_)
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-alg</span>&gt;</span></code></pre>
+
+  <b>Result</b>
+  <emu-alg><ol><li>let <var>res</var> be <emu-xref aoid="Get"><a href="https://tc39.es/ecma262/#sec-get-o-p">Get</a></emu-xref>(<var>obj</var>, <var>key</var>).</li><li><emu-xref aoid="ReturnIfAbrupt"><a href="https://tc39.es/ecma262/#sec-returnifabrupt">ReturnIfAbrupt</a></emu-xref>(<var>res</var>);</li></ol></emu-alg>
+</emu-clause>
+
+<emu-clause id="grammar">
+  <h1><span class="secnum">16</span> Specifying Grammar</h1>
+  <p>There are two ways to specify grammar in Ecmarkup: using the <a href="#emu-production">emu-production</a> element and related elements, or by using the <a href="#emu-grammar">emu-grammar</a> element which allows specifying grammar using a plaintext format.</p>
+
+  <h2>Examples</h2>
+  <b>WhileStatement</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"WhileStatement"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span>while ( <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>Expression<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span> ) <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>Statement<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+
+  <emu-production name="WhileStatement" id="prod-WhileStatement">
+    <emu-nt><a href="#prod-WhileStatement">WhileStatement</a></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>while</emu-t><emu-t>(</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Expression">Expression</a></emu-nt><emu-t>)</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Statement">Statement</a></emu-nt></emu-rhs>
+  </emu-production>
+
+  <b>ArgumentList</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"ArgumentList"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>AssignmentExpression<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>ArgumentList<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span> , <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>AssignmentExpression<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+
+  <emu-production name="ArgumentList" id="prod-ArgumentList">
+    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
+
+    <emu-rhs><emu-nt id="_ref_22"><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-t>,</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
+  </emu-production>
+
+  <b>IterationStatement</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"IterationStatement"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span>for ( <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>LexicalDeclaration<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span> ; <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span> <span class="hljs-attr">optional</span>&gt;</span>Expression<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span> ;
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span> <span class="hljs-attr">optional</span>&gt;</span>Expression<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span> ) <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>Statement<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+  <emu-production name="IterationStatement" id="prod-IterationStatement">
+    <emu-nt><a href="#prod-IterationStatement">IterationStatement</a></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-t>for</emu-t><emu-t>(</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-LexicalDeclaration">LexicalDeclaration</a></emu-nt><emu-t>;</emu-t><emu-nt optional=""><a href="https://tc39.es/ecma262/#prod-Expression">Expression</a><emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt><emu-t>;</emu-t><emu-nt optional=""><a href="https://tc39.es/ecma262/#prod-Expression">Expression</a><emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt><emu-t>)</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Statement">Statement</a></emu-nt></emu-rhs>
+  </emu-production>
+
+  <b>Identifier</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"Identifier"</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"lexical"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>IdentifierName<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">emu-gmod</span>&gt;</span>but not
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>ReservedWord<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-gmod</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+  <emu-production name="Identifier" type="lexical" id="prod-Identifier">
+    <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-IdentifierName">IdentifierName</a></emu-nt><emu-gmod>but not
+    <emu-nt><a href="https://tc39.es/ecma262/#prod-ReservedWord">ReservedWord</a></emu-nt></emu-gmod></emu-rhs>
+  </emu-production>
+
+  <b>SourceCharacter</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"SourceCharacter"</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"lexical"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-gprose</span>&gt;</span>any Unicode code point<span class="hljs-tag">&lt;/<span class="hljs-name">emu-gprose</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+  <emu-production name="SourceCharacter" type="lexical" id="prod-SourceCharacter">
+    <emu-nt><a href="#prod-SourceCharacter">SourceCharacter</a></emu-nt><emu-geq>::</emu-geq><emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
+  </emu-production>
+
+  <b>ExpressionStatement</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"ExpressionStatement"</span> <span class="hljs-attr">params</span>=<span class="hljs-string">"Yield"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">emu-gann</span>&gt;</span>lookahead ∉ {
+      <span class="hljs-tag">&lt;<span class="hljs-name">emu-t</span>&gt;</span>{<span class="hljs-tag">&lt;/<span class="hljs-name">emu-t</span>&gt;</span>,
+      <span class="hljs-tag">&lt;<span class="hljs-name">emu-t</span>&gt;</span>function<span class="hljs-tag">&lt;/<span class="hljs-name">emu-t</span>&gt;</span>,
+      <span class="hljs-tag">&lt;<span class="hljs-name">emu-t</span>&gt;</span>class<span class="hljs-tag">&lt;/<span class="hljs-name">emu-t</span>&gt;</span>,
+      <span class="hljs-tag">&lt;<span class="hljs-name">emu-t</span>&gt;</span>let [<span class="hljs-tag">&lt;/<span class="hljs-name">emu-t</span>&gt;</span>
+    }<span class="hljs-tag">&lt;/<span class="hljs-name">emu-gann</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+  <emu-production name="ExpressionStatement" params="Yield" id="prod-ExpressionStatement">
+    <emu-nt params="Yield"><a href="#prod-ExpressionStatement">ExpressionStatement</a><emu-mods><emu-params>[Yield]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-gann>[lookahead ∉ {
+        <emu-t>{</emu-t>,
+        <emu-t>function</emu-t>,
+        <emu-t>class</emu-t>,
+        <emu-t>let [</emu-t>
+      }]</emu-gann></emu-rhs>
+  </emu-production>
+
+  <b>DecimalDigit</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"DecimalDigit"</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"lexical"</span> <span class="hljs-attr">oneof</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span>0 1 2 3 4 5 6 7 8 9<span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+  <emu-production name="DecimalDigit" type="lexical" oneof="" id="prod-DecimalDigit">
+    <emu-nt><a href="#prod-DecimalDigit">DecimalDigit</a></emu-nt><emu-geq>::</emu-geq><emu-oneof>one of</emu-oneof><emu-rhs><emu-t>0</emu-t><emu-t>1</emu-t><emu-t>2</emu-t><emu-t>3</emu-t><emu-t>4</emu-t><emu-t>5</emu-t><emu-t>6</emu-t><emu-t>7</emu-t><emu-t>8</emu-t><emu-t>9</emu-t></emu-rhs>
+  </emu-production>
+
+  <b>StatementList</b>
+  <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"StatementList"</span> <span class="hljs-attr">params</span>=<span class="hljs-string">"Return, In"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span> <span class="hljs-attr">constraints</span>=<span class="hljs-string">"~Return"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>ReturnStatement<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>ExpressionStatement<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+  <emu-production name="StatementList" params="Return, In" id="prod-StatementList">
+    <emu-nt params="Return, In"><a href="#prod-StatementList">StatementList</a><emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt><emu-geq>:</emu-geq><emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ReturnStatement">ReturnStatement</a></emu-nt></emu-rhs>
+    <emu-rhs><emu-nt id="_ref_23"><a href="#prod-ExpressionStatement">ExpressionStatement</a></emu-nt></emu-rhs>
+  </emu-production>
+
+  <emu-clause id="emu-grammar">
+    <h1><span class="secnum">16.1</span> emu-grammar</h1>
+    <p>Text inside emu-grammar elements is parsed using <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a>. The syntax is essentially identical to the notational conventions in ECMAScript (minus formatting). See the <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown readme</a>.</p>
+    <p>Grammar will be displayed as an "inline" element flowing with text unless it is the immediate child of an emu-clause-like element.</p>
+    <h2>Attributes</h2>
+    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-production">
+    <h1><span class="secnum">16.2</span> emu-production</h1>
+    <p>This is the top level element that contains all grammar productions. Each production MUST include at least one right-hand side (see <a href="#emu-rhs">emu-rhs</a>).</p>
+    <p>The production will be displayed as an "inline" element flowing with text unless it is the immediate child of an emu-clause-like element or if its containing emu-grammar element is an immediate child of an emu-clause-like element.</p>
+    <h2>Attributes</h2>
+    <h2>Attributes</h2>
+    <p><b>Name:</b> Required. Name of the production (i.e. the non-terminal on the LHS).</p>
+    <p><b>Params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
+    <p><b>Type:</b> Type of production, either "lexical" or "regexp". Default is blank (normal).</p>
+    <p><b>oneof:</b> If present, production is a one-of production. See DecimalDigit example above.</p>
+    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-rhs">
+    <h1><span class="secnum">16.3</span> emu-rhs</h1>
+    <p>Describes one right-hand-side alternative of a production. Text nodes inside of an rhs are split on each space and turned into terminals. For example, </p><pre>&lt;emu-rhs&gt;a b c&lt;/emu-rhs&gt;</pre> is semantically equivalent to <pre>&lt;emu-rhs&gt;&lt;emu-t&gt;a&lt;/emu-t&gt; &lt;emu-t&gt;b&lt;/emu-t&gt; &lt;emu-t&gt;c&lt;/emu-t&gt;</pre><p></p>
+    <h2>Attributes</h2>
+    <p><b>constraints:</b> any constraints for this RHS. Multiple constraints separated by commas. See StatementList example above.</p>
+    <p><b>a:</b> Optional alternative id used to reference a particular RHS via <code>emu-prodref</code>. Must be unique for all <code>emu-rhs</code> elements inside an emu-production. Example might be `<emu-rhs a="1">`.</emu-rhs></p>
+  </emu-clause>
+
+  <emu-clause id="emu-nt">
+    <h1><span class="secnum">16.4</span> emu-nt</h1>
+    <p>Non-terminal. Alpha characters only.</p>
+    <h2>Attributes</h2>
+    <p><b>Params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
+    <p><b>oneof:</b> If present, production is a one-of production (see DecimalDigit example above).</p>
+  </emu-clause>
+
+  <emu-clause id="emu-t">
+    <h1><span class="secnum">16.5</span> emu-t</h1>
+    <p>Terminal. No attributes available. Mostly don't need to create these elements manually as <a href="#emu-rhs">they are created automatically inside emu-rhs elements</a>.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-gmod">
+    <h1><span class="secnum">16.6</span> emu-gmod</h1>
+
+    <p>Contains well-known modifiers to a right-hand side of a production. The only well-known modifier at present is the "but not" modifier. See the Identifier example above.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-gann">
+    <h1><span class="secnum">16.7</span> emu-gann</h1>
+
+    <p>Contains well-known annotations to to a right-hand side of a production. The only well-known modifiers at present are "lookahead" and "empty". See the ExpressionStatement example above. Any text inside a gann element is wrapped in square brackets.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-gprose">
+    <h1><span class="secnum">16.8</span> emu-gprose</h1>
+    <p>Contains any prose text that describes a production. See SourceCharacter example above.</p>
+  </emu-clause>
+
+  <emu-clause id="emu-prodref">
+    <h1><span class="secnum">16.9</span> emu-prodref</h1>
+    <p>References a production defined elsewhere in the document. Ecmarkup will insert either the entire production or a particular RHS depending on attributes.</p>
+
+    <h2>Attributes</h2>
+    <p><b>name:</b> Required. Name of the production to reference.</p>
+    <p><b>a:</b> Optional. If present, specified a particular alternative ID to reference.</p>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="imports">
+  <h1><span class="secnum">17</span> Imports</h1>
+  <p>HTML Imports are treated specially in an ecmarkup document. Every import is inlined into its parent document at the location of the import tag. This is useful for breaking your spec document up into many smaller pieces.</p>
+</emu-clause>
+
+<emu-clause id="css">
+  <h1><span class="secnum">18</span> Other Styles &amp; Conventions</h1>
+  <emu-clause id="oldids">
+      <h1><span class="secnum">18.1</span> Old IDs</h1>
+      <p>Old IDs for any element can be stored as a comma-separated list inside an <b>oldids</b> attribute, allowing links using them to continue working as expected.</p>
+  </emu-clause>
+  <emu-clause id="ins-del">
+    <h1><span class="secnum">18.2</span> ins &amp; del</h1>
+    <p>The <code>ins</code> and <code>del</code> HTML tags can be used to mark insertions and deletions respectively. When adding or removing block content (such as entire list items, paragrpahs, clauses, grammar RHSes, etc.), use a class of "block".</p>
+
+    <h2>Inline Example:</h2>
+    <pre><code class="language-html hljs">ECMAScript <span class="hljs-tag">&lt;<span class="hljs-name">del</span>&gt;</span>6<span class="hljs-tag">&lt;/<span class="hljs-name">del</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">ins</span>&gt;</span>2015<span class="hljs-tag">&lt;/<span class="hljs-name">ins</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-name">del</span>&gt;</span>will be ratified<span class="hljs-tag">&lt;/<span class="hljs-name">del</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">ins</span>&gt;</span>was ratified<span class="hljs-tag">&lt;/<span class="hljs-name">ins</span>&gt;</span> in June, 2015.</code></pre>
+    <h3>Result:</h3>
+    <p>ECMAScript <del>6</del><ins>2015</ins> <del>will be ratified</del><ins>was ratified</ins> in June, 2015.</p>
+
+    <h2>Block Example:</h2>
+    <pre><code class="language-html hljs"><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>|HoistableDeclaration| is modified as follows:<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">emu-production</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"HoistableDeclaration"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>FunctionDeclaration<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>GeneratorDeclaration<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">ins</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"block"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>AsyncFunctionDeclaration<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">ins</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
+    <h3>Result:</h3>
+    <p><emu-nt id="_ref_24"><a href="#prod-HoistableDeclaration">HoistableDeclaration</a></emu-nt> is modified as follows:</p>
+    <emu-production name="HoistableDeclaration" id="prod-HoistableDeclaration">
+      <emu-nt><a href="#prod-HoistableDeclaration">HoistableDeclaration</a></emu-nt><emu-geq>:</emu-geq><emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt></emu-rhs>
+      <emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorDeclaration">GeneratorDeclaration</a></emu-nt></emu-rhs>
+      <ins class="block"><emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionDeclaration">AsyncFunctionDeclaration</a></emu-nt></emu-rhs></ins>
+    </emu-production>
+  </emu-clause>
+  <emu-clause id="pre-code">
+    <h1><span class="secnum">18.3</span> Code Listings</h1>
+    <p>Create a code listing using <code>&lt;pre&gt;&lt;code&gt;</code>. The <code>code</code> element takes a class of <code>javascript</code>, <code>html</code>, or any other language provided by <a href="https://highlightjs.org/">highlightjs</a>. Ecmarkup will trim any leading blank lines and also normalize the indentation based on the indentation of the first line.</p>
+  </emu-clause>
+</emu-clause>
+</div></body>

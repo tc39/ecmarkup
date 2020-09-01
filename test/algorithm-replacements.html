@@ -1,0 +1,51 @@
+<pre class=metadata>
+toc: false
+copyright: false
+assets: none
+</pre>
+
+<emu-clause id=test>
+  <h1>Title</h1>
+
+  <p>You can refer to a step in a replacement algorithm before it occurs in text, like step <emu-xref href="#example"></emu-xref>.</p>
+
+  <p>You can similarly refer to a step in a replacement algorithm which itself which replaces a step in a replacement algorithm, like step <emu-xref href="#nested-example"></emu-xref>.</p>
+
+  <p>An algorithm can come before the step it replaces.</p>
+
+  <emu-alg replaces-step="to-be-replaced">
+    1. Two a:
+      1. Two a i:
+        1. Two a i one.
+        1. [id="example"] Two a i two.
+  </emu-alg>
+
+  <p>This is our sample algorithm.</p>
+  <emu-alg>
+    1. One.
+    1. Two:
+      1. [id="to-be-replaced"] Two a.
+  </emu-alg>
+
+  <p>An algorithm can also come after the step it replaces.</p>
+
+  <emu-alg replaces-step="to-be-replaced">
+    1. Two a:
+      1. Two a i:
+        1. Two a i one.
+        1. [id="example"] Two a i two.
+  </emu-alg>
+
+  <p>You can even replace steps in replacement algorithms.</p>
+
+  <emu-alg replaces-step="example">
+    1. Two a i two:
+      1. Two a i two a.
+      1. Two a i two b.
+      1. [id="nested-example"] Two a i two c:
+        1. Two a i two c i:
+          1. Two a i two c i i:
+            1. Two a i two c i i i.
+            1. Two a i two c i i ii.
+  </emu-alg>
+</emu-clause>

@@ -19,6 +19,24 @@ export const argParser = nomnom
     jsOut: { full: 'js-out', metavar: 'FILE', help: 'Write Emu JS dependencies to FILE' },
     toc: { flag: true, help: "Don't include the table of contents" },
     oldToc: { full: 'old-toc', flag: true, help: 'Use the old table of contents styling' },
+    lintSpec: {
+      full: 'lint-spec',
+      flag: true,
+      default: false,
+      help: 'Enforce some style and correctness checks',
+    },
+    lintFormatter: {
+      full: 'lint-formatter',
+      metavar: 'FORMAT',
+      default: 'codeframe',
+      help:
+        'The linting output formatter. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.',
+    },
+    strict: {
+      flag: true,
+      default: false,
+      help: 'Exit with an error if there are warnings. Cannot be used with --watch.',
+    },
     verbose: { flag: true, default: false, help: 'Display document build progress' },
     version: {
       abbr: 'v',

@@ -4,7 +4,6 @@ import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
 import Builder from './Builder';
-import * as utils from './utils';
 
 /*@internal*/
 export default class Xref extends Builder {
@@ -46,13 +45,22 @@ export default class Xref extends Builder {
     }
 
     if (href && aoid) {
-      utils.logWarning("xref can't have both href and aoid.");
+      spec.warn({
+        type: 'node',
+        ruleId: 'invalid-xref',
+        message: "xref can't have both href and aoid",
+        node,
+      });
       return;
     }
 
     if (!href && !aoid) {
-      utils.logWarning('xref has no href or aoid.');
-      console.log(node.outerHTML);
+      spec.warn({
+        type: 'node',
+        ruleId: 'invalid-xref',
+        message: 'xref has neither href nor aoid',
+        node,
+      });
       return;
     }
 
@@ -69,11 +77,14 @@ export default class Xref extends Builder {
 
     if (href) {
       if (href[0] !== '#') {
-        utils.logWarning(
-          'xref to anything other than a fragment id is not supported (is ' +
-            href +
-            '). Try href="#sec-id" instead.'
-        );
+        spec.warn({
+          type: 'node',
+          ruleId: 'invalid-xref',
+          message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(
+            href
+          )}). try href="#sec-id" instead`,
+          node: this.node,
+        });
         return;
       }
 
@@ -81,7 +92,13 @@ export default class Xref extends Builder {
 
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
-        utils.logWarning("can't find clause, production, note or example with id " + href);
+        spec.warn({
+          type: 'attr',
+          attr: 'href',
+          ruleId: 'xref-not-found',
+          message: `can't find clause, production, note or example with id ${JSON.stringify(id)}`,
+          node: this.node,
+        });
         return;
       }
 
@@ -107,8 +124,17 @@ export default class Xref extends Builder {
         case 'term':
           buildTermLink(node, this.entry);
           break;
-        default:
-          utils.logWarning('found unknown biblio entry (this is a bug, please file it)');
+        case 'step':
+          buildStepLink(spec, node, this.entry);
+          break;
+        default: {
+          spec.warn({
+            type: 'node',
+            ruleId: 'unknown-biblio',
+            message: `found unknown biblio entry ${this.entry.type} (this is a bug, please file it with ecmarkup)`,
+            node: this.node,
+          });
+        }
       }
     } else if (aoid) {
       this.entry = spec.biblio.byAoid(aoid, namespace);
@@ -118,7 +144,15 @@ export default class Xref extends Builder {
         return;
       }
 
-      utils.logWarning("can't find abstract op with aoid " + aoid + ' in namespace ' + namespace);
+      let namespaceSuffix =
+        namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
+      spec.warn({
+        type: 'attr',
+        attr: 'aoid',
+        ruleId: 'xref-not-found',
+        message: `can't find abstract op with aoid ${JSON.stringify(aoid)}` + namespaceSuffix,
+        node: this.node,
+      });
     }
   }
 }
@@ -171,7 +205,12 @@ function buildFigureLink(
       // first need to find the associated clause
       const clauseEntry = spec.biblio.byId(entry.clauseId);
       if (clauseEntry.type !== 'clause') {
-        utils.logWarning('could not find parent clause for ' + type + ' id ' + entry.id);
+        spec.warn({
+          type: 'node',
+          ruleId: 'invalid-xref',
+          message: `could not find parent clause for ${type} id ${entry.id}`,
+          node: entry.node,
+        });
         return;
       }
 
@@ -196,6 +235,44 @@ function buildFigureLink(
   } else {
     xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
   }
+}
+
+let decimalBullet = Array.from({ length: 100 }).map((a, i) => '' + (i + 1));
+let alphaBullet = Array.from({ length: 26 }).map((a, i) =>
+  String.fromCharCode('a'.charCodeAt(0) + i)
+);
+// prettier-ignore
+let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
+let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
+
+function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry) {
+  if (xref.innerHTML !== '') {
+    spec.warn({
+      type: 'contents',
+      ruleId: 'step-xref-contents',
+      message: 'the contents of emu-xrefs to steps are ignored',
+      node: xref,
+      nodeRelativeLine: 1,
+      nodeRelativeColumn: 1,
+    });
+  }
+
+  let stepBullets = entry.stepNumbers.map((s, i) => {
+    let applicable = bullets[Math.min(i, 5)];
+    if (s > applicable.length) {
+      spec.warn({
+        type: 'attr',
+        ruleId: 'high-step-number',
+        message: `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`,
+        node: xref,
+        attr: 'href',
+      });
+      return '?';
+    }
+    return applicable[s - 1];
+  });
+  let text = stepBullets.join('.');
+  xref.innerHTML = buildXrefLink(entry, text);
 }
 
 function buildXrefLink(entry: Biblio.BiblioEntry, contents: string | number | undefined | null) {

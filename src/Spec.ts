@@ -1,6 +1,7 @@
-import type { Options } from './ecmarkup';
+import type { MarkupData } from 'parse5';
+import type { EcmarkupError, Options } from './ecmarkup';
 import type { Context } from './Context';
-import type { BiblioData } from './Biblio';
+import type { BiblioData, StepBiblioEntry } from './Biblio';
 import type { BuilderInterface } from './Builder';
 
 import * as path from 'path';
@@ -28,6 +29,7 @@ import Xref from './Xref';
 import Eqn from './Eqn';
 import Biblio from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
+import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
@@ -77,6 +79,145 @@ export default interface Spec {
   exportBiblio(): any;
 }
 
+export type Warning =
+  | {
+      type: 'global';
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'node';
+      node: Text | Element;
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'attr';
+      node: Element;
+      attr: string;
+      ruleId: string;
+      message: string;
+    }
+  | {
+      type: 'contents';
+      node: Text | Element;
+      ruleId: string;
+      message: string;
+      nodeRelativeLine: number;
+      nodeRelativeColumn: number;
+    }
+  | {
+      type: 'raw';
+      ruleId: string;
+      message: string;
+      line: number;
+      column: number;
+      file?: string;
+      source?: string;
+    };
+
+function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void) {
+  return (e: Warning) => {
+    let { message, ruleId } = e;
+    let line: number | undefined;
+    let column: number | undefined;
+    let nodeType: string;
+    let file: string | undefined = undefined;
+    if (e.type === 'global') {
+      line = undefined;
+      column = undefined;
+      nodeType = 'html';
+    } else if (e.type === 'raw') {
+      ({ line, column } = e);
+      nodeType = 'html';
+      if (e.file != null) {
+        file = e.file;
+        source = e.source!;
+      }
+    } else {
+      if (e.type === 'node') {
+        if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
+          let loc = spec.locate(e.node);
+          file = loc.file;
+          if (loc.source != null) {
+            source = loc.source;
+          }
+          ({ line, col: column } = loc);
+          nodeType = 'text';
+        } else {
+          let loc = spec.locate(e.node as Element);
+          file = loc.file;
+          if (loc.source != null) {
+            source = loc.source;
+          }
+          ({ line, col: column } = loc.startTag);
+          nodeType = (e.node as Element).tagName.toLowerCase();
+        }
+      } else if (e.type === 'attr') {
+        let loc = spec.locate(e.node);
+        file = loc.file;
+        if (loc.source != null) {
+          source = loc.source;
+        }
+        ({ line, column } = utils.attrValueLocation(source, loc, e.attr));
+        nodeType = e.node.tagName.toLowerCase();
+      } else if (e.type === 'contents') {
+        let { nodeRelativeLine, nodeRelativeColumn } = e;
+
+        if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
+          // i.e. a text node, which does not have a tag
+          let loc = spec.locate(e.node);
+          file = loc.file;
+          if (loc.source != null) {
+            source = loc.source;
+          }
+          line = loc.line + nodeRelativeLine - 1;
+          column = nodeRelativeLine === 1 ? loc.col + nodeRelativeColumn - 1 : nodeRelativeColumn;
+          nodeType = 'text';
+        } else {
+          let loc = spec.locate(e.node);
+          file = loc.file;
+          if (loc.source != null) {
+            source = loc.source;
+          }
+          // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
+          // TODO switch to using loc.startTag.end{Line,Col} once parse5 can be upgraded
+          let tagSrc = source.slice(loc.startTag.startOffset, loc.startTag.endOffset);
+          let tagEnd = utils.offsetToLineAndColumn(
+            tagSrc,
+            loc.startTag.endOffset - loc.startOffset
+          );
+          line = loc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
+          if (nodeRelativeLine === 1) {
+            if (tagEnd.line === 1) {
+              column = loc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
+            } else {
+              column = tagEnd.column + nodeRelativeColumn - 1;
+            }
+          } else {
+            column = nodeRelativeColumn;
+          }
+          nodeType = (e.node as Element).tagName.toLowerCase();
+        }
+      }
+    }
+
+    warn({
+      message,
+      ruleId,
+      // we omit source for global errors so that we don't get a codeframe
+      source: e.type === 'global' ? undefined : source,
+      file,
+      // @ts-ignore TS can't prove this is initialized, for some reason
+      nodeType,
+      // @ts-ignore TS can't prove this is initialized, for some reason
+      line,
+      // @ts-ignore TS can't prove this is initialized, for some reason
+      column,
+    });
+  };
+}
+
 /*@internal*/
 export default class Spec {
   spec: this;
@@ -90,8 +231,14 @@ export default class Spec {
   doc: Document;
   imports: Import[];
   node: HTMLElement;
+  nodeIds: Set<string>;
   subclauses: Clause[];
+  replacementAlgorithmToContainedLabeledStepEntries: Map<Element, StepBiblioEntry[]>; // map from re to its labeled nodes
+  labeledStepsToBeRectified: Set<string>;
+  replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
+  log: (msg: string) => void;
+  warn: (err: Warning) => void | undefined;
 
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
@@ -105,7 +252,7 @@ export default class Spec {
     fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
     dom: any,
     opts?: Options,
-    sourceText?: string,
+    sourceText?: string, // TODO we need not support this being undefined
     token = CancellationToken.none
   ) {
     opts = opts || {};
@@ -121,7 +268,13 @@ export default class Spec {
     this.subclauses = [];
     this.imports = [];
     this.node = this.doc.body;
+    this.nodeIds = new Set();
+    this.replacementAlgorithmToContainedLabeledStepEntries = new Map();
+    this.labeledStepsToBeRectified = new Set();
+    this.replacementAlgorithms = [];
     this.cancellationToken = token;
+    this.log = opts.log ?? (() => {});
+    this.warn = opts.warn ? wrapWarn(sourceText!, this, opts.warn) : () => {};
     this._figureCounts = {
       table: 0,
       figure: 0,
@@ -189,19 +342,19 @@ export default class Spec {
     7. Add CSS & JS dependencies.
     */
 
-    this._log('Loading biblios...');
+    this.log('Loading biblios...');
     if (this.opts.ecma262Biblio) {
       await this.loadECMA262Biblio();
     }
     await this.loadBiblios();
 
-    this._log('Loading imports...');
+    this.log('Loading imports...');
     await this.loadImports();
 
-    this._log('Building boilerplate...');
+    this.log('Building boilerplate...');
     this.buildBoilerplate();
 
-    this._log('Walking document, building various elements...');
+    this.log('Walking document, building various elements...');
     const context: Context = {
       spec: this,
       node: this.doc.body,
@@ -217,19 +370,31 @@ export default class Spec {
     };
 
     const document = this.doc;
+
+    if (this.opts.lintSpec) {
+      this.log('Linting...');
+      const source = this.sourceText;
+      if (source === undefined) {
+        throw new Error('Cannot lint when source text is not available');
+      }
+      lint(this.warn, source, this, document);
+    }
+
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
 
     walk(walker, context);
 
+    this.setReplacementAlgorithmOffsets();
+
     this.autolink();
 
-    this._log('Linking xrefs...');
+    this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
-    this._log('Linking non-terminal references...');
+    this.log('Linking non-terminal references...');
     this._ntRefs.forEach(nt => nt.build());
-    this._log('Linking production references...');
+    this.log('Linking production references...');
     this._prodRefs.forEach(prod => prod.build());
-    this._log('Building reference graph...');
+    this.log('Building reference graph...');
     this.buildReferenceGraph();
 
     this.highlightCode();
@@ -238,7 +403,7 @@ export default class Spec {
     this.buildSpecWrapper();
 
     if (this.opts.toc) {
-      this._log('Building table of contents...');
+      this.log('Building table of contents...');
 
       let toc: Toc | Menu;
       if (this.opts.oldToc) {
@@ -252,12 +417,54 @@ export default class Spec {
 
     await this.buildAssets();
 
-    this._log('Done.');
     return this;
   }
 
   public toHTML() {
-    return '<!doctype html>\n' + this.doc.documentElement.innerHTML;
+    let htmlEle = this.doc.documentElement;
+    return '<!doctype html>\n' + (htmlEle.hasAttributes() ? htmlEle.outerHTML : htmlEle.innerHTML);
+  }
+
+  public locate(
+    node: Element | Node
+  ): { file?: string; source?: string } & MarkupData.ElementLocation {
+    let pointer: Element | Node | null = node;
+    while (pointer != null) {
+      if (pointer.nodeName === 'EMU-IMPORT') {
+        break;
+      }
+      pointer = pointer.parentElement;
+    }
+    if (pointer == null) {
+      let loc = this.dom.nodeLocation(node);
+      // we can't just spread `loc` because not all properties are own/enumerable
+      return {
+        startTag: loc.startTag,
+        endTag: loc.endTag,
+        startOffset: loc.startOffset,
+        endOffset: loc.endOffset,
+        attrs: loc.attrs,
+        line: loc.line,
+        col: loc.col,
+      };
+    } else {
+      // @ts-ignore
+      let loc = pointer.dom.nodeLocation(node);
+
+      return {
+        // @ts-ignore
+        file: pointer.importPath,
+        // @ts-ignore
+        source: pointer.source,
+        startTag: loc.startTag,
+        endTag: loc.endTag,
+        startOffset: loc.startOffset,
+        endOffset: loc.endOffset,
+        attrs: loc.attrs,
+        line: loc.line,
+        col: loc.col,
+      };
+    }
   }
 
   private buildReferenceGraph() {
@@ -297,12 +504,12 @@ export default class Spec {
     const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
 
     if (this.opts.jsOut) {
-      this._log(`Writing js file to ${this.opts.jsOut}...`);
+      this.log(`Writing js file to ${this.opts.jsOut}...`);
       await utils.writeFile(this.opts.jsOut, jsContents);
     }
 
     if (this.opts.cssOut) {
-      this._log(`Writing css file to ${this.opts.cssOut}...`);
+      this.log(`Writing css file to ${this.opts.cssOut}...`);
       await utils.writeFile(this.opts.cssOut, cssContents);
     }
 
@@ -325,7 +532,7 @@ export default class Spec {
         const script = scripts[i];
         const src = script.getAttribute('src');
         if (src && path.normalize(path.join(outDir, src)) === path.normalize(this.opts.jsOut)) {
-          this._log(`Found existing js link to ${src}, skipping inlining...`);
+          this.log(`Found existing js link to ${src}, skipping inlining...`);
           skipJs = true;
         }
       }
@@ -337,21 +544,21 @@ export default class Spec {
         const link = links[i];
         const href = link.getAttribute('href');
         if (href && path.normalize(path.join(outDir, href)) === path.normalize(this.opts.cssOut)) {
-          this._log(`Found existing css link to ${href}, skipping inlining...`);
+          this.log(`Found existing css link to ${href}, skipping inlining...`);
           skipCss = true;
         }
       }
     }
 
     if (!skipJs) {
-      this._log('Inlining JavaScript assets...');
+      this.log('Inlining JavaScript assets...');
       const script = this.doc.createElement('script');
       script.textContent = jsContents;
       this.doc.head.appendChild(script);
     }
 
     if (!skipCss) {
-      this._log('Inlining CSS assets...');
+      this.log('Inlining CSS assets...');
       const style = this.doc.createElement('style');
       style.textContent = cssContents;
       this.doc.head.appendChild(style);
@@ -381,7 +588,23 @@ export default class Spec {
     try {
       data = yaml.safeLoad(block.textContent!);
     } catch (e) {
-      utils.logWarning('metadata block failed to parse');
+      if (typeof e?.mark.line === 'number' && typeof e?.mark.column === 'number') {
+        this.warn({
+          type: 'contents',
+          ruleId: 'invalid-metadata',
+          message: `metadata block failed to parse: ${e.reason}`,
+          node: block,
+          nodeRelativeLine: e.mark.line + 1,
+          nodeRelativeColumn: e.mark.column + 1,
+        });
+      } else {
+        this.warn({
+          type: 'node',
+          ruleId: 'invalid-metadata',
+          message: 'metadata block failed to parse',
+          node: block,
+        });
+      }
       return;
     } finally {
       block.parentNode.removeChild(block);
@@ -415,9 +638,12 @@ export default class Spec {
 
   public exportBiblio(): any {
     if (!this.opts.location) {
-      utils.logWarning(
-        "No spec location specified. Biblio not generated. Try --location or setting the location in the document's metadata block."
-      );
+      this.warn({
+        type: 'global',
+        ruleId: 'no-location',
+        message:
+          "no spec location specified; biblio not generated. try --location or setting the location in the document's metadata block",
+      });
       return {};
     }
 
@@ -428,7 +654,7 @@ export default class Spec {
   }
 
   private highlightCode() {
-    this._log('Highlighting syntax...');
+    this.log('Highlighting syntax...');
     const codes = this.doc.querySelectorAll('pre code');
     for (let i = 0; i < codes.length; i++) {
       const classAttr = codes[i].getAttribute('class');
@@ -481,9 +707,12 @@ export default class Spec {
 
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
-        utils.logWarning(
-          'Contributors not specified, skipping copyright boilerplate. Specify contributors in your frontmatter metadata.'
-        );
+        this.warn({
+          type: 'global',
+          ruleId: 'no-contributors',
+          message:
+            'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
+        });
       } else {
         this.buildCopyrightBoilerplate();
       }
@@ -614,8 +843,88 @@ export default class Spec {
     `;
   }
 
+  private setReplacementAlgorithmOffsets() {
+    this.log('Finding offsets for replacement algorithm steps...');
+    let pending: Map<string, Element[]> = new Map();
+
+    let setReplacementAlgorithmStart = (element: Element, stepNumbers: number[]) => {
+      let rootList = element.firstElementChild! as HTMLOListElement;
+      rootList.start = stepNumbers[stepNumbers.length - 1];
+      if (stepNumbers.length > 1) {
+        // Note the off-by-one here: a length of 1 indicates we are replacing a top-level step, which means we do not need to adjust the styling.
+        if (stepNumbers.length === 2) {
+          rootList.classList.add('nested-once');
+        } else if (stepNumbers.length === 3) {
+          rootList.classList.add('nested-twice');
+        } else if (stepNumbers.length === 4) {
+          rootList.classList.add('nested-thrice');
+        } else if (stepNumbers.length === 5) {
+          rootList.classList.add('nested-four-times');
+        } else {
+          // At the sixth level and deeper (so once we have nested five times) we use a consistent line numbering style, so no further cases are necessary
+          rootList.classList.add('nested-lots');
+        }
+      }
+
+      // Fix up the biblio entries for any labeled steps in the algorithm
+      for (let entry of this.replacementAlgorithmToContainedLabeledStepEntries.get(element)!) {
+        entry.stepNumbers = [...stepNumbers, ...entry.stepNumbers.slice(1)];
+        this.labeledStepsToBeRectified.delete(entry.id);
+
+        // Now that we've figured out where the step is, we can deal with algorithms replacing it
+        if (pending.has(entry.id)) {
+          let todo = pending.get(entry.id)!;
+          pending.delete(entry.id);
+          for (let replacementAlgorithm of todo) {
+            setReplacementAlgorithmStart(replacementAlgorithm, entry.stepNumbers);
+          }
+        }
+      }
+    };
+
+    for (let { element, target } of this.replacementAlgorithms) {
+      if (this.labeledStepsToBeRectified.has(target)) {
+        if (!pending.has(target)) {
+          pending.set(target, []);
+        }
+        pending.get(target)!.push(element);
+      } else {
+        // When the target is not itself within a replacement, or is within a replacement which we have already rectified, we can just use its step number directly
+        let targetEntry = this.biblio.byId(target);
+        if (targetEntry == null) {
+          this.warn({
+            type: 'attr',
+            attr: 'replaces-step',
+            ruleId: 'invalid-replacement',
+            message: `could not find step ${JSON.stringify(target)}`,
+            node: element,
+          });
+        } else if (targetEntry.type !== 'step') {
+          this.warn({
+            type: 'attr',
+            attr: 'replaces-step',
+            ruleId: 'invalid-replacement',
+            message: `expected algorithm to replace a step, not a ${targetEntry.type}`,
+            node: element,
+          });
+        } else {
+          setReplacementAlgorithmStart(element, targetEntry.stepNumbers);
+        }
+      }
+    }
+    if (pending.size > 0) {
+      // todo consider line/column missing cases
+      this.warn({
+        type: 'global',
+        ruleId: 'invalid-replacement',
+        message:
+          'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
+      });
+    }
+  }
+
   public autolink() {
-    this._log('Autolinking terms and abstract ops...');
+    this.log('Autolinking terms and abstract ops...');
     let namespaces = Object.keys(this._textNodes);
     for (let i = 0; i < namespaces.length; i++) {
       let namespace = namespaces[i];
@@ -638,12 +947,6 @@ export default class Spec {
     }
 
     current.setAttribute('charset', 'utf-8');
-  }
-
-  /*@internal*/
-  _log(str: string) {
-    if (!this.opts.verbose) return;
-    utils.logVerbose(str);
   }
 
   private _updateBySelector(selector: string, contents: string) {
@@ -716,7 +1019,7 @@ function walk(walker: TreeWalker, context: Context) {
       }
       // else, inNoEmd will just continue to the end of the file
 
-      utils.emdTextNode(context.spec, context.node);
+      utils.emdTextNode(context.spec, (context.node as unknown) as Text);
     }
 
     if (!context.inNoAutolink) {
@@ -740,7 +1043,7 @@ function walk(walker: TreeWalker, context: Context) {
   // handle oldids
   let oldids = context.node.getAttribute('oldids');
   if (oldids) {
-    if (!context.node.children) {
+    if (!context.node.childNodes) {
       throw new Error('oldids found on unsupported element: ' + context.node.nodeName);
     }
     oldids
@@ -749,7 +1052,7 @@ function walk(walker: TreeWalker, context: Context) {
       .forEach(oid => {
         let s = spec.doc.createElement('span');
         s.setAttribute('id', oid);
-        context.node.insertBefore(s, context.node.children[0]);
+        context.node.insertBefore(s, context.node.childNodes[0]);
       });
   }
 

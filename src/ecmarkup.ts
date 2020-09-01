@@ -12,6 +12,16 @@ export class Boilerplate {
   license?: string;
 }
 
+export type EcmarkupError = {
+  ruleId: string;
+  message: string;
+  file?: string;
+  source?: string;
+  line?: number;
+  column?: number;
+  nodeType?: string;
+};
+
 export interface Options {
   status?: 'proposal' | 'draft' | 'standard';
   version?: string;
@@ -24,13 +34,15 @@ export interface Options {
   contributors?: string;
   toc?: boolean;
   oldToc?: boolean;
-  verbose?: boolean;
+  lintSpec?: boolean;
   cssOut?: string;
   jsOut?: string;
   assets?: 'none' | 'inline' | 'external';
   outfile?: string;
   boilerplate?: Boilerplate;
   ecma262Biblio?: boolean;
+  log?: (msg: string) => void;
+  warn?: (err: EcmarkupError) => void;
 }
 
 export async function build(
