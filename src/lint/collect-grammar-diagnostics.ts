@@ -100,7 +100,10 @@ export function collectGrammarDiagnostics(
     ...earlyErrors.map(e => ({ grammar: e.grammar, rules: e.lists, type: 'early error' })),
   ];
   for (let { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
-    let { source: importSource, ...grammarLoc } = spec.locate(grammarEle);
+    const grammarLoc = spec.locate(grammarEle);
+    if (!grammarLoc) continue;
+
+    let { source: importSource } = grammarLoc;
 
     if (grammarLoc.endTag == null) {
       report({
