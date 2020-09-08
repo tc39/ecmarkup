@@ -2,9 +2,14 @@ import type { Context } from './Context';
 
 import Builder from './Builder';
 import { CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
+import type { EmuImportElement } from './Import';
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;
+
+function isEmuImportElement(node: HTMLElement): node is EmuImportElement {
+  return node.nodeName === 'EMU-IMPORT';
+}
 
 /*@internal*/
 export default class Grammar extends Builder {
@@ -16,27 +21,43 @@ export default class Grammar extends Builder {
       return;
     }
 
+    // fetch the original source text and source DOM for the node.
+    // walk up the current DOM as this may come from an import.
+    let sourceText = spec.sourceText;
+    let sourceDom = spec.dom;
+    let parent = node.parentElement;
+    while (parent) {
+      if (isEmuImportElement(parent)) {
+        if (parent.source) {
+          sourceText = parent.source;
+          sourceDom = parent.dom;
+        }
+        break;
+      }
+      parent = parent.parentElement;
+    }
+
     let content: string;
     let possiblyMalformed = true;
-    if (spec.sourceText) {
+    if (sourceText) {
       // If the source text is available, we should use it since `innerHTML` serializes the
       // DOM tree beneath the node. This can result in odd behavior when the syntax is malformed
       // in a way that parse5 does not understand, but grammarkdown could possibly recover.
-      const location = spec.dom.nodeLocation(node);
+      const location = sourceDom.nodeLocation(node);
       if (location) {
         if (location.startTag && location.endTag) {
           // the parser was able to find a matching end tag.
           const start = location.startTag.endOffset as number;
           const end = location.endTag.startOffset as number;
-          content = spec.sourceText!.slice(start, end);
+          content = sourceText!.slice(start, end);
         } else {
           // TODO this is not reached
           // the parser was *not* able to find a matching end tag. Try to recover by finding a
           // possible end tag, otherwise read the rest of the source text.
           const start = (globalEndTagRe.lastIndex = location.endOffset as number);
-          const match = globalEndTagRe.exec(spec.sourceText);
-          const end = match ? match.index : spec.sourceText.length;
-          content = spec.sourceText.slice(start, end);
+          const match = globalEndTagRe.exec(sourceText);
+          const end = match ? match.index : sourceText.length;
+          content = sourceText.slice(start, end);
 
           // since we already tested for an end tag, no need to test again later.
           possiblyMalformed = false;

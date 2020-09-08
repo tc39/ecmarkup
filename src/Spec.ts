@@ -10,7 +10,7 @@ import * as yaml from 'js-yaml';
 import * as utils from './utils';
 import * as hljs from 'highlight.js';
 // Builders
-import Import from './Import';
+import Import, { EmuImportElement } from './Import';
 import H1 from './H1';
 import Clause from './Clause';
 import ClauseNumbers from './clauseNums';
@@ -982,7 +982,7 @@ async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: strin
   let imports = rootElement.querySelectorAll('EMU-IMPORT');
   for (let i = 0; i < imports.length; i++) {
     let node = imports[i];
-    let imp = await Import.build(spec, node as HTMLElement, rootPath);
+    let imp = await Import.build(spec, node as EmuImportElement, rootPath);
     await loadImports(spec, node as HTMLElement, imp.relativeRoot);
   }
 }

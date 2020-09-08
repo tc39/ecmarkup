@@ -3,6 +3,7 @@ import type Spec from './Spec';
 import Builder from './Builder';
 import * as utils from './utils';
 import * as path from 'path';
+import type { JSDOM } from 'jsdom';
 
 /*@internal*/
 export default class Import extends Builder {
@@ -23,7 +24,7 @@ export default class Import extends Builder {
     this.source = source;
   }
 
-  static async build(spec: Spec, node: HTMLElement, root: string) {
+  static async build(spec: Spec, node: EmuImportElement, root: string) {
     const href = node.getAttribute('href');
     if (!href) throw new Error('Import missing href attribute.');
     const importPath = path.join(root, href);
@@ -35,14 +36,11 @@ export default class Import extends Builder {
     spec.imports.push(imp);
 
     const importDom = utils.htmlToDom(html);
-    // @ts-ignore intentionally adding a property
     node.dom = importDom;
-    // @ts-ignore intentionally adding a property
     node.source = html;
-    // @ts-ignore intentionally adding a property
     node.importPath = importPath;
-    const importDoc = importDom.window.document;
 
+    const importDoc = importDom.window.document;
     const nodes = importDoc.body.childNodes;
     const frag = spec.doc.createDocumentFragment();
 
@@ -56,4 +54,12 @@ export default class Import extends Builder {
 
     return imp;
   }
+}
+
+/*@internal*/
+export interface EmuImportElement extends HTMLElement {
+  href: string;
+  dom?: JSDOM;
+  source?: string;
+  importPath?: string;
 }
