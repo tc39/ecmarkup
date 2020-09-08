@@ -4,7 +4,9 @@ const assert = require('assert');
 const execSync = require('child_process').execSync;
 const execPath = process.execPath.includes(' ') ? `"${process.execPath}"` : process.execPath;
 
-describe('ecmarkup#cli', () => {
+describe('ecmarkup#cli', function () {
+  this.timeout(4000); // Increase timeout for CLI tests as startup time can be variable.
+
   it('exits cleanly on success', () => {
     execSync(`${execPath} ./bin/ecmarkup.js test/example.html`, { encoding: 'utf8' });
   });

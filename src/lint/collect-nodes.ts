@@ -87,7 +87,10 @@ export function collectNodes(
       } else if (node.nodeName === 'EMU-GRAMMAR') {
         // Look for grammar definitions and SDOs
         if (node.getAttribute('type') === 'definition') {
-          let { source: importSource, ...loc } = spec.locate(node);
+          const loc = spec.locate(node);
+          if (!loc) return;
+
+          let { source: importSource } = loc;
           if (loc.endTag == null) {
             failed = true;
             report({

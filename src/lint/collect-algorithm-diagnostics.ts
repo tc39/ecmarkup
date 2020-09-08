@@ -41,8 +41,11 @@ export function collectAlgorithmDiagnostics(
 ) {
   for (let algorithm of algorithms) {
     let element = algorithm.element;
-    let { source: importSource, ...location } = spec.locate(element);
 
+    const location = spec.locate(element);
+    if (!location) continue;
+
+    let { source: importSource } = location;
     if (location.endTag == null) {
       report({
         type: 'node',

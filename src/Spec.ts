@@ -31,6 +31,7 @@ import Biblio from './Biblio';
 import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
+import type { JSDOM } from 'jsdom';
 
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
@@ -123,82 +124,97 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
     let column: number | undefined;
     let nodeType: string;
     let file: string | undefined = undefined;
-    if (e.type === 'global') {
-      line = undefined;
-      column = undefined;
-      nodeType = 'html';
-    } else if (e.type === 'raw') {
-      ({ line, column } = e);
-      nodeType = 'html';
-      if (e.file != null) {
-        file = e.file;
-        source = e.source!;
-      }
-    } else {
-      if (e.type === 'node') {
+    switch (e.type) {
+      case 'global':
+        line = undefined;
+        column = undefined;
+        nodeType = 'html';
+        break;
+      case 'raw':
+        ({ line, column } = e);
+        nodeType = 'html';
+        if (e.file != null) {
+          file = e.file;
+          source = e.source!;
+        }
+        break;
+      case 'node':
         if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
           let loc = spec.locate(e.node);
-          file = loc.file;
-          if (loc.source != null) {
-            source = loc.source;
+          if (loc) {
+            file = loc.file;
+            if (loc.source != null) {
+              source = loc.source;
+            }
+            ({ line, col: column } = loc);
           }
-          ({ line, col: column } = loc);
           nodeType = 'text';
         } else {
           let loc = spec.locate(e.node as Element);
+          if (loc) {
+            file = loc.file;
+            if (loc.source != null) {
+              source = loc.source;
+            }
+            ({ line, col: column } = loc.startTag);
+          }
+          nodeType = (e.node as Element).tagName.toLowerCase();
+        }
+        break;
+      case 'attr': {
+        let loc = spec.locate(e.node);
+        if (loc) {
           file = loc.file;
           if (loc.source != null) {
             source = loc.source;
           }
-          ({ line, col: column } = loc.startTag);
-          nodeType = (e.node as Element).tagName.toLowerCase();
+          ({ line, column } = utils.attrValueLocation(source, loc, e.attr));
         }
-      } else if (e.type === 'attr') {
-        let loc = spec.locate(e.node);
-        file = loc.file;
-        if (loc.source != null) {
-          source = loc.source;
-        }
-        ({ line, column } = utils.attrValueLocation(source, loc, e.attr));
         nodeType = e.node.tagName.toLowerCase();
-      } else if (e.type === 'contents') {
+        break;
+      }
+      case 'contents': {
         let { nodeRelativeLine, nodeRelativeColumn } = e;
-
         if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
           // i.e. a text node, which does not have a tag
           let loc = spec.locate(e.node);
-          file = loc.file;
-          if (loc.source != null) {
-            source = loc.source;
+          if (loc) {
+            file = loc.file;
+            if (loc.source != null) {
+              source = loc.source;
+            }
+            line = loc.line + nodeRelativeLine - 1;
+            column = nodeRelativeLine === 1 ? loc.col + nodeRelativeColumn - 1 : nodeRelativeColumn;
           }
-          line = loc.line + nodeRelativeLine - 1;
-          column = nodeRelativeLine === 1 ? loc.col + nodeRelativeColumn - 1 : nodeRelativeColumn;
           nodeType = 'text';
         } else {
           let loc = spec.locate(e.node);
-          file = loc.file;
-          if (loc.source != null) {
-            source = loc.source;
-          }
-          // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
-          // TODO switch to using loc.startTag.end{Line,Col} once parse5 can be upgraded
-          let tagSrc = source.slice(loc.startTag.startOffset, loc.startTag.endOffset);
-          let tagEnd = utils.offsetToLineAndColumn(
-            tagSrc,
-            loc.startTag.endOffset - loc.startOffset
-          );
-          line = loc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
-          if (nodeRelativeLine === 1) {
-            if (tagEnd.line === 1) {
-              column = loc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
-            } else {
-              column = tagEnd.column + nodeRelativeColumn - 1;
+          if (loc) {
+            file = loc.file;
+            if (loc.source != null) {
+              source = loc.source;
             }
-          } else {
-            column = nodeRelativeColumn;
+            // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
+            // TODO switch to using loc.startTag.end{Line,Col} once parse5 can be upgraded
+            let tagSrc = source.slice(loc.startTag.startOffset, loc.startTag.endOffset);
+            let tagEnd = utils.offsetToLineAndColumn(
+              tagSrc,
+              loc.startTag.endOffset - loc.startOffset
+            );
+            line = loc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
+            if (nodeRelativeLine === 1) {
+              if (tagEnd.line === 1) {
+                column = loc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
+              } else {
+                column = tagEnd.column + nodeRelativeColumn - 1;
+              }
+            } else {
+              column = nodeRelativeColumn;
+            }
           }
           nodeType = (e.node as Element).tagName.toLowerCase();
         }
+        break;
       }
     }
 
@@ -208,14 +224,15 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
       // we omit source for global errors so that we don't get a codeframe
       source: e.type === 'global' ? undefined : source,
       file,
-      // @ts-ignore TS can't prove this is initialized, for some reason
       nodeType,
-      // @ts-ignore TS can't prove this is initialized, for some reason
       line,
-      // @ts-ignore TS can't prove this is initialized, for some reason
       column,
     });
   };
+}
+
+function isEmuImportElement(node: Node): node is EmuImportElement {
+  return node.nodeType === 1 && node.nodeName === 'EMU-IMPORT';
 }
 
 /*@internal*/
@@ -427,43 +444,43 @@ export default class Spec {
 
   public locate(
     node: Element | Node
-  ): { file?: string; source?: string } & MarkupData.ElementLocation {
+  ): ({ file?: string; source?: string } & MarkupData.ElementLocation) | undefined {
     let pointer: Element | Node | null = node;
     while (pointer != null) {
-      if (pointer.nodeName === 'EMU-IMPORT') {
+      if (isEmuImportElement(pointer)) {
         break;
       }
       pointer = pointer.parentElement;
     }
     if (pointer == null) {
-      let loc = this.dom.nodeLocation(node);
-      // we can't just spread `loc` because not all properties are own/enumerable
-      return {
-        startTag: loc.startTag,
-        endTag: loc.endTag,
-        startOffset: loc.startOffset,
-        endOffset: loc.endOffset,
-        attrs: loc.attrs,
-        line: loc.line,
-        col: loc.col,
-      };
-    } else {
-      // @ts-ignore
+      let loc = (this.dom as JSDOM).nodeLocation(node);
+      if (loc) {
+        // we can't just spread `loc` because not all properties are own/enumerable
+        return {
+          startTag: loc.startTag,
+          endTag: loc.endTag,
+          startOffset: loc.startOffset,
+          endOffset: loc.endOffset,
+          attrs: loc.attrs,
+          line: loc.line,
+          col: loc.col,
+        };
+      }
+    } else if (pointer.dom) {
       let loc = pointer.dom.nodeLocation(node);
-
-      return {
-        // @ts-ignore
-        file: pointer.importPath,
-        // @ts-ignore
-        source: pointer.source,
-        startTag: loc.startTag,
-        endTag: loc.endTag,
-        startOffset: loc.startOffset,
-        endOffset: loc.endOffset,
-        attrs: loc.attrs,
-        line: loc.line,
-        col: loc.col,
-      };
+      if (loc) {
+        return {
+          file: pointer.importPath!,
+          source: pointer.source!,
+          startTag: loc.startTag,
+          endTag: loc.endTag,
+          startOffset: loc.startOffset,
+          endOffset: loc.endOffset,
+          attrs: loc.attrs,
+          line: loc.line,
+          col: loc.col,
+        };
+      }
     }
   }
 
