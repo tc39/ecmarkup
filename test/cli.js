@@ -2,25 +2,34 @@
 
 const assert = require('assert');
 const execSync = require('child_process').execSync;
+const execPath = process.execPath.includes(' ') ? `"${process.execPath}"` : process.execPath;
 
-describe('ecmarkup#cli', () => {
+describe('ecmarkup#cli', function () {
+  this.timeout(4000); // Increase timeout for CLI tests as startup time can be variable.
+
   it('exits cleanly on success', () => {
-    execSync('./bin/ecmarkup.js test/example.html', { encoding: 'utf8' });
+    execSync(`${execPath} ./bin/ecmarkup.js test/example.html`, { encoding: 'utf8' });
   });
 
   it('exits cleanly on warning', () => {
-    execSync('./bin/ecmarkup.js test/duplicate-ids.html', { encoding: 'utf8', stdio: 'ignore' });
+    execSync(`${execPath} ./bin/ecmarkup.js test/duplicate-ids.html`, {
+      encoding: 'utf8',
+      stdio: 'ignore',
+    });
   });
 
   it('exits with an error on error', () => {
     assert.throws(() => {
-      execSync('./bin/ecmarkup.js test/malformed.bad.html', { encoding: 'utf8', stdio: 'ignore' });
+      execSync(`${execPath} ./bin/ecmarkup.js test/malformed.bad.html`, {
+        encoding: 'utf8',
+        stdio: 'ignore',
+      });
     });
   });
 
   it('exits with an error on warning when using --strict', () => {
     assert.throws(() => {
-      execSync('./bin/ecmarkup.js --strict test/duplicate-ids.html', {
+      execSync(`${execPath} ./bin/ecmarkup.js --strict test/duplicate-ids.html`, {
         encoding: 'utf8',
         stdio: 'ignore',
       });

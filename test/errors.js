@@ -402,7 +402,7 @@ ${M}      </pre>
       </emu-clause>
     `;
     let fetch = name => {
-      switch (name) {
+      switch (name.replace(/\\/g, '/')) {
         case 'foo/index.html': {
           return `<emu-import href="bar/one.html"></emu-import>`;
         }
@@ -427,7 +427,7 @@ ${M}      </pre>
           line: e.line,
           column: e.column,
           message: e.message,
-          file: e.file,
+          file: e.file.replace(/\\/g, '/'),
           source: e.source,
         }),
     });

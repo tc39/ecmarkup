@@ -9,11 +9,13 @@ import { warnEmdFailure } from '../utils';
 import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
+import lintForEachElement from './rules/for-each-element';
 
 let algorithmRules = [
   lintAlgorithmLineEndings,
   lintAlgorithmStepNumbering,
   lintAlgorithmStepLabels,
+  lintForEachElement,
 ];
 
 function composeObservers(...observers: Observer[]): Observer {
@@ -39,8 +41,11 @@ export function collectAlgorithmDiagnostics(
 ) {
   for (let algorithm of algorithms) {
     let element = algorithm.element;
-    let { source: importSource, ...location } = spec.locate(element);
 
+    const location = spec.locate(element);
+    if (!location) continue;
+
+    let { source: importSource } = location;
     if (location.endTag == null) {
       report({
         type: 'node',
