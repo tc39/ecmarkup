@@ -45,12 +45,201 @@ describe('spelling', () => {
   it('*0*', async () => {
     await assertLint(
       positioned`
-        <emu-alg>1. If _x_ is ${M}*0*, then foo.</emu-alg>
+        <emu-alg>1. If _x_ is ${M}*0*<sub>𝔽</sub>, then foo.</emu-alg>
       `,
       {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'the Number value 0 should be written "*+0*", to unambiguously exclude "*-0*"',
+      }
+    );
+  });
+
+  it('numeric literal bolding', async () => {
+    await assertLint(
+      positioned`
+        <p>${M}+&infin;<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'literal Number values should be bolded',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>${M}42<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'literal Number values should be bolded',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>${M}0xDEADBEEF<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'literal Number values should be bolded',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>${M}-1<sub>ℤ</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'literal BigInt values should be bolded',
+      }
+    );
+  });
+
+  it('numeric literal subscripts', async () => {
+    await assertLint(
+      positioned`
+        <p>${M}*+&infin;*</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message:
+          'literal Number or BigInt values should be followed by <sub>𝔽</sub> or <sub>ℤ</sub> respectively',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>${M}*42*</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message:
+          'literal Number or BigInt values should be followed by <sub>𝔽</sub> or <sub>ℤ</sub> respectively',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>${M}*0xDEADBEEF*</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message:
+          'literal Number or BigInt values should be followed by <sub>𝔽</sub> or <sub>ℤ</sub> respectively',
+      }
+    );
+  });
+
+  it('leading plus sign', async () => {
+    await assertLint(
+      positioned`
+        <p>*${M}+1*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'positive numeric values other than 0 should not have a leading plus sign (+)',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>*${M}+0xDEADBEEF*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'positive numeric values other than 0 should not have a leading plus sign (+)',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>_x_ is ${M}+1</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'positive real numbers should not have a leading plus sign (+)',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>_x_ is ${M}+*1*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'the sign character for a numeric literal should be within the `*`s',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>_x_ is ${M}-*1*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'the sign character for a numeric literal should be within the `*`s',
+      }
+    );
+  });
+
+  it('&infin;', async () => {
+    await assertLint(
+      positioned`
+        <p>${M}&infin;</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: '&infin; should always be written with a leading + or -',
+      }
+    );
+  });
+
+  it('mathematical value of/number value for', async () => {
+    await assertLint(
+      positioned`
+        <p>Let _x_ be the mathematical value ${M}for _y_.</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'the mathematical value "of", not "for"',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>Let _x_ be the Number value ${M}of _y_.</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'the Number value "for", not "of"',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>Let _x_ be the ${M}number value for _y_.</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: '"Number value", not "number value"',
       }
     );
   });
@@ -64,6 +253,32 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'ECMA-262 uses Oxford spelling ("behaviour")',
+      }
+    );
+  });
+
+  it('nonnegative', async () => {
+    await assertLint(
+      positioned`
+        <p>a ${M}nonnegative integer</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'prefer "non-negative"',
+      }
+    );
+  });
+
+  it('nonzero', async () => {
+    await assertLint(
+      positioned`
+        <p>a ${M}nonzero integer</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'prefer "non-zero"',
       }
     );
   });
@@ -237,16 +452,74 @@ windows:${M}\r
     );
   });
 
+  it('comparison with *-0*', async () => {
+    await assertLint(
+      positioned`
+        <p>If _x_ &lt; *${M}-0*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'comparisons against floating-point zero should use positive zero',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>If _x_ &le; *${M}-0*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'comparisons against floating-point zero should use positive zero',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>If _x_ &gt; *${M}-0*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'comparisons against floating-point zero should use positive zero',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>If _x_ &ge; *${M}-0*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'comparisons against floating-point zero should use positive zero',
+      }
+    );
+  });
+
   it('negative', async () => {
     await assertLintFree(`
       <p>
         the *this* value
         one's complement
         two's complement
-        *+0*
-        *-0*
+        *0xDEADBEEF*<sub>𝔽</sub>
+        *1*<sub>𝔽</sub>
+        +&infin;
+        -&infin;
+        *+&infin;*<sub>𝔽</sub>
+        *+0*<sub>𝔽</sub>
+        *+0x0*<sub>𝔽</sub>
+        *-0*<sub>𝔽</sub>
         *0*<sub>ℤ</sub>
+        0
         behaviour
+        a non-negative integer
+        a non-zero integer
+        Let _x_ be the mathematical value of _y_.
+        Let _y_ be the Number value for _x_.
+        IsNonNegativeInteger(_x_)
         the empty String
       </p>
       <p>One blank line is fine:</p>
@@ -274,6 +547,9 @@ windows:${M}\r
       <p>
         Paragraphs with the open/close tags on their own line are OK.
       </p>
+
+      <p>Comparisons with positive zero are OK: _x_ &lt; *+0*<sub>𝔽</sub>, _x_ &le; *+0*<sub>𝔽</sub>, _x_ &gt; *+0*<sub>𝔽</sub>, _x_ &ge; *+0*<sub>𝔽</sub>
+
     `);
   });
 });
