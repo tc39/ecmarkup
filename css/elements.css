@@ -412,6 +412,7 @@ emu-intro emu-intro emu-intro emu-intro emu-intro emu-intro h1, emu-clause emu-c
 
 emu-clause, emu-intro, emu-annex {
     display: block;
+    contains: content;
 }
 
 /* Figures and tables */
