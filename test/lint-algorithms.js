@@ -6,7 +6,7 @@ const nodeType = 'emu-alg';
 
 describe('linting algorithms', () => {
   describe('line endings', () => {
-    const ruleId = 'algorithm-line-endings';
+    const ruleId = 'algorithm-line-style';
 
     it('simple', async () => {
       await assertLint(
@@ -79,6 +79,20 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected "If" with substeps to end with ", then" (found ",")',
+        }
+      );
+    });
+
+    it('else if', async () => {
+      await assertLint(
+        positioned`<emu-alg>
+          1. If _x_, foo.
+          1. Else${M}, if _y_, bar.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'prefer "Else if" over "Else, if"',
         }
       );
     });
