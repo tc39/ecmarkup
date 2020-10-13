@@ -6,13 +6,13 @@ import type { default as Spec, Warning } from '../Spec';
 import { parseAlgorithm, visit } from 'ecmarkdown';
 
 import { warnEmdFailure } from '../utils';
-import lintAlgorithmLineEndings from './rules/algorithm-line-endings';
+import lintAlgorithmLineStyle from './rules/algorithm-line-style';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
 import lintForEachElement from './rules/for-each-element';
 
 let algorithmRules = [
-  lintAlgorithmLineEndings,
+  lintAlgorithmLineStyle,
   lintAlgorithmStepNumbering,
   lintAlgorithmStepLabels,
   lintForEachElement,

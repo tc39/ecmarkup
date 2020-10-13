@@ -1,7 +1,7 @@
 import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
 
-const ruleId = 'algorithm-line-endings';
+const ruleId = 'algorithm-line-style';
 
 /*
 Checks that every algorithm step has one of these forms:
@@ -184,6 +184,14 @@ export default function (report: Reporter, node: Element): Observer {
           }
         }
       } else if (/^Else/.test(initialText)) {
+        if (/^Else, if/.test(initialText)) {
+          report({
+            ruleId,
+            line: first.location!.start.line,
+            column: first.location!.start.column + 4, // "Else".length === 4
+            message: `prefer "Else if" over "Else, if"`,
+          });
+        }
         if (hasSubsteps) {
           if (node.contents.length === 1 && first.contents === 'Else,') {
             return;
