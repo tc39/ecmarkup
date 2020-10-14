@@ -539,6 +539,7 @@ tr.del > td {
   max-width: 500px;
   flex-grow: 0;
   flex-shrink: 0;
+  overflow-anchor: none;
 }
 
 #menu a {
