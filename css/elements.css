@@ -16,6 +16,11 @@ body {
   overflow: hidden;
 }
 
+#spec-container > emu-clause {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
+}
+
 body.oldtoc {
   margin: 0 auto;
 }
@@ -167,7 +172,7 @@ emu-note > div.note-contents > p:last-of-type {
 
 emu-table td code {
   white-space: normal;
-} 
+}
 
 emu-figure {
   display: block;
@@ -470,7 +475,7 @@ emu-production > ins, emu-production > del,
 emu-grammar > ins, emu-grammar > del {
   display: block;
 }
-emu-rhs > ins, emu-rhs > del { 
+emu-rhs > ins, emu-rhs > del {
   display: inline;
 }
 
@@ -699,10 +704,10 @@ tr.del > td {
   flex-grow: 0;
   flex-shrink: 0;
   width: 100%;
-  
+
   display: flex;
   flex-direction: column;
-  
+
   max-height: 300px;
 }
 
@@ -940,6 +945,6 @@ li.menu-search-result-term:before {
 
 @media print {
   #menu-toggle {
-    display: none; 
+    display: none;
   }
 }
