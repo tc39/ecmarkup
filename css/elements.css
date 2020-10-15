@@ -16,7 +16,7 @@ body {
   overflow: hidden;
 }
 
-#spec-container > emu-clause {
+#spec-container > emu-clause, #spec-container > emu-import > emu-clause {
   content-visibility: auto;
   contain-intrinsic-size: 1px 1000px;
 }
