@@ -5,7 +5,7 @@ let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require(
 const nodeType = 'emu-alg';
 
 describe('linting algorithms', () => {
-  describe('line endings', () => {
+  describe('line style', () => {
     const ruleId = 'algorithm-line-style';
 
     it('simple', async () => {
@@ -65,6 +65,19 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected "If" without substeps to end with "." or ":" (found ", then")',
+        }
+      );
+    });
+
+    it('inline if-then', async () => {
+      await assertLint(
+        positioned`<emu-alg>
+          1. If _x_, ${M}then do something.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'single-line "If" steps should not have a "then"',
         }
       );
     });

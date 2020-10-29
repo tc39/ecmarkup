@@ -20,7 +20,7 @@ Checks that every algorithm step has one of these forms:
 - `Other.`
 - `Other:` + substeps
 */
-export default function (report: Reporter, node: Element): Observer {
+export default function (report: Reporter, node: Element, algorithmSource: string): Observer {
   if (node.getAttribute('type') === 'example') {
     return {};
   }
@@ -172,6 +172,19 @@ export default function (report: Reporter, node: Element): Observer {
             }
           }
         } else {
+          let lineSource = algorithmSource.slice(
+            first.location!.start.offset,
+            last.location!.end.offset
+          );
+          let ifThenMatch = lineSource.match(/^If[^,\n]+, then /);
+          if (ifThenMatch != null) {
+            report({
+              ruleId,
+              line: first.location!.start.line,
+              column: first.location!.start.column + ifThenMatch[0].length - 5,
+              message: `single-line "If" steps should not have a "then"`,
+            });
+          }
           if (!/(?:\.|\.\)|:)$/.test(last.contents)) {
             report({
               ruleId,
