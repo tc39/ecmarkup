@@ -44,7 +44,7 @@ export default function makeMenu(spec: Spec) {
 
   const menuToggle = spec.doc.createElement('div');
   menuToggle.setAttribute('id', 'menu-toggle');
-  menuToggle.textContent = '☰';
+  menuToggle.textContent = '▤';
 
   const json = JSON.stringify(
     { refsByClause: spec.refsByClause, entries: spec.biblio.toJSON() },
