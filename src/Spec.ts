@@ -143,9 +143,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           let loc = spec.locate(e.node);
           if (loc) {
             file = loc.file;
-            if (loc.source != null) {
-              source = loc.source;
-            }
+            source = loc.source;
             ({ line, col: column } = loc);
           }
           nodeType = 'text';
@@ -153,9 +151,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           let loc = spec.locate(e.node as Element);
           if (loc) {
             file = loc.file;
-            if (loc.source != null) {
-              source = loc.source;
-            }
+            source = loc.source;
             ({ line, col: column } = loc.startTag);
           }
           nodeType = (e.node as Element).tagName.toLowerCase();
@@ -165,9 +161,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
         let loc = spec.locate(e.node);
         if (loc) {
           file = loc.file;
-          if (loc.source != null) {
-            source = loc.source;
-          }
+          source = loc.source;
           ({ line, column } = utils.attrValueLocation(source, loc, e.attr));
         }
         nodeType = e.node.tagName.toLowerCase();
@@ -180,9 +174,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           let loc = spec.locate(e.node);
           if (loc) {
             file = loc.file;
-            if (loc.source != null) {
-              source = loc.source;
-            }
+            source = loc.source;
             line = loc.line + nodeRelativeLine - 1;
             column = nodeRelativeLine === 1 ? loc.col + nodeRelativeColumn - 1 : nodeRelativeColumn;
           }
@@ -191,9 +183,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           let loc = spec.locate(e.node);
           if (loc) {
             file = loc.file;
-            if (loc.source != null) {
-              source = loc.source;
-            }
+            source = loc.source;
             // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
             // TODO switch to using loc.startTag.end{Line,Col} once parse5 can be upgraded
             let tagSrc = source.slice(loc.startTag.startOffset, loc.startTag.endOffset);
@@ -241,7 +231,7 @@ export default class Spec {
   opts: Options;
   rootPath: string;
   rootDir: string;
-  sourceText: string | undefined;
+  sourceText: string;
   namespace: string;
   biblio: Biblio;
   dom: any; /* JSDOM types are not updated, this is the jsdom DOM object */
@@ -268,8 +258,8 @@ export default class Spec {
     rootPath: string,
     fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
     dom: any,
-    opts?: Options,
-    sourceText?: string, // TODO we need not support this being undefined
+    opts: Options,
+    sourceText: string,
     token = CancellationToken.none
   ) {
     opts = opts || {};
@@ -444,7 +434,7 @@ export default class Spec {
 
   public locate(
     node: Element | Node
-  ): ({ file?: string; source?: string } & MarkupData.ElementLocation) | undefined {
+  ): ({ file?: string; source: string } & MarkupData.ElementLocation) | undefined {
     let pointer: Element | Node | null = node;
     while (pointer != null) {
       if (isEmuImportElement(pointer)) {
@@ -457,6 +447,7 @@ export default class Spec {
       if (loc) {
         // we can't just spread `loc` because not all properties are own/enumerable
         return {
+          source: this.sourceText,
           startTag: loc.startTag,
           endTag: loc.endTag,
           startOffset: loc.startOffset,
