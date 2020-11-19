@@ -25,7 +25,7 @@ export default class Note extends Builder {
     }
   }
 
-  static enter({ spec, node, clauseStack }: Context) {
+  static async enter({ spec, node, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
     // TODO reconsider

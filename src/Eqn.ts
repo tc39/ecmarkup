@@ -37,7 +37,7 @@ export default class Eqn extends Builder {
     }
   }
 
-  static enter(context: Context) {
+  static async enter(context: Context) {
     const { spec, node, clauseStack } = context;
     const clause = clauseStack[clauseStack.length - 1];
     const id = clause ? clause.id : ''; // TODO: no eqns outside of clauses, eh?

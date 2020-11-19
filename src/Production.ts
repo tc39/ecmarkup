@@ -86,7 +86,7 @@ export default class Production extends Builder {
     }
   }
 
-  static enter({ spec, node, clauseStack }: Context) {
+  static async enter({ spec, node, clauseStack }: Context) {
     const ntNode = spec.doc.createElement('emu-nt');
     const clause = clauseStack[clauseStack.length - 1];
     const prod = new Production(spec, node, clause ? clause.namespace : spec.namespace);

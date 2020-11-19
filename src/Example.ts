@@ -20,7 +20,7 @@ export default class Example extends Builder {
     }
   }
 
-  static enter({ spec, node, clauseStack }: Context) {
+  static async enter({ spec, node, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
     if (!clause) return; // don't process examples outside of clauses
     clause.examples.push(new Example(spec, node, clause));

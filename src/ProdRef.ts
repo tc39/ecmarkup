@@ -19,7 +19,7 @@ export default class ProdRef extends Builder {
     this.name = node.getAttribute('name')!;
   }
 
-  static enter({ node, spec, clauseStack }: Context) {
+  static async enter({ node, spec, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
     const namespace = clause ? clause.namespace : spec.namespace;
     const prodref = new ProdRef(spec, node, namespace);

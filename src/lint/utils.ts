@@ -114,7 +114,7 @@ function symbolMatches(a: LexicalSymbol, b: LexicalSymbol): boolean {
   }
   switch (a.kind) {
     case SyntaxKind.Terminal:
-      return a.text === (b as Terminal).text;
+      return a.literal.text === (b as Terminal).literal.text;
     case SyntaxKind.Nonterminal:
       if (a.argumentList !== undefined) {
         if ((b as Nonterminal).argumentList === undefined) {

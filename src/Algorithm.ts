@@ -20,7 +20,7 @@ function findLabeledSteps(root: EcmarkdownNode) {
 
 /*@internal*/
 export default class Algorithm extends Builder {
-  static enter(context: Context) {
+  static async enter(context: Context) {
     context.inAlg = true;
     const { spec, node } = context;
 
