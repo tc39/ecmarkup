@@ -5,7 +5,7 @@ import Builder from './Builder';
 
 /*@internal*/
 export default class Dfn extends Builder {
-  static enter({ spec, node, clauseStack }: Context) {
+  static async enter({ spec, node, clauseStack }: Context) {
     const parentClause = clauseStack[clauseStack.length - 1];
     if (!parentClause) return;
 

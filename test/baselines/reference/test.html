@@ -33,7 +33,8 @@
   wtf??
   <emu-grammar><emu-production name="A" collapsed="" id="prod-A">
     <emu-nt><a href="#prod-A">A</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="0185ce89"><emu-t>b</emu-t></emu-rhs>
-</emu-production></emu-grammar>
+</emu-production>
+</emu-grammar>
 </emu-clause></emu-import>
 </emu-clause></emu-import>
 
@@ -93,20 +94,18 @@
   <emu-production name="ArgumentList" a="a" collapsed="">
     <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="a"><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs></emu-production>
 
-  <emu-grammar><emu-production name="FooBar" params="Yeild" type="lexical" id="prod-FooBar">
-    <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs>
-    <emu-rhs a="b"><emu-t>baz</emu-t></emu-rhs>
-</emu-production></emu-grammar>
+  <emu-grammar><emu-production name="FooBar" collapsed="" id="prod-FooBar">
+    <emu-nt><a href="#prod-FooBar">FooBar</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="65ec8929"><emu-nt>Yeild</emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
 
-  <emu-grammar><emu-production name="FooBarBaz" params="Yeild" type="regexp" id="prod-FooBarBaz">
-    <emu-nt params="Yeild"><a href="#prod-FooBarBaz">FooBarBaz</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>:::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs>
-    <emu-rhs a="b"><emu-t>baz</emu-t></emu-rhs>
-</emu-production></emu-grammar>
+  <emu-grammar><emu-production name="FooBarBaz" collapsed="" id="prod-FooBarBaz">
+    <emu-nt><a href="#prod-FooBarBaz">FooBarBaz</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="65ec8929"><emu-nt>Yeild</emu-nt></emu-rhs>
+</emu-production>
+</emu-grammar>
 
-  <emu-production name="FooBar" params="Yeild" type="lexical" a="a" collapsed="">
-    <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production>
-  <p>Inline prodref: <emu-production name="FooBar" params="Yeild" type="lexical" a="a" collapsed="" class=" inline">
-    <emu-nt params="Yeild"><a href="#prod-FooBar">FooBar</a><emu-mods><emu-params>[Yeild]</emu-params></emu-mods></emu-nt><emu-geq>::</emu-geq><emu-rhs a="a" constraints="+Default"><emu-constraints>[+Default]</emu-constraints><emu-t>foo</emu-t><emu-nt params="?Yield">Bar<emu-mods><emu-params>[?Yield]</emu-params></emu-mods></emu-nt></emu-rhs></emu-production></p>
+  <emu-prodref name="FooBar" a="a" collapsed=""></emu-prodref>
+  <p>Inline prodref: <emu-prodref name="FooBar" a="a" collapsed="" class=" inline"></emu-prodref></p>
 
   <pre><code class="language-javascript hljs"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>) </span>{ };
 test();</code></pre>
@@ -118,7 +117,8 @@ test();</code></pre>
   <!-- test block collapsed emu-grammar -->
   <emu-grammar><emu-production name="FunctionDeclaration" collapsed="" id="prod-FunctionDeclaration">
     <emu-nt><a href="#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="81739a57"><emu-t>function</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-annexB-BindingIdentifier">BindingIdentifier</a></emu-nt><emu-t>(</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-FormalParameters">FormalParameters</a></emu-nt><emu-t>)</emu-t><emu-t>{</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionBody">FunctionBody</a></emu-nt><emu-t>}</emu-t></emu-rhs>
-</emu-production></emu-grammar>
+</emu-production>
+</emu-grammar>
 
   <p>Test <emu-nt params="WithParams">NonTerminal<emu-mods><emu-params>[WithParams]</emu-params></emu-mods></emu-nt> and <emu-nt optional="">NonTerminal<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt>.</p>
 </emu-clause>

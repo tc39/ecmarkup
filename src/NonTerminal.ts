@@ -21,7 +21,7 @@ export default class NonTerminal extends Builder {
     this.namespace = namespace;
   }
 
-  static enter({ spec, node, clauseStack }: Context) {
+  static async enter({ spec, node, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
     const namespace = clause ? clause.namespace : spec.namespace;
     const nt = new NonTerminal(spec, node, namespace);

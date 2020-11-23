@@ -35,7 +35,7 @@ export default class Builder {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static enter(context: Context): void {
+  static async enter(context: Context) {
     throw new Error('Builder not implemented');
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

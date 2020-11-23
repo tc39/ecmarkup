@@ -32,7 +32,7 @@ export default class Xref extends Builder {
     this.id = node.getAttribute('id')!;
   }
 
-  static enter({ node, spec, clauseStack }: Context) {
+  static async enter({ node, spec, clauseStack }: Context) {
     const href = node.getAttribute('href')!;
     const aoid = node.getAttribute('aoid')!;
     const parentClause = clauseStack[clauseStack.length - 1];

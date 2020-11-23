@@ -4,7 +4,8 @@
   <h1 class="first">Intro</h1>
   <emu-grammar><emu-production name="Foo" type="lexical" id="prod-intro-Foo">
     <emu-nt><a href="#prod-intro-Foo">Foo</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="f944fd2f"><emu-t>bar</emu-t><emu-nt id="_ref_7"><a href="#prod-MainProd">MainProd</a></emu-nt><emu-t>baz</emu-t></emu-rhs>
-</emu-production></emu-grammar>
+</emu-production>
+</emu-grammar>
 </emu-intro>
 <emu-clause id="c1">
   <h1><span class="secnum">1</span> Clause 1</h1>
@@ -13,13 +14,15 @@
 </emu-production>
 <emu-production name="MainProd" type="lexical" id="prod-MainProd">
     <emu-nt><a href="#prod-MainProd">MainProd</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="201a6b30"><emu-nt id="_ref_9"><a href="#prod-Foo">Foo</a></emu-nt></emu-rhs>
-</emu-production></emu-grammar>
+</emu-production>
+</emu-grammar>
   <emu-clause id="c11" namespace="clause">
     <h1><span class="secnum">1.1</span> Clause 1.1</h1>
 
     <emu-grammar><emu-production name="Foo" type="lexical" id="prod-clause-Foo">
     <emu-nt><a href="#prod-clause-Foo">Foo</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="f944fd2f"><emu-t>bar</emu-t><emu-nt id="_ref_10"><a href="#prod-MainProd">MainProd</a></emu-nt><emu-t>baz</emu-t></emu-rhs>
-</emu-production></emu-grammar>
+</emu-production>
+</emu-grammar>
 
     <emu-clause id="c111" aoid="SomeAlg">
       <h1><span class="secnum">1.1.1</span> SomeAlg</h1>
@@ -34,7 +37,8 @@
   <h1><span class="secnum">A</span> Annex</h1>
   <emu-grammar><emu-production name="Foo" type="lexical" id="prod-annex-Foo">
     <emu-nt><a href="#prod-annex-Foo">Foo</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="f944fd2f"><emu-t>bar</emu-t><emu-nt id="_ref_11"><a href="#prod-annex-MainProd">MainProd</a></emu-nt><emu-t>baz</emu-t></emu-rhs>
-</emu-production></emu-grammar>
+</emu-production>
+</emu-grammar>
   <emu-annex id="annex11" aoid="SomeAlg">
     <h1><span class="secnum">A.1</span> SomeAlg</h1>
   </emu-annex>
@@ -55,7 +59,8 @@
   </emu-annex>
   <emu-grammar><emu-production name="MainProd" type="lexical" id="prod-annex-MainProd">
     <emu-nt><a href="#prod-annex-MainProd">MainProd</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="201a6b30"><emu-nt id="_ref_13"><a href="#prod-annex-Foo">Foo</a></emu-nt></emu-rhs>
-</emu-production></emu-grammar>
+</emu-production>
+</emu-grammar>
   <p><emu-xref aoid="SomeAlg" id="_ref_6"><a href="#annex21">SomeAlg</a></emu-xref> does things.</p>
 </emu-annex>
 </div></body>

@@ -2,9 +2,8 @@ import type { default as Spec, Warning } from '../Spec';
 
 import {
   Grammar as GrammarFile,
-  SyncHost,
+  CoreAsyncHost,
   EmitFormat,
-  Parser as GrammarParser,
   SyntaxKind,
   SymbolSpan,
   Diagnostics,
@@ -15,7 +14,7 @@ import {
 
 import { getProductions, rhsMatches } from './utils';
 
-export function collectGrammarDiagnostics(
+export async function collectGrammarDiagnostics(
   report: (e: Warning) => void,
   spec: Spec,
   mainSource: string,
@@ -26,34 +25,26 @@ export function collectGrammarDiagnostics(
   // *******************
   // Parse the grammar with Grammarkdown and collect its diagnostics, if any
 
-  let grammarParser = new GrammarParser();
-  // TODO use CoreSyncHost once published
-  let fakeHost: SyncHost = {
-    readFileSync(file: string) {
+  let mainHost = new CoreAsyncHost({
+    ignoreCase: false,
+    useBuiltinGrammars: false,
+    resolveFile: file => file,
+    readFile(file: string) {
       let idx = parseInt(file);
       if (idx.toString() !== file || idx < 0 || idx >= mainGrammar.length) {
         throw new Error('tried to read non-existent ' + file);
       }
       return mainGrammar[idx].source;
     },
-    resolveFile(file: string) {
-      return file;
-    },
-    normalizeFile(file: string) {
-      return file;
-    },
-    getSourceFileSync(file: string) {
-      return grammarParser.parseSourceFile(file, this.readFileSync(file));
-    },
-  } as any; // good enough!
+  });
   let compilerOptions = {
     format: EmitFormat.ecmarkup,
     noChecks: false,
     noUnusedParameters: true,
   };
-  let grammar = new GrammarFile(Object.keys(mainGrammar), compilerOptions, fakeHost);
-  grammar.parseSync();
-  grammar.checkSync();
+  let grammar = new GrammarFile(Object.keys(mainGrammar), compilerOptions, mainHost);
+  await grammar.parse();
+  await grammar.check();
 
   let unusedParameterErrors: Map<string, Map<string, Warning>> = new Map();
 
@@ -115,14 +106,14 @@ export function collectGrammarDiagnostics(
       continue;
     }
 
-    let grammarHost = SyncHost.forFile(
+    let grammarHost = CoreAsyncHost.forFile(
       (importSource ?? mainSource).slice(
         grammarLoc.startTag.endOffset,
         grammarLoc.endTag.startOffset
       )
     );
     let grammar = new GrammarFile([grammarHost.file], {}, grammarHost);
-    grammar.parseSync();
+    await grammar.parse();
     oneOffGrammars.push({ grammarEle, grammar });
     let productions = getProductions(grammar);
 

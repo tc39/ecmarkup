@@ -8,7 +8,7 @@ const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;
 
 /*@internal*/
 export default class Grammar extends Builder {
-  static enter({ spec, node }: Context) {
+  static async enter({ spec, node }: Context) {
     if ('grammarkdownOut' in node) {
       // i.e., we already parsed this during the lint phase
       // @ts-ignore
@@ -62,7 +62,7 @@ export default class Grammar extends Builder {
       noChecks: true,
     };
 
-    node.innerHTML = GrammarFile.convert(
+    node.innerHTML = await GrammarFile.convert(
       content,
       options,
       /*hostFallback*/ undefined,

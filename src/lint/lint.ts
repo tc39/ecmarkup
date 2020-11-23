@@ -18,7 +18,7 @@ Currently this checks
 There's more to do:
 https://github.com/tc39/ecmarkup/issues/173
 */
-export function lint(
+export async function lint(
   report: (err: Warning) => void,
   sourceText: string,
   spec: Spec,
@@ -30,7 +30,7 @@ export function lint(
   }
   let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collection;
 
-  let { grammar } = collectGrammarDiagnostics(
+  let { grammar } = await collectGrammarDiagnostics(
     report,
     spec,
     sourceText,
@@ -48,7 +48,7 @@ export function lint(
   // Stash intermediate results for later use
   // This isn't actually necessary for linting, but we might as well avoid redoing work later when we can.
 
-  grammar.emitSync(undefined, (file, source) => {
+  await grammar.emit(undefined, (file, source) => {
     let name = +file.split('.')[0];
     let node = mainGrammar[name].element;
     if ('grammarkdownOut' in node) {

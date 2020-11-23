@@ -105,7 +105,7 @@ export default class Clause extends Builder {
     this.header.appendChild(utilsElem);
   }
 
-  static enter({ spec, node, clauseStack, clauseNumberer }: Context) {
+  static async enter({ spec, node, clauseStack, clauseNumberer }: Context) {
     if (!node.id) {
       spec.warn({
         type: 'node',
