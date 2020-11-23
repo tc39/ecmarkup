@@ -24,7 +24,7 @@ export default class Grammar extends Builder {
     // If the source text is available, we should use it since `innerHTML` serializes the
     // DOM tree beneath the node. This can result in odd behavior when the syntax is malformed
     // in a way that parse5 does not understand, but grammarkdown could possibly recover.
-    if (location && location.source) {
+    if (location) {
       if (location.startTag && location.endTag) {
         // the parser was able to find a matching end tag.
         const start = location.startTag.endOffset as number;
@@ -45,7 +45,7 @@ export default class Grammar extends Builder {
       }
     } else {
       // no source text, so read innerHTML as a fallback.
-      content = node.innerHTML;
+      content = node.innerHTML.replace(/&gt;/g, '>');
     }
 
     if (possiblyMalformed) {

@@ -53,7 +53,7 @@ export async function build(
 ): Promise<Spec> {
   const html = await fetch(path, token);
   const dom = utils.htmlToDom(html);
-  const spec = new Spec(path, fetch, dom, opts, /*sourceText*/ html, token);
+  const spec = new Spec(path, fetch, dom, opts ?? {}, /*sourceText*/ html, token);
   await spec.build();
   return spec;
 }
