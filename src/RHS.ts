@@ -53,15 +53,33 @@ export default class RHS extends Builder {
         }
       }
     }
+    let first = true;
     for (let { parent, child } of pairs) {
+      if (!first && !/^\s+$/.test(child.textContent ?? '')) {
+        if (parent === parentNode) {
+          parentNode.insertBefore(this.spec.doc.createTextNode(' '), child);
+        } else {
+          // put the space outside of `<ins>` (etc) tags
+          parentNode.insertBefore(this.spec.doc.createTextNode(' '), parent);
+        }
+      }
+      first = false;
       this.wrapTerminal(parent, child);
     }
   }
 
   private wrapTerminal(parentNode: Element, node: Text) {
-    const text = node.textContent!.trim();
+    const textContent = node.textContent!;
+    const text = textContent.trim();
+
+    if (text === '' && textContent.length > 0) {
+      // preserve intermediate whitespace
+      return;
+    }
+
     const pieces = text.split(/\s/);
 
+    let first = true;
     pieces.forEach(p => {
       if (p.length === 0) {
         return;
@@ -70,6 +88,10 @@ export default class RHS extends Builder {
       est.textContent = p;
 
       parentNode.insertBefore(est, node);
+      if (!first) {
+        parentNode.insertBefore(this.spec.doc.createTextNode(' '), est);
+      }
+      first = false;
     });
 
     parentNode.removeChild(node);
