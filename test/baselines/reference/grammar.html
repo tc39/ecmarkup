@@ -3,32 +3,62 @@
 </head><body><div id="spec-container">
 
 <emu-grammar><emu-production name="FooTerminal" id="prod-FooTerminal">
-    <emu-nt><a href="#prod-FooTerminal">FooTerminal</a></emu-nt><emu-geq>:</emu-geq><ins><emu-rhs a="5422ad14"><emu-nt>Inserting</emu-nt><emu-t>anRHS</emu-t></emu-rhs></ins>
-    <del><emu-rhs a="34727095"><emu-nt>Deleting</emu-nt><emu-t>anRHS</emu-t></emu-rhs></del>
-    <emu-rhs a="18458a59"><emu-nt>Modifying</emu-nt><ins><emu-nt>Existing</emu-nt></ins><del><emu-nt>Old</emu-nt></del><emu-nt>Production</emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-FooTerminal">FooTerminal</a></emu-nt> <emu-geq>:</emu-geq> <ins><emu-rhs a="5422ad14">
+        <emu-nt>Inserting</emu-nt>
+        <emu-t>anRHS</emu-t>
+    </emu-rhs></ins>
+    <del><emu-rhs a="34727095">
+        <emu-nt>Deleting</emu-nt>
+        <emu-t>anRHS</emu-t>
+    </emu-rhs></del>
+    <emu-rhs a="18458a59">
+        <emu-nt>Modifying</emu-nt>
+        <ins><emu-nt>Existing</emu-nt></ins>
+        <del><emu-nt>Old</emu-nt></del>
+        <emu-nt>Production</emu-nt>
+    </emu-rhs>
 </emu-production>
 <ins><emu-production name="NewTerminal" id="prod-NewTerminal">
-    <emu-nt><a href="#prod-NewTerminal">NewTerminal</a></emu-nt><emu-geq>:</emu-geq><emu-rhs a="b1b8622b"><emu-t>t</emu-t></emu-rhs>
+    <emu-nt><a href="#prod-NewTerminal">NewTerminal</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="b1b8622b"><emu-t>t</emu-t></emu-rhs>
 </emu-production></ins>
 <emu-production name="LookaheadExample" type="lexical" id="prod-LookaheadExample">
-    <emu-nt><a href="#prod-LookaheadExample">LookaheadExample</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="d9a654c9"><emu-t>&amp;&amp;</emu-t><emu-t>n</emu-t><emu-gann>[lookahead ∉ { <emu-t>1</emu-t>, <emu-t>3</emu-t>, <emu-t>5</emu-t>, <emu-t>7</emu-t>, <emu-t>9</emu-t> }]</emu-gann><emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigits">DecimalDigits</a></emu-nt></emu-rhs>
-    <emu-rhs a="195cbc6c"><emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigit">DecimalDigit</a></emu-nt><emu-gann>[lookahead ∉ <emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigit">DecimalDigit</a></emu-nt>]</emu-gann></emu-rhs>
+    <emu-nt><a href="#prod-LookaheadExample">LookaheadExample</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs a="d9a654c9">
+        <emu-t>&amp;&amp;</emu-t>
+        <emu-t>n</emu-t>
+        <emu-gann>[lookahead ∉ { <emu-t>1</emu-t>, <emu-t>3</emu-t>, <emu-t>5</emu-t>, <emu-t>7</emu-t>, <emu-t>9</emu-t> }]</emu-gann>
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigits">DecimalDigits</a></emu-nt>
+    </emu-rhs>
+    <emu-rhs a="195cbc6c">
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigit">DecimalDigit</a></emu-nt>
+        <emu-gann>[lookahead ∉ <emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigit">DecimalDigit</a></emu-nt>]</emu-gann>
+    </emu-rhs>
 </emu-production>
 <emu-production name="HTMLEntitiesExample" type="lexical" id="prod-HTMLEntitiesExample">
-    <emu-nt><a href="#prod-HTMLEntitiesExample">HTMLEntitiesExample</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="23da2165"><emu-gprose>This is technically a “production”</emu-gprose></emu-rhs>
+    <emu-nt><a href="#prod-HTMLEntitiesExample">HTMLEntitiesExample</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs a="23da2165"><emu-gprose>This is technically a “production”</emu-gprose></emu-rhs>
 </emu-production>
 <emu-production name="ButOnlyExample" type="lexical" id="prod-ButOnlyExample">
-    <emu-nt><a href="#prod-ButOnlyExample">ButOnlyExample</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="5c6f47da"><emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalEscape">DecimalEscape</a></emu-nt><emu-gmod>but only if the CapturingGroupNumber of <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalEscape">DecimalEscape</a></emu-nt> is &lt;= _NcapturingParens_</emu-gmod></emu-rhs>
+    <emu-nt><a href="#prod-ButOnlyExample">ButOnlyExample</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs a="5c6f47da">
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalEscape">DecimalEscape</a></emu-nt>
+        <emu-gmod>but only if the CapturingGroupNumber of <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalEscape">DecimalEscape</a></emu-nt> is &lt;= _NcapturingParens_</emu-gmod>
+    </emu-rhs>
 </emu-production>
 </emu-grammar>
 
 <p>Can also have inline productions like <emu-grammar><emu-production name="Atom" type="lexical" collapsed="" id="prod-Atom" class=" inline">
-    <emu-nt><a href="#prod-Atom">Atom</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="34eb148f"><emu-t>(</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Disjunction">Disjunction</a></emu-nt><emu-t>)</emu-t></emu-rhs>
+    <emu-nt><a href="#prod-Atom">Atom</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs a="34eb148f">
+        <emu-t>(</emu-t>
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-Disjunction">Disjunction</a></emu-nt>
+        <emu-t>)</emu-t>
+    </emu-rhs>
 </emu-production>
 </emu-grammar>.</p>
 
 <emu-alg><ol><li>Can also have productions in steps.</li><li>Example is <emu-grammar><emu-production name="Atom" type="lexical" collapsed="" class=" inline">
-    <emu-nt><a href="#prod-Atom">Atom</a></emu-nt><emu-geq>::</emu-geq><emu-rhs a="34eb148f"><emu-t>(</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Disjunction">Disjunction</a></emu-nt><emu-t>)</emu-t></emu-rhs>
+    <emu-nt><a href="#prod-Atom">Atom</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs a="34eb148f">
+        <emu-t>(</emu-t>
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-Disjunction">Disjunction</a></emu-nt>
+        <emu-t>)</emu-t>
+    </emu-rhs>
 </emu-production>
 </emu-grammar>.</li></ol></emu-alg>
 </div></body>
