@@ -104,12 +104,15 @@ export default class Production extends Builder {
       geq.textContent = ':';
     }
 
+    node.insertBefore(spec.doc.createTextNode(' '), ntNode.nextSibling);
     node.insertBefore(geq, ntNode.nextSibling);
+    node.insertBefore(spec.doc.createTextNode(' '), ntNode.nextSibling);
 
     if (prod.oneOf) {
       const elem = spec.doc.createElement('emu-oneof');
       elem.textContent = 'one of';
       node.insertBefore(elem, geq.nextSibling);
+      node.insertBefore(spec.doc.createTextNode(' '), elem);
     }
 
     prod.rhses.forEach(rhs => rhs.build());

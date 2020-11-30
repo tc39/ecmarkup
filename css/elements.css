@@ -204,9 +204,15 @@ emu-grammar[type="definition"] emu-production {
 
 emu-grammar.inline, emu-production.inline,
 emu-grammar.inline emu-production emu-rhs, emu-production.inline emu-rhs,
-emu-grammar[collapsed] emu-production emu-rhs, emu-production[collapsed] emu-rhs {
+emu-grammar[collapsed] emu-production emu-rhs {
     display: inline;
     padding-left: 1ex;
+    margin-left: 0;
+}
+
+emu-production[collapsed] emu-rhs {
+    display: inline;
+    padding-left: .5ex;
     margin-left: 0;
 }
 
@@ -216,11 +222,11 @@ emu-grammar[collapsed] emu-production, emu-production[collapsed] {
 
 emu-constraints {
     font-size: .75em;
-    margin-right: 1ex;
+    margin-right: .5ex;
 }
 
 emu-gann {
-    margin-right: 1ex;
+    margin-right: .5ex;
 }
 
 emu-gann emu-t:last-child,
@@ -230,13 +236,13 @@ emu-gann emu-nt:last-child {
 }
 
 emu-geq {
-    margin-left: 1ex;
+    margin-left: .5ex;
     font-weight: bold;
 }
 
 emu-oneof {
     font-weight: bold;
-    margin-left: 1ex;
+    margin-left: .5ex;
 }
 
 emu-nt {
@@ -251,7 +257,7 @@ emu-nt a, emu-nt a:visited {
 }
 
 emu-rhs emu-nt {
-    margin-right: 1ex;
+    margin-right: .5ex;
 }
 
 emu-t {
@@ -263,7 +269,7 @@ emu-t {
 }
 
 emu-production emu-t {
-    margin-right: 1ex;
+    margin-right: .5ex;
 }
 
 emu-rhs {
