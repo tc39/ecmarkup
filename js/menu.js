@@ -681,7 +681,7 @@ var Toolbox = {
     if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
       var entry = menu.search.biblio.byId[ref.id];
       this.activate(ref.element, entry, e.target);
-    } else if (this.active && ((e.pageY < this.top) || e.pageY > (this._activeEl.offsetTop + this._activeEl.offsetHeight))) {
+    } else {
       this.deactivate();
     }
   },
@@ -689,16 +689,19 @@ var Toolbox = {
   findReferenceUnder: function (el) {
     while (el) {
       var parent = el.parentNode;
+      if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
+        return null;
+      }
       if (el.nodeName === 'H1' && parent.nodeName.match(/EMU-CLAUSE|EMU-ANNEX|EMU-INTRO/) && parent.id) {
+        return { element: el, id: parent.id };
+      } else if (el.nodeName === 'EMU-NT') {
+        // return the LHS non-terminal element
         return { element: el, id: parent.id };
       } else if (el.nodeName.match(/EMU-(?!CLAUSE|XREF|ANNEX|INTRO)|DFN/) &&
                 el.id && el.id[0] !== '_') {
         if (el.nodeName === 'EMU-FIGURE' || el.nodeName === 'EMU-TABLE' || el.nodeName === 'EMU-EXAMPLE') {
           // return the figcaption element
           return { element: el.children[0].children[0], id: el.id };
-        } else if (el.nodeName === 'EMU-PRODUCTION') {
-          // return the LHS non-terminal element
-          return { element: el.children[0], id: el.id };
         } else {
           return { element: el, id: el.id };
         }
@@ -710,7 +713,6 @@ var Toolbox = {
   deactivate: function () {
     this.$container.classList.remove('active');
     this._activeEl = null;
-    this.activeElBounds = null;
     this.active = false;
   }
 }
@@ -799,6 +801,7 @@ var referencePane = {
     this.$table.appendChild(this.$tableBody);
   }
 }
+
 function findParentClauseId(node) {
   while (node && node.nodeName !== 'EMU-CLAUSE' && node.nodeName !== 'EMU-INTRO' && node.nodeName !== 'EMU-ANNEX') {
     node = node.parentNode;

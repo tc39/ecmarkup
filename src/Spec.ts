@@ -361,7 +361,6 @@ export default class Spec {
     this.log('Building boilerplate...');
     this.buildBoilerplate();
 
-    this.log('Walking document, building various elements...');
     const context: Context = {
       spec: this,
       node: this.doc.body,
@@ -387,9 +386,12 @@ export default class Spec {
       await lint(this.warn, source, this, document);
     }
 
+    this.log('Walking document, building various elements...');
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
 
     await walk(walker, context);
+
+    this.generateSDOMap();
 
     this.setReplacementAlgorithmOffsets();
 
@@ -851,6 +853,48 @@ export default class Spec {
     `;
   }
 
+  private generateSDOMap() {
+    let sdoMap = Object.create(null);
+
+    this.log('Building SDO map...');
+    let sdos = this.doc.querySelectorAll('emu-clause[type=sdo]');
+    // @ts-ignore
+    for (let sdo of sdos) {
+      let header = sdo.firstElementChild;
+      if (header.tagName !== 'H1') {
+        // todo warn, fail
+        break;
+      }
+
+      let nameMatch = header.childNodes[header.childNodes.length - 1].textContent.match(/^\s*(?:Static Semantics: )?\s*(\w+)\b/);
+      if (nameMatch == null) {
+        // todo warn, fail
+        break;
+      }
+      let sdoName = nameMatch[1];
+      // @ts-ignore
+      let grammars = [...sdo.children].filter(e => e.tagName === 'EMU-GRAMMAR');
+      for (let grammar of grammars) {
+        for (let rhs of grammar.querySelectorAll('emu-rhs')) {
+          let alternativeId = rhs.getAttribute('a');
+          if (!{}.hasOwnProperty.call(sdoMap, alternativeId)) {
+            sdoMap[alternativeId] = [];
+          }
+          sdoMap[alternativeId].push(sdoName);
+          let target = this.doc.createElement('span');
+          target.id = `${sdoName}-${alternativeId}`;
+          grammar.parentNode.insertBefore(target, grammar);
+        }
+      }
+    }
+
+    let sdoMapContainer = this.doc.createElement('script');
+    sdoMapContainer.setAttribute('type', 'application/json');
+    sdoMapContainer.id = 'sdo-map';
+    sdoMapContainer.textContent = JSON.stringify(sdoMap);
+    this.doc.head.appendChild(sdoMapContainer);
+  }
+
   private setReplacementAlgorithmOffsets() {
     this.log('Finding offsets for replacement algorithm steps...');
     let pending: Map<string, Element[]> = new Map();
@@ -1104,7 +1148,7 @@ async function walk(walker: TreeWalker, context: Context) {
   context.tagStack.pop();
 }
 
-const jsDependencies = ['menu.js', 'findLocalReferences.js'];
+const jsDependencies = ['sdoMap.js', 'menu.js', 'findLocalReferences.js'];
 async function concatJs() {
   const dependencies = await Promise.all(
     jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency)))
