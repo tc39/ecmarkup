@@ -681,7 +681,7 @@ var Toolbox = {
     if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
       var entry = menu.search.biblio.byId[ref.id];
       this.activate(ref.element, entry, e.target);
-    } else {
+    } else if (this.active && ((e.pageY < this.top) || e.pageY > (this._activeEl.offsetTop + this._activeEl.offsetHeight))) {
       this.deactivate();
     }
   },
