@@ -740,7 +740,8 @@ var referencePane = {
 
     this.$header = document.createElement('div');
     this.$header.classList.add('menu-pane-header');
-    this.$header.textContent = 'References to ';
+    this.$headerText = document.createElement('span');
+    this.$header.appendChild(this.$headerText);
     this.$headerRefId = document.createElement('a');
     this.$header.appendChild(this.$headerRefId);
     this.$closeButton = document.createElement('span');
@@ -773,14 +774,16 @@ var referencePane = {
     this.$container.classList.remove('active');
   },
 
-  showReferencesFor(entry) {
+  showReferencesFor: function(entry) {
     this.activate();
+    this.$headerText.textContent = 'References to ';
     var newBody = document.createElement('tbody');
     var previousId;
     var previousCell;
     var dupCount = 0;
     this.$headerRefId.textContent = '#' + entry.id;
     this.$headerRefId.setAttribute('href', '#' + entry.id);
+    this.$headerRefId.style.display = 'inline';
     entry.referencingIds.map(function (id) {
       var target = document.getElementById(id);
       var cid = findParentClauseId(target);
@@ -806,7 +809,26 @@ var referencePane = {
     this.$table.removeChild(this.$tableBody);
     this.$tableBody = newBody;
     this.$table.appendChild(this.$tableBody);
-  }
+  },
+
+  showSDOs: function(sdos, alternativeId) {
+    this.activate();
+    this.$headerText.textContent = 'Syntax-Directed Operations';
+    this.$headerRefId.style.display = 'none';
+    var newBody = document.createElement('tbody');
+    sdos.forEach(function(pair) {
+      var clause = pair.clause;
+      var sdoName = pair.sdoName;
+      var row = newBody.insertRow();
+      var cell = row.insertCell();
+      cell.innerHTML = clause;
+      cell = row.insertCell();
+      cell.innerHTML = '<a href="#' + sdoName + '-' + alternativeId + '">' + sdoName + '</a>';
+    });
+    this.$table.removeChild(this.$tableBody);
+    this.$tableBody = newBody;
+    this.$table.appendChild(this.$tableBody);
+  },
 }
 
 function findParentClauseId(node) {

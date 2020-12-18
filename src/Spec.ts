@@ -866,7 +866,8 @@ export default class Spec {
         break;
       }
 
-      let nameMatch = header.childNodes[header.childNodes.length - 1].textContent.match(/^\s*(?:Static Semantics: )?\s*(\w+)\b/);
+      let clause = header.firstElementChild.textContent;
+      let nameMatch = header.textContent.slice(clause.length + 1).match(/^(?:Static Semantics: )?\s*(\w+)\b/);
       if (nameMatch == null) {
         // todo warn, fail
         break;
@@ -880,7 +881,7 @@ export default class Spec {
           if (!{}.hasOwnProperty.call(sdoMap, alternativeId)) {
             sdoMap[alternativeId] = [];
           }
-          sdoMap[alternativeId].push(sdoName);
+          sdoMap[alternativeId].push({ clause , sdoName });
           let target = this.doc.createElement('span');
           target.id = `${sdoName}-${alternativeId}`;
           grammar.parentNode.insertBefore(target, grammar);
