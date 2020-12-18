@@ -699,8 +699,11 @@ var Toolbox = {
       if (el.nodeName === 'H1' && parent.nodeName.match(/EMU-CLAUSE|EMU-ANNEX|EMU-INTRO/) && parent.id) {
         return { element: el, id: parent.id };
       } else if (el.nodeName === 'EMU-NT') {
-        // return the LHS non-terminal element
-        return { element: el, id: parent.id };
+        if (parent.id && parent.id[0] !== '_' && parent.firstElementChild === el) {
+          // return the LHS non-terminal element
+          return { element: el, id: parent.id };
+        }
+        return null;
       } else if (el.nodeName.match(/EMU-(?!CLAUSE|XREF|ANNEX|INTRO)|DFN/) &&
                 el.id && el.id[0] !== '_') {
         if (el.nodeName === 'EMU-FIGURE' || el.nodeName === 'EMU-TABLE' || el.nodeName === 'EMU-EXAMPLE') {

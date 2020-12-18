@@ -866,7 +866,7 @@ li.menu-search-result-term:before {
 .toolbox-container {
   position: absolute;
   display: none;
-  padding-bottom: 10px;
+  padding-bottom: 7px;
 }
 
 .toolbox-container.active {
