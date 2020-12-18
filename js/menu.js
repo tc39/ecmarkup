@@ -625,8 +625,11 @@ function fuzzysearch (searchString, haystack, caseInsensitive) {
 
 var Toolbox = {
   init: function () {
+    this.$outer = document.createElement('div');
+    this.$outer.classList.add('toolbox-container');
     this.$container = document.createElement('div');
     this.$container.classList.add('toolbox');
+    this.$outer.appendChild(this.$container);
     this.$permalink = document.createElement('a');
     this.$permalink.textContent = 'Permalink';
     this.$pinLink = document.createElement('a');
@@ -648,23 +651,24 @@ var Toolbox = {
     this.$container.appendChild(this.$permalink);
     this.$container.appendChild(this.$pinLink);
     this.$container.appendChild(this.$refsLink);
-    document.body.appendChild(this.$container);
+    document.body.appendChild(this.$outer);
   },
 
   activate: function (el, entry, target) {
     if (el === this._activeEl) return;
+    sdoBox.deactivate();
     this.active = true;
     this.entry = entry;
-    this.$container.classList.add('active');
+    this.$outer.classList.add('active');
     this.top = el.offsetTop - this.$container.offsetHeight - 10;
-    this.left = el.offsetLeft;
-    this.$container.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
+    this.left = el.offsetLeft - 10;
+    this.$outer.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
     this.updatePermalink();
     this.updateReferences();
     this._activeEl = el;
     if (this.top < document.body.scrollTop && el === target) {
       // don't scroll unless it's a small thing (< 200px)
-      this.$container.scrollIntoView();
+      this.$outer.scrollIntoView();
     }
   },
 
@@ -711,7 +715,7 @@ var Toolbox = {
   },
 
   deactivate: function () {
-    this.$container.classList.remove('active');
+    this.$outer.classList.remove('active');
     this._activeEl = null;
     this.active = false;
   }

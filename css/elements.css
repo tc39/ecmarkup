@@ -863,18 +863,23 @@ li.menu-search-result-term:before {
 
 
 /* Toolbox */
+.toolbox-container {
+  position: absolute;
+  display: none;
+  padding-bottom: 10px;
+}
+
+.toolbox-container.active {
+  display: inline-block;
+}
+
 .toolbox {
-	position: absolute;
+  position: relative;
 	background: #ddd;
 	border: 1px solid #aaa;
-  display: none;
   color: #eee;
   padding: 5px;
   border-radius: 3px;
-}
-
-.toolbox.active {
-  display: inline-block;
 }
 
 .toolbox a {
