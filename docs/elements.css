@@ -278,6 +278,15 @@ emu-rhs {
     text-indent: -25px;
 }
 
+emu-production:not([collapsed]) emu-rhs {
+    border: 0.2ex dashed transparent;
+}
+
+emu-production:not([collapsed]) emu-rhs:hover {
+    border-color: #888;
+    background-color: #F0F0F0;
+}
+
 emu-mods {
     font-size: .85em;
     vertical-align: sub;
