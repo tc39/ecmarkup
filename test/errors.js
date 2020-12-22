@@ -216,7 +216,7 @@ ${M}      </pre>
   it('xref href not fragment', async () => {
     await assertError(
       positioned`
-      ${M}<emu-xref href="http://example.com"></emu-xref>
+      <emu-xref href="${M}http://example.com"></emu-xref>
       `,
       {
         ruleId: 'invalid-xref',

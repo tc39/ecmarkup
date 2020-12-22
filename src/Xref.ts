@@ -78,7 +78,8 @@ export default class Xref extends Builder {
     if (href) {
       if (href[0] !== '#') {
         spec.warn({
-          type: 'node',
+          type: 'attr',
+          attr: 'href',
           ruleId: 'invalid-xref',
           message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(
             href
