@@ -1,0 +1,36 @@
+name: check
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build && npm run build-spec
+
+      - name: Enforce docs build
+        run: if [ ! -z "$(git status --porcelain)" ]; then echo "repo is dirty; you probably need to 'npm run build-spec' and commit the result"; exit 1; fi
+
+      - name: Test
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test published files
+        run: npm run test-published-files
