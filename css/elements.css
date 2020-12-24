@@ -615,7 +615,8 @@ tr.del > td {
   white-space: nowrap;
 }
 
-#menu-toc .item-toggle {
+#menu-toc .item-toggle,
+#menu-pins-header .item-toggle {
   display: inline-block;
   transform: rotate(-45deg) translate(-5px, -5px);
   transition: transform 0.1s ease;
@@ -639,15 +640,18 @@ tr.del > td {
   width: 20px;
 }
 
-#menu-toc li.active > .item-toggle {
+#menu-toc li.active > .item-toggle,
+#menu-pins-header.active > .item-toggle {
   transform: rotate(45deg) translate(-5px, -5px);
 }
 
-#menu-toc li > ol {
+#menu-toc li > ol,
+#menu-pins-header + #menu-pins-list {
   display: none;
 }
 
-#menu-toc li.active > ol {
+#menu-toc li.active > ol,
+#menu-pins-header.active + #menu-pins-list {
   display: block;
 }
 
@@ -714,10 +718,10 @@ tr.del > td {
   flex-grow: 0;
   flex-shrink: 0;
   width: 100%;
-  
+
   display: flex;
   flex-direction: column;
-  
+
   max-height: 300px;
 }
 
