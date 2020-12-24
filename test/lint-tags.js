@@ -19,7 +19,7 @@ describe('tags', () => {
   it('oldid', async () => {
     await assertLint(
       positioned`
-        <emu-clause id="foo" oldid="${M}bar">
+        <emu-clause id="foo" ${M}oldid="bar">
           <h1>Example</h1>
         </emu-clause>
       `,

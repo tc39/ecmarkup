@@ -100,6 +100,13 @@ export type Warning =
       message: string;
     }
   | {
+      type: 'attr-value';
+      node: Element;
+      attr: string;
+      ruleId: string;
+      message: string;
+    }
+  | {
       type: 'contents';
       node: Text | Element;
       ruleId: string;
@@ -158,6 +165,16 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
         }
         break;
       case 'attr': {
+        let loc = spec.locate(e.node);
+        if (loc) {
+          file = loc.file;
+          source = loc.source;
+          ({ line, column } = utils.attrLocation(source, loc, e.attr));
+        }
+        nodeType = e.node.tagName.toLowerCase();
+        break;
+      }
+      case 'attr-value': {
         let loc = spec.locate(e.node);
         if (loc) {
           file = loc.file;
@@ -924,7 +941,7 @@ export default class Spec {
         let targetEntry = this.biblio.byId(target);
         if (targetEntry == null) {
           this.warn({
-            type: 'attr',
+            type: 'attr-value',
             attr: 'replaces-step',
             ruleId: 'invalid-replacement',
             message: `could not find step ${JSON.stringify(target)}`,
@@ -932,7 +949,7 @@ export default class Spec {
           });
         } else if (targetEntry.type !== 'step') {
           this.warn({
-            type: 'attr',
+            type: 'attr-value',
             attr: 'replaces-step',
             ruleId: 'invalid-replacement',
             message: `expected algorithm to replace a step, not a ${targetEntry.type}`,

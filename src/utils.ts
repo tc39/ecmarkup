@@ -187,6 +187,19 @@ export function offsetToLineAndColumn(string: string, offset: number) {
   return { line: line + 1, column: column + 1 };
 }
 
+export function attrLocation(
+  source: string | undefined,
+  loc: MarkupData.ElementLocation,
+  attr: string
+) {
+  let attrLoc = loc.startTag.attrs[attr];
+  if (attrLoc == null) {
+    return { line: loc.startTag.line, column: loc.startTag.col };
+  } else {
+    return { line: attrLoc.line, column: attrLoc.col };
+  }
+}
+
 export function attrValueLocation(
   source: string | undefined,
   loc: MarkupData.ElementLocation,
