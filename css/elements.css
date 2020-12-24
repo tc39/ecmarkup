@@ -615,7 +615,8 @@ tr.del > td {
   white-space: nowrap;
 }
 
-#menu-toc .item-toggle {
+#menu-toc .item-toggle,
+#menu-pins-header .item-toggle {
   display: inline-block;
   transform: rotate(-45deg) translate(-5px, -5px);
   transition: transform 0.1s ease;
@@ -634,6 +635,12 @@ tr.del > td {
   cursor: pointer;
 }
 
+#menu-pins-header .item-toggle { /*overwrite the transform style in the above css selector, so we can get a upward pin arrow*/
+  transform: rotate(-135deg);
+  transform-origin: center;
+  transition: transform 0s ease;
+}
+
 #menu-toc .item-toggle-none {
   display: inline-block;
   width: 20px;
@@ -643,11 +650,19 @@ tr.del > td {
   transform: rotate(45deg) translate(-5px, -5px);
 }
 
-#menu-toc li > ol {
+#menu-pins-header.active > .item-toggle{  /*extra css style for the downward pin arrow*/
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform 0s ease;
+}
+
+#menu-toc li > ol,
+#menu-pins-header + #menu-pins-list {
   display: none;
 }
 
-#menu-toc li.active > ol {
+#menu-toc li.active > ol,
+#menu-pins-header.active + #menu-pins-list {
   display: block;
 }
 
@@ -714,10 +729,10 @@ tr.del > td {
   flex-grow: 0;
   flex-shrink: 0;
   width: 100%;
-  
+
   display: flex;
   flex-direction: column;
-  
+
   max-height: 300px;
 }
 
