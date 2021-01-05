@@ -2,7 +2,5 @@
 *.md
 *.json
 *.yml
-*.css
-js/
 lib/
 docs/

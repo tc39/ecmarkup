@@ -1,5 +1,5 @@
 var CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
-function findLocalReferences ($elem) {
+function findLocalReferences($elem) {
   var name = $elem.innerHTML;
   var references = [];
 
@@ -8,7 +8,7 @@ function findLocalReferences ($elem) {
     parentClause = parentClause.parentNode;
   }
 
-  if(!parentClause) return;
+  if (!parentClause) return;
 
   var vars = parentClause.querySelectorAll('var');
 
@@ -36,7 +36,7 @@ function toggleFindLocalReferences($elem) {
   }
 }
 
-function installFindLocalReferences () {
+function installFindLocalReferences() {
   document.addEventListener('click', function (e) {
     if (e.target.nodeName === 'VAR') {
       toggleFindLocalReferences(e.target);
