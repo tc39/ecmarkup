@@ -127,6 +127,10 @@ let matchers = [
     pattern: /(?<=&[lg][et]; ?\*)-0\*/gu,
     message: 'comparisons against floating-point zero should use positive zero',
   },
+  {
+    pattern: /(÷|&divide;)/gu,
+    message: 'division should be written as "/", not "÷", per ISO 80000-2',
+  },
 ];
 
 export function collectSpellingDiagnostics(
