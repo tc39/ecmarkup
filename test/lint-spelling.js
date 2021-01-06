@@ -498,6 +498,30 @@ windows:${M}\r
     );
   });
 
+  it('divison', async () => {
+    await assertLint(
+      positioned`
+        <p>1 ${M}&divide; 2</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'division should be written as "/", not "÷", per ISO 80000-2',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>1 ${M}÷ 2</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'division should be written as "/", not "÷", per ISO 80000-2',
+      }
+    );
+  });
+
   it('negative', async () => {
     await assertLintFree(`
       <p>
