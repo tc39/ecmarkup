@@ -84,7 +84,7 @@ export function collectNodes(
             earlyErrors.push({ grammar, lists });
           }
         }
-      } else if (node.nodeName === 'EMU-GRAMMAR') {
+      } else if (node.nodeName === 'EMU-GRAMMAR' && !node.hasAttribute('example')) {
         // Look for grammar definitions and SDOs
         if (node.getAttribute('type') === 'definition') {
           const loc = spec.locate(node);
@@ -105,7 +105,7 @@ export function collectNodes(
             let realSource = (importSource ?? mainSource).slice(start, end);
             mainGrammar.push({ element: node as Element, source: realSource });
           }
-        } else if (node.getAttribute('type') !== 'example') {
+        } else {
           let next = lintWalker.nextSibling() as Element;
           if (next) {
             if (next.nodeName === 'EMU-ALG') {
@@ -117,7 +117,7 @@ export function collectNodes(
       }
     }
 
-    if (node.nodeName === 'EMU-ALG' && node.getAttribute('type') !== 'example') {
+    if (node.nodeName === 'EMU-ALG' && !node.hasAttribute('example')) {
       algorithms.push({ element: node });
     }
 

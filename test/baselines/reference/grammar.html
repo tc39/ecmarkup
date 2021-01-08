@@ -2,7 +2,7 @@
 <head><meta charset="utf-8"><link rel="stylesheet" href="../css/elements.css">
 </head><body><div id="spec-container">
 
-<emu-grammar><emu-production name="FooTerminal" id="prod-FooTerminal">
+<emu-grammar type="definition"><emu-production name="FooTerminal" id="prod-FooTerminal">
     <emu-nt><a href="#prod-FooTerminal">FooTerminal</a></emu-nt> <emu-geq>:</emu-geq> <ins><emu-rhs a="5422ad14">
         <emu-nt>Inserting</emu-nt>
         <emu-t>anRHS</emu-t>
@@ -44,7 +44,7 @@
 </emu-production>
 </emu-grammar>
 
-<p>Can also have inline productions like <emu-grammar><emu-production name="Atom" type="lexical" collapsed="" id="prod-Atom" class=" inline">
+<p>Can also have inline productions like <emu-grammar type="definition"><emu-production name="Atom" type="lexical" collapsed="" id="prod-Atom" class=" inline">
     <emu-nt><a href="#prod-Atom">Atom</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs a="34eb148f">
         <emu-t>(</emu-t>
         <emu-nt><a href="https://tc39.es/ecma262/#prod-Disjunction">Disjunction</a></emu-nt>

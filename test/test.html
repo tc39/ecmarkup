@@ -42,21 +42,21 @@ assets:    none
 
   <emu-note>Note!</emu-note>
 
-  <emu-production name="WhileStatement">
+  <emu-production name="WhileStatement" primary>
     <emu-rhs>while ( <emu-nt>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="ArgumentList">
+  <emu-production name="ArgumentList" primary>
     <emu-rhs a="a"><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
 
     <emu-rhs a="b"><emu-nt>ArgumentList</emu-nt> , <emu-nt>AssignmentExpression</emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="SourceCharacter" type="lexical">
+  <emu-production name="SourceCharacter" type="lexical" primary>
     <emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
   </emu-production>
 
-  <emu-production name="ExpressionStatement" params="Yield">
+  <emu-production name="ExpressionStatement" params="Yield" primary>
     <emu-rhs>
       <emu-gann>lookahead ∉ {
         <emu-t>{</emu-t>,
@@ -67,20 +67,20 @@ assets:    none
     </emu-rhs>
   </emu-production>
 
-  <emu-production name="StatementList" params="Return, In">
+  <emu-production name="StatementList" params="Return, In" primary>
     <emu-rhs constraints="~Return"><emu-nt>ReturnStatement</emu-nt></emu-rhs>
     <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
   </emu-production>
 
   <p>
     Inline production:
-    <emu-production name="Identifier" type="lexical" collapsed>
+    <emu-production name="Identifier" type="lexical" collapsed primary>
       <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
       <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
     </emu-production>
   </p>
 
-  <emu-production name="EnumDeclaration">
+  <emu-production name="EnumDeclaration" primary>
     <emu-rhs>
       <emu-t optional>const</emu-t>
       <emu-t>enum</emu-t>
@@ -91,7 +91,7 @@ assets:    none
     </emu-rhs>
   </emu-production>
   </emu-production>
-  <!-- added for testing that prodref references first occurance -->
+
   <emu-production name="Identifier" type="lexical">
     <emu-rhs>DummyIdentifier</emu-rhs>
   </emu-production>
@@ -99,13 +99,13 @@ assets:    none
   <emu-prodref name="Identifier"></emu-prodref>
   <emu-prodref name="ArgumentList" a="a"></emu-prodref>
 
-  <emu-grammar>
+  <emu-grammar type="definition">
     FooBar(Yeild) ::
       [+Default] `foo` Bar(?Yield) #a
       `baz`                        #b
   </emu-grammar>
 
-  <emu-grammar>
+  <emu-grammar type="definition">
     FooBarBaz(Yeild) :::
       [+Default] `foo` Bar(?Yield) #a
       `baz`                        #b
@@ -124,7 +124,7 @@ assets:    none
   <emu-xref href="#Bar" title></emu-xref>
 
   <!-- test block collapsed emu-grammar -->
-  <emu-grammar>FunctionDeclaration : `function` BindingIdentifier `(` FormalParameters `)` `{` FunctionBody `}`</emu-grammar>
+  <emu-grammar type="definition">FunctionDeclaration : `function` BindingIdentifier `(` FormalParameters `)` `{` FunctionBody `}`</emu-grammar>
 
   <p>Test |NonTerminal[WithParams]| and |NonTerminal_opt|.</p>
 </emu-clause>

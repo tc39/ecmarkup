@@ -31,7 +31,7 @@
   <emu-import href="sub/import3.html"><emu-clause id="import3">
   <h1><span class="secnum">1.3.1</span> Import 3</h1>
   wtf??
-  <emu-grammar><emu-production name="A" collapsed="" id="prod-A">
+  <emu-grammar type="definition"><emu-production name="A" collapsed="" id="prod-A">
     <emu-nt><a href="#prod-A">A</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="0185ce89"><emu-t>b</emu-t></emu-rhs>
 </emu-production>
 </emu-grammar>
@@ -42,21 +42,21 @@
 
   <emu-note><span class="note">Note</span><div class="note-contents">Note!</div></emu-note>
 
-  <emu-production name="WhileStatement" id="prod-WhileStatement">
+  <emu-production name="WhileStatement" primary="" id="prod-WhileStatement">
     <emu-nt><a href="#prod-WhileStatement">WhileStatement</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-t>while</emu-t> <emu-t>(</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Expression">Expression</a></emu-nt> <emu-t>)</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Statement">Statement</a></emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="ArgumentList" id="prod-ArgumentList">
+  <emu-production name="ArgumentList" primary="" id="prod-ArgumentList">
     <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="a"><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
 
     <emu-rhs a="b"><emu-nt id="_ref_6"><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-t>,</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
   </emu-production>
 
-  <emu-production name="SourceCharacter" type="lexical" id="prod-SourceCharacter">
+  <emu-production name="SourceCharacter" type="lexical" primary="" id="prod-SourceCharacter">
     <emu-nt><a href="#prod-SourceCharacter">SourceCharacter</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
   </emu-production>
 
-  <emu-production name="ExpressionStatement" params="Yield" id="prod-ExpressionStatement">
+  <emu-production name="ExpressionStatement" params="Yield" primary="" id="prod-ExpressionStatement">
     <emu-nt params="Yield"><a href="#prod-ExpressionStatement">ExpressionStatement</a><emu-mods><emu-params>[Yield]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs>
       <emu-gann>[lookahead ∉ {
         <emu-t>{</emu-t>,
@@ -67,20 +67,20 @@
     </emu-rhs>
   </emu-production>
 
-  <emu-production name="StatementList" params="Return, In" id="prod-StatementList">
+  <emu-production name="StatementList" params="Return, In" primary="" id="prod-StatementList">
     <emu-nt params="Return, In"><a href="#prod-StatementList">StatementList</a><emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ReturnStatement">ReturnStatement</a></emu-nt></emu-rhs>
     <emu-rhs><emu-nt id="_ref_7"><a href="#prod-ExpressionStatement">ExpressionStatement</a></emu-nt></emu-rhs>
   </emu-production>
 
   <p>
     Inline production:
-    <emu-production name="Identifier" type="lexical" collapsed="" id="prod-Identifier" class=" inline">
+    <emu-production name="Identifier" type="lexical" collapsed="" primary="" id="prod-Identifier" class=" inline">
       <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-IdentifierName">IdentifierName</a></emu-nt> <emu-gmod>but not
       <emu-nt><a href="https://tc39.es/ecma262/#prod-ReservedWord">ReservedWord</a></emu-nt></emu-gmod></emu-rhs>
     </emu-production>
   </p>
 
-  <emu-production name="EnumDeclaration" id="prod-EnumDeclaration">
+  <emu-production name="EnumDeclaration" primary="" id="prod-EnumDeclaration">
     <emu-nt><a href="#prod-EnumDeclaration">EnumDeclaration</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs>
       <emu-t optional="">const<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-t>
       <emu-t>enum</emu-t>
@@ -91,26 +91,26 @@
     </emu-rhs>
   </emu-production>
   
-  <!-- added for testing that prodref references first occurance -->
+
   <emu-production name="Identifier" type="lexical">
     <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs><emu-t>DummyIdentifier</emu-t></emu-rhs>
   </emu-production>
 
-  <emu-production name="Identifier" type="lexical" collapsed="" class=" inline">
+  <emu-production name="Identifier" type="lexical" collapsed="" primary="" class=" inline">
       <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-IdentifierName">IdentifierName</a></emu-nt> <emu-gmod>but not
       <emu-nt><a href="https://tc39.es/ecma262/#prod-ReservedWord">ReservedWord</a></emu-nt></emu-gmod></emu-rhs>
     </emu-production>
-  <emu-production name="ArgumentList" a="a" collapsed="">
+  <emu-production name="ArgumentList" primary="" a="a" collapsed="">
     <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="a"><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs></emu-production>
 
-  <emu-grammar><emu-production name="FooBar" collapsed="" id="prod-FooBar">
+  <emu-grammar type="definition"><emu-production name="FooBar" collapsed="" id="prod-FooBar">
     <emu-nt><a href="#prod-FooBar">FooBar</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="65ec8929">
         <emu-nt>Yeild</emu-nt>
     </emu-rhs>
 </emu-production>
 </emu-grammar>
 
-  <emu-grammar><emu-production name="FooBarBaz" collapsed="" id="prod-FooBarBaz">
+  <emu-grammar type="definition"><emu-production name="FooBarBaz" collapsed="" id="prod-FooBarBaz">
     <emu-nt><a href="#prod-FooBarBaz">FooBarBaz</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="65ec8929">
         <emu-nt>Yeild</emu-nt>
     </emu-rhs>
@@ -128,7 +128,7 @@ test();</code></pre>
   <emu-xref href="#Bar" title="" id="_ref_2"><a href="#Bar">Sub Clause</a></emu-xref>
 
   <!-- test block collapsed emu-grammar -->
-  <emu-grammar><emu-production name="FunctionDeclaration" collapsed="" id="prod-FunctionDeclaration">
+  <emu-grammar type="definition"><emu-production name="FunctionDeclaration" collapsed="" id="prod-FunctionDeclaration">
     <emu-nt><a href="#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="81739a57">
         <emu-t>function</emu-t>
         <emu-nt><a href="https://tc39.es/ecma262/#prod-annexB-BindingIdentifier">BindingIdentifier</a></emu-nt>
