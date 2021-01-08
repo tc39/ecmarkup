@@ -284,4 +284,122 @@ describe('linting whole program', () => {
       );
     });
   });
+
+  describe('nonterminal definedness', () => {
+    it('in LHS', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar>
+            ${M}Example: \`;\`
+          </emu-grammar>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-grammar',
+          message: 'could not find a definition for nonterminal Example',
+        }
+      );
+    });
+
+    it('in RHS', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Example: \`;\`
+          </emu-grammar>
+          <emu-grammar>
+            Example: ${M}Undefined
+          </emu-grammar>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-grammar',
+          message: 'could not find a definition for nonterminal Undefined',
+        }
+      );
+    });
+
+    it('in algorithm', async () => {
+      await assertLint(
+        positioned`
+          <emu-alg>
+            1. Let _s_ be |${M}Example|.
+          </emu-alg>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-alg',
+          message: 'could not find a definition for nonterminal Example',
+        }
+      );
+    });
+
+    it('in SDO', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Statement: \`;\`
+          </emu-grammar>
+          <emu-clause id="example">
+            <h1>Something</h1>
+            <emu-grammar>Statement: \`;\`</emu-grammar>
+            <emu-alg>
+              1. Let _s_ be |${M}Statements|.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-alg',
+          message: 'could not find a definition for nonterminal Statements',
+        }
+      );
+    });
+
+    it('in prose', async () => {
+      await assertLint(
+        positioned`
+          <p>Discuss: |${M}Example|.</p>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'text',
+          message: 'could not find a definition for nonterminal Example',
+        }
+      );
+    });
+
+    it('in literal emu-nt', async () => {
+      await assertLint(
+        positioned`
+          <p>Discuss: <emu-nt>${M}Example</emu-nt>.</p>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-nt',
+          message: 'could not find a definition for nonterminal Example',
+        }
+      );
+    });
+
+    it('negative', async () => {
+      await assertLintFree(`
+        <emu-grammar type="definition">
+          Example1: \`;\`
+          Example2: Example1
+        </emu-grammar>
+        <emu-grammar>
+          Example1: \`;\`
+        </emu-grammar>
+        <emu-grammar>
+          Example2: Example1
+        </emu-grammar>
+        <emu-alg>
+          1. Let _s_ be |Example1|.
+        </emu-alg>
+        <p>Discuss: |Example1|.</p>
+        <p>Discuss: <emu-nt>Example1</emu-nt>.</p>
+      `);
+    });
+  });
 });

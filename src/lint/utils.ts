@@ -11,8 +11,10 @@ import type {
   OneOfSymbol,
   ArgumentList,
 } from 'grammarkdown';
+import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
-import { Grammar as GrammarFile, SyntaxKind } from 'grammarkdown';
+import { Grammar as GrammarFile, SyntaxKind, skipTrivia, NodeVisitor } from 'grammarkdown';
+import * as emd from 'ecmarkdown';
 
 export function getProductions(grammar: GrammarFile) {
   let productions: Map<
@@ -167,4 +169,69 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
       return ae.operatorToken.kind === be.operatorToken.kind && ae.name.text === be.name.text;
     })
   );
+}
+
+// this is only for use with single-file grammars
+export function getLocationInGrammar(grammar: GrammarFile, pos: number) {
+  let file = grammar.sourceFiles[0];
+  let posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
+  let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(posWithoutWhitespace);
+  // grammarkdown use 0-based line and column, we want 1-based
+  return { line: gmdLine + 1, column: gmdCharacter + 1 };
+}
+
+class CollectNonterminalsFromGrammar extends NodeVisitor {
+  declare grammar: GrammarFile;
+  declare results: { name: string; loc: { line: number; column: number } }[];
+  constructor(grammar: GrammarFile) {
+    super();
+    this.grammar = grammar;
+    this.results = [];
+  }
+  visitProduction(node: Production): Production {
+    this.results.push({
+      name: node.name.text!,
+      loc: getLocationInGrammar(this.grammar, node.name.pos),
+    });
+    return super.visitProduction(node);
+  }
+
+  visitNonterminal(node: Nonterminal): Nonterminal {
+    this.results.push({
+      name: node.name.text!,
+      loc: getLocationInGrammar(this.grammar, node.name.pos),
+    });
+    return super.visitNonterminal(node);
+  }
+}
+
+export function collectNonterminalsFromGrammar(grammar: GrammarFile) {
+  let visitor = new CollectNonterminalsFromGrammar(grammar);
+  grammar.rootFiles.forEach(f => {
+    visitor.visitEach(f.elements);
+  });
+  return visitor.results;
+}
+
+export function collectNonterminalsFromEmd(
+  emdNode: EcmarkdownNode | EcmarkdownNode[]
+): { name: string; loc: { line: number; column: number } }[] {
+  if (Array.isArray(emdNode)) {
+    return emdNode.flatMap(collectNonterminalsFromEmd);
+  }
+  let results: ReturnType<typeof collectNonterminalsFromEmd> = [];
+  emd.visit(emdNode, {
+    enter(emdNode: EcmarkdownNode) {
+      if (emdNode.name === 'pipe') {
+        results.push({
+          name: emdNode.nonTerminal,
+          loc: {
+            line: emdNode.location.start.line,
+            column: emdNode.location.start.column + 1, // skip the pipe
+          },
+        });
+      }
+    },
+  });
+  return results;
 }

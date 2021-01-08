@@ -6,6 +6,7 @@ import * as jsdom from 'jsdom';
 import * as chalk from 'chalk';
 import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
+import { collectNonterminalsFromEmd } from './lint/utils';
 
 export function warnEmdFailure(
   report: Spec['warn'],
@@ -36,12 +37,30 @@ export function wrapEmdFailure(src: string) {
 }
 
 /*@internal*/
-export function emdTextNode(spec: Spec, node: Text) {
-  let c = node.textContent!.replace(/</g, '&lt;');
+export function emdTextNode(spec: Spec, node: Text, namespace: string) {
+  let loc = spec.locate(node);
+  let c;
+  if (loc?.endTag == null) {
+    c = node.textContent!.replace(/</g, '&lt;');
+  } else {
+    let start = loc.startTag.endOffset;
+    let end = loc.endTag.startOffset;
+    c = loc.source.slice(start, end);
+  }
 
   let processed;
   try {
-    processed = emd.fragment(c);
+    let parts = emd.parseFragment(c);
+    if (spec.opts.lintSpec && loc != null) {
+      let nonterminals = collectNonterminalsFromEmd(parts).map(({ name, loc }) => ({
+        name,
+        loc,
+        node,
+        namespace,
+      }));
+      spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
+    }
+    processed = emd.emit(parts);
   } catch (e) {
     warnEmdFailure(spec.warn, node, e);
     processed = wrapEmdFailure(c);

@@ -4,6 +4,7 @@ import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
 import { warnEmdFailure, wrapEmdFailure } from './utils';
+import { collectNonterminalsFromEmd } from './lint/utils';
 import * as emd from 'ecmarkdown';
 
 function findLabeledSteps(root: EcmarkdownNode) {
@@ -22,7 +23,7 @@ function findLabeledSteps(root: EcmarkdownNode) {
 export default class Algorithm extends Builder {
   static async enter(context: Context) {
     context.inAlg = true;
-    const { spec, node } = context;
+    const { spec, node, clauseStack } = context;
 
     let innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
 
@@ -39,6 +40,18 @@ export default class Algorithm extends Builder {
     if (emdTree == null) {
       node.innerHTML = wrapEmdFailure(innerHTML);
       return;
+    }
+
+    if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
+      let clause = clauseStack[clauseStack.length - 1];
+      let namespace = clause ? clause.namespace : spec.namespace;
+      let nonterminals = collectNonterminalsFromEmd(emdTree).map(({ name, loc }) => ({
+        name,
+        loc,
+        node,
+        namespace,
+      }));
+      spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
     }
 
     const rawHtml = emd.emit(emdTree);
