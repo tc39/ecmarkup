@@ -319,8 +319,45 @@ describe('linting whole program', () => {
       );
     });
 
+    it('in algorithm', async () => {
+      await assertLint(
+        positioned`
+          <emu-alg>
+            1. Let _s_ be |${M}Example|.
+          </emu-alg>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-alg',
+          message: 'could not find a definition for nonterminal Example',
+        }
+      );
+    });
+
+    it('in SDO', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Statement: \`;\`
+          </emu-grammar>
+          <emu-clause id="example">
+            <h1>Something</h1>
+            <emu-grammar>Statement: \`;\`</emu-grammar>
+            <emu-alg>
+              1. Let _s_ be |${M}Statements|.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-alg',
+          message: 'could not find a definition for nonterminal Statements',
+        }
+      );
+    });
+
     it('negative', async () => {
-    await assertLintFree(`
+      await assertLintFree(`
         <emu-grammar type="definition">
           Example1: \`;\`
           Example2: Example1
@@ -331,7 +368,10 @@ describe('linting whole program', () => {
         <emu-grammar>
           Example2: Example1
         </emu-grammar>
-    `);
+        <emu-alg>
+          1. Let _s_ be |Example1|.
+        </emu-alg>
+      `);
     });
   });
 });

@@ -1,5 +1,5 @@
 import type { Context } from './Context';
-import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
+import type { Node as EcmarkdownNode, OrderedListItemNode, Observer } from 'ecmarkdown';
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
@@ -22,7 +22,7 @@ function findLabeledSteps(root: EcmarkdownNode) {
 export default class Algorithm extends Builder {
   static async enter(context: Context) {
     context.inAlg = true;
-    const { spec, node } = context;
+    const { spec, node, clauseStack } = context;
 
     let innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
 
@@ -39,6 +39,27 @@ export default class Algorithm extends Builder {
     if (emdTree == null) {
       node.innerHTML = wrapEmdFailure(innerHTML);
       return;
+    }
+
+    if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
+      let clause = clauseStack[clauseStack.length - 1];
+      let namespace = clause ? clause.namespace : spec.namespace;
+      let nonterminals = [];
+      emd.visit(emdTree, {
+        enter(emdNode: EcmarkdownNode) {
+          if (emdNode.name === 'pipe') {
+            spec._ntStringRefs.push({
+              name: emdNode.nonTerminal,
+              loc: {
+                line: emdNode.location.start.line,
+                column: emdNode.location.start.column + 1, // skip the pipe
+              },
+              node,
+              namespace,
+            });
+          }
+        },
+      });
     }
 
     const rawHtml = emd.emit(emdTree);
