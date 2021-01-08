@@ -12,7 +12,7 @@ import type {
   ArgumentList,
 } from 'grammarkdown';
 
-import { Grammar as GrammarFile, SyntaxKind, skipTrivia } from 'grammarkdown';
+import { Grammar as GrammarFile, SyntaxKind, skipTrivia, NodeVisitor } from 'grammarkdown';
 
 export function getProductions(grammar: GrammarFile) {
   let productions: Map<
@@ -178,4 +178,31 @@ export function getLocationInGrammar(grammar: GrammarFile, pos: number) {
   );
   // grammarkdown use 0-based line and column, we want 1-based
   return { line: gmdLine + 1, column: gmdCharacter + 1 };
+}
+
+class CollectNonterminals extends NodeVisitor {
+  declare grammar: GrammarFile;
+  declare results: { name: string, loc: { line: number, column: number } }[];
+  constructor(grammar: GrammarFile) {
+    super();
+    this.grammar = grammar;
+    this.results = [];
+  }
+  visitProduction(node: Production): Production {
+    this.results.push({ name: node.name.text!, loc: getLocationInGrammar(this.grammar, node.name.pos) });
+    return super.visitProduction(node);
+  }
+
+  visitNonterminal(node: Nonterminal): Nonterminal {
+    this.results.push({ name: node.name.text! , loc: getLocationInGrammar(this.grammar, node.name.pos) });
+    return super.visitNonterminal(node);
+  }
+}
+
+export function collectNonterminals(grammar: GrammarFile) {
+  let visitor = new CollectNonterminals(grammar);
+  grammar.rootFiles.forEach(f => {
+    visitor.visitEach(f.elements);
+  });
+  return visitor.results;
 }

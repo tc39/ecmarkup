@@ -1,14 +1,15 @@
 import type { Context } from './Context';
 
 import Builder from './Builder';
-import { CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
+import { collectNonterminals } from './lint/utils';
+import { CoreAsyncHost, CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;
 
 /*@internal*/
 export default class Grammar extends Builder {
-  static async enter({ spec, node }: Context) {
+  static async enter({ spec, node, clauseStack }: Context) {
     if ('grammarkdownOut' in node) {
       // i.e., we already parsed this during the lint phase
       // @ts-ignore
@@ -62,12 +63,20 @@ export default class Grammar extends Builder {
       noChecks: true,
     };
 
-    node.innerHTML = await GrammarFile.convert(
-      content,
-      options,
-      /*hostFallback*/ undefined,
-      spec.cancellationToken
-    );
+    let grammarHost = CoreAsyncHost.forFile(content);
+    let grammar = new GrammarFile([grammarHost.file], options, grammarHost);
+    await grammar.parse();
+    if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
+      // Collect referenced nonterminals to check definedness later
+      // The `'grammarkdownOut' in node` check at the top means we don't do this for nodes which have already been covered by a separate linting pass
+      let clause = clauseStack[clauseStack.length - 1];
+      let namespace = clause ? clause.namespace : spec.namespace;
+      let nonterminals = collectNonterminals(grammar).map(({ name, loc }) => ({ name, loc, node, namespace }));
+      spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
+    }
+    await grammar.emit(undefined, (file, source) => {
+      node.innerHTML = source;
+    });
   }
 
   static elements = ['EMU-GRAMMAR'];

@@ -1,13 +1,10 @@
 import type { default as Spec, Warning } from '../Spec';
-import type { Production, Nonterminal } from 'grammarkdown';
 
 import { collectNodes } from './collect-nodes';
 import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
 import { collectSpellingDiagnostics } from './collect-spelling-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
 import { collectHeaderDiagnostics } from './collect-header-diagnostics';
-
-import { NodeVisitor } from 'grammarkdown';
 
 /*
 Currently this checks
@@ -69,30 +66,11 @@ export async function lint(
       grammarEle.grammarkdownOut = source;
     });
   }
+
   for (let pair of algorithms) {
     if ('tree' in pair) {
       // @ts-ignore we are intentionally adding a property here
       pair.element.ecmarkdownTree = pair.tree;
     }
   }
-
-  // Stash referenced nonterminals to check definedness later
-  // We only bother with this for non-definition things because grammarkdown's checks will cover the main grammar
-  let nonterminals = [];
-  class CollectingVisitor extends NodeVisitor {
-    visitProduction(node: Production): Production {
-      console.log(node.name);
-      return super.visitProduction(node);
-    }
-
-    visitNonterminal(node: Nonterminal): Nonterminal {
-      console.log(node);
-      return super.visitNonterminal(node);
-    }
-  }
-  let visitor = new CollectingVisitor;
-  grammar.rootFiles.forEach(f => {
-    visitor.visitEach(f.elements);
-    return;
-  });
 }

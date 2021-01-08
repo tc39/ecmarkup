@@ -250,7 +250,7 @@ export default class Spec {
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
   _ntRefs: NonTerminal[];
-  _ntStringRefs: { name: string, namespace: string | null}[];
+  _ntStringRefs: { name: string, loc: { line: number, column: number }, node: Element, namespace: string }[];
   _prodRefs: ProdRef[];
   _textNodes: { [s: string]: [TextNodeContext] };
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
@@ -401,6 +401,22 @@ export default class Spec {
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');
     this._ntRefs.forEach(nt => nt.build());
+
+    if (this.opts.lintSpec) {
+      this._ntStringRefs.forEach(({ name, loc, node, namespace }) => {
+        if (this.biblio.byProductionName(name, namespace) == null) {
+          this.warn({
+            type: 'contents',
+            ruleId: 'undefined-nonterminal',
+            message: `could not find a definition for nonterminal ${name}`,
+            node,
+            nodeRelativeLine: loc.line,
+            nodeRelativeColumn: loc.column,
+          });
+        }
+      });
+    }
+
     this.log('Linking production references...');
     this._prodRefs.forEach(prod => prod.build());
     this.log('Building reference graph...');

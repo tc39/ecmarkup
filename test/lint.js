@@ -284,4 +284,54 @@ describe('linting whole program', () => {
       );
     });
   });
+
+  describe('nonterminal definedness', () => {
+    it('in LHS', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar>
+            ${M}Example: \`;\`
+          </emu-grammar>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-grammar',
+          message: 'could not find a definition for nonterminal Example',
+        }
+      );
+    });
+
+    it('in RHS', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Example: \`;\`
+          </emu-grammar>
+          <emu-grammar>
+            Example: ${M}Undefined
+          </emu-grammar>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'emu-grammar',
+          message: 'could not find a definition for nonterminal Undefined',
+        }
+      );
+    });
+
+    it('negative', async () => {
+    await assertLintFree(`
+        <emu-grammar type="definition">
+          Example1: \`;\`
+          Example2: Example1
+        </emu-grammar>
+        <emu-grammar>
+          Example1: \`;\`
+        </emu-grammar>
+        <emu-grammar>
+          Example2: Example1
+        </emu-grammar>
+    `);
+    });
+  });
 });
