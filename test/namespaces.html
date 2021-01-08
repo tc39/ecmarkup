@@ -5,14 +5,14 @@ assets: none
 </pre>
 <emu-intro namespace=intro aoid=SomeAlg id=i1>
   <h1>Intro</h1>
-  <emu-grammar>
+  <emu-grammar type="definition">
     Foo ::
       `bar` MainProd `baz`
   </emu-grammar>
 </emu-intro>
 <emu-clause id=c1>
   <h1>Clause 1</h1>
-  <emu-grammar>
+  <emu-grammar type="definition">
     Foo ::
       `bar` MainProd `baz`
 
@@ -22,7 +22,7 @@ assets: none
   <emu-clause id=c11 namespace=clause>
     <h1>Clause 1.1</h1>
 
-    <emu-grammar>
+    <emu-grammar type="definition">
       Foo ::
         `bar` MainProd `baz`
     </emu-grammar>
@@ -38,7 +38,7 @@ assets: none
 </emu-clause>
 <emu-annex id=annex1 namespace=annex>
   <h1>Annex</h1>
-  <emu-grammar>
+  <emu-grammar type="definition">
     Foo ::
       `bar` MainProd `baz`
   </emu-grammar>
@@ -62,7 +62,7 @@ assets: none
   <emu-annex id=annex21 aoid=SomeAlg>
     <h1>SomeAlg</h1>
   </emu-annex>
-  <emu-grammar>
+  <emu-grammar type="definition">
     MainProd ::
       Foo
   </emu-grammar>
