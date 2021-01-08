@@ -12,7 +12,7 @@ import type {
   ArgumentList,
 } from 'grammarkdown';
 
-import { Grammar as GrammarFile, SyntaxKind } from 'grammarkdown';
+import { Grammar as GrammarFile, SyntaxKind, skipTrivia } from 'grammarkdown';
 
 export function getProductions(grammar: GrammarFile) {
   let productions: Map<
@@ -167,4 +167,15 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
       return ae.operatorToken.kind === be.operatorToken.kind && ae.name.text === be.name.text;
     })
   );
+}
+
+// this is only for use with single-file grammars
+export function getLocationInGrammar(grammar: GrammarFile, pos: number) {
+  let file = grammar.sourceFiles[0];
+  let posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
+  let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(
+    posWithoutWhitespace
+  );
+  // grammarkdown use 0-based line and column, we want 1-based
+  return { line: gmdLine + 1, column: gmdCharacter + 1 };
 }

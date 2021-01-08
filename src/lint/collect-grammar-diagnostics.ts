@@ -9,10 +9,9 @@ import {
   Diagnostics,
   Production,
   Parameter,
-  skipTrivia,
 } from 'grammarkdown';
 
-import { getProductions, rhsMatches } from './utils';
+import { getProductions, rhsMatches, getLocationInGrammar } from './utils';
 
 export async function collectGrammarDiagnostics(
   report: (e: Warning) => void,
@@ -117,20 +116,10 @@ export async function collectGrammarDiagnostics(
     oneOffGrammars.push({ grammarEle, grammar });
     let productions = getProductions(grammar);
 
-    function getLocationInGrammar(pos: number) {
-      let file = grammar.sourceFiles[0];
-      let posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
-      let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(
-        posWithoutWhitespace
-      );
-      // grammarkdown use 0-based line and column, we want 1-based
-      return { line: gmdLine + 1, column: gmdCharacter + 1 };
-    }
-
     for (let [name, { production, rhses }] of productions) {
       let originalRhses = actualGrammarProductions.get(name)?.rhses;
       if (originalRhses === undefined) {
-        let { line, column } = getLocationInGrammar(production.pos);
+        let { line, column } = getLocationInGrammar(grammar, production.pos);
         report({
           type: 'contents',
           ruleId: 'undefined-nonterminal',
@@ -143,7 +132,7 @@ export async function collectGrammarDiagnostics(
       }
       for (let rhs of rhses) {
         if (!originalRhses.some(o => rhsMatches(rhs, o))) {
-          let { line, column } = getLocationInGrammar(rhs.pos);
+          let { line, column } = getLocationInGrammar(grammar, rhs.pos);
           report({
             type: 'contents',
             ruleId: 'undefined-nonterminal',
@@ -160,7 +149,7 @@ export async function collectGrammarDiagnostics(
               return;
             }
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
-              let { line, column } = getLocationInGrammar(s.symbol.pos);
+              let { line, column } = getLocationInGrammar(grammar, s.symbol.pos);
               report({
                 type: 'contents',
                 ruleId: `NLTH-in-SDO`,
@@ -176,7 +165,7 @@ export async function collectGrammarDiagnostics(
           })(rhs.head);
 
           if (rhs.constraints !== undefined) {
-            let { line, column } = getLocationInGrammar(rhs.constraints.pos);
+            let { line, column } = getLocationInGrammar(grammar, rhs.constraints.pos);
             report({
               type: 'contents',
               ruleId: `guard-in-SDO`,

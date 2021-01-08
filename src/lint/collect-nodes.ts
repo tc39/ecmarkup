@@ -1,6 +1,7 @@
 import type { default as Spec, Warning } from '../Spec';
 
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
+import { getLocationInGrammar } from './utils';
 
 type CollectNodesReturnType =
   | {
