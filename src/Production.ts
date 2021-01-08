@@ -48,13 +48,25 @@ export default class Production extends Builder {
 
     const entry = this.spec.biblio.byProductionName(this.name!, this.namespace);
 
-    // primary if it's the first production with this name in this namespace or
-    // the primary attribute is on this production or the parent emu-grammar clause.
-    this.primary =
-      !entry ||
-      entry.namespace !== this.namespace ||
-      node.hasAttribute('primary') ||
-      (<Element>node.parentNode).hasAttribute('primary');
+    let primary = false;
+    if (node.hasAttribute('primary')) {
+      primary = true;
+    } else {
+      let parent = node.parentElement;
+      if (parent != null) {
+        // highlighted nodes still count as primary unless they are being deleted (i.e. in a <del> tag)
+        while (parent.tagName === 'INS' || parent.tagName === 'MARK') {
+          parent = parent.parentElement;
+          if (parent == null) {
+            break;
+          }
+        }
+        if (parent != null && parent.tagName === 'EMU-GRAMMAR') {
+          primary = parent.hasAttribute('primary') || parent.getAttribute('type') === 'definition';
+        }
+      }
+    }
+    this.primary = primary;
 
     if (this.primary) {
       this.id = id;
