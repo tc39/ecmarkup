@@ -1,7 +1,7 @@
 import type { Context } from './Context';
 
 import Builder from './Builder';
-import { collectNonterminals } from './lint/utils';
+import { collectNonterminalsFromGrammar } from './lint/utils';
 import { CoreAsyncHost, CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
@@ -71,7 +71,7 @@ export default class Grammar extends Builder {
       // The `'grammarkdownOut' in node` check at the top means we don't do this for nodes which have already been covered by a separate linting pass
       let clause = clauseStack[clauseStack.length - 1];
       let namespace = clause ? clause.namespace : spec.namespace;
-      let nonterminals = collectNonterminals(grammar).map(({ name, loc }) => ({ name, loc, node, namespace }));
+      let nonterminals = collectNonterminalsFromGrammar(grammar).map(({ name, loc }) => ({ name, loc, node, namespace }));
       spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
     }
     await grammar.emit(undefined, (file, source) => {

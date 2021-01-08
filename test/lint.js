@@ -356,6 +356,19 @@ describe('linting whole program', () => {
       );
     });
 
+    it('in prose', async () => {
+      await assertLint(
+        positioned`
+          <p>Discuss: |${M}Example|.</p>
+        `,
+        {
+          ruleId: 'undefined-nonterminal',
+          nodeType: 'text',
+          message: 'could not find a definition for nonterminal Example',
+        }
+      );
+    });
+
     it('negative', async () => {
       await assertLintFree(`
         <emu-grammar type="definition">
@@ -371,6 +384,7 @@ describe('linting whole program', () => {
         <emu-alg>
           1. Let _s_ be |Example1|.
         </emu-alg>
+        <p>Discuss: |Example1|.</p>
       `);
     });
   });

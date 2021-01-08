@@ -250,7 +250,7 @@ export default class Spec {
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
   _ntRefs: NonTerminal[];
-  _ntStringRefs: { name: string, loc: { line: number, column: number }, node: Element, namespace: string }[];
+  _ntStringRefs: { name: string, loc: { line: number, column: number }, node: (Element | Text), namespace: string }[];
   _prodRefs: ProdRef[];
   _textNodes: { [s: string]: [TextNodeContext] };
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
@@ -1031,6 +1031,9 @@ async function walk(walker: TreeWalker, context: Context) {
     // walked to a text node
 
     if (context.node.textContent!.trim().length === 0) return; // skip empty nodes; nothing to do!
+
+    const clause = context.clauseStack[context.clauseStack.length - 1] || context.spec;
+    const namespace = clause ? clause.namespace : context.spec.namespace;
     if (!context.inNoEmd) {
       // new nodes as a result of emd processing should be skipped
       context.inNoEmd = true;
@@ -1045,14 +1048,12 @@ async function walk(walker: TreeWalker, context: Context) {
       }
       // else, inNoEmd will just continue to the end of the file
 
-      utils.emdTextNode(context.spec, (context.node as unknown) as Text);
+      utils.emdTextNode(context.spec, (context.node as unknown) as Text, namespace);
     }
 
     if (!context.inNoAutolink) {
       // stuff the text nodes into an array for auto-linking with later
       // (since we can't autolink at this point without knowing the biblio).
-      const clause = context.clauseStack[context.clauseStack.length - 1] || context.spec;
-      const namespace = clause ? clause.namespace : context.spec.namespace;
       context.spec._textNodes[namespace] = context.spec._textNodes[namespace] || [];
       context.spec._textNodes[namespace].push({
         node: context.node,

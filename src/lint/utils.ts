@@ -11,8 +11,10 @@ import type {
   OneOfSymbol,
   ArgumentList,
 } from 'grammarkdown';
+import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
 import { Grammar as GrammarFile, SyntaxKind, skipTrivia, NodeVisitor } from 'grammarkdown';
+import * as emd from 'ecmarkdown';
 
 export function getProductions(grammar: GrammarFile) {
   let productions: Map<
@@ -180,7 +182,7 @@ export function getLocationInGrammar(grammar: GrammarFile, pos: number) {
   return { line: gmdLine + 1, column: gmdCharacter + 1 };
 }
 
-class CollectNonterminals extends NodeVisitor {
+class CollectNonterminalsFromGrammar extends NodeVisitor {
   declare grammar: GrammarFile;
   declare results: { name: string, loc: { line: number, column: number } }[];
   constructor(grammar: GrammarFile) {
@@ -199,10 +201,31 @@ class CollectNonterminals extends NodeVisitor {
   }
 }
 
-export function collectNonterminals(grammar: GrammarFile) {
-  let visitor = new CollectNonterminals(grammar);
+export function collectNonterminalsFromGrammar(grammar: GrammarFile) {
+  let visitor = new CollectNonterminalsFromGrammar(grammar);
   grammar.rootFiles.forEach(f => {
     visitor.visitEach(f.elements);
   });
   return visitor.results;
+}
+
+export function collectNonterminalsFromEmd(emdNode: EcmarkdownNode | EcmarkdownNode[]): { name: string, loc: { line: number, column: number } }[] {
+  if (Array.isArray(emdNode)) {
+    return emdNode.flatMap(collectNonterminalsFromEmd);
+  }
+  let results: ReturnType<typeof collectNonterminalsFromEmd> = [];
+  emd.visit(emdNode, {
+    enter(emdNode: EcmarkdownNode) {
+      if (emdNode.name === 'pipe') {
+        results.push({
+          name: emdNode.nonTerminal,
+          loc: {
+            line: emdNode.location.start.line,
+            column: emdNode.location.start.column + 1, // skip the pipe
+          },
+        });
+      }
+    },
+  });
+  return results;
 }
