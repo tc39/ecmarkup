@@ -21,7 +21,7 @@ Checks that every algorithm step has one of these forms:
 - `Other:` + substeps
 */
 export default function (report: Reporter, node: Element, algorithmSource: string): Observer {
-  if (node.getAttribute('type') === 'example') {
+  if (node.hasAttribute('example')) {
     return {};
   }
   return {
