@@ -30,7 +30,7 @@ export async function lint(
   }
   let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collection;
 
-  let { grammar } = await collectGrammarDiagnostics(
+  let { grammar, oneOffGrammars } = await collectGrammarDiagnostics(
     report,
     spec,
     sourceText,
@@ -57,15 +57,15 @@ export async function lint(
     // @ts-ignore we are intentionally adding a property here
     node.grammarkdownOut = source;
   });
-  // for (let { grammarEle, grammar } of oneOffGrammars) {
-  //   grammar.emitSync(undefined, (file, source) => {
-  //     if ('grammarkdownOut' in grammarEle) {
-  //       throw new Error('unexpectedly regenerating grammarkdown output');
-  //     }
-  //     // @ts-ignore we are intentionally adding a property here
-  //     grammarEle.grammarkdownOut = source;
-  //   });
-  // }
+  for (let { grammarEle, grammar } of oneOffGrammars) {
+    await grammar.emit(undefined, (file, source) => {
+      if ('grammarkdownOut' in grammarEle) {
+        throw new Error('unexpectedly regenerating grammarkdown output');
+      }
+      // @ts-ignore we are intentionally adding a property here
+      grammarEle.grammarkdownOut = source;
+    });
+  }
   for (let pair of algorithms) {
     if ('tree' in pair) {
       // @ts-ignore we are intentionally adding a property here
