@@ -86,7 +86,7 @@ ecmarkup spec.html out.html
     <table>
       <tr><th>Notational Convention</th><th>Ecmarkup Functionality</th></tr>
       <tr><td>Clauses</td><td><emu-xref href="#emu-clause" title></emu-xref>, <emu-xref href="#emu-intro" title></emu-xref>, and <emu-xref href="#emu-annex" title></emu-xref></td></tr>
-      <tr><td>Algorithms</td><td><emu-xref href="#emu-alg" title></emu-xref> with Ecmarkdown (see also <emu-xref href="#emd-overview"></emu-xref>). Equations such as <emu-xref title href="#sec-year-number"></emu-xref> use <emu-xref href="#emu-eqn" title></emu-xref></td></tr>
+      <tr><td>Algorithms</td><td><emu-xref href="#emu-alg" title></emu-xref> with Ecmarkdown (see also <emu-xref href="#emd-overview"></emu-xref>). Equations such as <a href="https://tc39.es/ecma262/#sec-year-number">Year Number</a> use <emu-xref href="#emu-eqn" title></emu-xref></td></tr>
       <tr><td>Notes</td><td><emu-xref href="#emu-note" title></emu-xref></td></tr>
       <tr><td>Figures (such as images)</td><td><emu-xref href="#emu-figure" title></emu-xref> and `emu-caption`</td></tr>
       <tr><td>Tables</td><td><emu-xref href="#emu-table" title></emu-xref> and `emu-caption`</td></tr>
@@ -235,7 +235,7 @@ toc: false
 
 <emu-clause id="emu-eqn">
   <h1>emu-eqn</h1>
-  <p>An equation, similar to those found in ES6 <emu-xref href="#sec-year-number"></emu-xref>.</p>
+  <p>An equation, similar to those found in ES6 <a href="https://tc39.es/ecma262/#sec-year-number">Year Number</a>.</p>
 
   <h2>Attributes</h2>
   <p><b>aoid:</b> Required: the abstract operation id that this equation defines.</p>
@@ -435,7 +435,7 @@ toc: false
   &lt;emu-rhs>while ( &lt;emu-nt>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
 &lt;/emu-production></code></pre>
 
-  <emu-production name="WhileStatement">
+  <emu-production name="WhileStatement" primary>
     <emu-rhs>while ( <emu-nt>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
   </emu-production>
 
@@ -445,7 +445,7 @@ toc: false
   &lt;emu-rhs>&lt;emu-nt>ArgumentList&lt;/emu-nt> , &lt;emu-nt>AssignmentExpression&lt;/emu-nt>&lt;/emu-rhs>
 &lt;/emu-production></code></pre>
 
-  <emu-production name="ArgumentList">
+  <emu-production name="ArgumentList" primary>
     <emu-rhs><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
 
     <emu-rhs><emu-nt>ArgumentList</emu-nt> , <emu-nt>AssignmentExpression</emu-nt></emu-rhs>
@@ -456,7 +456,7 @@ toc: false
   &lt;emu-rhs>for ( &lt;emu-nt>LexicalDeclaration&lt;/emu-nt> ; &lt;emu-nt optional>Expression&lt;/emu-nt> ;
   &lt;emu-nt optional>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
 &lt;/emu-production></code></pre>
-  <emu-production name="IterationStatement">
+  <emu-production name="IterationStatement" primary>
     <emu-rhs>for ( <emu-nt>LexicalDeclaration</emu-nt> ; <emu-nt optional>Expression</emu-nt> ;
     <emu-nt optional>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
   </emu-production>
@@ -466,7 +466,7 @@ toc: false
   &lt;emu-rhs>&lt;emu-nt>IdentifierName&lt;/emu-nt> &lt;emu-gmod>but not
   &lt;emu-nt>ReservedWord&lt;/emu-nt>&lt;/emu-gmod>&lt;/emu-rhs>
 &lt;/emu-production></code></pre>
-  <emu-production name="Identifier" type="lexical">
+  <emu-production name="Identifier" type="lexical" primary>
     <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
     <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
   </emu-production>
@@ -475,7 +475,7 @@ toc: false
   <pre><code class="language-html">&lt;emu-production name="SourceCharacter" type="lexical">
   &lt;emu-rhs>&lt;emu-gprose>any Unicode code point&lt;/emu-gprose>&lt;/emu-rhs>
 &lt;/emu-production></code></pre>
-  <emu-production name="SourceCharacter" type="lexical">
+  <emu-production name="SourceCharacter" type="lexical" primary>
     <emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
   </emu-production>
 
@@ -490,7 +490,7 @@ toc: false
     }&lt;/emu-gann>
   &lt;/emu-rhs>
 &lt;/emu-production></code></pre>
-  <emu-production name="ExpressionStatement" params="Yield">
+  <emu-production name="ExpressionStatement" params="Yield" primary>
     <emu-rhs>
       <emu-gann>lookahead ∉ {
         <emu-t>{</emu-t>,
@@ -505,7 +505,7 @@ toc: false
   <pre><code class="language-html">&lt;emu-production name="DecimalDigit" type="lexical" oneof>
   &lt;emu-rhs>0 1 2 3 4 5 6 7 8 9&lt;/emu-rhs>
 &lt;/emu-production></code></pre>
-  <emu-production name="DecimalDigit" type="lexical" oneof>
+  <emu-production name="DecimalDigit" type="lexical" oneof primary>
     <emu-rhs>0 1 2 3 4 5 6 7 8 9</emu-rhs>
   </emu-production>
 
@@ -514,7 +514,7 @@ toc: false
   &lt;emu-rhs constraints="~Return">&lt;emu-nt>ReturnStatement&lt;/emu-nt>&lt;/emu-rhs>
   &lt;emu-rhs>&lt;emu-nt>ExpressionStatement&lt;/emu-nt>&lt;/emu-rhs>
 &lt;/emu-production></code></pre>
-  <emu-production name="StatementList" params="Return, In">
+  <emu-production name="StatementList" params="Return, In" primary>
     <emu-rhs constraints="~Return"><emu-nt>ReturnStatement</emu-nt></emu-rhs>
     <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
   </emu-production>
