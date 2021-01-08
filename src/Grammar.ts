@@ -71,7 +71,12 @@ export default class Grammar extends Builder {
       // The `'grammarkdownOut' in node` check at the top means we don't do this for nodes which have already been covered by a separate linting pass
       let clause = clauseStack[clauseStack.length - 1];
       let namespace = clause ? clause.namespace : spec.namespace;
-      let nonterminals = collectNonterminalsFromGrammar(grammar).map(({ name, loc }) => ({ name, loc, node, namespace }));
+      let nonterminals = collectNonterminalsFromGrammar(grammar).map(({ name, loc }) => ({
+        name,
+        loc,
+        node,
+        namespace,
+      }));
       spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
     }
     await grammar.emit(undefined, (file, source) => {

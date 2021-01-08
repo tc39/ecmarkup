@@ -1,5 +1,4 @@
 import type { MarkupData } from 'parse5';
-import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
 import type Spec from './Spec';
 
@@ -53,8 +52,13 @@ export function emdTextNode(spec: Spec, node: Text, namespace: string) {
   try {
     let parts = emd.parseFragment(c);
     if (spec.opts.lintSpec && loc != null) {
-      let nonterminals = collectNonterminalsFromEmd(parts).map(({ name, loc }) => ({ name, loc, node, namespace }));
-      spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals)
+      let nonterminals = collectNonterminalsFromEmd(parts).map(({ name, loc }) => ({
+        name,
+        loc,
+        node,
+        namespace,
+      }));
+      spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
     }
     processed = emd.emit(parts);
   } catch (e) {
@@ -198,4 +202,3 @@ export function attrValueLocation(
     return { line: attrLoc.line, column: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
   }
 }
-

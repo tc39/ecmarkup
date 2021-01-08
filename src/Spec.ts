@@ -250,7 +250,12 @@ export default class Spec {
   _figureCounts: { [type: string]: number };
   _xrefs: Xref[];
   _ntRefs: NonTerminal[];
-  _ntStringRefs: { name: string, loc: { line: number, column: number }, node: (Element | Text), namespace: string }[];
+  _ntStringRefs: {
+    name: string;
+    loc: { line: number; column: number };
+    node: Element | Text;
+    namespace: string;
+  }[];
   _prodRefs: ProdRef[];
   _textNodes: { [s: string]: [TextNodeContext] };
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;

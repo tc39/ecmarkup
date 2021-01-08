@@ -30,7 +30,12 @@ export default class NonTerminal extends Builder {
     if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
       let clause = clauseStack[clauseStack.length - 1];
       let namespace = clause ? clause.namespace : spec.namespace;
-      spec._ntStringRefs = spec._ntStringRefs.concat({ name: node.textContent!, loc: { line: 1, column: 1 }, node, namespace })
+      spec._ntStringRefs = spec._ntStringRefs.concat({
+        name: node.textContent!,
+        loc: { line: 1, column: 1 },
+        node,
+        namespace,
+      });
     }
   }
 

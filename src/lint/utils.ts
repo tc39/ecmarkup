@@ -175,28 +175,32 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
 export function getLocationInGrammar(grammar: GrammarFile, pos: number) {
   let file = grammar.sourceFiles[0];
   let posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
-  let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(
-    posWithoutWhitespace
-  );
+  let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(posWithoutWhitespace);
   // grammarkdown use 0-based line and column, we want 1-based
   return { line: gmdLine + 1, column: gmdCharacter + 1 };
 }
 
 class CollectNonterminalsFromGrammar extends NodeVisitor {
   declare grammar: GrammarFile;
-  declare results: { name: string, loc: { line: number, column: number } }[];
+  declare results: { name: string; loc: { line: number; column: number } }[];
   constructor(grammar: GrammarFile) {
     super();
     this.grammar = grammar;
     this.results = [];
   }
   visitProduction(node: Production): Production {
-    this.results.push({ name: node.name.text!, loc: getLocationInGrammar(this.grammar, node.name.pos) });
+    this.results.push({
+      name: node.name.text!,
+      loc: getLocationInGrammar(this.grammar, node.name.pos),
+    });
     return super.visitProduction(node);
   }
 
   visitNonterminal(node: Nonterminal): Nonterminal {
-    this.results.push({ name: node.name.text! , loc: getLocationInGrammar(this.grammar, node.name.pos) });
+    this.results.push({
+      name: node.name.text!,
+      loc: getLocationInGrammar(this.grammar, node.name.pos),
+    });
     return super.visitNonterminal(node);
   }
 }
@@ -209,7 +213,9 @@ export function collectNonterminalsFromGrammar(grammar: GrammarFile) {
   return visitor.results;
 }
 
-export function collectNonterminalsFromEmd(emdNode: EcmarkdownNode | EcmarkdownNode[]): { name: string, loc: { line: number, column: number } }[] {
+export function collectNonterminalsFromEmd(
+  emdNode: EcmarkdownNode | EcmarkdownNode[]
+): { name: string; loc: { line: number; column: number } }[] {
   if (Array.isArray(emdNode)) {
     return emdNode.flatMap(collectNonterminalsFromEmd);
   }

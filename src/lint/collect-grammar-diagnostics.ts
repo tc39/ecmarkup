@@ -111,7 +111,11 @@ export async function collectGrammarDiagnostics(
         grammarLoc.endTag.startOffset
       )
     );
-    let grammar = new GrammarFile([grammarHost.file], { format: EmitFormat.ecmarkup, noChecks: true }, grammarHost);
+    let grammar = new GrammarFile(
+      [grammarHost.file],
+      { format: EmitFormat.ecmarkup, noChecks: true },
+      grammarHost
+    );
     await grammar.parse();
     oneOffGrammars.push({ grammarEle, grammar });
     let productions = getProductions(grammar);

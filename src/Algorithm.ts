@@ -1,5 +1,5 @@
 import type { Context } from './Context';
-import type { Node as EcmarkdownNode, OrderedListItemNode, Observer } from 'ecmarkdown';
+import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
@@ -45,8 +45,13 @@ export default class Algorithm extends Builder {
     if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
       let clause = clauseStack[clauseStack.length - 1];
       let namespace = clause ? clause.namespace : spec.namespace;
-      let nonterminals = collectNonterminalsFromEmd(emdTree).map(({ name, loc }) => ({ name, loc, node, namespace }));
-      spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals)
+      let nonterminals = collectNonterminalsFromEmd(emdTree).map(({ name, loc }) => ({
+        name,
+        loc,
+        node,
+        namespace,
+      }));
+      spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
     }
 
     const rawHtml = emd.emit(emdTree);
