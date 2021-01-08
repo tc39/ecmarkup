@@ -7,7 +7,7 @@
 	"scripts": {
 		"build": "tsc -p src -sourceMap",
 		"build-release": "tsc -p src",
-		"build-spec": "node bin/ecmarkup.js spec/index.html docs/index.html --css-out docs/elements.css --js-out docs/ecmarkup.js",
+		"build-spec": "node bin/ecmarkup.js spec/index.html docs/index.html --no-ecma-262-biblio --css-out docs/elements.css --js-out docs/ecmarkup.js",
 		"prepublish": "safe-publish-latest && npm run build-release",
 		"test": "mocha",
 		"pretest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",

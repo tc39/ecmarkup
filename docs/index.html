@@ -14,10 +14,10 @@
     <li><a href="https://github.com/tc39/ecmarkdown">Ecmarkdown</a> syntax for paragraphs and algorithms</li>
     <li><a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a> for specifying grammar</li>
     <li>Terse markup for the authoring conventions used in ECMAScript specifications including clauses, notes, examples, figures, tables, and more.</li>
-    <li>Easy cross-references by element ID to clauses, <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref>, examples, figures, tables, and etc. in the current document, ES6, and other specs.</li>
+    <li>Easy cross-references by element ID to clauses, abstract operations, examples, figures, tables, and etc. in the current document, ES6, and other specs.</li>
     <li>Generates table of contents</li>
     <li>Generates clause ids based on document position</li>
-    <li>Auto-links <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref> and terms based on name with support for external bibliographies for cross-referencing between specs</li>
+    <li>Auto-links abstract operations and terms based on name with support for external bibliographies for cross-referencing between specs</li>
     <li>Source code syntax highlighting inside pre code blocks</li>
   </ul>
   <p>This document is itself written using Ecmarkup. Its source can be viewed <a href="https://github.com/tc39/ecmarkup/blob/master/spec/index.html">on github</a>.</p>
@@ -88,7 +88,7 @@ ecmarkup spec.html out.html
       <tr><td>Tables</td><td><emu-xref href="#emu-table" title="" id="_ref_8"><a href="#emu-table">emu-table</a></emu-xref> and <code>emu-caption</code></td></tr>
       <tr><td>Examples</td><td><emu-xref href="#emu-example" title="" id="_ref_9"><a href="#emu-example">emu-example</a></emu-xref> and <code>emu-caption</code></td></tr>
       <tr><td>Grammar</td><td><emu-xref href="#emu-grammar" title="" id="_ref_10"><a href="#emu-grammar">emu-grammar</a></emu-xref> using <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown syntax</a> or <emu-xref href="#emu-production" title="" id="_ref_11"><a href="#emu-production">emu-production</a></emu-xref> and child elements</td></tr>
-      <tr><td>Cross-references</td><td><emu-xref href="#emu-xref" title="" id="_ref_12"><a href="#emu-xref">emu-xref</a></emu-xref> (can reference clauses, productions, <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref>, tables, figuers, and examples)</td></tr>
+      <tr><td>Cross-references</td><td><emu-xref href="#emu-xref" title="" id="_ref_12"><a href="#emu-xref">emu-xref</a></emu-xref> (can reference clauses, productions, abstract operations, tables, figuers, and examples)</td></tr>
     </tbody></table>
   </figure></emu-table>
 
@@ -102,7 +102,7 @@ ecmarkup spec.html out.html
         <th>Ecmarkup Functionality</th>
       </tr>
       <tr>
-        <td>Variables, such as those in defined in algorithms, parameters in <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref>, etc.</td>
+        <td>Variables, such as those in defined in algorithms, parameters in abstract operations, etc.</td>
         <td><code>_variable_</code></td>
         <td><code>&lt;var&gt;variable&lt;/var&gt;</code></td>
       </tr>
@@ -122,7 +122,7 @@ ecmarkup spec.html out.html
         <td><code>&lt;code&gt;code&lt;/code&gt;</code></td>
       </tr>
       <tr>
-        <td>Non-terminal references, eg. as <emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt> and <emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionExpression">FunctionExpression</a></emu-nt>.</td>
+        <td>Non-terminal references, eg. as <emu-nt>FunctionDeclaration</emu-nt> and <emu-nt>FunctionExpression</emu-nt>.</td>
         <td><code>|FunctionExpression|</code></td>
         <td><code>&lt;emu-nt&gt;FunctionExpression&lt;/emu-nt&gt;</code></td>
       </tr>
@@ -175,7 +175,7 @@ toc: false
 
 <emu-clause id="emu-alg" aoid="EmuAlg">
   <h1><span class="secnum">7</span> emu-alg</h1>
-  <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to <emu-xref href="#sec-algorithm-conventions-abstract-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-abstract-operations">abstract operations</a></emu-xref> inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
+  <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
 
   <h2>Example</h2>
   <emu-note><span class="note">Note</span><div class="note-contents">The emu-alg clause has an aoid of "EmuAlg".</div></emu-note>
@@ -398,7 +398,7 @@ toc: false
 <span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
 
   <emu-production name="WhileStatement" primary="" id="prod-WhileStatement">
-    <emu-nt><a href="#prod-WhileStatement">WhileStatement</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-t>while</emu-t> <emu-t>(</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Expression">Expression</a></emu-nt> <emu-t>)</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Statement">Statement</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-WhileStatement">WhileStatement</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-t>while</emu-t> <emu-t>(</emu-t><emu-nt>Expression</emu-nt> <emu-t>)</emu-t><emu-nt>Statement</emu-nt></emu-rhs>
   </emu-production>
 
   <b>ArgumentList</b>
@@ -408,9 +408,9 @@ toc: false
 <span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
 
   <emu-production name="ArgumentList" primary="" id="prod-ArgumentList">
-    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-ArgumentList">ArgumentList</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
 
-    <emu-rhs><emu-nt id="_ref_22"><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-t>,</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-AssignmentExpression">AssignmentExpression</a></emu-nt></emu-rhs>
+    <emu-rhs><emu-nt id="_ref_22"><a href="#prod-ArgumentList">ArgumentList</a></emu-nt><emu-t>,</emu-t><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
   </emu-production>
 
   <b>IterationStatement</b>
@@ -419,7 +419,7 @@ toc: false
   <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span> <span class="hljs-attr">optional</span>&gt;</span>Expression<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span> ) <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>Statement<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
   <emu-production name="IterationStatement" primary="" id="prod-IterationStatement">
-    <emu-nt><a href="#prod-IterationStatement">IterationStatement</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-t>for</emu-t> <emu-t>(</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-LexicalDeclaration">LexicalDeclaration</a></emu-nt> <emu-t>;</emu-t><emu-nt optional=""><a href="https://tc39.es/ecma262/#prod-Expression">Expression</a><emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt> <emu-t>;</emu-t><emu-nt optional=""><a href="https://tc39.es/ecma262/#prod-Expression">Expression</a><emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt> <emu-t>)</emu-t><emu-nt><a href="https://tc39.es/ecma262/#prod-Statement">Statement</a></emu-nt></emu-rhs>
+    <emu-nt><a href="#prod-IterationStatement">IterationStatement</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-t>for</emu-t> <emu-t>(</emu-t><emu-nt>LexicalDeclaration</emu-nt> <emu-t>;</emu-t><emu-nt optional="">Expression<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt> <emu-t>;</emu-t><emu-nt optional="">Expression<emu-mods><emu-opt>opt</emu-opt></emu-mods></emu-nt> <emu-t>)</emu-t><emu-nt>Statement</emu-nt></emu-rhs>
   </emu-production>
 
   <b>Identifier</b>
@@ -428,8 +428,8 @@ toc: false
   <span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>ReservedWord<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-gmod</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
   <emu-production name="Identifier" type="lexical" primary="" id="prod-Identifier">
-    <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-IdentifierName">IdentifierName</a></emu-nt> <emu-gmod>but not
-    <emu-nt><a href="https://tc39.es/ecma262/#prod-ReservedWord">ReservedWord</a></emu-nt></emu-gmod></emu-rhs>
+    <emu-nt><a href="#prod-Identifier">Identifier</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
+    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
   </emu-production>
 
   <b>SourceCharacter</b>
@@ -476,7 +476,7 @@ toc: false
   <span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>ExpressionStatement<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
   <emu-production name="StatementList" params="Return, In" primary="" id="prod-StatementList">
-    <emu-nt params="Return, In"><a href="#prod-StatementList">StatementList</a><emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt><a href="https://tc39.es/ecma262/#prod-asi-rules-ReturnStatement">ReturnStatement</a></emu-nt></emu-rhs>
+    <emu-nt params="Return, In"><a href="#prod-StatementList">StatementList</a><emu-mods><emu-params>[Return, In]</emu-params></emu-mods></emu-nt> <emu-geq>:</emu-geq> <emu-rhs constraints="~Return"><emu-constraints>[~Return]</emu-constraints><emu-nt>ReturnStatement</emu-nt></emu-rhs>
     <emu-rhs><emu-nt id="_ref_23"><a href="#prod-ExpressionStatement">ExpressionStatement</a></emu-nt></emu-rhs>
   </emu-production>
 
@@ -578,11 +578,11 @@ toc: false
   <span class="hljs-tag">&lt;<span class="hljs-name">ins</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"block"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">emu-nt</span>&gt;</span>AsyncFunctionDeclaration<span class="hljs-tag">&lt;/<span class="hljs-name">emu-nt</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">emu-rhs</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">ins</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">emu-production</span>&gt;</span></code></pre>
     <h3>Result:</h3>
-    <p><emu-nt><a href="https://tc39.es/ecma262/#prod-HoistableDeclaration">HoistableDeclaration</a></emu-nt> is modified as follows:</p>
+    <p><emu-nt>HoistableDeclaration</emu-nt> is modified as follows:</p>
     <emu-production name="HoistableDeclaration">
-      <emu-nt><a href="https://tc39.es/ecma262/#prod-HoistableDeclaration">HoistableDeclaration</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-FunctionDeclaration">FunctionDeclaration</a></emu-nt></emu-rhs>
-      <emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-GeneratorDeclaration">GeneratorDeclaration</a></emu-nt></emu-rhs>
-      <ins class="block"><emu-rhs><emu-nt><a href="https://tc39.es/ecma262/#prod-AsyncFunctionDeclaration">AsyncFunctionDeclaration</a></emu-nt></emu-rhs></ins>
+      <emu-nt>HoistableDeclaration</emu-nt> <emu-geq>:</emu-geq> <emu-rhs><emu-nt>FunctionDeclaration</emu-nt></emu-rhs>
+      <emu-rhs><emu-nt>GeneratorDeclaration</emu-nt></emu-rhs>
+      <ins class="block"><emu-rhs><emu-nt>AsyncFunctionDeclaration</emu-nt></emu-rhs></ins>
     </emu-production>
   </emu-clause>
   <emu-clause id="pre-code">
