@@ -23,7 +23,7 @@ export default class Builder {
     if (nodeId !== null) {
       if (spec.nodeIds.has(nodeId)) {
         spec.warn({
-          type: 'attr',
+          type: 'attr-value',
           attr: 'id',
           ruleId: 'duplicate-id',
           message: `<${node.tagName.toLowerCase()}> has duplicate id ${JSON.stringify(nodeId)}`,

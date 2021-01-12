@@ -5,6 +5,7 @@ import { collectGrammarDiagnostics } from './collect-grammar-diagnostics';
 import { collectSpellingDiagnostics } from './collect-spelling-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
 import { collectHeaderDiagnostics } from './collect-header-diagnostics';
+import { collectTagDiagnostics } from './collect-tag-diagnostics';
 
 /*
 Currently this checks
@@ -44,6 +45,8 @@ export async function lint(
   collectHeaderDiagnostics(report, headers);
 
   collectSpellingDiagnostics(report, sourceText, spec.imports);
+
+  collectTagDiagnostics(report, spec, document);
 
   // Stash intermediate results for later use
   // This isn't actually necessary for linting, but we might as well avoid redoing work later when we can.
