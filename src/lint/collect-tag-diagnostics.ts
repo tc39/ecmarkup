@@ -29,7 +29,6 @@ let knownEmuTags = new Set([
   'emu-gprose',
   'emu-gmod',
   'emu-normative-optional', // used in ecma-402
-  'emu-see-also-para', // TODO
 ]);
 
 export function collectTagDiagnostics(
