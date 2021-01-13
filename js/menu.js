@@ -700,7 +700,7 @@ var Toolbox = {
     this.active = true;
     this.entry = entry;
     this.$outer.classList.add('active');
-    this.top = el.offsetTop - this.$container.offsetHeight - 10;
+    this.top = el.offsetTop - this.$outer.offsetHeight;
     this.left = el.offsetLeft - 10;
     this.$outer.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
     this.updatePermalink();

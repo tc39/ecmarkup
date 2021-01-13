@@ -899,18 +899,40 @@ export default class Spec {
     this.log('Building SDO map...');
     let sdos = this.doc.querySelectorAll('emu-clause[type=sdo]');
     // @ts-ignore
-    for (let sdo of sdos) {
-      let header = sdo.firstElementChild;
-      if (header.tagName !== 'H1') {
-        // todo warn, fail
-        break;
+    outer: for (let sdo of sdos) {
+      let header;
+      for (let child of sdo.children) {
+        if (child.tagName === 'SPAN' && child.childNodes.length === 0) {
+          // an `oldid` marker, presumably
+          continue;
+        }
+        if (child.tagName === 'H1') {
+          header = child;
+          break;
+        }
+        this.warn({
+          type: 'node',
+          node: child,
+          ruleId: 'sdo-name',
+          message: 'expected H1 as first child of syntax-directed operation',
+        });
+        continue outer;
       }
 
       let clause = header.firstElementChild.textContent;
-      let nameMatch = header.textContent.slice(clause.length + 1).match(/^(?:Static Semantics: )?\s*(\w+)\b/);
+      let nameMatch = header.textContent
+        .slice(clause.length + 1)
+        .match(/^(?:(?:Static|Runtime) Semantics: )?\s*(\w+)\b/);
       if (nameMatch == null) {
-        // todo warn, fail
-        break;
+        this.warn({
+          type: 'contents',
+          node: header,
+          ruleId: 'sdo-name',
+          message: 'could not parse name of syntax-directed operation',
+          nodeRelativeLine: 1,
+          nodeRelativeColumn: 1,
+        });
+        continue;
       }
       let sdoName = nameMatch[1];
       // @ts-ignore
