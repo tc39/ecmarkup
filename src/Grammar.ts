@@ -11,7 +11,7 @@ const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;
 export default class Grammar extends Builder {
   static async enter({ spec, node, clauseStack }: Context) {
     if ('grammarkdownOut' in node) {
-      // i.e., we already parsed this during the lint phase
+      // i.e., we already parsed this during an earlier phase
       // @ts-ignore
       node.innerHTML = node.grammarkdownOut;
       return;

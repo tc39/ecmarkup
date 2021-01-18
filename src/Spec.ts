@@ -6,6 +6,7 @@ import type { BuilderInterface } from './Builder';
 
 import * as path from 'path';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 import * as yaml from 'js-yaml';
 import * as utils from './utils';
 import * as hljs from 'highlight.js';
@@ -275,6 +276,7 @@ export default class Spec {
   }[];
   _prodRefs: ProdRef[];
   _textNodes: { [s: string]: [TextNodeContext] };
+
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
 
   constructor(
@@ -385,7 +387,6 @@ export default class Spec {
     this.log('Building boilerplate...');
     this.buildBoilerplate();
 
-    this.log('Walking document, building various elements...');
     const context: Context = {
       spec: this,
       node: this.doc.body,
@@ -411,9 +412,12 @@ export default class Spec {
       await lint(this.warn, source, this, document);
     }
 
+    this.log('Walking document, building various elements...');
     const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
 
     await walk(walker, context);
+
+    this.generateSDOMap();
 
     this.setReplacementAlgorithmOffsets();
 
@@ -891,6 +895,174 @@ export default class Spec {
     `;
   }
 
+  private generateSDOMap() {
+    let sdoMap = Object.create(null);
+
+    this.log('Building SDO map...');
+
+    // prettier-ignore
+    let mainGrammar: Set<Element> = new Set(
+      (this.doc.querySelectorAll('emu-grammar[type=definition]:not([example])') as any) as Iterable<Element>
+    );
+
+    // we can't just do `:not(emu-annex emu-grammar)` because that selector is too complicated for this version of jsdom
+    // @ts-ignore
+    for (let annexEle of this.doc.querySelectorAll('emu-annex emu-grammar[type=definition]')) {
+      mainGrammar.delete(annexEle);
+    }
+
+    let productions: Map<String, Array<Element>> = new Map();
+    for (let grammar of mainGrammar) {
+      for (let production of (grammar.querySelectorAll('emu-production') as any) as Iterable<
+        Element
+      >) {
+        if (!production.hasAttribute('name')) {
+          // I don't think this is possible, but we can at least be graceful about it
+          this.warn({
+            type: 'node',
+            // All of these elements are synthetic, and hence lack locations, so we point error messages to the containing emu-grammar
+            node: grammar,
+            ruleId: 'grammar-shape',
+            message: 'expected emu-production node to have name',
+          });
+          continue;
+        }
+        let name = production.getAttribute('name')!;
+        if (productions.has(name)) {
+          this.warn({
+            type: 'node',
+            node: grammar,
+            ruleId: 'grammar-shape',
+            message: `found duplicate definition for production ${name}`,
+          });
+          continue;
+        }
+        // @ts-ignore
+        let rhses: Array<Element> = [...production.querySelectorAll('emu-rhs')];
+        productions.set(name, rhses);
+      }
+    }
+
+    let sdos = this.doc.querySelectorAll('emu-clause[type=sdo]');
+    // @ts-ignore
+    outer: for (let sdo of sdos) {
+      let header;
+      for (let child of sdo.children) {
+        if (child.tagName === 'SPAN' && child.childNodes.length === 0) {
+          // an `oldid` marker, presumably
+          continue;
+        }
+        if (child.tagName === 'H1') {
+          header = child;
+          break;
+        }
+        this.warn({
+          type: 'node',
+          node: child,
+          ruleId: 'sdo-name',
+          message: 'expected H1 as first child of syntax-directed operation',
+        });
+        continue outer;
+      }
+
+      let clause = header.firstElementChild.textContent;
+      let nameMatch = header.textContent
+        .slice(clause.length + 1)
+        .match(/^(?:(?:Static|Runtime) Semantics: )?\s*(\w+)\b/);
+      if (nameMatch == null) {
+        this.warn({
+          type: 'contents',
+          node: header,
+          ruleId: 'sdo-name',
+          message: 'could not parse name of syntax-directed operation',
+          nodeRelativeLine: 1,
+          nodeRelativeColumn: 1,
+        });
+        continue;
+      }
+      let sdoName = nameMatch[1];
+      // @ts-ignore
+      let grammars = [...sdo.children].filter(e => e.tagName === 'EMU-GRAMMAR');
+      for (let grammar of grammars) {
+        for (let production of (grammar.querySelectorAll('emu-production') as any) as Iterable<
+          Element
+        >) {
+          if (!production.hasAttribute('name')) {
+            // I don't think this is possible, but we can at least be graceful about it
+            this.warn({
+              type: 'node',
+              node: grammar,
+              ruleId: 'grammar-shape',
+              message: 'expected emu-production node to have name',
+            });
+            continue;
+          }
+          let name = production.getAttribute('name')!;
+          if (!productions.has(name)) {
+            this.warn({
+              type: 'node',
+              node: grammar,
+              ruleId: 'grammar-shape',
+              message: `could not find definition corresponding to production ${name}`,
+            });
+            continue;
+          }
+          let mainRhses = productions.get(name)!;
+          for (let rhs of (production.querySelectorAll('emu-rhs') as any) as Iterable<Element>) {
+            let matches = mainRhses.filter(r => rhsMatches(rhs, r));
+            if (matches.length === 0) {
+              this.warn({
+                type: 'node',
+                node: grammar,
+                ruleId: 'grammar-shape',
+                message: `could not find definition for rhs ${rhs.textContent}`,
+              });
+              continue;
+            }
+            if (matches.length > 1) {
+              this.warn({
+                type: 'node',
+                node: grammar,
+                ruleId: 'grammar-shape',
+                message: `found multiple definitions for rhs ${rhs.textContent}`,
+              });
+              continue;
+            }
+            let match = matches[0];
+            if (match.id == '') {
+              match.id = 'prod-' + sha(`${name} : ${match.textContent}`);
+            }
+            let mainId = match.id;
+            if (rhs.id == '') {
+              rhs.id = 'prod-' + sha(`[${sdoName}] ${name} ${rhs.textContent}`);
+            }
+            if (!{}.hasOwnProperty.call(sdoMap, mainId)) {
+              sdoMap[mainId] = Object.create(null);
+            }
+            let sdosForThisId = sdoMap[mainId];
+            if (!{}.hasOwnProperty.call(sdosForThisId, sdoName)) {
+              sdosForThisId[sdoName] = { clause, ids: [] };
+            } else if (sdosForThisId[sdoName].clause !== clause) {
+              this.warn({
+                type: 'node',
+                node: grammar,
+                ruleId: 'grammar-shape',
+                message: `SDO ${sdoName} found in multiple clauses`,
+              });
+            }
+            sdosForThisId[sdoName].ids.push(rhs.id);
+          }
+        }
+      }
+    }
+
+    let sdoMapContainer = this.doc.createElement('script');
+    sdoMapContainer.setAttribute('type', 'application/json');
+    sdoMapContainer.id = 'sdo-map';
+    sdoMapContainer.textContent = JSON.stringify(sdoMap);
+    this.doc.head.appendChild(sdoMapContainer);
+  }
+
   private setReplacementAlgorithmOffsets() {
     this.log('Finding offsets for replacement algorithm steps...');
     let pending: Map<string, Element[]> = new Map();
@@ -1145,10 +1317,89 @@ async function walk(walker: TreeWalker, context: Context) {
   context.tagStack.pop();
 }
 
-const jsDependencies = ['menu.js', 'findLocalReferences.js'];
+const jsDependencies = ['sdoMap.js', 'menu.js', 'findLocalReferences.js'];
 async function concatJs() {
   const dependencies = await Promise.all(
     jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency)))
   );
   return dependencies.reduce((js, dependency) => js + dependency, '');
+}
+
+// todo move this to utils maybe
+// this is very similar to the identically-named method in lint/utils.ts, but operates on HTML elements rather than grammarkdown nodes
+function rhsMatches(aRhs: Element, bRhs: Element) {
+  let a = aRhs.firstElementChild;
+  let b = bRhs.firstElementChild;
+  if (a == null || b == null) {
+    throw new Error('RHS must have content');
+  }
+  return symbolSpanMatches(a, b);
+}
+
+function symbolSpanMatches(a: Element | null, b: Element | null): boolean {
+  if (a == null || a.textContent === '[empty]') {
+    return canBeEmpty(b);
+  }
+
+  if (b != null && symbolMatches(a, b)) {
+    return symbolSpanMatches(a.nextElementSibling, b.nextElementSibling);
+  }
+
+  // sometimes when there is an optional terminal or nonterminal we give distinct implementations for each case, rather than one implementation which represents both
+  // which means both `a b c` and `a c` must match `a b? c`
+  if (b != null && canSkipSymbol(b)) {
+    return symbolSpanMatches(a, b.nextElementSibling);
+  }
+
+  return false;
+}
+
+function canBeEmpty(b: Element | null): boolean {
+  return b == null || (canSkipSymbol(b) && canBeEmpty(b.nextElementSibling));
+}
+
+function canSkipSymbol(a: Element): boolean {
+  if (a.tagName === 'EMU-NT' && a.hasAttribute('optional')) {
+    return true;
+  }
+  // 'gmod' is prose assertions
+  // 'gann' is [empty], [nlth], and lookahead restrictions]
+  return ['EMU-CONSTRAINTS', 'EMU-GMOD', 'EMU-GANN'].includes(a.tagName);
+}
+
+function symbolMatches(a: Element, b: Element): boolean {
+  let aKind = a.tagName.toLowerCase();
+  let bKind = b.tagName.toLowerCase();
+  if (aKind !== bKind) {
+    return false;
+  }
+  switch (aKind) {
+    case 'emu-t': {
+      return a.textContent === b.textContent;
+    }
+    case 'emu-nt': {
+      if (a.childNodes.length > 1 || b.childNodes.length > 1) {
+        // NonTerminal.build() adds elements to represent parameters and "opt", but that happens after this phase
+        throw new Error('emu-nt nodes should not have other contents at this phase');
+      }
+      return a.textContent === b.textContent;
+    }
+    case 'emu-gmod':
+    case 'emu-gann': {
+      return a.textContent === b.textContent;
+    }
+    default: {
+      throw new Error('unimplemented: symbol matches ' + aKind);
+    }
+  }
+}
+
+function sha(str: string) {
+  return crypto
+    .createHash('sha256')
+    .update(str)
+    .digest('base64')
+    .slice(0, 8)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
 }

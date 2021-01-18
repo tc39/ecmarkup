@@ -1,5 +1,99 @@
 'use strict';
 
+var sdoBox = {
+  init: function () {
+    this.$alternativeId = null;
+    this.$outer = document.createElement('div');
+    this.$outer.classList.add('toolbox-container');
+    this.$container = document.createElement('div');
+    this.$container.classList.add('toolbox');
+    this.$displayLink = document.createElement('a');
+    this.$displayLink.setAttribute('href', '#');
+    this.$displayLink.textContent = 'Syntax-Directed Operations';
+    this.$displayLink.addEventListener(
+      'click',
+      function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        referencePane.showSDOs(sdoMap[this.$alternativeId] || {}, this.$alternativeId);
+      }.bind(this)
+    );
+    this.$container.appendChild(this.$displayLink);
+    this.$outer.appendChild(this.$container);
+    document.body.appendChild(this.$outer);
+  },
+
+  activate: function (el) {
+    clearTimeout(this.deactiveTimeout);
+    Toolbox.deactivate();
+    this.$alternativeId = el.id;
+    var numSdos = Object.keys(sdoMap[this.$alternativeId] || {}).length;
+    this.$displayLink.textContent = 'Syntax-Directed Operations (' + numSdos + ')';
+    this.$outer.classList.add('active');
+    var top = el.offsetTop - this.$outer.offsetHeight;
+    var left = el.offsetLeft + 50 - 10; // 50px = padding-left(=75px) + text-indent(=-25px)
+    this.$outer.setAttribute('style', 'left: ' + left + 'px; top: ' + top + 'px');
+    if (top < document.body.scrollTop) {
+      this.$container.scrollIntoView();
+    }
+  },
+
+  deactivate: function () {
+    clearTimeout(this.deactiveTimeout);
+    this.$outer.classList.remove('active');
+  },
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+  sdoBox.init();
+
+  var insideTooltip = false;
+  sdoBox.$outer.addEventListener('pointerenter', function () {
+    insideTooltip = true;
+  });
+  sdoBox.$outer.addEventListener('pointerleave', function () {
+    insideTooltip = false;
+    sdoBox.deactivate();
+  });
+
+  sdoBox.deactiveTimeout = null;
+  [].forEach.call(document.querySelectorAll('emu-grammar[type=definition] emu-rhs'), function (
+    node
+  ) {
+    node.addEventListener('pointerenter', function () {
+      sdoBox.activate(this);
+    });
+
+    node.addEventListener('pointerleave', function (e) {
+      sdoBox.deactiveTimeout = setTimeout(function () {
+        if (!insideTooltip) {
+          sdoBox.deactivate();
+        }
+      }, 500);
+    });
+  });
+
+  document.addEventListener(
+    'keydown',
+    debounce(function (e) {
+      if (e.code === 'Escape') {
+        sdoBox.deactivate();
+      }
+    })
+  );
+});
+
+var sdoMap = {};
+document.addEventListener('DOMContentLoaded', function () {
+  var sdoMapContainer = document.getElementById('sdo-map');
+  if (sdoMapContainer == null) {
+    console.error('could not find SDO map container');
+  } else {
+    sdoMap = JSON.parse(sdoMapContainer.textContent);
+  }
+});
+'use strict';
+
 function Search(menu) {
   this.menu = menu;
   this.$search = document.getElementById('menu-search');
@@ -659,8 +753,11 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
 
 var Toolbox = {
   init: function () {
+    this.$outer = document.createElement('div');
+    this.$outer.classList.add('toolbox-container');
     this.$container = document.createElement('div');
     this.$container.classList.add('toolbox');
+    this.$outer.appendChild(this.$container);
     this.$permalink = document.createElement('a');
     this.$permalink.textContent = 'Permalink';
     this.$pinLink = document.createElement('a');
@@ -688,23 +785,24 @@ var Toolbox = {
     this.$container.appendChild(this.$permalink);
     this.$container.appendChild(this.$pinLink);
     this.$container.appendChild(this.$refsLink);
-    document.body.appendChild(this.$container);
+    document.body.appendChild(this.$outer);
   },
 
   activate: function (el, entry, target) {
     if (el === this._activeEl) return;
+    sdoBox.deactivate();
     this.active = true;
     this.entry = entry;
-    this.$container.classList.add('active');
-    this.top = el.offsetTop - this.$container.offsetHeight - 10;
-    this.left = el.offsetLeft;
-    this.$container.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
+    this.$outer.classList.add('active');
+    this.top = el.offsetTop - this.$outer.offsetHeight;
+    this.left = el.offsetLeft - 10;
+    this.$outer.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
     this.updatePermalink();
     this.updateReferences();
     this._activeEl = el;
     if (this.top < document.body.scrollTop && el === target) {
       // don't scroll unless it's a small thing (< 200px)
-      this.$container.scrollIntoView();
+      this.$outer.scrollIntoView();
     }
   },
 
@@ -732,12 +830,26 @@ var Toolbox = {
   findReferenceUnder: function (el) {
     while (el) {
       var parent = el.parentNode;
+      if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
+        return null;
+      }
       if (
         el.nodeName === 'H1' &&
         parent.nodeName.match(/EMU-CLAUSE|EMU-ANNEX|EMU-INTRO/) &&
         parent.id
       ) {
         return { element: el, id: parent.id };
+      } else if (el.nodeName === 'EMU-NT') {
+        if (
+          parent.nodeName === 'EMU-PRODUCTION' &&
+          parent.id &&
+          parent.id[0] !== '_' &&
+          parent.firstElementChild === el
+        ) {
+          // return the LHS non-terminal element
+          return { element: el, id: parent.id };
+        }
+        return null;
       } else if (
         el.nodeName.match(/EMU-(?!CLAUSE|XREF|ANNEX|INTRO)|DFN/) &&
         el.id &&
@@ -750,9 +862,6 @@ var Toolbox = {
         ) {
           // return the figcaption element
           return { element: el.children[0].children[0], id: el.id };
-        } else if (el.nodeName === 'EMU-PRODUCTION') {
-          // return the LHS non-terminal element
-          return { element: el.children[0], id: el.id };
         } else {
           return { element: el, id: el.id };
         }
@@ -762,9 +871,8 @@ var Toolbox = {
   },
 
   deactivate: function () {
-    this.$container.classList.remove('active');
+    this.$outer.classList.remove('active');
     this._activeEl = null;
-    this.activeElBounds = null;
     this.active = false;
   },
 };
@@ -785,7 +893,8 @@ var referencePane = {
 
     this.$header = document.createElement('div');
     this.$header.classList.add('menu-pane-header');
-    this.$header.textContent = 'References to ';
+    this.$headerText = document.createElement('span');
+    this.$header.appendChild(this.$headerText);
     this.$headerRefId = document.createElement('a');
     this.$header.appendChild(this.$headerRefId);
     this.$closeButton = document.createElement('span');
@@ -821,14 +930,16 @@ var referencePane = {
     this.$container.classList.remove('active');
   },
 
-  showReferencesFor(entry) {
+  showReferencesFor: function (entry) {
     this.activate();
+    this.$headerText.textContent = 'References to ';
     var newBody = document.createElement('tbody');
     var previousId;
     var previousCell;
     var dupCount = 0;
     this.$headerRefId.textContent = '#' + entry.id;
     this.$headerRefId.setAttribute('href', '#' + entry.id);
+    this.$headerRefId.style.display = 'inline';
     entry.referencingIds
       .map(function (id) {
         var target = document.getElementById(id);
@@ -854,6 +965,54 @@ var referencePane = {
           dupCount = 0;
         }
       }, this);
+    this.$table.removeChild(this.$tableBody);
+    this.$tableBody = newBody;
+    this.$table.appendChild(this.$tableBody);
+  },
+
+  showSDOs: function (sdos, alternativeId) {
+    this.activate();
+    var rhs = document.getElementById(alternativeId);
+    var parentName = rhs.parentNode.getAttribute('name');
+    var colons = rhs.parentNode.querySelector('emu-geq');
+    rhs = rhs.cloneNode(true);
+    rhs.querySelectorAll('emu-params,emu-constraints').forEach(function (e) {
+      e.remove();
+    });
+    rhs.querySelectorAll('[id]').forEach(function (e) {
+      e.removeAttribute('id');
+    });
+    rhs.querySelectorAll('a').forEach(function (e) {
+      e.parentNode.replaceChild(document.createTextNode(e.textContent), e);
+    });
+    var text = parentName + ' : ' + rhs.textContent.replace(/\s+/g, ' ');
+
+    this.$headerText.innerHTML =
+      'Syntax-Directed Operations for<br><a href="#' +
+      alternativeId +
+      '" class="menu-pane-header-production"><emu-nt>' +
+      parentName +
+      '</emu-nt> ' +
+      colons.outerHTML +
+      ' </a>';
+    this.$headerText.querySelector('a').append(rhs);
+    this.$headerRefId.style.display = 'none';
+    var newBody = document.createElement('tbody');
+    Object.keys(sdos).forEach(function (sdoName) {
+      var pair = sdos[sdoName];
+      var clause = pair.clause;
+      var ids = pair.ids;
+      var first = ids[0];
+      var row = newBody.insertRow();
+      var cell = row.insertCell();
+      cell.innerHTML = clause;
+      cell = row.insertCell();
+      var html = '<a href="#' + first + '">' + sdoName + '</a>';
+      for (var i = 1; i < ids.length; ++i) {
+        html += ' (<a href="#' + ids[i] + '">' + (i + 1) + '</a>)';
+      }
+      cell.innerHTML = html;
+    });
     this.$table.removeChild(this.$tableBody);
     this.$tableBody = newBody;
     this.$table.appendChild(this.$tableBody);
