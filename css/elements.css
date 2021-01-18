@@ -993,18 +993,23 @@ li.menu-search-result-term:before {
 }
 
 /* Toolbox */
-.toolbox {
+.toolbox-container {
   position: absolute;
+  display: none;
+  padding-bottom: 7px;
+}
+
+.toolbox-container.active {
+  display: inline-block;
+}
+
+.toolbox {
+  position: relative;
   background: #ddd;
   border: 1px solid #aaa;
-  display: none;
   color: #eee;
   padding: 5px;
   border-radius: 3px;
-}
-
-.toolbox.active {
-  display: inline-block;
 }
 
 .toolbox a {

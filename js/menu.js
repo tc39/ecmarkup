@@ -659,8 +659,11 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
 
 var Toolbox = {
   init: function () {
+    this.$outer = document.createElement('div');
+    this.$outer.classList.add('toolbox-container');
     this.$container = document.createElement('div');
     this.$container.classList.add('toolbox');
+    this.$outer.appendChild(this.$container);
     this.$permalink = document.createElement('a');
     this.$permalink.textContent = 'Permalink';
     this.$pinLink = document.createElement('a');
@@ -688,23 +691,24 @@ var Toolbox = {
     this.$container.appendChild(this.$permalink);
     this.$container.appendChild(this.$pinLink);
     this.$container.appendChild(this.$refsLink);
-    document.body.appendChild(this.$container);
+    document.body.appendChild(this.$outer);
   },
 
   activate: function (el, entry, target) {
     if (el === this._activeEl) return;
+    sdoBox.deactivate();
     this.active = true;
     this.entry = entry;
-    this.$container.classList.add('active');
+    this.$outer.classList.add('active');
     this.top = el.offsetTop - this.$container.offsetHeight - 10;
-    this.left = el.offsetLeft;
-    this.$container.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
+    this.left = el.offsetLeft - 10;
+    this.$outer.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
     this.updatePermalink();
     this.updateReferences();
     this._activeEl = el;
     if (this.top < document.body.scrollTop && el === target) {
       // don't scroll unless it's a small thing (< 200px)
-      this.$container.scrollIntoView();
+      this.$outer.scrollIntoView();
     }
   },
 
@@ -732,12 +736,21 @@ var Toolbox = {
   findReferenceUnder: function (el) {
     while (el) {
       var parent = el.parentNode;
+      if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
+        return null;
+      }
       if (
         el.nodeName === 'H1' &&
         parent.nodeName.match(/EMU-CLAUSE|EMU-ANNEX|EMU-INTRO/) &&
         parent.id
       ) {
         return { element: el, id: parent.id };
+      } else if (el.nodeName === 'EMU-NT') {
+        if (parent.id && parent.id[0] !== '_' && parent.firstElementChild === el) {
+          // return the LHS non-terminal element
+          return { element: el, id: parent.id };
+        }
+        return null;
       } else if (
         el.nodeName.match(/EMU-(?!CLAUSE|XREF|ANNEX|INTRO)|DFN/) &&
         el.id &&
@@ -750,9 +763,6 @@ var Toolbox = {
         ) {
           // return the figcaption element
           return { element: el.children[0].children[0], id: el.id };
-        } else if (el.nodeName === 'EMU-PRODUCTION') {
-          // return the LHS non-terminal element
-          return { element: el.children[0], id: el.id };
         } else {
           return { element: el, id: el.id };
         }
@@ -762,9 +772,8 @@ var Toolbox = {
   },
 
   deactivate: function () {
-    this.$container.classList.remove('active');
+    this.$outer.classList.remove('active');
     this._activeEl = null;
-    this.activeElBounds = null;
     this.active = false;
   },
 };
@@ -785,7 +794,8 @@ var referencePane = {
 
     this.$header = document.createElement('div');
     this.$header.classList.add('menu-pane-header');
-    this.$header.textContent = 'References to ';
+    this.$headerText = document.createElement('span');
+    this.$header.appendChild(this.$headerText);
     this.$headerRefId = document.createElement('a');
     this.$header.appendChild(this.$headerRefId);
     this.$closeButton = document.createElement('span');
@@ -821,14 +831,16 @@ var referencePane = {
     this.$container.classList.remove('active');
   },
 
-  showReferencesFor(entry) {
+  showReferencesFor: function(entry) {
     this.activate();
+    this.$headerText.textContent = 'References to ';
     var newBody = document.createElement('tbody');
     var previousId;
     var previousCell;
     var dupCount = 0;
     this.$headerRefId.textContent = '#' + entry.id;
     this.$headerRefId.setAttribute('href', '#' + entry.id);
+    this.$headerRefId.style.display = 'inline';    
     entry.referencingIds
       .map(function (id) {
         var target = document.getElementById(id);
@@ -854,6 +866,25 @@ var referencePane = {
           dupCount = 0;
         }
       }, this);
+    this.$table.removeChild(this.$tableBody);
+    this.$tableBody = newBody;
+    this.$table.appendChild(this.$tableBody);
+  },
+
+  showSDOs: function(sdos, alternativeId) {
+    this.activate();
+    this.$headerText.textContent = 'Syntax-Directed Operations';
+    this.$headerRefId.style.display = 'none';
+    var newBody = document.createElement('tbody');
+    sdos.forEach(function(pair) {
+      var clause = pair.clause;
+      var sdoName = pair.sdoName;
+      var row = newBody.insertRow();
+      var cell = row.insertCell();
+      cell.innerHTML = clause;
+      cell = row.insertCell();
+      cell.innerHTML = '<a href="#' + sdoName + '-' + alternativeId + '">' + sdoName + '</a>';
+    });
     this.$table.removeChild(this.$tableBody);
     this.$tableBody = newBody;
     this.$table.appendChild(this.$tableBody);
