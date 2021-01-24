@@ -78,7 +78,7 @@ export default class Xref extends Builder {
     if (href) {
       if (href[0] !== '#') {
         spec.warn({
-          type: 'attr',
+          type: 'attr-value',
           attr: 'href',
           ruleId: 'invalid-xref',
           message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(
@@ -94,7 +94,7 @@ export default class Xref extends Builder {
       this.entry = spec.biblio.byId(id);
       if (!this.entry) {
         spec.warn({
-          type: 'attr',
+          type: 'attr-value',
           attr: 'href',
           ruleId: 'xref-not-found',
           message: `can't find clause, production, note or example with id ${JSON.stringify(id)}`,
@@ -148,7 +148,7 @@ export default class Xref extends Builder {
       let namespaceSuffix =
         namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
       spec.warn({
-        type: 'attr',
+        type: 'attr-value',
         attr: 'aoid',
         ruleId: 'xref-not-found',
         message: `can't find abstract op with aoid ${JSON.stringify(aoid)}` + namespaceSuffix,
@@ -262,7 +262,7 @@ function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry)
     let applicable = bullets[Math.min(i, 5)];
     if (s > applicable.length) {
       spec.warn({
-        type: 'attr',
+        type: 'attr-value',
         ruleId: 'high-step-number',
         message: `ecmarkup does not know how to deal with step numbers as high as ${s}; if you need this, open an issue on ecmarkup`,
         node: xref,

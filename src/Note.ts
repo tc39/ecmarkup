@@ -72,7 +72,7 @@ export default class Note extends Builder {
       label = "Editor's Note";
     } else {
       this.spec.warn({
-        type: 'attr',
+        type: 'attr-value',
         attr: 'type',
         ruleId: 'invalid-note',
         message: `unknown note type ${JSON.stringify(this.type)}`,
