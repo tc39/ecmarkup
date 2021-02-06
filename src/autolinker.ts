@@ -29,6 +29,7 @@ export const NO_CLAUSE_AUTOLINK = new Set([
   'SUB',
   'EMU-NOT-REF',
 ]);
+export const YES_CLAUSE_AUTOLINK = new Set(['EMU-GMOD']); // these are processed even if they are nested in NO_CLAUSE_AUTOLINK contexts
 
 export function autolink(
   node: Node,
