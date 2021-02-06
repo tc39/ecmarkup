@@ -29,7 +29,12 @@ import Grammar from './Grammar';
 import Xref from './Xref';
 import Eqn from './Eqn';
 import Biblio from './Biblio';
-import { autolink, replacerForNamespace, NO_CLAUSE_AUTOLINK } from './autolinker';
+import {
+  autolink,
+  replacerForNamespace,
+  NO_CLAUSE_AUTOLINK,
+  YES_CLAUSE_AUTOLINK,
+} from './autolinker';
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
@@ -37,6 +42,7 @@ import type { JSDOM } from 'jsdom';
 const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
 const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
+const YES_EMD = new Set(['EMU-GMOD']); // these are processed even if they are nested in NO_EMD contexts
 
 interface VisitorMap {
   [k: string]: BuilderInterface;
@@ -397,7 +403,7 @@ export default class Spec {
       inNoAutolink: false,
       inAlg: false,
       inNoEmd: false,
-      startEmd: null,
+      followingEmd: null,
       currentId: null,
     };
 
@@ -1208,17 +1214,19 @@ async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: strin
 }
 
 async function walk(walker: TreeWalker, context: Context) {
-  // When we set either of these states we need to know to unset when we leave the element.
-  let changedInNoAutolink = false;
-  let changedInNoEmd = false;
+  let previousInNoAutolink = context.inNoAutolink;
+  let previousInNoEmd = context.inNoEmd;
   const { spec } = context;
 
   context.node = walker.currentNode as HTMLElement;
   context.tagStack.push(context.node);
 
-  if (context.node === context.startEmd) {
-    context.startEmd = null;
+  if (context.node === context.followingEmd) {
+    context.followingEmd = null;
     context.inNoEmd = false;
+    // inNoEmd is true because we're walking past the output of emd, rather than by being within a NO_EMD context
+    // so reset previousInNoEmd so we exit it properly
+    previousInNoEmd = false;
   }
 
   if (context.node.nodeType === 3) {
@@ -1231,16 +1239,16 @@ async function walk(walker: TreeWalker, context: Context) {
     if (!context.inNoEmd) {
       // new nodes as a result of emd processing should be skipped
       context.inNoEmd = true;
-      // inNoEmd is set to true when we walk to this node
       let node = context.node as Node | null;
       while (node && !node.nextSibling) {
         node = node.parentNode;
       }
 
       if (node) {
-        context.startEmd = node.nextSibling;
+        // inNoEmd will be set to false when we walk to this node
+        context.followingEmd = node.nextSibling;
       }
-      // else, inNoEmd will just continue to the end of the file
+      // else, there's no more nodes to process and inNoEmd does not need to be tracked
 
       utils.emdTextNode(context.spec, (context.node as unknown) as Text, namespace);
     }
@@ -1282,16 +1290,16 @@ async function walk(walker: TreeWalker, context: Context) {
     context.currentId = context.node.getAttribute('id');
   }
 
-  // See if we should stop auto-linking here.
-  if (NO_CLAUSE_AUTOLINK.has(context.node.nodeName) && !context.inNoAutolink) {
+  if (NO_CLAUSE_AUTOLINK.has(context.node.nodeName)) {
     context.inNoAutolink = true;
-    changedInNoAutolink = true;
+  } else if (YES_CLAUSE_AUTOLINK.has(context.node.nodeName)) {
+    context.inNoAutolink = false;
   }
 
-  // check if entering a noEmd tag
-  if (NO_EMD.has(context.node.nodeName) && !context.inNoEmd) {
+  if (NO_EMD.has(context.node.nodeName)) {
     context.inNoEmd = true;
-    changedInNoEmd = true;
+  } else if (YES_EMD.has(context.node.nodeName)) {
+    context.inNoEmd = false;
   }
 
   const visitor = visitorMap[context.node.nodeName];
@@ -1311,8 +1319,8 @@ async function walk(walker: TreeWalker, context: Context) {
   }
 
   if (visitor) visitor.exit(context);
-  if (changedInNoAutolink) context.inNoAutolink = false;
-  if (changedInNoEmd) context.inNoEmd = false;
+  context.inNoAutolink = previousInNoAutolink;
+  context.inNoEmd = previousInNoEmd;
   context.currentId = parentId;
   context.tagStack.pop();
 }

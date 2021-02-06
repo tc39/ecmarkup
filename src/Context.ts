@@ -13,6 +13,6 @@ export interface Context {
   inNoAutolink: boolean;
   inNoEmd: boolean;
   inAlg: boolean;
-  startEmd: Node | null;
+  followingEmd: Node | null;
   currentId: string | null;
 }

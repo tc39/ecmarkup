@@ -1,0 +1,23 @@
+<pre class=metadata>
+toc: false
+copyright: false
+assets: none
+</pre>
+
+<emu-clause id="sec-example">
+  <h1>Example</h1>
+  <emu-grammar type="definition">
+    Foo ::
+      Bar [> but only if the AbstractOperation of |Bar| is &le; _variable_]
+
+    Bar :: `example`
+  </emu-grammar>
+
+  <emu-clause id="sec-abstract-operation" aoid="AbstractOperation">
+    <h1>Static Semantics: AbstractOperation</h1>
+    <emu-grammar>Bar :: `example`</emu-grammar>
+    <emu-alg>
+      1. Return 0.
+    </emu-alg>
+  </emu-clause>
+</emu-clause>
