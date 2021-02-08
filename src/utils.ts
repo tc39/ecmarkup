@@ -215,3 +215,12 @@ export function attrValueLocation(
     return { line: attrLoc.line, column: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
   }
 }
+
+let decimalBullet = Array.from({ length: 100 }).map((a, i) => '' + (i + 1));
+let alphaBullet = Array.from({ length: 26 }).map((a, i) =>
+  String.fromCharCode('a'.charCodeAt(0) + i)
+);
+// prettier-ignore
+let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
+// prettier-ignore
+export let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];

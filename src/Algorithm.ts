@@ -1,9 +1,10 @@
+import type Spec from './Spec';
 import type { Context } from './Context';
 import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
 import type { StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
-import { warnEmdFailure, wrapEmdFailure } from './utils';
+import { warnEmdFailure, wrapEmdFailure, bullets } from './utils';
 import { collectNonterminalsFromEmd } from './lint/utils';
 import * as emd from 'ecmarkdown';
 
@@ -59,6 +60,8 @@ export default class Algorithm extends Builder {
     // replace spaces after !/? with &nbsp; to prevent bad line breaking
     const html = rawHtml.replace(/((?:\s+|>)[!?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
     node.innerHTML = html;
+
+    addStepNumberText(spec, node.firstElementChild!, []);
 
     let labeledStepEntries: StepBiblioEntry[] = [];
     let replaces = node.getAttribute('replaces-step');
@@ -116,4 +119,30 @@ function getStepNumbers(item: Element) {
     item = item.parentElement.parentElement!;
   }
   return counts;
+}
+
+function addStepNumberText(spec: Spec, ol: Element, parentIndex: Array<number>) {
+  for (let i = 0; i < ol.children.length; ++i) {
+    let child = ol.children[i];
+    let index = parentIndex.concat([i]);
+    let applicable = bullets[Math.min(index.length - 1, 5)];
+    if (i > applicable.length) {
+      spec.warn({
+        type: 'node',
+        ruleId: 'high-step-number',
+        message: `ecmarkup does not know how to deal with step numbers as high as ${i}; if you need this, open an issue on ecmarkup`,
+        node: child,
+      });
+      break;
+    }
+    let span = spec.doc.createElement('span');
+    span.textContent = applicable[i] + '. ';
+    span.style.fontSize = '0';
+    span.setAttribute('aria-hidden', 'true');
+    child.prepend(span);
+    let sublist = child.querySelector('ol');
+    if (sublist != null) {
+      addStepNumberText(spec, sublist, index);
+    }
+  }
 }

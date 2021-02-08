@@ -4,6 +4,7 @@ import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
 import Builder from './Builder';
+import { bullets } from './utils';
 
 /*@internal*/
 export default class Xref extends Builder {
@@ -237,14 +238,6 @@ function buildFigureLink(
     xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
   }
 }
-
-let decimalBullet = Array.from({ length: 100 }).map((a, i) => '' + (i + 1));
-let alphaBullet = Array.from({ length: 26 }).map((a, i) =>
-  String.fromCharCode('a'.charCodeAt(0) + i)
-);
-// prettier-ignore
-let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
-let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
 
 function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry) {
   if (xref.innerHTML !== '') {
