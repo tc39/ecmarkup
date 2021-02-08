@@ -604,6 +604,7 @@ function init() {
     'mouseover',
     debounce(function (e) {
       Toolbox.activateIfMouseOver(e);
+      AlgCopier.activateIfMouseOver(e);
     })
   );
   document.addEventListener(
@@ -750,6 +751,92 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
 
   return { caseMatch: !caseInsensitive, chunks: chunks, prefix: j <= qlen };
 }
+
+var AlgCopier = {
+  decimalBullet: Array.from({ length: 100 }).map(function(a, i) { return '' + (i + 1); }),
+  alphaBullet: Array.from({ length: 26 }).map(function(a, i) { return String.fromCharCode('a'.charCodeAt(0) + i); }),
+  romanBullet: ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'],
+
+  init: function() {
+    this.$outer = document.createElement('div');
+    this.$outer.classList.add('alg-copy');
+
+    this.$button = document.createElement('a');
+    this.$button.setAttribute('href', '#');
+    this.$button.textContent = '📋';
+    this.$button.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var text = this.formatList(this._activeEl.children[0]);
+      navigator.clipboard.writeText(text);
+    }.bind(this));
+    this.$outer.appendChild(this.$button);
+
+    document.body.appendChild(this.$outer);
+  },
+
+  formatList: function(list, indent = 0) {
+    var ordered = list.nodeName === 'OL';
+    return Array.from(list.children)
+      .map(function (li, i) {
+        var out = '';
+        Array.from(li.childNodes).forEach(function(c) {
+          if (c.nodeName === 'OL' || c.nodeName === 'UL') {
+            out += '\n' + AlgCopier.formatList(c, indent + 1);
+          } else {
+            out += c.textContent;
+          }
+        });
+        var n = ordered ?
+          this.bullets[indent % this.bullets.length][i] + '.'
+          : '•';
+        return '\t'.repeat(indent) + n + ' ' + out.trim();
+      }.bind(this))
+      .join('\n');
+  },
+
+  activateIfMouseOver: function (e) {
+    var ref = this.findReferenceUnder(e.target);
+    if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
+      this.activate(ref, e.target);
+    } else if (
+      this.active &&
+      (e.pageY < this.top || e.pageY > this._activeEl.offsetTop + this._activeEl.offsetHeight)
+    ) {
+      this.deactivate();
+    }
+  },
+
+  findReferenceUnder: function(el) {
+    while (el) {
+      if (el.nodeName === 'EMU-ALG') {
+        return el;
+      }
+      el = el.parentNode;
+    }
+    return null;
+  },
+
+  activate: function(el, target) {
+    if (el === this._activeEl) return;
+    this.active = true;
+    this.$outer.classList.add('active');
+    this.top = el.offsetTop;
+    this.$outer.setAttribute('style', 'right: 10px; top: ' + this.top + 'px');
+    this._activeEl = el;
+    if (this.top < document.body.scrollTop && el === target) {
+      // don't scroll unless it's a small thing (< 200px)
+      this.$outer.scrollIntoView();
+    }
+  },
+
+  deactivate: function () {
+    this.$outer.classList.remove('active');
+    this._activeEl = null;
+    this.active = false;
+  },
+};
+AlgCopier.bullets = [AlgCopier.decimalBullet, AlgCopier.alphaBullet, AlgCopier.romanBullet];
 
 var Toolbox = {
   init: function () {
@@ -1071,6 +1158,7 @@ function sortByClauseNumber(c1, c2) {
 document.addEventListener('DOMContentLoaded', function () {
   Toolbox.init();
   referencePane.init();
+  AlgCopier.init();
 });
 var CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
 function findLocalReferences($elem) {

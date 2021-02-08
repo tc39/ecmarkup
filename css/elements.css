@@ -1074,6 +1074,20 @@ li.menu-search-result-term:before {
   margin-left: -12px;
 }
 
+.alg-copy {
+  position: absolute;
+  display: none;
+  opacity: 50%;
+}
+
+.alg-copy.active {
+  display: inline-block;
+}
+
+.alg-copy a {
+  text-decoration: none;
+}
+
 #references-pane-container {
   position: fixed;
   bottom: 0;
