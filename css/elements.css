@@ -154,6 +154,7 @@ emu-note[type='editor'] {
 emu-note > div.note-contents {
   flex-grow: 1;
   flex-shrink: 1;
+  overflow: auto;
 }
 
 emu-note > div.note-contents > p:first-of-type {
