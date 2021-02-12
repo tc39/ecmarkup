@@ -10,17 +10,17 @@
 
   <p>An algorithm can come before the step it replaces.</p>
 
-  <emu-alg replaces-step="to-be-replaced"><ol start="1" class="nested-once"><li>Two a:<ol><li>Two a i:<ol><li>Two a i one.</li><li id="example">Two a i two.</li></ol></li></ol></li></ol></emu-alg>
+  <emu-alg replaces-step="to-be-replaced"><ol start="1" class="nested-once"><li><span style="font-size: 0;" aria-hidden="true">1. </span>Two a:<ol><li><span style="font-size: 0;" aria-hidden="true">a. </span>Two a i:<ol><li><span style="font-size: 0;" aria-hidden="true">i. </span>Two a i one.</li><li id="example"><span style="font-size: 0;" aria-hidden="true">ii. </span>Two a i two.</li></ol></li></ol></li></ol></emu-alg>
 
   <p>This is our sample algorithm.</p>
-  <emu-alg><ol><li>One.</li><li>Two:<ol><li id="to-be-replaced">Two a.</li></ol></li></ol></emu-alg>
+  <emu-alg><ol><li><span style="font-size: 0;" aria-hidden="true">1. </span>One.</li><li><span style="font-size: 0;" aria-hidden="true">2. </span>Two:<ol><li id="to-be-replaced"><span style="font-size: 0;" aria-hidden="true">a. </span>Two a.</li></ol></li></ol></emu-alg>
 
   <p>An algorithm can also come after the step it replaces.</p>
 
-  <emu-alg replaces-step="to-be-replaced"><ol start="1" class="nested-once"><li>Two a:<ol><li>Two a i:<ol><li>Two a i one.</li><li id="example">Two a i two.</li></ol></li></ol></li></ol></emu-alg>
+  <emu-alg replaces-step="to-be-replaced"><ol start="1" class="nested-once"><li><span style="font-size: 0;" aria-hidden="true">1. </span>Two a:<ol><li><span style="font-size: 0;" aria-hidden="true">a. </span>Two a i:<ol><li><span style="font-size: 0;" aria-hidden="true">i. </span>Two a i one.</li><li id="example"><span style="font-size: 0;" aria-hidden="true">ii. </span>Two a i two.</li></ol></li></ol></li></ol></emu-alg>
 
   <p>You can even replace steps in replacement algorithms.</p>
 
-  <emu-alg replaces-step="example"><ol start="2" class="nested-thrice"><li>Two a i two:<ol><li>Two a i two a.</li><li>Two a i two b.</li><li id="nested-example">Two a i two c:<ol><li>Two a i two c i:<ol><li>Two a i two c i i:<ol><li>Two a i two c i i i.</li><li>Two a i two c i i ii.</li></ol></li></ol></li></ol></li></ol></li></ol></emu-alg>
+  <emu-alg replaces-step="example"><ol start="2" class="nested-thrice"><li><span style="font-size: 0;" aria-hidden="true">1. </span>Two a i two:<ol><li><span style="font-size: 0;" aria-hidden="true">a. </span>Two a i two a.</li><li><span style="font-size: 0;" aria-hidden="true">b. </span>Two a i two b.</li><li id="nested-example"><span style="font-size: 0;" aria-hidden="true">c. </span>Two a i two c:<ol><li><span style="font-size: 0;" aria-hidden="true">i. </span>Two a i two c i:<ol><li><span style="font-size: 0;" aria-hidden="true">1. </span>Two a i two c i i:<ol><li><span style="font-size: 0;" aria-hidden="true">a. </span>Two a i two c i i i.</li><li><span style="font-size: 0;" aria-hidden="true">b. </span>Two a i two c i i ii.</li></ol></li></ol></li></ol></li></ol></li></ol></emu-alg>
 </emu-clause>
 </div></body>
