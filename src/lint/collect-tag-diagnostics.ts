@@ -78,7 +78,7 @@ export function collectTagDiagnostics(
 
     if (!voidElements.has(name)) {
       let location = spec.locate(node);
-      if (location != null && location.startTag != null && location.endTag == null) {
+      if (location != null && location.endTag == null) {
         report({
           type: 'node',
           ruleId: 'missing-closing-tag',
