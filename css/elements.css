@@ -1119,5 +1119,10 @@ li.menu-search-result-term:before {
 }
 
 .normative-optional-tag {
+  text-transform: uppercase;
+  color: #884400;
+}
+
+.normative-optional-tag a {
   color: #884400;
 }

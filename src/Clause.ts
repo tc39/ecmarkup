@@ -114,7 +114,7 @@ export default class Clause extends Builder {
     clauseStack.push(clause);
   }
 
-  static exit({ node, spec, clauseStack }: Context) {
+  static exit({ node, spec, clauseStack, inAlg, currentId }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
     if (!clause.header) {
@@ -131,8 +131,18 @@ export default class Clause extends Builder {
     if (node.hasAttribute('normative-optional')) {
       let tag = spec.doc.createElement('div');
       tag.className = 'normative-optional-tag';
-      tag.append(spec.doc.createTextNode('NORMATIVE OPTIONAL'));
+      let contents = spec.doc.createTextNode('Normative Optional');
+      tag.append(contents);
       node.prepend(tag);
+
+      // we've already walked past the text node, so it won't get picked up by the usual process for autolinking
+      spec._textNodes[clause.namespace] = spec._textNodes[clause.namespace] || [];
+      spec._textNodes[clause.namespace].push({
+        node: contents,
+        clause,
+        inAlg,
+        currentId,
+      });
     }
 
     // clauses are always at the spec-level namespace.
