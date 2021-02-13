@@ -493,7 +493,6 @@ emu-annex {
   display: block;
 }
 
-
 /* these values are twice the font-size for the <h1> titles for clauses */
 emu-intro,
 emu-clause,
@@ -525,7 +524,6 @@ emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause,
 emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex {
   margin-top: 1.8em;
 }
-
 
 /* Figures and tables */
 figure {
@@ -1113,7 +1111,7 @@ li.menu-search-result-term:before {
 
 [normative-optional] {
   border-left: 5px solid #ff6600;
-  padding: .5em;
+  padding: 0.5em;
   display: block;
   background: #ffeedd;
 }
