@@ -134,6 +134,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-clause id="foo">
             <h1>${M}something: ( )</h1>
+          </emu-clause>
         `,
         {
           ruleId: 'header-format',
@@ -149,6 +150,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-clause id="foo">
             <h1>Exampl${M}e( )</h1>
+          </emu-clause>
         `,
         {
           ruleId: 'header-format',
@@ -163,6 +165,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-clause id="foo">
             <h1>Example ${M}(_a_)</h1>
+          </emu-clause>
         `,
         {
           ruleId: 'header-format',
@@ -175,6 +178,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-clause id="foo">
             <h1>Example ${M}( _a_ [ , <del>_b_</del> ] )</h1>
+          </emu-clause>
         `,
         {
           ruleId: 'header-format',
