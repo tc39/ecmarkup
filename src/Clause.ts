@@ -114,7 +114,7 @@ export default class Clause extends Builder {
     clauseStack.push(clause);
   }
 
-  static exit({ spec, clauseStack }: Context) {
+  static exit({ node, spec, clauseStack }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
     if (!clause.header) {
@@ -127,6 +127,13 @@ export default class Clause extends Builder {
     clause.buildHeader();
     clause.buildExamples();
     clause.buildNotes();
+
+    if (node.hasAttribute('normative-optional')) {
+      let tag = spec.doc.createElement('div');
+      tag.className = 'normative-optional-tag';
+      tag.append(spec.doc.createTextNode('NORMATIVE OPTIONAL'));
+      node.prepend(tag);
+    }
 
     // clauses are always at the spec-level namespace.
     spec.biblio.add(
