@@ -87,24 +87,6 @@ export default class Clause extends Builder {
     }
   }
 
-  buildUtils() {
-    const utilsElem = this.spec.doc.createElement('span');
-    utilsElem.setAttribute('class', 'utils');
-
-    const anchorElem = this.spec.doc.createElement('span');
-    anchorElem.setAttribute('class', 'anchor');
-    anchorElem.innerHTML = '<a href="#' + this.id + '">link</a>';
-
-    const pinElem = this.spec.doc.createElement('span');
-    pinElem.setAttribute('class', 'anchor');
-    pinElem.innerHTML = '<a href="#" class="utils-pin">pin</a>';
-
-    utilsElem.appendChild(anchorElem);
-    utilsElem.appendChild(pinElem);
-
-    this.header.appendChild(utilsElem);
-  }
-
   static async enter({ spec, node, clauseStack, clauseNumberer }: Context) {
     if (!node.id) {
       spec.warn({
@@ -145,7 +127,6 @@ export default class Clause extends Builder {
     clause.buildHeader();
     clause.buildExamples();
     clause.buildNotes();
-    //clause.buildUtils();
 
     // clauses are always at the spec-level namespace.
     spec.biblio.add(
