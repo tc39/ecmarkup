@@ -134,6 +134,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-clause id="foo">
             <h1>${M}something: ( )</h1>
+          </emu-clause>
         `,
         {
           ruleId: 'header-format',
@@ -149,6 +150,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-clause id="foo">
             <h1>Exampl${M}e( )</h1>
+          </emu-clause>
         `,
         {
           ruleId: 'header-format',
@@ -163,6 +165,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-clause id="foo">
             <h1>Example ${M}(_a_)</h1>
+          </emu-clause>
         `,
         {
           ruleId: 'header-format',
@@ -175,6 +178,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-clause id="foo">
             <h1>Example ${M}( _a_ [ , <del>_b_</del> ] )</h1>
+          </emu-clause>
         `,
         {
           ruleId: 'header-format',
@@ -262,9 +266,9 @@ describe('linting whole program', () => {
           <!--</emu-grammar>-->
         `,
         {
-          ruleId: 'missing-close-tag',
+          ruleId: 'missing-closing-tag',
           nodeType: 'emu-grammar',
-          message: 'could not find closing tag for emu-grammar',
+          message: 'element is missing its closing tag',
         }
       );
     });
@@ -277,9 +281,9 @@ describe('linting whole program', () => {
           <!--</emu-alg>-->
         `,
         {
-          ruleId: 'missing-close-tag',
+          ruleId: 'missing-closing-tag',
           nodeType: 'emu-alg',
-          message: 'could not find closing tag for emu-alg',
+          message: 'element is missing its closing tag',
         }
       );
     });

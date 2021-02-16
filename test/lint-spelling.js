@@ -572,7 +572,7 @@ windows:${M}\r
         Paragraphs with the open/close tags on their own line are OK.
       </p>
 
-      <p>Comparisons with positive zero are OK: _x_ &lt; *+0*<sub>𝔽</sub>, _x_ &le; *+0*<sub>𝔽</sub>, _x_ &gt; *+0*<sub>𝔽</sub>, _x_ &ge; *+0*<sub>𝔽</sub>
+      <p>Comparisons with positive zero are OK: _x_ &lt; *+0*<sub>𝔽</sub>, _x_ &le; *+0*<sub>𝔽</sub>, _x_ &gt; *+0*<sub>𝔽</sub>, _x_ &ge; *+0*<sub>𝔽</sub></p>
 
     `);
   });

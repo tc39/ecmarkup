@@ -47,12 +47,7 @@ export function collectAlgorithmDiagnostics(
 
     let { source: importSource } = location;
     if (location.endTag == null) {
-      report({
-        type: 'node',
-        ruleId: 'missing-close-tag',
-        message: 'could not find closing tag for emu-alg',
-        node: algorithm.element,
-      });
+      // we'll warn for this in collect-tag-diagnostics; no need to do so here
       continue;
     }
 
