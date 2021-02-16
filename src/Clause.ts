@@ -87,24 +87,6 @@ export default class Clause extends Builder {
     }
   }
 
-  buildUtils() {
-    const utilsElem = this.spec.doc.createElement('span');
-    utilsElem.setAttribute('class', 'utils');
-
-    const anchorElem = this.spec.doc.createElement('span');
-    anchorElem.setAttribute('class', 'anchor');
-    anchorElem.innerHTML = '<a href="#' + this.id + '">link</a>';
-
-    const pinElem = this.spec.doc.createElement('span');
-    pinElem.setAttribute('class', 'anchor');
-    pinElem.innerHTML = '<a href="#" class="utils-pin">pin</a>';
-
-    utilsElem.appendChild(anchorElem);
-    utilsElem.appendChild(pinElem);
-
-    this.header.appendChild(utilsElem);
-  }
-
   static async enter({ spec, node, clauseStack, clauseNumberer }: Context) {
     if (!node.id) {
       spec.warn({
@@ -132,7 +114,7 @@ export default class Clause extends Builder {
     clauseStack.push(clause);
   }
 
-  static exit({ spec, clauseStack }: Context) {
+  static exit({ node, spec, clauseStack, inAlg, currentId }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
     if (!clause.header) {
@@ -145,7 +127,23 @@ export default class Clause extends Builder {
     clause.buildHeader();
     clause.buildExamples();
     clause.buildNotes();
-    //clause.buildUtils();
+
+    if (node.hasAttribute('normative-optional')) {
+      let tag = spec.doc.createElement('div');
+      tag.className = 'normative-optional-tag';
+      let contents = spec.doc.createTextNode('Normative Optional');
+      tag.append(contents);
+      node.prepend(tag);
+
+      // we've already walked past the text node, so it won't get picked up by the usual process for autolinking
+      spec._textNodes[clause.namespace] = spec._textNodes[clause.namespace] || [];
+      spec._textNodes[clause.namespace].push({
+        node: contents,
+        clause,
+        inAlg,
+        currentId,
+      });
+    }
 
     // clauses are always at the spec-level namespace.
     spec.biblio.add(
