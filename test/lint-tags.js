@@ -31,10 +31,30 @@ describe('tags', () => {
     );
   });
 
+  it('missing closing tag', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="foo">
+          <h1>Example</h1>
+          ${M}<p>some text
+          <p>some other text</p>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'missing-closing-tag',
+        nodeType: 'p',
+        message: 'element is missing its closing tag',
+      }
+    );
+  });
+
   it('negative', async () => {
     await assertLintFree(`
       <emu-clause id="foo" oldids="bar">
         <h1>Example</h1>
+        <p>some text</p>
+        <br>
+        <p>some other text</p>
       </emu-clause>
     `);
   });

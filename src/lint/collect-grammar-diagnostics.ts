@@ -96,12 +96,7 @@ export async function collectGrammarDiagnostics(
     let { source: importSource } = grammarLoc;
 
     if (grammarLoc.endTag == null) {
-      report({
-        type: 'node',
-        ruleId: 'missing-close-tag',
-        message: 'could not find closing tag for emu-grammar',
-        node: grammarEle,
-      });
+      // we'll warn for this in collect-tag-diagnostics; no need to do so here
       continue;
     }
 

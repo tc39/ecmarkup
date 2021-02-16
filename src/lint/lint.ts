@@ -25,6 +25,10 @@ export async function lint(
   spec: Spec,
   document: Document
 ) {
+  collectSpellingDiagnostics(report, sourceText, spec.imports);
+
+  collectTagDiagnostics(report, spec, document);
+
   let collection = collectNodes(report, sourceText, spec, document);
   if (!collection.success) {
     return;
@@ -43,10 +47,6 @@ export async function lint(
   collectAlgorithmDiagnostics(report, spec, sourceText, algorithms);
 
   collectHeaderDiagnostics(report, headers);
-
-  collectSpellingDiagnostics(report, sourceText, spec.imports);
-
-  collectTagDiagnostics(report, spec, document);
 
   // Stash intermediate results for later use
   // This isn't actually necessary for linting, but we might as well avoid redoing work later when we can.
