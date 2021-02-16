@@ -166,6 +166,21 @@ toc: false
     <h2>Attributes</h2>
     <p><b>id:</b> Clause id. Must be unique.</p>
     <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
+    <p><b>normative-optional:</b> If present, the clause is Normative Optional.</p>
+
+    <h2>Example</h2>
+    <h3>Element</h3>
+    <pre><code class="language-html">
+      &lt;emu-clause id="example-normative-optional" normative-optional>
+        &lt;h1>Example Normative Optional Clause&lt;/h1>
+        &lt;p>This clause is normative optional.&lt;/p>
+      &lt;/emu-clause>
+    </code></pre>
+    <h3>Result</h3>
+    <emu-clause id="example-normative-optional" normative-optional>
+      <h1>Example Normative Optional Clause</h1>
+      <p>This clause is normative optional.</p>
+    </emu-clause>
   </emu-clause>
 
   <emu-clause id="emu-annex">
