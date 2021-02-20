@@ -1,6 +1,6 @@
 'use strict';
-let decimalBullet = Array.apply(null, Array(100)).map((a, i) => '' + (i + 1));
-let alphaBullet = Array.apply(null, Array(26)).map((a, i) =>
+let decimalBullet = Array.from({ length: 100 }, (a, i) => '' + (i + 1));
+let alphaBullet = Array.from({ length: 26 }, (a, i) =>
   String.fromCharCode('a'.charCodeAt(0) + i)
 );
 
