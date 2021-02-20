@@ -59,7 +59,7 @@ export default class Menu {
     biblioContainer.setAttribute('type', 'application/json');
     biblioContainer.id = 'menu-search-biblio';
     biblioContainer.textContent = JSON.stringify(this.spec.biblio, (k, v) =>
-      ['title', 'namespace', 'location'].includes(k) ? void 0 : v
+      ['title', 'namespace', 'location'].includes(k) ? undefined : v
     );
     this.spec.doc.head.appendChild(biblioContainer);
   }

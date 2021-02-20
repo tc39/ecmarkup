@@ -572,18 +572,10 @@ export default class Spec {
 
     if (this.opts.assets === 'none') return;
 
-    // back-compat: if we already have a link to this script or css, bail out
-    let skipJs = false,
-      skipCss = false,
-      outDir: string;
-
-    if (this.opts.outfile) {
-      outDir = path.dirname(this.opts.outfile);
-    } else {
-      outDir = process.cwd();
-    }
+    let outDir = this.opts.outfile ? path.dirname(this.opts.outfile) : process.cwd();
 
     if (this.opts.jsOut) {
+      let skipJs = false;
       const scripts = this.doc.querySelectorAll('script');
       for (let i = 0; i < scripts.length; i++) {
         const script = scripts[i];
@@ -593,9 +585,20 @@ export default class Spec {
           skipJs = true;
         }
       }
+      if (!skipJs) {
+        const script = this.doc.createElement('script');
+        script.src = path.relative(outDir, this.opts.jsOut);
+        this.doc.head.appendChild(script);
+      }
+    } else {
+      this.log('Inlining JavaScript assets...');
+      const script = this.doc.createElement('script');
+      script.textContent = jsContents;
+      this.doc.head.appendChild(script);
     }
 
     if (this.opts.cssOut) {
+      let skipCss = false;
       const links = this.doc.querySelectorAll('link[rel=stylesheet]');
       for (let i = 0; i < links.length; i++) {
         const link = links[i];
@@ -605,16 +608,20 @@ export default class Spec {
           skipCss = true;
         }
       }
-    }
+      if (!skipCss) {
+        const style = this.doc.createElement('link');
+        style.setAttribute('rel', 'stylesheet');
+        style.setAttribute('href', path.relative(outDir, this.opts.cssOut));
 
-    if (!skipJs) {
-      this.log('Inlining JavaScript assets...');
-      const script = this.doc.createElement('script');
-      script.textContent = jsContents;
-      this.doc.head.appendChild(script);
-    }
-
-    if (!skipCss) {
+        // insert early so that the document's own stylesheets can override
+        let firstLink = this.doc.head.querySelector('link[rel=stylesheet], style');
+        if (firstLink != null) {
+          this.doc.head.insertBefore(style, firstLink);
+        } else {
+          this.doc.head.appendChild(style);
+        }
+      }
+    } else {
       this.log('Inlining CSS assets...');
       const style = this.doc.createElement('style');
       style.textContent = cssContents;
