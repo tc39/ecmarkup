@@ -26,7 +26,12 @@
         "browser": true,
         "es6": true
       },
+      "parserOptions": {
+        "sourceType": "script",
+        "ecmaVersion": 2020
+      },
       "rules": {
+        "no-use-before-define": "off",
         "no-unused-vars": "error",
         "@typescript-eslint/no-unused-vars": "off"
       }
