@@ -58,7 +58,9 @@ export default class Menu {
     const biblioContainer = this.spec.doc.createElement('script');
     biblioContainer.setAttribute('type', 'application/json');
     biblioContainer.id = 'menu-search-biblio';
-    biblioContainer.textContent = JSON.stringify(this.spec.biblio);
+    biblioContainer.textContent = JSON.stringify(this.spec.biblio, (k, v) =>
+      ['title', 'namespace', 'location'].includes(k) ? void 0 : v
+    );
     this.spec.doc.head.appendChild(biblioContainer);
   }
 }
