@@ -65,6 +65,7 @@
     "prettier/prettier": "error",
     "arrow-body-style": "error",
     "prefer-arrow-callback": "error",
+    "object-shorthand": "error",
     "no-inner-declarations": "off",
     "consistent-return": "off",
     "no-floating-decimal": "error",
