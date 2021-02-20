@@ -20,6 +20,18 @@
   },
   "overrides": [
     {
+      "files": ["js/**/*"],
+      "env": {
+        "node": false,
+        "browser": true,
+        "es6": true
+      },
+      "rules": {
+        "no-unused-vars": "error",
+        "@typescript-eslint/no-unused-vars": "off"
+      }
+    },
+    {
       "files": ["test/**/*"],
       "env": {
         "mocha": true
