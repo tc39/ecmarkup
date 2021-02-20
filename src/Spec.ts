@@ -1313,7 +1313,7 @@ async function walk(walker: TreeWalker, context: Context) {
   context.tagStack.pop();
 }
 
-const jsDependencies = ['sdoMap.js', 'menu.js', 'findLocalReferences.js', 'listNumbers.js'];
+const jsDependencies = ['sdoMap.js', 'menu.js', 'listNumbers.js'];
 async function concatJs() {
   const dependencies = await Promise.all(
     jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency)))
