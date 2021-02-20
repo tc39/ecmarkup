@@ -131,7 +131,7 @@ Search.prototype.search = function (searchString) {
 
       let match = fuzzysearch(searchString, entry.key);
       if (match) {
-        results.push({ entry: entry, match: match });
+        results.push({ entry, match });
       }
     }
 
@@ -362,7 +362,7 @@ function ClauseWalker(root) {
     root,
     NodeFilter.SHOW_ELEMENT,
     {
-      acceptNode: function (node) {
+      acceptNode(node) {
         if (previous === node.parentNode) {
           return NodeFilter.FILTER_REJECT;
         } else {
@@ -640,11 +640,11 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
     return fuzzysearch(searchString.toLowerCase(), haystack.toLowerCase(), true);
   }
 
-  return { caseMatch: !caseInsensitive, chunks: chunks, prefix: j <= qlen };
+  return { caseMatch: !caseInsensitive, chunks, prefix: j <= qlen };
 }
 
 let Toolbox = {
-  init: function () {
+  init() {
     this.$outer = document.createElement('div');
     this.$outer.classList.add('toolbox-container');
     this.$container = document.createElement('div');
@@ -674,7 +674,7 @@ let Toolbox = {
     document.body.appendChild(this.$outer);
   },
 
-  activate: function (el, entry, target) {
+  activate(el, entry, target) {
     if (el === this._activeEl) return;
     sdoBox.deactivate();
     this.active = true;
@@ -692,15 +692,15 @@ let Toolbox = {
     }
   },
 
-  updatePermalink: function () {
+  updatePermalink() {
     this.$permalink.setAttribute('href', '#' + this.entry.id);
   },
 
-  updateReferences: function () {
+  updateReferences() {
     this.$refsLink.textContent = 'References (' + this.entry.referencingIds.length + ')';
   },
 
-  activateIfMouseOver: function (e) {
+  activateIfMouseOver(e) {
     let ref = this.findReferenceUnder(e.target);
     if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
       let entry = menu.search.biblio.byId[ref.id];
@@ -713,7 +713,7 @@ let Toolbox = {
     }
   },
 
-  findReferenceUnder: function (el) {
+  findReferenceUnder(el) {
     while (el) {
       let parent = el.parentNode;
       if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
@@ -756,7 +756,7 @@ let Toolbox = {
     }
   },
 
-  deactivate: function () {
+  deactivate() {
     this.$outer.classList.remove('active');
     this._activeEl = null;
     this.active = false;
@@ -764,7 +764,7 @@ let Toolbox = {
 };
 
 let referencePane = {
-  init: function () {
+  init() {
     this.$container = document.createElement('div');
     this.$container.setAttribute('id', 'references-pane-container');
 
@@ -805,15 +805,15 @@ let referencePane = {
     menu.$specContainer.appendChild(this.$container);
   },
 
-  activate: function () {
+  activate() {
     this.$container.classList.add('active');
   },
 
-  deactivate: function () {
+  deactivate() {
     this.$container.classList.remove('active');
   },
 
-  showReferencesFor: function (entry) {
+  showReferencesFor(entry) {
     this.activate();
     this.$headerText.textContent = 'References to ';
     let newBody = document.createElement('tbody');
@@ -828,7 +828,7 @@ let referencePane = {
         let target = document.getElementById(id);
         let cid = findParentClauseId(target);
         let clause = menu.search.biblio.byId[cid];
-        return { id: id, clause: clause };
+        return { id, clause };
       })
       .sort((a, b) => sortByClauseNumber(a.clause, b.clause))
       .forEach(record => {
@@ -851,7 +851,7 @@ let referencePane = {
     this.$table.appendChild(this.$tableBody);
   },
 
-  showSDOs: function (sdos, alternativeId) {
+  showSDOs(sdos, alternativeId) {
     this.activate();
     let rhs = document.getElementById(alternativeId);
     let parentName = rhs.parentNode.getAttribute('name');

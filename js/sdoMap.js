@@ -1,6 +1,6 @@
 'use strict';
 let sdoBox = {
-  init: function () {
+  init() {
     this.$alternativeId = null;
     this.$outer = document.createElement('div');
     this.$outer.classList.add('toolbox-container');
@@ -19,7 +19,7 @@ let sdoBox = {
     document.body.appendChild(this.$outer);
   },
 
-  activate: function (el) {
+  activate(el) {
     clearTimeout(this.deactiveTimeout);
     Toolbox.deactivate();
     this.$alternativeId = el.id;
@@ -34,7 +34,7 @@ let sdoBox = {
     }
   },
 
-  deactivate: function () {
+  deactivate() {
     clearTimeout(this.deactiveTimeout);
     this.$outer.classList.remove('active');
   },
