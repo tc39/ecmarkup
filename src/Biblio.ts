@@ -217,7 +217,7 @@ export interface BiblioEntryBase {
   location?: string;
   namespace?: string;
   id?: string;
-  aoid?: string;
+  aoid?: string | null;
   refId?: string;
   clauseId?: string;
   name?: string;
@@ -245,7 +245,7 @@ export interface ProductionBiblioEntry extends BiblioEntryBase {
 export interface ClauseBiblioEntry extends BiblioEntryBase {
   type: 'clause';
   id: string;
-  aoid: string;
+  aoid: string | null;
   title: string;
   titleHTML: string;
   number: string | number;

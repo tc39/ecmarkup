@@ -21,7 +21,7 @@ import Example from './Example';
 import Figure from './Figure';
 import Note from './Note';
 import Toc from './Toc';
-import Menu from './Menu';
+import makeMenu from './Menu';
 import Production from './Production';
 import NonTerminal from './NonTerminal';
 import ProdRef from './ProdRef';
@@ -83,7 +83,6 @@ export default interface Spec {
   rootPath: string;
   rootDir: string;
   namespace: string;
-  toHTML(): string;
   exportBiblio(): any;
 }
 
@@ -268,6 +267,7 @@ export default class Spec {
   labeledStepsToBeRectified: Set<string>;
   replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
+  generatedFiles: Map<string | null, string>;
   log: (msg: string) => void;
   warn: (err: Warning) => void | undefined;
 
@@ -282,6 +282,7 @@ export default class Spec {
   }[];
   _prodRefs: ProdRef[];
   _textNodes: { [s: string]: [TextNodeContext] };
+  refsByClause: { [refId: string]: [string] };
 
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
 
@@ -311,6 +312,7 @@ export default class Spec {
     this.labeledStepsToBeRectified = new Set();
     this.replacementAlgorithms = [];
     this.cancellationToken = token;
+    this.generatedFiles = new Map();
     this.log = opts.log ?? (() => {});
     this.warn = opts.warn ? wrapWarn(sourceText!, this, opts.warn) : () => {};
     this._figureCounts = {
@@ -322,6 +324,7 @@ export default class Spec {
     this._ntStringRefs = [];
     this._prodRefs = [];
     this._textNodes = {};
+    this.refsByClause = Object.create(null);
 
     this.processMetadata();
     Object.assign(this.opts, opts);
@@ -456,8 +459,9 @@ export default class Spec {
 
     this.highlightCode();
     this.setCharset();
-    this.buildSpecWrapper();
+    let wrapper = this.buildSpecWrapper();
 
+    let tocEles: HTMLElement[] = [];
     let tocJs = '';
     if (this.opts.toc) {
       this.log('Building table of contents...');
@@ -465,16 +469,31 @@ export default class Spec {
       if (this.opts.oldToc) {
         new Toc(this).build();
       } else {
-        tocJs = new Menu(this).build();
+        ({ js: tocJs, eles: tocEles } = makeMenu(this));
       }
     }
+    for (let ele of tocEles) {
+      this.doc.body.insertBefore(ele, this.doc.body.firstChild);
+    }
 
-    await this.buildAssets(sdoJs, tocJs);
+    const jsContents = await concatJs(sdoJs, tocJs);
+    const jsSha = sha(jsContents);
+
+    if (this.opts.multipage) {
+      await this.buildMultipage(wrapper, tocEles, jsSha);
+    }
+
+    await this.buildAssets(jsContents, jsSha);
+
+    const file = this.opts.multipage
+      ? path.resolve(this.opts.outfile!, 'index.html')
+      : this.opts.outfile ?? null;
+    this.generatedFiles.set(file, this.toHTML());
 
     return this;
   }
 
-  public toHTML() {
+  private toHTML() {
     let htmlEle = this.doc.documentElement;
     return '<!doctype html>\n' + (htmlEle.hasAttributes() ? htmlEle.outerHTML : htmlEle.innerHTML);
   }
@@ -523,6 +542,26 @@ export default class Spec {
   }
 
   private buildReferenceGraph() {
+    const refToClause = this.refsByClause;
+    let setParent = (node: Element) => {
+      let pointer: Node | null = node;
+      while (pointer && !['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'].includes(pointer.nodeName)) {
+        pointer = pointer.parentNode;
+      }
+      // @ts-ignore
+      if (pointer == null || pointer.id == null) {
+        // @ts-ignore
+        pointer = { id: 'sec-intro' };
+      }
+      // @ts-ignore
+      if (refToClause[pointer.id] == null) {
+        // @ts-ignore
+        refToClause[pointer.id] = [];
+      }
+      // @ts-ignore
+      refToClause[pointer.id].push(node.id);
+    };
+
     let counter = 0;
     this._xrefs.forEach(xref => {
       let entry = xref.entry;
@@ -537,6 +576,7 @@ export default class Spec {
         xref.node.setAttribute('id', id);
         xref.id = id;
       }
+      setParent(xref.node);
 
       entry.referencingIds.push(xref.id);
     });
@@ -550,27 +590,248 @@ export default class Spec {
 
       const id = `_ref_${counter++}`;
       prod.node.setAttribute('id', id);
+      setParent(prod.node);
+
       entry.referencingIds.push(id);
     });
   }
 
-  private async buildAssets(...extras: string[]) {
-    const jsContents = await concatJs(...extras);
+  private checkValidSectionId(ele: Element) {
+    if (!ele.id.startsWith('sec-')) {
+      this.warn({
+        type: 'node',
+        ruleId: 'top-level-section-id',
+        message: 'When using --multipage, top-level sections must have ids beginning with `sec-`',
+        node: ele,
+      });
+      return false;
+    }
+    if (!/^[A-Za-z0-9-_]+$/.test(ele.id)) {
+      this.warn({
+        type: 'node',
+        ruleId: 'top-level-section-id',
+        message:
+          'When using --multipage, top-level sections must have ids matching /^[A-Za-z0-9-_]+$/',
+        node: ele,
+      });
+      return false;
+    }
+    return true;
+  }
+
+  private async buildMultipage(wrapper: Element, tocEles: Element[], jsSha: string) {
+    let stillIntro = true;
+    let introEles = [];
+    let sections: { name: string; eles: Element[] }[] = [];
+    let containedIdToSection: Map<string, string> = new Map();
+    let sectionToContainedIds: Map<string, string[]> = new Map();
+    let clauseTypes = ['EMU-ANNEX', 'EMU-CLAUSE'];
+    // @ts-ignore
+    for (let child of wrapper.children) {
+      if (stillIntro) {
+        if (clauseTypes.includes(child.nodeName)) {
+          throw new Error('cannot make multipage build without intro');
+        } else if (child.nodeName === 'EMU-INTRO') {
+          stillIntro = false;
+
+          if (child.id == null) {
+            this.warn({
+              type: 'node',
+              ruleId: 'top-level-section-id',
+              message: 'When using --multipage, top-level sections must have ids',
+              node: child,
+            });
+            continue;
+          }
+          if (child.id !== 'sec-intro') {
+            this.warn({
+              type: 'node',
+              ruleId: 'top-level-section-id',
+              message: 'When using --multipage, the introduction must have id "emu-intro"',
+              node: child,
+            });
+            continue;
+          }
+
+          introEles.push(child);
+          sections.push({ name: child.id.substring(4), eles: introEles });
+
+          let contained: string[] = [];
+          sectionToContainedIds.set(child.id.substring(4), contained);
+
+          for (let item of introEles) {
+            if (item.id) {
+              contained.push(item.id);
+              containedIdToSection.set(item.id, child.id.substring(4));
+            }
+          }
+
+          // @ts-ignore
+          for (let item of [...introEles].flatMap(e => [...e.querySelectorAll('[id]')])) {
+            contained.push(item.id);
+            containedIdToSection.set(item.id, child.id.substring(4));
+          }
+        } else {
+          introEles.push(child);
+        }
+      } else {
+        if (!clauseTypes.includes(child.nodeName)) {
+          throw new Error('non-clause children are not yet implemented: ' + child.nodeName);
+        }
+        if (child.id == null) {
+          this.warn({
+            type: 'node',
+            ruleId: 'top-level-section-id',
+            message: 'When using --multipage, top-level sections must have ids',
+            node: child,
+          });
+          continue;
+        }
+        if (!this.checkValidSectionId(child)) {
+          continue;
+        }
+
+        let contained: string[] = [];
+        sectionToContainedIds.set(child.id.substring(4), contained);
+
+        contained.push(child.id);
+        containedIdToSection.set(child.id, child.id.substring(4));
+
+        // @ts-ignore
+        for (let item of child.querySelectorAll('[id]')) {
+          contained.push(item.id);
+          containedIdToSection.set(item.id, child.id.substring(4));
+        }
+        sections.push({ name: child.id.substring(4), eles: [child] });
+      }
+    }
+
+    let htmlEle = '';
+    if (this.doc.documentElement.hasAttributes()) {
+      let clonedHtmlEle = this.doc.documentElement.cloneNode(false) as HTMLElement;
+      clonedHtmlEle.innerHTML = '';
+      let src = clonedHtmlEle.outerHTML!;
+      htmlEle = src.substring(0, src.length - '<head></head><body></body></html>'.length);
+    }
+
+    let head = this.doc.head.cloneNode(true) as Element;
+    const style = this.doc.createElement('link');
+    style.setAttribute('rel', 'stylesheet');
+    style.setAttribute('href', '../ecmarkup.css');
+
+    // insert early so that the document's own stylesheets can override
+    let firstLink = head.querySelector('link[rel=stylesheet], style');
+    if (firstLink != null) {
+      head.insertBefore(style, firstLink);
+    } else {
+      head.appendChild(style);
+    }
+
+    const script = this.doc.createElement('script');
+    script.src = '../ecmarkup.js?cache=' + jsSha;
+    script.setAttribute('defer', '');
+    head.appendChild(script);
+
+    const containedMap = JSON.stringify(Object.fromEntries(sectionToContainedIds)).replace(
+      /[\\`$]/g,
+      '\\$&'
+    );
+    let multipageJsContents = `'use strict';
+let multipageMap = JSON.parse(\`${containedMap}\`);
+${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
+`;
+    this.generatedFiles.set(
+      path.resolve(this.opts.outfile!, 'multipage/multipage.js'),
+      multipageJsContents
+    );
+
+    const multipageScript = this.doc.createElement('script');
+    multipageScript.src = 'multipage.js?cache=' + sha(multipageJsContents);
+    multipageScript.setAttribute('defer', '');
+    head.appendChild(multipageScript);
+
+    if (!sections.some(({ name }) => name === 'index')) {
+      let placeholder = this.doc.createElement('p');
+      placeholder.innerHTML =
+        'This page serves as an index. If you are not automatically redirected, you can navigate to the actual specification by using the table of contents on the left.';
+      let indexRedrectScript = this.doc.createElement('script');
+      indexRedrectScript.textContent = `if (!location.hash) location = 'intro.html';`;
+      sections.push({
+        name: 'index',
+        eles: [placeholder, indexRedrectScript],
+      });
+    }
+
+    for (let { name, eles } of sections) {
+      this.log(`Generating section ${name}...`);
+      let tocClone = tocEles.map(e => e.cloneNode(true));
+      let clones = eles.map(e => e.cloneNode(true));
+      // @ts-ignore
+      let links = tocClone.concat(clones).flatMap(e => [...e.querySelectorAll('a')]);
+      for (let link of links) {
+        if (!link.host && !link.pathName && link.hash) {
+          let p = link.hash.substring(1);
+          if (!containedIdToSection.has(p)) {
+            try {
+              p = decodeURIComponent(p);
+            } catch {
+              // pass
+            }
+            if (!containedIdToSection.has(p)) {
+              this.warn({
+                type: 'node',
+                ruleId: 'multipage-link-target',
+                message: 'could not find appropriate section for ' + link.hash,
+                node: link,
+              });
+              continue;
+            }
+          }
+          let targetSec = containedIdToSection.get(p)!;
+          link.href = targetSec + '.html' + link.hash;
+        }
+      }
+      // @ts-ignore
+      for (let img of tocClone.concat(clones).flatMap(e => [...e.querySelectorAll('img')])) {
+        if (!/^(http:|https:|:|\/)/.test(img.src)) {
+          img.src = '../' + img.src;
+        }
+      }
+      // prettier-ignore
+      // @ts-ignore
+      for (let object of tocClone.concat(clones).flatMap(e => [...e.querySelectorAll('object[data]')])) {
+        if (!/^(http:|https:|:|\/)/.test(object.data)) {
+          object.data = '../' + object.data;
+        }
+      }
+      // @ts-ignore
+      let tocHTML = tocClone.map(e => e.outerHTML).join('\n');
+      // @ts-ignore
+      let clonesHTML = clones.map(e => e.outerHTML).join('\n');
+      let content = `<!doctype html>${htmlEle}\n${head.outerHTML}\n<body>${tocHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
+
+      this.generatedFiles.set(path.resolve(this.opts.outfile!, `multipage/${name}.html`), content);
+    }
+  }
+
+  private async buildAssets(jsContents: string, jsSha: string) {
     const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
 
     if (this.opts.jsOut) {
-      this.log(`Writing js file to ${this.opts.jsOut}...`);
-      await utils.writeFile(this.opts.jsOut, jsContents);
+      this.generatedFiles.set(this.opts.jsOut, jsContents);
     }
 
     if (this.opts.cssOut) {
-      this.log(`Writing css file to ${this.opts.cssOut}...`);
-      await utils.writeFile(this.opts.cssOut, cssContents);
+      this.generatedFiles.set(this.opts.cssOut, cssContents);
     }
 
     if (this.opts.assets === 'none') return;
 
-    let outDir = this.opts.outfile ? path.dirname(this.opts.outfile) : process.cwd();
+    let outDir = this.opts.outfile
+      ? this.opts.multipage
+        ? this.opts.outfile
+        : path.dirname(this.opts.outfile)
+      : process.cwd();
 
     if (this.opts.jsOut) {
       let skipJs = false;
@@ -585,7 +846,7 @@ export default class Spec {
       }
       if (!skipJs) {
         const script = this.doc.createElement('script');
-        script.src = path.relative(outDir, this.opts.jsOut) + '?cache=' + sha(jsContents);
+        script.src = path.relative(outDir, this.opts.jsOut) + '?cache=' + jsSha;
         script.setAttribute('defer', '');
         this.doc.head.appendChild(script);
       }
@@ -638,6 +899,8 @@ export default class Spec {
     }
 
     this.doc.body.appendChild(wrapper);
+
+    return wrapper;
   }
 
   private processMetadata() {
@@ -1314,7 +1577,7 @@ async function concatJs(...extras: string[]) {
     jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency)))
   );
   dependencies = dependencies.concat(extras);
-  return dependencies.reduce((js, dependency) => js + '\n' + dependency, '');
+  return dependencies.join('\n');
 }
 
 // todo move this to utils maybe

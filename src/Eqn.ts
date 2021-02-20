@@ -1,4 +1,3 @@
-import type Spec from './Spec';
 import type { AlgorithmBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
@@ -8,42 +7,35 @@ import * as utils from './utils';
 
 /*@internal*/
 export default class Eqn extends Builder {
-  aoid: string | null;
-  clauseId: string | null;
-  id: string | null;
-
-  constructor(spec: Spec, node: HTMLElement, clauseId: string) {
-    super(spec, node);
-    this.aoid = node.getAttribute('aoid');
-    this.clauseId = clauseId;
-    this.id = node.getAttribute('id');
-
-    if (this.aoid) {
-      if (this.id) {
-        this.spec.biblio.add(<AlgorithmBiblioEntry>{
-          type: 'op',
-          aoid: this.aoid,
-          id: this.id,
-          referencingIds: [],
-        });
-      } else {
-        this.spec.biblio.add(<AlgorithmBiblioEntry>{
-          type: 'op',
-          aoid: this.aoid,
-          refId: this.clauseId,
-          referencingIds: [],
-        });
-      }
-    }
+  // @ts-ignore
+  constructor() {
+    throw new Error('not actually constructible');
   }
 
   static async enter(context: Context) {
     const { spec, node, clauseStack } = context;
-    const clause = clauseStack[clauseStack.length - 1];
-    const id = clause ? clause.id : ''; // TODO: no eqns outside of clauses, eh?
 
-    // TODO: this value is unused, but apparently it has side effects. Removing this line removes emu-xrefs
-    new Eqn(spec, node, id);
+    let aoid = node.getAttribute('aoid');
+    if (aoid) {
+      let id = node.getAttribute('id');
+      if (id) {
+        spec.biblio.add(<AlgorithmBiblioEntry>{
+          type: 'op',
+          aoid,
+          id,
+          referencingIds: [],
+        });
+      } else {
+        const clause = clauseStack[clauseStack.length - 1];
+        const clauseId = clause ? clause.id : ''; // TODO: no eqns outside of clauses, eh?
+        spec.biblio.add(<AlgorithmBiblioEntry>{
+          type: 'op',
+          aoid,
+          refId: clauseId,
+          referencingIds: [],
+        });
+      }
+    }
 
     let contents;
     try {
