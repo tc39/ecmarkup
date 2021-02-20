@@ -205,14 +205,7 @@ Search.prototype.displayResults = function (results) {
       }
 
       if (text) {
-        html +=
-          '<li class=menu-search-result-' +
-          cssClass +
-          '><a href="#' +
-          id +
-          '">' +
-          text +
-          '</a></li>';
+        html += `<li class=menu-search-result-${cssClass}><a href="#${id}">${text}</a></li>`;
       }
     });
 
@@ -425,10 +418,9 @@ Menu.prototype.addPinEntry = function (id) {
     } else {
       prefix = '';
     }
-    this.$pinList.innerHTML +=
-      '<li><a href="#' + entry.id + '">' + prefix + entry.titleHTML + '</a></li>';
+    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${prefix}${entry.titleHTML}</a></li>`;
   } else {
-    this.$pinList.innerHTML += '<li><a href="#' + entry.id + '">' + entry.key + '</a></li>';
+    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${entry.key}</a></li>`;
   }
 
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -439,7 +431,7 @@ Menu.prototype.addPinEntry = function (id) {
 };
 
 Menu.prototype.removePinEntry = function (id) {
-  let item = this.$pinList.querySelector('a[href="#' + id + '"]').parentNode;
+  let item = this.$pinList.querySelector(`a[href="#${id}"]`).parentNode;
   this.$pinList.removeChild(item);
   delete this._pinnedIds[id];
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -697,7 +689,7 @@ let Toolbox = {
   },
 
   updateReferences() {
-    this.$refsLink.textContent = 'References (' + this.entry.referencingIds.length + ')';
+    this.$refsLink.textContent = `References (${this.entry.referencingIds.length})`;
   },
 
   activateIfMouseOver(e) {
@@ -833,14 +825,14 @@ let referencePane = {
       .sort((a, b) => sortByClauseNumber(a.clause, b.clause))
       .forEach(record => {
         if (previousId === record.clause.id) {
-          previousCell.innerHTML += ' (<a href="#' + record.id + '">' + (dupCount + 2) + '</a>)';
+          previousCell.innerHTML += ` (<a href="#${record.id}">${dupCount + 2}</a>)`;
           dupCount++;
         } else {
           let row = newBody.insertRow();
           let cell = row.insertCell();
           cell.innerHTML = record.clause.number;
           cell = row.insertCell();
-          cell.innerHTML = '<a href="#' + record.id + '">' + record.clause.titleHTML + '</a>';
+          cell.innerHTML = `<a href="#${record.id}">${record.clause.titleHTML}</a>`;
           previousCell = cell;
           previousId = record.clause.id;
           dupCount = 0;
@@ -867,14 +859,7 @@ let referencePane = {
       e.parentNode.replaceChild(document.createTextNode(e.textContent), e);
     });
 
-    this.$headerText.innerHTML =
-      'Syntax-Directed Operations for<br><a href="#' +
-      alternativeId +
-      '" class="menu-pane-header-production"><emu-nt>' +
-      parentName +
-      '</emu-nt> ' +
-      colons.outerHTML +
-      ' </a>';
+    this.$headerText.innerHTML = `Syntax-Directed Operations for<br><a href="#${alternativeId}" class="menu-pane-header-production"><emu-nt>${parentName}</emu-nt> ${colons.outerHTML} </a>`;
     this.$headerText.querySelector('a').append(rhs);
     this.$headerRefId.style.display = 'none';
     let newBody = document.createElement('tbody');
