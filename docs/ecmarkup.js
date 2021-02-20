@@ -1026,10 +1026,8 @@ document.addEventListener('DOMContentLoaded', () => {
   referencePane.init();
 });
 'use strict';
-let decimalBullet = Array.apply(null, Array(100)).map((a, i) => '' + (i + 1));
-let alphaBullet = Array.apply(null, Array(26)).map((a, i) =>
-  String.fromCharCode('a'.charCodeAt(0) + i)
-);
+let decimalBullet = Array.from({ length: 100 }, (a, i) => '' + (i + 1));
+let alphaBullet = Array.from({ length: 26 }, (a, i) => String.fromCharCode('a'.charCodeAt(0) + i));
 
 // prettier-ignore
 let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
