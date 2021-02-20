@@ -456,7 +456,6 @@ export default class Spec {
 
     this.highlightCode();
     this.setCharset();
-    this.setFirstH1Class();
     this.buildSpecWrapper();
 
     if (this.opts.toc) {
@@ -732,25 +731,6 @@ export default class Spec {
       const result = hljs.highlight(lang, input);
       codes[i].innerHTML = result.value;
       codes[i].setAttribute('class', classAttr + ' hljs');
-    }
-  }
-
-  // if there is no text between body start and the first H1, the first H1 is given a class of "first"
-  private setFirstH1Class() {
-    const document = this.spec.doc;
-    const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
-    let node = walker.currentNode;
-    while (node) {
-      if (node.nodeType === 3 && node.textContent!.trim().length > 0) {
-        return;
-      }
-
-      if (walker.currentNode.nodeType === 1 && walker.currentNode.nodeName === 'H1') {
-        (node as HTMLElement).classList.add('first');
-        return;
-      }
-
-      node = walker.nextNode()!;
     }
   }
 
