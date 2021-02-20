@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sdoBox.activate(this);
     });
 
-    node.addEventListener('pointerleave', e => {
+    node.addEventListener('pointerleave', () => {
       sdoBox.deactiveTimeout = setTimeout(() => {
         if (!insideTooltip) {
           sdoBox.deactivate();
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
   );
 });
 
-var sdoMap = {};
+let sdoMap = {};
 document.addEventListener('DOMContentLoaded', () => {
   let sdoMapContainer = document.getElementById('sdo-map');
   if (sdoMapContainer == null) {

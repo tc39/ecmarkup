@@ -65,7 +65,7 @@ Search.prototype.searchBoxKeyup = function (e) {
   this.search(e.target.value);
 };
 
-Search.prototype.triggerSearch = function (e) {
+Search.prototype.triggerSearch = function () {
   if (this.menu.isVisible()) {
     this._closeAfterSearch = false;
   } else {
@@ -81,7 +81,7 @@ Search.prototype.triggerSearch = function (e) {
 // bits 1-7: 127 - length of the entry
 // General scheme: prefer case sensitive matches with fewer chunks, and otherwise
 // prefer shorter matches.
-function relevance(result, searchString) {
+function relevance(result) {
   let relevance = 0;
 
   relevance = Math.max(0, 8 - result.match.chunks) << 7;
@@ -115,7 +115,7 @@ Search.prototype.search = function (searchString) {
 
   let results;
 
-  if (/^[\d\.]*$/.test(searchString)) {
+  if (/^[\d.]*$/.test(searchString)) {
     results = this.biblio.clauses
       .filter(clause => clause.number.substring(0, searchString.length) === searchString)
       .map(clause => ({ entry: clause }));
@@ -246,7 +246,7 @@ function Menu() {
 
   // toc expansion
   let tocItems = this.$menu.querySelectorAll('#menu-toc li');
-  for (var i = 0; i < tocItems.length; i++) {
+  for (let i = 0; i < tocItems.length; i++) {
     let $item = tocItems[i];
     $item.addEventListener(
       'click',
@@ -259,7 +259,7 @@ function Menu() {
 
   // close toc on toc item selection
   let tocLinks = this.$menu.querySelectorAll('#menu-toc li > a');
-  for (var i = 0; i < tocLinks.length; i++) {
+  for (let i = 0; i < tocLinks.length; i++) {
     let $link = tocLinks[i];
     $link.addEventListener('click', event => {
       this.toggle();
@@ -305,17 +305,17 @@ Menu.prototype.setActiveClause = function (clause) {
 };
 
 Menu.prototype.revealInToc = function (path) {
-  var current = this.$toc.querySelectorAll('li.revealed');
-  for (var i = 0; i < current.length; i++) {
+  let current = this.$toc.querySelectorAll('li.revealed');
+  for (let i = 0; i < current.length; i++) {
     current[i].classList.remove('revealed');
     current[i].classList.remove('revealed-leaf');
   }
 
-  var current = this.$toc;
+  current = this.$toc;
   let index = 0;
   while (index < path.length) {
     let children = current.children;
-    for (var i = 0; i < children.length; i++) {
+    for (let i = 0; i < children.length; i++) {
       if ('#' + path[index].id === children[i].children[1].getAttribute('href')) {
         children[i].classList.add('revealed');
         if (index === path.length - 1) {
@@ -341,7 +341,7 @@ Menu.prototype.revealInToc = function (path) {
 function findActiveClause(root, path) {
   let clauses = new ClauseWalker(root);
   let $clause;
-  var path = path || [];
+  path = path || [];
 
   while (($clause = clauses.nextNode())) {
     let rect = $clause.getBoundingClientRect();
@@ -618,7 +618,8 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
     }
   }
 
-  outer: for (var i = 0, j = 0; i < qlen; i++) {
+  let j = 0;
+  outer: for (let i = 0; i < qlen; i++) {
     let nch = searchString[i];
     while (j < tlen) {
       let targetChar = haystack[j++];
@@ -642,7 +643,7 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
   return { caseMatch: !caseInsensitive, chunks: chunks, prefix: j <= qlen };
 }
 
-var Toolbox = {
+let Toolbox = {
   init: function () {
     this.$outer = document.createElement('div');
     this.$outer.classList.add('toolbox-container');
@@ -762,7 +763,7 @@ var Toolbox = {
   },
 };
 
-var referencePane = {
+let referencePane = {
   init: function () {
     this.$container = document.createElement('div');
     this.$container.setAttribute('id', 'references-pane-container');
@@ -784,7 +785,7 @@ var referencePane = {
     this.$header.appendChild(this.$headerRefId);
     this.$closeButton = document.createElement('span');
     this.$closeButton.setAttribute('id', 'references-pane-close');
-    this.$closeButton.addEventListener('click', e => {
+    this.$closeButton.addEventListener('click', () => {
       this.deactivate();
     });
     this.$header.appendChild(this.$closeButton);
@@ -830,7 +831,7 @@ var referencePane = {
         return { id: id, clause: clause };
       })
       .sort((a, b) => sortByClauseNumber(a.clause, b.clause))
-      .forEach((record, i) => {
+      .forEach(record => {
         if (previousId === record.clause.id) {
           previousCell.innerHTML += ' (<a href="#' + record.id + '">' + (dupCount + 2) + '</a>)';
           dupCount++;
@@ -865,7 +866,6 @@ var referencePane = {
     rhs.querySelectorAll('a').forEach(e => {
       e.parentNode.replaceChild(document.createTextNode(e.textContent), e);
     });
-    let text = parentName + ' : ' + rhs.textContent.replace(/\s+/g, ' ');
 
     this.$headerText.innerHTML =
       'Syntax-Directed Operations for<br><a href="#' +
@@ -911,17 +911,17 @@ function findParentClauseId(node) {
   return node.getAttribute('id');
 }
 
-function sortByClauseNumber(c1, c2) {
-  let c1c = c1.number.split('.');
-  let c2c = c2.number.split('.');
+function sortByClauseNumber(clause1, clause2) {
+  let c1c = clause1.number.split('.');
+  let c2c = clause2.number.split('.');
 
   for (let i = 0; i < c1c.length; i++) {
     if (i >= c2c.length) {
       return 1;
     }
 
-    var c1 = c1c[i];
-    var c2 = c2c[i];
+    let c1 = c1c[i];
+    let c2 = c2c[i];
     let c1cn = Number(c1);
     let c2cn = Number(c2);
 

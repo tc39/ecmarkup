@@ -32,8 +32,15 @@
       },
       "rules": {
         "no-use-before-define": "off",
+        "no-redeclare": "off",
         "no-unused-vars": "error",
         "@typescript-eslint/no-unused-vars": "off"
+      },
+      "globals": {
+        "debounce": "writable",
+        "referencePane": "writable",
+        "sdoBox": "writable",
+        "Toolbox": "writable"
       }
     },
     {
