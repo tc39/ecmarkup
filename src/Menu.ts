@@ -55,12 +55,10 @@ export default class Menu {
 
     this.spec.doc.body.insertBefore(menuToggle, this.spec.doc.body.firstChild);
 
-    const biblioContainer = this.spec.doc.createElement('script');
-    biblioContainer.setAttribute('type', 'application/json');
-    biblioContainer.id = 'menu-search-biblio';
-    biblioContainer.textContent = JSON.stringify(this.spec.biblio, (k, v) =>
+    const json = JSON.stringify(this.spec.biblio, (k, v) =>
       ['title', 'namespace', 'location'].includes(k) ? undefined : v
     );
-    this.spec.doc.head.appendChild(biblioContainer);
+
+    return `let biblio = JSON.parse(\`${json.replace(/[\\`$]/g, '\\$&')}\`);`;
   }
 }

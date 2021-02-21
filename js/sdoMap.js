@@ -41,6 +41,10 @@ let sdoBox = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (typeof sdoMap == 'undefined') {
+    console.error('could not find sdo map');
+    return;
+  }
   sdoBox.init();
 
   let insideTooltip = false;
@@ -75,14 +79,4 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     })
   );
-});
-
-let sdoMap = {};
-document.addEventListener('DOMContentLoaded', () => {
-  let sdoMapContainer = document.getElementById('sdo-map');
-  if (sdoMapContainer == null) {
-    console.error('could not find SDO map container');
-  } else {
-    sdoMap = JSON.parse(sdoMapContainer.textContent);
-  }
 });

@@ -37,6 +37,8 @@
         "@typescript-eslint/no-unused-vars": "off"
       },
       "globals": {
+        "sdoMap": "readonly",
+        "biblio": "readonly",
         "debounce": "writable",
         "referencePane": "writable",
         "sdoBox": "writable",

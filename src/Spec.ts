@@ -423,7 +423,7 @@ export default class Spec {
 
     await walk(walker, context);
 
-    this.generateSDOMap();
+    const sdoJs = this.generateSDOMap();
 
     this.setReplacementAlgorithmOffsets();
 
@@ -458,20 +458,18 @@ export default class Spec {
     this.setCharset();
     this.buildSpecWrapper();
 
+    let tocJs = '';
     if (this.opts.toc) {
       this.log('Building table of contents...');
 
-      let toc: Toc | Menu;
       if (this.opts.oldToc) {
-        toc = new Toc(this);
+        new Toc(this).build();
       } else {
-        toc = new Menu(this);
+        tocJs = new Menu(this).build();
       }
-
-      toc.build();
     }
 
-    await this.buildAssets();
+    await this.buildAssets(sdoJs, tocJs);
 
     return this;
   }
@@ -556,8 +554,8 @@ export default class Spec {
     });
   }
 
-  private async buildAssets() {
-    const jsContents = await concatJs();
+  private async buildAssets(...extras: string[]) {
+    const jsContents = await concatJs(...extras);
     const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
 
     if (this.opts.jsOut) {
@@ -1050,11 +1048,8 @@ export default class Spec {
       }
     }
 
-    let sdoMapContainer = this.doc.createElement('script');
-    sdoMapContainer.setAttribute('type', 'application/json');
-    sdoMapContainer.id = 'sdo-map';
-    sdoMapContainer.textContent = JSON.stringify(sdoMap);
-    this.doc.head.appendChild(sdoMapContainer);
+    const json = JSON.stringify(sdoMap);
+    return `let sdoMap = JSON.parse(\`${json.replace(/[\\`$]/g, '\\$&')}\`);`;
   }
 
   private setReplacementAlgorithmOffsets() {
@@ -1314,11 +1309,12 @@ async function walk(walker: TreeWalker, context: Context) {
 }
 
 const jsDependencies = ['sdoMap.js', 'menu.js', 'listNumbers.js'];
-async function concatJs() {
-  const dependencies = await Promise.all(
+async function concatJs(...extras: string[]) {
+  let dependencies = await Promise.all(
     jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency)))
   );
-  return dependencies.reduce((js, dependency) => js + dependency, '');
+  dependencies = dependencies.concat(extras);
+  return dependencies.reduce((js, dependency) => js + '\n' + dependency, '');
 }
 
 // todo move this to utils maybe
