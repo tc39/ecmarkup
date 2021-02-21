@@ -585,7 +585,7 @@ export default class Spec {
       }
       if (!skipJs) {
         const script = this.doc.createElement('script');
-        script.src = path.relative(outDir, this.opts.jsOut);
+        script.src = path.relative(outDir, this.opts.jsOut) + '?cache=' + sha(jsContents);
         script.setAttribute('defer', '');
         this.doc.head.appendChild(script);
       }
