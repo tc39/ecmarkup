@@ -456,7 +456,6 @@ export default class Spec {
 
     this.highlightCode();
     this.setCharset();
-    this.setFirstH1Class();
     this.buildSpecWrapper();
 
     if (this.opts.toc) {
@@ -573,18 +572,10 @@ export default class Spec {
 
     if (this.opts.assets === 'none') return;
 
-    // back-compat: if we already have a link to this script or css, bail out
-    let skipJs = false,
-      skipCss = false,
-      outDir: string;
-
-    if (this.opts.outfile) {
-      outDir = path.dirname(this.opts.outfile);
-    } else {
-      outDir = process.cwd();
-    }
+    let outDir = this.opts.outfile ? path.dirname(this.opts.outfile) : process.cwd();
 
     if (this.opts.jsOut) {
+      let skipJs = false;
       const scripts = this.doc.querySelectorAll('script');
       for (let i = 0; i < scripts.length; i++) {
         const script = scripts[i];
@@ -594,9 +585,21 @@ export default class Spec {
           skipJs = true;
         }
       }
+      if (!skipJs) {
+        const script = this.doc.createElement('script');
+        script.src = path.relative(outDir, this.opts.jsOut);
+        script.setAttribute('defer', '');
+        this.doc.head.appendChild(script);
+      }
+    } else {
+      this.log('Inlining JavaScript assets...');
+      const script = this.doc.createElement('script');
+      script.textContent = jsContents;
+      this.doc.head.appendChild(script);
     }
 
     if (this.opts.cssOut) {
+      let skipCss = false;
       const links = this.doc.querySelectorAll('link[rel=stylesheet]');
       for (let i = 0; i < links.length; i++) {
         const link = links[i];
@@ -606,16 +609,20 @@ export default class Spec {
           skipCss = true;
         }
       }
-    }
+      if (!skipCss) {
+        const style = this.doc.createElement('link');
+        style.setAttribute('rel', 'stylesheet');
+        style.setAttribute('href', path.relative(outDir, this.opts.cssOut));
 
-    if (!skipJs) {
-      this.log('Inlining JavaScript assets...');
-      const script = this.doc.createElement('script');
-      script.textContent = jsContents;
-      this.doc.head.appendChild(script);
-    }
-
-    if (!skipCss) {
+        // insert early so that the document's own stylesheets can override
+        let firstLink = this.doc.head.querySelector('link[rel=stylesheet], style');
+        if (firstLink != null) {
+          this.doc.head.insertBefore(style, firstLink);
+        } else {
+          this.doc.head.appendChild(style);
+        }
+      }
+    } else {
       this.log('Inlining CSS assets...');
       const style = this.doc.createElement('style');
       style.textContent = cssContents;
@@ -732,25 +739,6 @@ export default class Spec {
       const result = hljs.highlight(lang, input);
       codes[i].innerHTML = result.value;
       codes[i].setAttribute('class', classAttr + ' hljs');
-    }
-  }
-
-  // if there is no text between body start and the first H1, the first H1 is given a class of "first"
-  private setFirstH1Class() {
-    const document = this.spec.doc;
-    const walker = document.createTreeWalker(document.body, 1 | 4 /* elements and text nodes */);
-    let node = walker.currentNode;
-    while (node) {
-      if (node.nodeType === 3 && node.textContent!.trim().length > 0) {
-        return;
-      }
-
-      if (walker.currentNode.nodeType === 1 && walker.currentNode.nodeName === 'H1') {
-        (node as HTMLElement).classList.add('first');
-        return;
-      }
-
-      node = walker.nextNode()!;
     }
   }
 
@@ -1325,7 +1313,7 @@ async function walk(walker: TreeWalker, context: Context) {
   context.tagStack.pop();
 }
 
-const jsDependencies = ['sdoMap.js', 'menu.js', 'findLocalReferences.js', 'listNumbers.js'];
+const jsDependencies = ['sdoMap.js', 'menu.js', 'listNumbers.js'];
 async function concatJs() {
   const dependencies = await Promise.all(
     jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency)))
