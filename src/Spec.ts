@@ -1247,7 +1247,7 @@ async function walk(walker: TreeWalker, context: Context) {
       context.spec._textNodes[namespace] = context.spec._textNodes[namespace] || [];
       context.spec._textNodes[namespace].push({
         node: context.node,
-        clause: clause,
+        clause,
         inAlg: context.inAlg,
         currentId: context.currentId,
       });

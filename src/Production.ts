@@ -78,7 +78,7 @@ export default class Production extends Builder {
 
       const newEntry: ProductionBiblioEntry = {
         type: 'production',
-        id: id,
+        id,
         name: this.name,
         referencingIds: [],
       };

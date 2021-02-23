@@ -1,5 +1,4 @@
 'use strict';
-
 function Search(menu) {
   this.menu = menu;
   this.$search = document.getElementById('menu-search');
@@ -26,15 +25,13 @@ function Search(menu) {
 }
 
 Search.prototype.loadBiblio = function () {
-  var $biblio = document.getElementById('menu-search-biblio');
+  let $biblio = document.getElementById('menu-search-biblio');
   if (!$biblio) {
     this.biblio = [];
   } else {
     this.biblio = JSON.parse($biblio.textContent);
-    this.biblio.clauses = this.biblio.filter(function (e) {
-      return e.type === 'clause';
-    });
-    this.biblio.byId = this.biblio.reduce(function (map, entry) {
+    this.biblio.clauses = this.biblio.filter(e => e.type === 'clause');
+    this.biblio.byId = this.biblio.reduce((map, entry) => {
       map[entry.id] = entry;
       return map;
     }, {});
@@ -68,7 +65,7 @@ Search.prototype.searchBoxKeyup = function (e) {
   this.search(e.target.value);
 };
 
-Search.prototype.triggerSearch = function (e) {
+Search.prototype.triggerSearch = function () {
   if (this.menu.isVisible()) {
     this._closeAfterSearch = false;
   } else {
@@ -84,8 +81,8 @@ Search.prototype.triggerSearch = function (e) {
 // bits 1-7: 127 - length of the entry
 // General scheme: prefer case sensitive matches with fewer chunks, and otherwise
 // prefer shorter matches.
-function relevance(result, searchString) {
-  var relevance = 0;
+function relevance(result) {
+  let relevance = 0;
 
   relevance = Math.max(0, 8 - result.match.chunks) << 7;
 
@@ -116,39 +113,33 @@ Search.prototype.search = function (searchString) {
     return;
   }
 
-  var results;
+  let results;
 
-  if (/^[\d\.]*$/.test(searchString)) {
+  if (/^[\d.]*$/.test(searchString)) {
     results = this.biblio.clauses
-      .filter(function (clause) {
-        return clause.number.substring(0, searchString.length) === searchString;
-      })
-      .map(function (clause) {
-        return { entry: clause };
-      });
+      .filter(clause => clause.number.substring(0, searchString.length) === searchString)
+      .map(clause => ({ entry: clause }));
   } else {
     results = [];
 
-    for (var i = 0; i < this.biblio.length; i++) {
-      var entry = this.biblio[i];
+    for (let i = 0; i < this.biblio.length; i++) {
+      let entry = this.biblio[i];
       if (!entry.key) {
         // biblio entries without a key aren't searchable
         continue;
       }
 
-      var match = fuzzysearch(searchString, entry.key);
+      let match = fuzzysearch(searchString, entry.key);
       if (match) {
-        results.push({ entry: entry, match: match });
+        results.push({ entry, match });
       }
     }
 
-    results.forEach(function (result) {
+    results.forEach(result => {
       result.relevance = relevance(result, searchString);
     });
 
-    results = results.sort(function (a, b) {
-      return b.relevance - a.relevance;
-    });
+    results = results.sort((a, b) => b.relevance - a.relevance);
   }
 
   if (results.length > 50) {
@@ -166,7 +157,7 @@ Search.prototype.showSearch = function () {
 };
 
 Search.prototype.selectResult = function () {
-  var $first = this.$searchResults.querySelector('li:first-child a');
+  let $first = this.$searchResults.querySelector('li:first-child a');
 
   if ($first) {
     document.location = $first.getAttribute('href');
@@ -186,16 +177,16 @@ Search.prototype.displayResults = function (results) {
   if (results.length > 0) {
     this.$searchResults.classList.remove('no-results');
 
-    var html = '<ul>';
+    let html = '<ul>';
 
-    results.forEach(function (result) {
-      var entry = result.entry;
-      var id = entry.id;
-      var cssClass = '';
-      var text = '';
+    results.forEach(result => {
+      let entry = result.entry;
+      let id = entry.id;
+      let cssClass = '';
+      let text = '';
 
       if (entry.type === 'clause') {
-        var number = entry.number ? entry.number + ' ' : '';
+        let number = entry.number ? entry.number + ' ' : '';
         text = number + entry.key;
         cssClass = 'clause';
         id = entry.id;
@@ -214,14 +205,7 @@ Search.prototype.displayResults = function (results) {
       }
 
       if (text) {
-        html +=
-          '<li class=menu-search-result-' +
-          cssClass +
-          '><a href="#' +
-          id +
-          '">' +
-          text +
-          '</a></li>';
+        html += `<li class=menu-search-result-${cssClass}><a href="#${id}">${text}</a></li>`;
       }
     });
 
@@ -254,29 +238,23 @@ function Menu() {
   document.addEventListener('keydown', this.documentKeydown.bind(this));
 
   // toc expansion
-  var tocItems = this.$menu.querySelectorAll('#menu-toc li');
-  for (var i = 0; i < tocItems.length; i++) {
-    var $item = tocItems[i];
-    $item.addEventListener(
-      'click',
-      function ($item, event) {
-        $item.classList.toggle('active');
-        event.stopPropagation();
-      }.bind(null, $item)
-    );
+  let tocItems = this.$menu.querySelectorAll('#menu-toc li');
+  for (let i = 0; i < tocItems.length; i++) {
+    let $item = tocItems[i];
+    $item.addEventListener('click', event => {
+      $item.classList.toggle('active');
+      event.stopPropagation();
+    });
   }
 
   // close toc on toc item selection
-  var tocLinks = this.$menu.querySelectorAll('#menu-toc li > a');
-  for (var i = 0; i < tocLinks.length; i++) {
-    var $link = tocLinks[i];
-    $link.addEventListener(
-      'click',
-      function (event) {
-        this.toggle();
-        event.stopPropagation();
-      }.bind(this)
-    );
+  let tocLinks = this.$menu.querySelectorAll('#menu-toc li > a');
+  for (let i = 0; i < tocLinks.length; i++) {
+    let $link = tocLinks[i];
+    $link.addEventListener('click', event => {
+      this.toggle();
+      event.stopPropagation();
+    });
   }
 
   // update active clause on scroll
@@ -284,13 +262,13 @@ function Menu() {
   this.updateActiveClause();
 
   // prevent menu scrolling from scrolling the body
-  this.$toc.addEventListener('wheel', function (e) {
-    var target = e.currentTarget;
-    var offTop = e.deltaY < 0 && target.scrollTop === 0;
+  this.$toc.addEventListener('wheel', e => {
+    let target = e.currentTarget;
+    let offTop = e.deltaY < 0 && target.scrollTop === 0;
     if (offTop) {
       e.preventDefault();
     }
-    var offBottom = e.deltaY > 0 && target.offsetHeight + target.scrollTop >= target.scrollHeight;
+    let offBottom = e.deltaY > 0 && target.offsetHeight + target.scrollTop >= target.scrollHeight;
 
     if (offBottom) {
       e.preventDefault();
@@ -317,24 +295,24 @@ Menu.prototype.setActiveClause = function (clause) {
 };
 
 Menu.prototype.revealInToc = function (path) {
-  var current = this.$toc.querySelectorAll('li.revealed');
-  for (var i = 0; i < current.length; i++) {
+  let current = this.$toc.querySelectorAll('li.revealed');
+  for (let i = 0; i < current.length; i++) {
     current[i].classList.remove('revealed');
     current[i].classList.remove('revealed-leaf');
   }
 
-  var current = this.$toc;
-  var index = 0;
+  current = this.$toc;
+  let index = 0;
   while (index < path.length) {
-    var children = current.children;
-    for (var i = 0; i < children.length; i++) {
+    let children = current.children;
+    for (let i = 0; i < children.length; i++) {
       if ('#' + path[index].id === children[i].children[1].getAttribute('href')) {
         children[i].classList.add('revealed');
         if (index === path.length - 1) {
           children[i].classList.add('revealed-leaf');
-          var rect = children[i].getBoundingClientRect();
+          let rect = children[i].getBoundingClientRect();
           // this.$toc.getBoundingClientRect().top;
-          var tocRect = this.$toc.getBoundingClientRect();
+          let tocRect = this.$toc.getBoundingClientRect();
           if (rect.top + 10 > tocRect.bottom) {
             this.$toc.scrollTop =
               this.$toc.scrollTop + (rect.top - tocRect.bottom) + (rect.bottom - rect.top);
@@ -351,14 +329,14 @@ Menu.prototype.revealInToc = function (path) {
 };
 
 function findActiveClause(root, path) {
-  var clauses = new ClauseWalker(root);
-  var $clause;
-  var path = path || [];
+  let clauses = new ClauseWalker(root);
+  let $clause;
+  path = path || [];
 
   while (($clause = clauses.nextNode())) {
-    var rect = $clause.getBoundingClientRect();
-    var $header = $clause.querySelector('h1');
-    var marginTop = parseInt(getComputedStyle($header)['margin-top']);
+    let rect = $clause.getBoundingClientRect();
+    let $header = $clause.querySelector('h1');
+    let marginTop = parseInt(getComputedStyle($header)['margin-top']);
 
     if (rect.top - marginTop <= 0 && rect.bottom > 0) {
       return findActiveClause($clause, path.concat($clause)) || path;
@@ -369,12 +347,12 @@ function findActiveClause(root, path) {
 }
 
 function ClauseWalker(root) {
-  var previous;
-  var treeWalker = document.createTreeWalker(
+  let previous;
+  let treeWalker = document.createTreeWalker(
     root,
     NodeFilter.SHOW_ELEMENT,
     {
-      acceptNode: function (node) {
+      acceptNode(node) {
         if (previous === node.parentNode) {
           return NodeFilter.FILTER_REJECT;
         } else {
@@ -422,7 +400,7 @@ Menu.prototype.hidePins = function () {
 };
 
 Menu.prototype.addPinEntry = function (id) {
-  var entry = this.search.biblio.byId[id];
+  let entry = this.search.biblio.byId[id];
   if (!entry) {
     // id was deleted after pin (or something) so remove it
     delete this._pinnedIds[id];
@@ -431,16 +409,15 @@ Menu.prototype.addPinEntry = function (id) {
   }
 
   if (entry.type === 'clause') {
-    var prefix;
+    let prefix;
     if (entry.number) {
       prefix = entry.number + ' ';
     } else {
       prefix = '';
     }
-    this.$pinList.innerHTML +=
-      '<li><a href="#' + entry.id + '">' + prefix + entry.titleHTML + '</a></li>';
+    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${prefix}${entry.titleHTML}</a></li>`;
   } else {
-    this.$pinList.innerHTML += '<li><a href="#' + entry.id + '">' + entry.key + '</a></li>';
+    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${entry.key}</a></li>`;
   }
 
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -451,7 +428,7 @@ Menu.prototype.addPinEntry = function (id) {
 };
 
 Menu.prototype.removePinEntry = function (id) {
-  var item = this.$pinList.querySelector('a[href="#' + id + '"]').parentNode;
+  let item = this.$pinList.querySelector(`a[href="#${id}"]`).parentNode;
   this.$pinList.removeChild(item);
   delete this._pinnedIds[id];
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -478,10 +455,10 @@ Menu.prototype.loadPinEntries = function () {
     return;
   }
 
-  var pinsString = window.localStorage.pinEntries;
+  let pinsString = window.localStorage.pinEntries;
   if (!pinsString) return;
-  var pins = JSON.parse(pinsString);
-  for (var i = 0; i < pins.length; i++) {
+  let pins = JSON.parse(pinsString);
+  for (let i = 0; i < pins.length; i++) {
     this.addPinEntry(pins[i]);
   }
 };
@@ -502,19 +479,19 @@ Menu.prototype.selectPin = function (num) {
   document.location = this.$pinList.children[num].children[0].href;
 };
 
-var menu;
+let menu;
 function init() {
   menu = new Menu();
-  var $container = document.getElementById('spec-container');
+  let $container = document.getElementById('spec-container');
   $container.addEventListener(
     'mouseover',
-    debounce(function (e) {
+    debounce(e => {
       Toolbox.activateIfMouseOver(e);
     })
   );
   document.addEventListener(
     'keydown',
-    debounce(function (e) {
+    debounce(e => {
       if (e.code === 'Escape' && Toolbox.active) {
         Toolbox.deactivate();
       }
@@ -526,41 +503,38 @@ document.addEventListener('DOMContentLoaded', init);
 
 function debounce(fn, opts) {
   opts = opts || {};
-  var timeout;
+  let timeout;
   return function (e) {
     if (opts.stopPropagation) {
       e.stopPropagation();
     }
-    var args = arguments;
+    let args = arguments;
     if (timeout) {
       clearTimeout(timeout);
     }
-    timeout = setTimeout(
-      function () {
-        timeout = null;
-        fn.apply(this, args);
-      }.bind(this),
-      150
-    );
+    timeout = setTimeout(() => {
+      timeout = null;
+      fn.apply(this, args);
+    }, 150);
   };
 }
 
-var CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
+let CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
 function findLocalReferences($elem) {
-  var name = $elem.innerHTML;
-  var references = [];
+  let name = $elem.innerHTML;
+  let references = [];
 
-  var parentClause = $elem.parentNode;
+  let parentClause = $elem.parentNode;
   while (parentClause && CLAUSE_NODES.indexOf(parentClause.nodeName) === -1) {
     parentClause = parentClause.parentNode;
   }
 
   if (!parentClause) return;
 
-  var vars = parentClause.querySelectorAll('var');
+  let vars = parentClause.querySelectorAll('var');
 
-  for (var i = 0; i < vars.length; i++) {
-    var $var = vars[i];
+  for (let i = 0; i < vars.length; i++) {
+    let $var = vars[i];
 
     if ($var.innerHTML === name) {
       references.push($var);
@@ -571,20 +545,20 @@ function findLocalReferences($elem) {
 }
 
 function toggleFindLocalReferences($elem) {
-  var references = findLocalReferences($elem);
+  let references = findLocalReferences($elem);
   if ($elem.classList.contains('referenced')) {
-    references.forEach(function ($reference) {
+    references.forEach($reference => {
       $reference.classList.remove('referenced');
     });
   } else {
-    references.forEach(function ($reference) {
+    references.forEach($reference => {
       $reference.classList.add('referenced');
     });
   }
 }
 
 function installFindLocalReferences() {
-  document.addEventListener('click', function (e) {
+  document.addEventListener('click', e => {
     if (e.target.nodeName === 'VAR') {
       toggleFindLocalReferences(e.target);
     }
@@ -614,10 +588,10 @@ document.addEventListener('DOMContentLoaded', installFindLocalReferences);
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 function fuzzysearch(searchString, haystack, caseInsensitive) {
-  var tlen = haystack.length;
-  var qlen = searchString.length;
-  var chunks = 1;
-  var finding = false;
+  let tlen = haystack.length;
+  let qlen = searchString.length;
+  let chunks = 1;
+  let finding = false;
 
   if (qlen > tlen) {
     return false;
@@ -633,10 +607,11 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
     }
   }
 
-  outer: for (var i = 0, j = 0; i < qlen; i++) {
-    var nch = searchString[i];
+  let j = 0;
+  outer: for (let i = 0; i < qlen; i++) {
+    let nch = searchString[i];
     while (j < tlen) {
-      var targetChar = haystack[j++];
+      let targetChar = haystack[j++];
       if (targetChar === nch) {
         finding = true;
         continue outer;
@@ -654,11 +629,11 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
     return fuzzysearch(searchString.toLowerCase(), haystack.toLowerCase(), true);
   }
 
-  return { caseMatch: !caseInsensitive, chunks: chunks, prefix: j <= qlen };
+  return { caseMatch: !caseInsensitive, chunks, prefix: j <= qlen };
 }
 
-var Toolbox = {
-  init: function () {
+let Toolbox = {
+  init() {
     this.$outer = document.createElement('div');
     this.$outer.classList.add('toolbox-container');
     this.$container = document.createElement('div');
@@ -669,32 +644,26 @@ var Toolbox = {
     this.$pinLink = document.createElement('a');
     this.$pinLink.textContent = 'Pin';
     this.$pinLink.setAttribute('href', '#');
-    this.$pinLink.addEventListener(
-      'click',
-      function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        menu.togglePinEntry(this.entry.id);
-      }.bind(this)
-    );
+    this.$pinLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      menu.togglePinEntry(this.entry.id);
+    });
 
     this.$refsLink = document.createElement('a');
     this.$refsLink.setAttribute('href', '#');
-    this.$refsLink.addEventListener(
-      'click',
-      function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        referencePane.showReferencesFor(this.entry);
-      }.bind(this)
-    );
+    this.$refsLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      referencePane.showReferencesFor(this.entry);
+    });
     this.$container.appendChild(this.$permalink);
     this.$container.appendChild(this.$pinLink);
     this.$container.appendChild(this.$refsLink);
     document.body.appendChild(this.$outer);
   },
 
-  activate: function (el, entry, target) {
+  activate(el, entry, target) {
     if (el === this._activeEl) return;
     sdoBox.deactivate();
     this.active = true;
@@ -712,18 +681,18 @@ var Toolbox = {
     }
   },
 
-  updatePermalink: function () {
+  updatePermalink() {
     this.$permalink.setAttribute('href', '#' + this.entry.id);
   },
 
-  updateReferences: function () {
-    this.$refsLink.textContent = 'References (' + this.entry.referencingIds.length + ')';
+  updateReferences() {
+    this.$refsLink.textContent = `References (${this.entry.referencingIds.length})`;
   },
 
-  activateIfMouseOver: function (e) {
-    var ref = this.findReferenceUnder(e.target);
+  activateIfMouseOver(e) {
+    let ref = this.findReferenceUnder(e.target);
     if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
-      var entry = menu.search.biblio.byId[ref.id];
+      let entry = menu.search.biblio.byId[ref.id];
       this.activate(ref.element, entry, e.target);
     } else if (
       this.active &&
@@ -733,9 +702,9 @@ var Toolbox = {
     }
   },
 
-  findReferenceUnder: function (el) {
+  findReferenceUnder(el) {
     while (el) {
-      var parent = el.parentNode;
+      let parent = el.parentNode;
       if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
         return null;
       }
@@ -776,19 +745,19 @@ var Toolbox = {
     }
   },
 
-  deactivate: function () {
+  deactivate() {
     this.$outer.classList.remove('active');
     this._activeEl = null;
     this.active = false;
   },
 };
 
-var referencePane = {
-  init: function () {
+let referencePane = {
+  init() {
     this.$container = document.createElement('div');
     this.$container.setAttribute('id', 'references-pane-container');
 
-    var $spacer = document.createElement('div');
+    let $spacer = document.createElement('div');
     $spacer.setAttribute('id', 'references-pane-spacer');
 
     this.$pane = document.createElement('div');
@@ -805,16 +774,13 @@ var referencePane = {
     this.$header.appendChild(this.$headerRefId);
     this.$closeButton = document.createElement('span');
     this.$closeButton.setAttribute('id', 'references-pane-close');
-    this.$closeButton.addEventListener(
-      'click',
-      function (e) {
-        this.deactivate();
-      }.bind(this)
-    );
+    this.$closeButton.addEventListener('click', () => {
+      this.deactivate();
+    });
     this.$header.appendChild(this.$closeButton);
 
     this.$pane.appendChild(this.$header);
-    var tableContainer = document.createElement('div');
+    let tableContainer = document.createElement('div');
     tableContainer.setAttribute('id', 'references-pane-table-container');
 
     this.$table = document.createElement('table');
@@ -828,44 +794,42 @@ var referencePane = {
     menu.$specContainer.appendChild(this.$container);
   },
 
-  activate: function () {
+  activate() {
     this.$container.classList.add('active');
   },
 
-  deactivate: function () {
+  deactivate() {
     this.$container.classList.remove('active');
   },
 
-  showReferencesFor: function (entry) {
+  showReferencesFor(entry) {
     this.activate();
     this.$headerText.textContent = 'References to ';
-    var newBody = document.createElement('tbody');
-    var previousId;
-    var previousCell;
-    var dupCount = 0;
+    let newBody = document.createElement('tbody');
+    let previousId;
+    let previousCell;
+    let dupCount = 0;
     this.$headerRefId.textContent = '#' + entry.id;
     this.$headerRefId.setAttribute('href', '#' + entry.id);
     this.$headerRefId.style.display = 'inline';
     entry.referencingIds
-      .map(function (id) {
-        var target = document.getElementById(id);
-        var cid = findParentClauseId(target);
-        var clause = menu.search.biblio.byId[cid];
-        return { id: id, clause: clause };
+      .map(id => {
+        let target = document.getElementById(id);
+        let cid = findParentClauseId(target);
+        let clause = menu.search.biblio.byId[cid];
+        return { id, clause };
       })
-      .sort(function (a, b) {
-        return sortByClauseNumber(a.clause, b.clause);
-      })
-      .forEach(function (record, i) {
+      .sort((a, b) => sortByClauseNumber(a.clause, b.clause))
+      .forEach(record => {
         if (previousId === record.clause.id) {
-          previousCell.innerHTML += ' (<a href="#' + record.id + '">' + (dupCount + 2) + '</a>)';
+          previousCell.innerHTML += ` (<a href="#${record.id}">${dupCount + 2}</a>)`;
           dupCount++;
         } else {
-          var row = newBody.insertRow();
-          var cell = row.insertCell();
+          let row = newBody.insertRow();
+          let cell = row.insertCell();
           cell.innerHTML = record.clause.number;
           cell = row.insertCell();
-          cell.innerHTML = '<a href="#' + record.id + '">' + record.clause.titleHTML + '</a>';
+          cell.innerHTML = `<a href="#${record.id}">${record.clause.titleHTML}</a>`;
           previousCell = cell;
           previousId = record.clause.id;
           dupCount = 0;
@@ -876,45 +840,37 @@ var referencePane = {
     this.$table.appendChild(this.$tableBody);
   },
 
-  showSDOs: function (sdos, alternativeId) {
+  showSDOs(sdos, alternativeId) {
     this.activate();
-    var rhs = document.getElementById(alternativeId);
-    var parentName = rhs.parentNode.getAttribute('name');
-    var colons = rhs.parentNode.querySelector('emu-geq');
+    let rhs = document.getElementById(alternativeId);
+    let parentName = rhs.parentNode.getAttribute('name');
+    let colons = rhs.parentNode.querySelector('emu-geq');
     rhs = rhs.cloneNode(true);
-    rhs.querySelectorAll('emu-params,emu-constraints').forEach(function (e) {
+    rhs.querySelectorAll('emu-params,emu-constraints').forEach(e => {
       e.remove();
     });
-    rhs.querySelectorAll('[id]').forEach(function (e) {
+    rhs.querySelectorAll('[id]').forEach(e => {
       e.removeAttribute('id');
     });
-    rhs.querySelectorAll('a').forEach(function (e) {
+    rhs.querySelectorAll('a').forEach(e => {
       e.parentNode.replaceChild(document.createTextNode(e.textContent), e);
     });
-    var text = parentName + ' : ' + rhs.textContent.replace(/\s+/g, ' ');
 
-    this.$headerText.innerHTML =
-      'Syntax-Directed Operations for<br><a href="#' +
-      alternativeId +
-      '" class="menu-pane-header-production"><emu-nt>' +
-      parentName +
-      '</emu-nt> ' +
-      colons.outerHTML +
-      ' </a>';
+    this.$headerText.innerHTML = `Syntax-Directed Operations for<br><a href="#${alternativeId}" class="menu-pane-header-production"><emu-nt>${parentName}</emu-nt> ${colons.outerHTML} </a>`;
     this.$headerText.querySelector('a').append(rhs);
     this.$headerRefId.style.display = 'none';
-    var newBody = document.createElement('tbody');
-    Object.keys(sdos).forEach(function (sdoName) {
-      var pair = sdos[sdoName];
-      var clause = pair.clause;
-      var ids = pair.ids;
-      var first = ids[0];
-      var row = newBody.insertRow();
-      var cell = row.insertCell();
+    let newBody = document.createElement('tbody');
+    Object.keys(sdos).forEach(sdoName => {
+      let pair = sdos[sdoName];
+      let clause = pair.clause;
+      let ids = pair.ids;
+      let first = ids[0];
+      let row = newBody.insertRow();
+      let cell = row.insertCell();
       cell.innerHTML = clause;
       cell = row.insertCell();
-      var html = '<a href="#' + first + '">' + sdoName + '</a>';
-      for (var i = 1; i < ids.length; ++i) {
+      let html = '<a href="#' + first + '">' + sdoName + '</a>';
+      for (let i = 1; i < ids.length; ++i) {
         html += ' (<a href="#' + ids[i] + '">' + (i + 1) + '</a>)';
       }
       cell.innerHTML = html;
@@ -937,19 +893,19 @@ function findParentClauseId(node) {
   return node.getAttribute('id');
 }
 
-function sortByClauseNumber(c1, c2) {
-  var c1c = c1.number.split('.');
-  var c2c = c2.number.split('.');
+function sortByClauseNumber(clause1, clause2) {
+  let c1c = clause1.number.split('.');
+  let c2c = clause2.number.split('.');
 
-  for (var i = 0; i < c1c.length; i++) {
+  for (let i = 0; i < c1c.length; i++) {
     if (i >= c2c.length) {
       return 1;
     }
 
-    var c1 = c1c[i];
-    var c2 = c2c[i];
-    var c1cn = Number(c1);
-    var c2cn = Number(c2);
+    let c1 = c1c[i];
+    let c2 = c2c[i];
+    let c1cn = Number(c1);
+    let c2cn = Number(c2);
 
     if (Number.isNaN(c1cn) && Number.isNaN(c2cn)) {
       if (c1 > c2) {
@@ -974,7 +930,7 @@ function sortByClauseNumber(c1, c2) {
   return -1;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
   Toolbox.init();
   referencePane.init();
 });

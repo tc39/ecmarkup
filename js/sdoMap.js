@@ -1,7 +1,6 @@
 'use strict';
-
-var sdoBox = {
-  init: function () {
+let sdoBox = {
+  init() {
     this.$alternativeId = null;
     this.$outer = document.createElement('div');
     this.$outer.classList.add('toolbox-container');
@@ -10,62 +9,57 @@ var sdoBox = {
     this.$displayLink = document.createElement('a');
     this.$displayLink.setAttribute('href', '#');
     this.$displayLink.textContent = 'Syntax-Directed Operations';
-    this.$displayLink.addEventListener(
-      'click',
-      function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        referencePane.showSDOs(sdoMap[this.$alternativeId] || {}, this.$alternativeId);
-      }.bind(this)
-    );
+    this.$displayLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      referencePane.showSDOs(sdoMap[this.$alternativeId] || {}, this.$alternativeId);
+    });
     this.$container.appendChild(this.$displayLink);
     this.$outer.appendChild(this.$container);
     document.body.appendChild(this.$outer);
   },
 
-  activate: function (el) {
+  activate(el) {
     clearTimeout(this.deactiveTimeout);
     Toolbox.deactivate();
     this.$alternativeId = el.id;
-    var numSdos = Object.keys(sdoMap[this.$alternativeId] || {}).length;
+    let numSdos = Object.keys(sdoMap[this.$alternativeId] || {}).length;
     this.$displayLink.textContent = 'Syntax-Directed Operations (' + numSdos + ')';
     this.$outer.classList.add('active');
-    var top = el.offsetTop - this.$outer.offsetHeight;
-    var left = el.offsetLeft + 50 - 10; // 50px = padding-left(=75px) + text-indent(=-25px)
+    let top = el.offsetTop - this.$outer.offsetHeight;
+    let left = el.offsetLeft + 50 - 10; // 50px = padding-left(=75px) + text-indent(=-25px)
     this.$outer.setAttribute('style', 'left: ' + left + 'px; top: ' + top + 'px');
     if (top < document.body.scrollTop) {
       this.$container.scrollIntoView();
     }
   },
 
-  deactivate: function () {
+  deactivate() {
     clearTimeout(this.deactiveTimeout);
     this.$outer.classList.remove('active');
   },
 };
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
   sdoBox.init();
 
-  var insideTooltip = false;
-  sdoBox.$outer.addEventListener('pointerenter', function () {
+  let insideTooltip = false;
+  sdoBox.$outer.addEventListener('pointerenter', () => {
     insideTooltip = true;
   });
-  sdoBox.$outer.addEventListener('pointerleave', function () {
+  sdoBox.$outer.addEventListener('pointerleave', () => {
     insideTooltip = false;
     sdoBox.deactivate();
   });
 
   sdoBox.deactiveTimeout = null;
-  [].forEach.call(document.querySelectorAll('emu-grammar[type=definition] emu-rhs'), function (
-    node
-  ) {
+  [].forEach.call(document.querySelectorAll('emu-grammar[type=definition] emu-rhs'), node => {
     node.addEventListener('pointerenter', function () {
       sdoBox.activate(this);
     });
 
-    node.addEventListener('pointerleave', function (e) {
-      sdoBox.deactiveTimeout = setTimeout(function () {
+    node.addEventListener('pointerleave', () => {
+      sdoBox.deactiveTimeout = setTimeout(() => {
         if (!insideTooltip) {
           sdoBox.deactivate();
         }
@@ -75,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.addEventListener(
     'keydown',
-    debounce(function (e) {
+    debounce(e => {
       if (e.code === 'Escape') {
         sdoBox.deactivate();
       }
@@ -83,9 +77,9 @@ document.addEventListener('DOMContentLoaded', function () {
   );
 });
 
-var sdoMap = {};
-document.addEventListener('DOMContentLoaded', function () {
-  var sdoMapContainer = document.getElementById('sdo-map');
+let sdoMap = {};
+document.addEventListener('DOMContentLoaded', () => {
+  let sdoMapContainer = document.getElementById('sdo-map');
   if (sdoMapContainer == null) {
     console.error('could not find SDO map container');
   } else {
