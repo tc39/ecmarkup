@@ -241,13 +241,10 @@ function Menu() {
   let tocItems = this.$menu.querySelectorAll('#menu-toc li');
   for (let i = 0; i < tocItems.length; i++) {
     let $item = tocItems[i];
-    $item.addEventListener(
-      'click',
-      (($item, event) => {
-        $item.classList.toggle('active');
-        event.stopPropagation();
-      }).bind(null, $item)
-    );
+    $item.addEventListener('click', event => {
+      $item.classList.toggle('active');
+      event.stopPropagation();
+    });
   }
 
   // close toc on toc item selection
