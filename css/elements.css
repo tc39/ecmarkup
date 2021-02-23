@@ -333,16 +333,10 @@ h1.shortname {
 h1.version {
   color: #f60;
   font-size: 1.5em;
-  margin: 0;
 }
 
 h1.title {
-  margin-top: 0;
   color: #f60;
-}
-
-h1.first {
-  margin-top: 0;
 }
 
 h1,

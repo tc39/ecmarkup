@@ -20,6 +20,32 @@
   },
   "overrides": [
     {
+      "files": ["js/**/*"],
+      "env": {
+        "node": false,
+        "browser": true,
+        "es6": true
+      },
+      "parserOptions": {
+        "sourceType": "script",
+        "ecmaVersion": 2020
+      },
+      "rules": {
+        "no-use-before-define": "off",
+        "no-redeclare": "off",
+        "no-unused-vars": "error",
+        "@typescript-eslint/no-unused-vars": "off"
+      },
+      "globals": {
+        "sdoMap": "readonly",
+        "biblio": "readonly",
+        "debounce": "writable",
+        "referencePane": "writable",
+        "sdoBox": "writable",
+        "Toolbox": "writable"
+      }
+    },
+    {
       "files": ["test/**/*"],
       "env": {
         "mocha": true
@@ -41,6 +67,7 @@
     "prettier/prettier": "error",
     "arrow-body-style": "error",
     "prefer-arrow-callback": "error",
+    "object-shorthand": "error",
     "no-inner-declarations": "off",
     "consistent-return": "off",
     "no-floating-decimal": "error",

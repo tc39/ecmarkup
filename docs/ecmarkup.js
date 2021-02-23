@@ -1,7 +1,7 @@
-'use strict';
 
-var sdoBox = {
-  init: function () {
+'use strict';
+let sdoBox = {
+  init() {
     this.$alternativeId = null;
     this.$outer = document.createElement('div');
     this.$outer.classList.add('toolbox-container');
@@ -10,62 +10,61 @@ var sdoBox = {
     this.$displayLink = document.createElement('a');
     this.$displayLink.setAttribute('href', '#');
     this.$displayLink.textContent = 'Syntax-Directed Operations';
-    this.$displayLink.addEventListener(
-      'click',
-      function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        referencePane.showSDOs(sdoMap[this.$alternativeId] || {}, this.$alternativeId);
-      }.bind(this)
-    );
+    this.$displayLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      referencePane.showSDOs(sdoMap[this.$alternativeId] || {}, this.$alternativeId);
+    });
     this.$container.appendChild(this.$displayLink);
     this.$outer.appendChild(this.$container);
     document.body.appendChild(this.$outer);
   },
 
-  activate: function (el) {
+  activate(el) {
     clearTimeout(this.deactiveTimeout);
     Toolbox.deactivate();
     this.$alternativeId = el.id;
-    var numSdos = Object.keys(sdoMap[this.$alternativeId] || {}).length;
+    let numSdos = Object.keys(sdoMap[this.$alternativeId] || {}).length;
     this.$displayLink.textContent = 'Syntax-Directed Operations (' + numSdos + ')';
     this.$outer.classList.add('active');
-    var top = el.offsetTop - this.$outer.offsetHeight;
-    var left = el.offsetLeft + 50 - 10; // 50px = padding-left(=75px) + text-indent(=-25px)
+    let top = el.offsetTop - this.$outer.offsetHeight;
+    let left = el.offsetLeft + 50 - 10; // 50px = padding-left(=75px) + text-indent(=-25px)
     this.$outer.setAttribute('style', 'left: ' + left + 'px; top: ' + top + 'px');
     if (top < document.body.scrollTop) {
       this.$container.scrollIntoView();
     }
   },
 
-  deactivate: function () {
+  deactivate() {
     clearTimeout(this.deactiveTimeout);
     this.$outer.classList.remove('active');
   },
 };
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof sdoMap == 'undefined') {
+    console.error('could not find sdo map');
+    return;
+  }
   sdoBox.init();
 
-  var insideTooltip = false;
-  sdoBox.$outer.addEventListener('pointerenter', function () {
+  let insideTooltip = false;
+  sdoBox.$outer.addEventListener('pointerenter', () => {
     insideTooltip = true;
   });
-  sdoBox.$outer.addEventListener('pointerleave', function () {
+  sdoBox.$outer.addEventListener('pointerleave', () => {
     insideTooltip = false;
     sdoBox.deactivate();
   });
 
   sdoBox.deactiveTimeout = null;
-  [].forEach.call(document.querySelectorAll('emu-grammar[type=definition] emu-rhs'), function (
-    node
-  ) {
+  [].forEach.call(document.querySelectorAll('emu-grammar[type=definition] emu-rhs'), node => {
     node.addEventListener('pointerenter', function () {
       sdoBox.activate(this);
     });
 
-    node.addEventListener('pointerleave', function (e) {
-      sdoBox.deactiveTimeout = setTimeout(function () {
+    node.addEventListener('pointerleave', () => {
+      sdoBox.deactiveTimeout = setTimeout(() => {
         if (!insideTooltip) {
           sdoBox.deactivate();
         }
@@ -75,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.addEventListener(
     'keydown',
-    debounce(function (e) {
+    debounce(e => {
       if (e.code === 'Escape') {
         sdoBox.deactivate();
       }
@@ -83,17 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
   );
 });
 
-var sdoMap = {};
-document.addEventListener('DOMContentLoaded', function () {
-  var sdoMapContainer = document.getElementById('sdo-map');
-  if (sdoMapContainer == null) {
-    console.error('could not find SDO map container');
-  } else {
-    sdoMap = JSON.parse(sdoMapContainer.textContent);
-  }
-});
 'use strict';
-
 function Search(menu) {
   this.menu = menu;
   this.$search = document.getElementById('menu-search');
@@ -120,15 +109,13 @@ function Search(menu) {
 }
 
 Search.prototype.loadBiblio = function () {
-  var $biblio = document.getElementById('menu-search-biblio');
-  if (!$biblio) {
+  if (typeof biblio === 'undefined') {
+    console.error('could not find biblio');
     this.biblio = [];
   } else {
-    this.biblio = JSON.parse($biblio.textContent);
-    this.biblio.clauses = this.biblio.filter(function (e) {
-      return e.type === 'clause';
-    });
-    this.biblio.byId = this.biblio.reduce(function (map, entry) {
+    this.biblio = biblio;
+    this.biblio.clauses = this.biblio.filter(e => e.type === 'clause');
+    this.biblio.byId = this.biblio.reduce((map, entry) => {
       map[entry.id] = entry;
       return map;
     }, {});
@@ -162,7 +149,7 @@ Search.prototype.searchBoxKeyup = function (e) {
   this.search(e.target.value);
 };
 
-Search.prototype.triggerSearch = function (e) {
+Search.prototype.triggerSearch = function () {
   if (this.menu.isVisible()) {
     this._closeAfterSearch = false;
   } else {
@@ -178,8 +165,8 @@ Search.prototype.triggerSearch = function (e) {
 // bits 1-7: 127 - length of the entry
 // General scheme: prefer case sensitive matches with fewer chunks, and otherwise
 // prefer shorter matches.
-function relevance(result, searchString) {
-  var relevance = 0;
+function relevance(result) {
+  let relevance = 0;
 
   relevance = Math.max(0, 8 - result.match.chunks) << 7;
 
@@ -210,39 +197,33 @@ Search.prototype.search = function (searchString) {
     return;
   }
 
-  var results;
+  let results;
 
-  if (/^[\d\.]*$/.test(searchString)) {
+  if (/^[\d.]*$/.test(searchString)) {
     results = this.biblio.clauses
-      .filter(function (clause) {
-        return clause.number.substring(0, searchString.length) === searchString;
-      })
-      .map(function (clause) {
-        return { entry: clause };
-      });
+      .filter(clause => clause.number.substring(0, searchString.length) === searchString)
+      .map(clause => ({ entry: clause }));
   } else {
     results = [];
 
-    for (var i = 0; i < this.biblio.length; i++) {
-      var entry = this.biblio[i];
+    for (let i = 0; i < this.biblio.length; i++) {
+      let entry = this.biblio[i];
       if (!entry.key) {
         // biblio entries without a key aren't searchable
         continue;
       }
 
-      var match = fuzzysearch(searchString, entry.key);
+      let match = fuzzysearch(searchString, entry.key);
       if (match) {
-        results.push({ entry: entry, match: match });
+        results.push({ entry, match });
       }
     }
 
-    results.forEach(function (result) {
+    results.forEach(result => {
       result.relevance = relevance(result, searchString);
     });
 
-    results = results.sort(function (a, b) {
-      return b.relevance - a.relevance;
-    });
+    results = results.sort((a, b) => b.relevance - a.relevance);
   }
 
   if (results.length > 50) {
@@ -260,7 +241,7 @@ Search.prototype.showSearch = function () {
 };
 
 Search.prototype.selectResult = function () {
-  var $first = this.$searchResults.querySelector('li:first-child a');
+  let $first = this.$searchResults.querySelector('li:first-child a');
 
   if ($first) {
     document.location = $first.getAttribute('href');
@@ -280,16 +261,16 @@ Search.prototype.displayResults = function (results) {
   if (results.length > 0) {
     this.$searchResults.classList.remove('no-results');
 
-    var html = '<ul>';
+    let html = '<ul>';
 
-    results.forEach(function (result) {
-      var entry = result.entry;
-      var id = entry.id;
-      var cssClass = '';
-      var text = '';
+    results.forEach(result => {
+      let entry = result.entry;
+      let id = entry.id;
+      let cssClass = '';
+      let text = '';
 
       if (entry.type === 'clause') {
-        var number = entry.number ? entry.number + ' ' : '';
+        let number = entry.number ? entry.number + ' ' : '';
         text = number + entry.key;
         cssClass = 'clause';
         id = entry.id;
@@ -308,14 +289,7 @@ Search.prototype.displayResults = function (results) {
       }
 
       if (text) {
-        html +=
-          '<li class=menu-search-result-' +
-          cssClass +
-          '><a href="#' +
-          id +
-          '">' +
-          text +
-          '</a></li>';
+        html += `<li class=menu-search-result-${cssClass}><a href="#${id}">${text}</a></li>`;
       }
     });
 
@@ -348,29 +322,23 @@ function Menu() {
   document.addEventListener('keydown', this.documentKeydown.bind(this));
 
   // toc expansion
-  var tocItems = this.$menu.querySelectorAll('#menu-toc li');
-  for (var i = 0; i < tocItems.length; i++) {
-    var $item = tocItems[i];
-    $item.addEventListener(
-      'click',
-      function ($item, event) {
-        $item.classList.toggle('active');
-        event.stopPropagation();
-      }.bind(null, $item)
-    );
+  let tocItems = this.$menu.querySelectorAll('#menu-toc li');
+  for (let i = 0; i < tocItems.length; i++) {
+    let $item = tocItems[i];
+    $item.addEventListener('click', event => {
+      $item.classList.toggle('active');
+      event.stopPropagation();
+    });
   }
 
   // close toc on toc item selection
-  var tocLinks = this.$menu.querySelectorAll('#menu-toc li > a');
-  for (var i = 0; i < tocLinks.length; i++) {
-    var $link = tocLinks[i];
-    $link.addEventListener(
-      'click',
-      function (event) {
-        this.toggle();
-        event.stopPropagation();
-      }.bind(this)
-    );
+  let tocLinks = this.$menu.querySelectorAll('#menu-toc li > a');
+  for (let i = 0; i < tocLinks.length; i++) {
+    let $link = tocLinks[i];
+    $link.addEventListener('click', event => {
+      this.toggle();
+      event.stopPropagation();
+    });
   }
 
   // update active clause on scroll
@@ -378,13 +346,13 @@ function Menu() {
   this.updateActiveClause();
 
   // prevent menu scrolling from scrolling the body
-  this.$toc.addEventListener('wheel', function (e) {
-    var target = e.currentTarget;
-    var offTop = e.deltaY < 0 && target.scrollTop === 0;
+  this.$toc.addEventListener('wheel', e => {
+    let target = e.currentTarget;
+    let offTop = e.deltaY < 0 && target.scrollTop === 0;
     if (offTop) {
       e.preventDefault();
     }
-    var offBottom = e.deltaY > 0 && target.offsetHeight + target.scrollTop >= target.scrollHeight;
+    let offBottom = e.deltaY > 0 && target.offsetHeight + target.scrollTop >= target.scrollHeight;
 
     if (offBottom) {
       e.preventDefault();
@@ -411,24 +379,24 @@ Menu.prototype.setActiveClause = function (clause) {
 };
 
 Menu.prototype.revealInToc = function (path) {
-  var current = this.$toc.querySelectorAll('li.revealed');
-  for (var i = 0; i < current.length; i++) {
+  let current = this.$toc.querySelectorAll('li.revealed');
+  for (let i = 0; i < current.length; i++) {
     current[i].classList.remove('revealed');
     current[i].classList.remove('revealed-leaf');
   }
 
-  var current = this.$toc;
-  var index = 0;
+  current = this.$toc;
+  let index = 0;
   while (index < path.length) {
-    var children = current.children;
-    for (var i = 0; i < children.length; i++) {
+    let children = current.children;
+    for (let i = 0; i < children.length; i++) {
       if ('#' + path[index].id === children[i].children[1].getAttribute('href')) {
         children[i].classList.add('revealed');
         if (index === path.length - 1) {
           children[i].classList.add('revealed-leaf');
-          var rect = children[i].getBoundingClientRect();
+          let rect = children[i].getBoundingClientRect();
           // this.$toc.getBoundingClientRect().top;
-          var tocRect = this.$toc.getBoundingClientRect();
+          let tocRect = this.$toc.getBoundingClientRect();
           if (rect.top + 10 > tocRect.bottom) {
             this.$toc.scrollTop =
               this.$toc.scrollTop + (rect.top - tocRect.bottom) + (rect.bottom - rect.top);
@@ -445,14 +413,14 @@ Menu.prototype.revealInToc = function (path) {
 };
 
 function findActiveClause(root, path) {
-  var clauses = new ClauseWalker(root);
-  var $clause;
-  var path = path || [];
+  let clauses = new ClauseWalker(root);
+  let $clause;
+  path = path || [];
 
   while (($clause = clauses.nextNode())) {
-    var rect = $clause.getBoundingClientRect();
-    var $header = $clause.querySelector('h1');
-    var marginTop = parseInt(getComputedStyle($header)['margin-top']);
+    let rect = $clause.getBoundingClientRect();
+    let $header = $clause.querySelector('h1');
+    let marginTop = parseInt(getComputedStyle($header)['margin-top']);
 
     if (rect.top - marginTop <= 0 && rect.bottom > 0) {
       return findActiveClause($clause, path.concat($clause)) || path;
@@ -463,12 +431,12 @@ function findActiveClause(root, path) {
 }
 
 function ClauseWalker(root) {
-  var previous;
-  var treeWalker = document.createTreeWalker(
+  let previous;
+  let treeWalker = document.createTreeWalker(
     root,
     NodeFilter.SHOW_ELEMENT,
     {
-      acceptNode: function (node) {
+      acceptNode(node) {
         if (previous === node.parentNode) {
           return NodeFilter.FILTER_REJECT;
         } else {
@@ -516,7 +484,7 @@ Menu.prototype.hidePins = function () {
 };
 
 Menu.prototype.addPinEntry = function (id) {
-  var entry = this.search.biblio.byId[id];
+  let entry = this.search.biblio.byId[id];
   if (!entry) {
     // id was deleted after pin (or something) so remove it
     delete this._pinnedIds[id];
@@ -525,16 +493,15 @@ Menu.prototype.addPinEntry = function (id) {
   }
 
   if (entry.type === 'clause') {
-    var prefix;
+    let prefix;
     if (entry.number) {
       prefix = entry.number + ' ';
     } else {
       prefix = '';
     }
-    this.$pinList.innerHTML +=
-      '<li><a href="#' + entry.id + '">' + prefix + entry.titleHTML + '</a></li>';
+    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${prefix}${entry.titleHTML}</a></li>`;
   } else {
-    this.$pinList.innerHTML += '<li><a href="#' + entry.id + '">' + entry.key + '</a></li>';
+    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${entry.key}</a></li>`;
   }
 
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -545,7 +512,7 @@ Menu.prototype.addPinEntry = function (id) {
 };
 
 Menu.prototype.removePinEntry = function (id) {
-  var item = this.$pinList.querySelector('a[href="#' + id + '"]').parentNode;
+  let item = this.$pinList.querySelector(`a[href="#${id}"]`).parentNode;
   this.$pinList.removeChild(item);
   delete this._pinnedIds[id];
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -572,10 +539,10 @@ Menu.prototype.loadPinEntries = function () {
     return;
   }
 
-  var pinsString = window.localStorage.pinEntries;
+  let pinsString = window.localStorage.pinEntries;
   if (!pinsString) return;
-  var pins = JSON.parse(pinsString);
-  for (var i = 0; i < pins.length; i++) {
+  let pins = JSON.parse(pinsString);
+  for (let i = 0; i < pins.length; i++) {
     this.addPinEntry(pins[i]);
   }
 };
@@ -596,19 +563,19 @@ Menu.prototype.selectPin = function (num) {
   document.location = this.$pinList.children[num].children[0].href;
 };
 
-var menu;
+let menu;
 function init() {
   menu = new Menu();
-  var $container = document.getElementById('spec-container');
+  let $container = document.getElementById('spec-container');
   $container.addEventListener(
     'mouseover',
-    debounce(function (e) {
+    debounce(e => {
       Toolbox.activateIfMouseOver(e);
     })
   );
   document.addEventListener(
     'keydown',
-    debounce(function (e) {
+    debounce(e => {
       if (e.code === 'Escape' && Toolbox.active) {
         Toolbox.deactivate();
       }
@@ -620,41 +587,38 @@ document.addEventListener('DOMContentLoaded', init);
 
 function debounce(fn, opts) {
   opts = opts || {};
-  var timeout;
+  let timeout;
   return function (e) {
     if (opts.stopPropagation) {
       e.stopPropagation();
     }
-    var args = arguments;
+    let args = arguments;
     if (timeout) {
       clearTimeout(timeout);
     }
-    timeout = setTimeout(
-      function () {
-        timeout = null;
-        fn.apply(this, args);
-      }.bind(this),
-      150
-    );
+    timeout = setTimeout(() => {
+      timeout = null;
+      fn.apply(this, args);
+    }, 150);
   };
 }
 
-var CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
+let CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
 function findLocalReferences($elem) {
-  var name = $elem.innerHTML;
-  var references = [];
+  let name = $elem.innerHTML;
+  let references = [];
 
-  var parentClause = $elem.parentNode;
+  let parentClause = $elem.parentNode;
   while (parentClause && CLAUSE_NODES.indexOf(parentClause.nodeName) === -1) {
     parentClause = parentClause.parentNode;
   }
 
   if (!parentClause) return;
 
-  var vars = parentClause.querySelectorAll('var');
+  let vars = parentClause.querySelectorAll('var');
 
-  for (var i = 0; i < vars.length; i++) {
-    var $var = vars[i];
+  for (let i = 0; i < vars.length; i++) {
+    let $var = vars[i];
 
     if ($var.innerHTML === name) {
       references.push($var);
@@ -665,20 +629,20 @@ function findLocalReferences($elem) {
 }
 
 function toggleFindLocalReferences($elem) {
-  var references = findLocalReferences($elem);
+  let references = findLocalReferences($elem);
   if ($elem.classList.contains('referenced')) {
-    references.forEach(function ($reference) {
+    references.forEach($reference => {
       $reference.classList.remove('referenced');
     });
   } else {
-    references.forEach(function ($reference) {
+    references.forEach($reference => {
       $reference.classList.add('referenced');
     });
   }
 }
 
 function installFindLocalReferences() {
-  document.addEventListener('click', function (e) {
+  document.addEventListener('click', e => {
     if (e.target.nodeName === 'VAR') {
       toggleFindLocalReferences(e.target);
     }
@@ -708,10 +672,10 @@ document.addEventListener('DOMContentLoaded', installFindLocalReferences);
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 function fuzzysearch(searchString, haystack, caseInsensitive) {
-  var tlen = haystack.length;
-  var qlen = searchString.length;
-  var chunks = 1;
-  var finding = false;
+  let tlen = haystack.length;
+  let qlen = searchString.length;
+  let chunks = 1;
+  let finding = false;
 
   if (qlen > tlen) {
     return false;
@@ -727,10 +691,11 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
     }
   }
 
-  outer: for (var i = 0, j = 0; i < qlen; i++) {
-    var nch = searchString[i];
+  let j = 0;
+  outer: for (let i = 0; i < qlen; i++) {
+    let nch = searchString[i];
     while (j < tlen) {
-      var targetChar = haystack[j++];
+      let targetChar = haystack[j++];
       if (targetChar === nch) {
         finding = true;
         continue outer;
@@ -748,11 +713,11 @@ function fuzzysearch(searchString, haystack, caseInsensitive) {
     return fuzzysearch(searchString.toLowerCase(), haystack.toLowerCase(), true);
   }
 
-  return { caseMatch: !caseInsensitive, chunks: chunks, prefix: j <= qlen };
+  return { caseMatch: !caseInsensitive, chunks, prefix: j <= qlen };
 }
 
-var Toolbox = {
-  init: function () {
+let Toolbox = {
+  init() {
     this.$outer = document.createElement('div');
     this.$outer.classList.add('toolbox-container');
     this.$container = document.createElement('div');
@@ -763,32 +728,26 @@ var Toolbox = {
     this.$pinLink = document.createElement('a');
     this.$pinLink.textContent = 'Pin';
     this.$pinLink.setAttribute('href', '#');
-    this.$pinLink.addEventListener(
-      'click',
-      function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        menu.togglePinEntry(this.entry.id);
-      }.bind(this)
-    );
+    this.$pinLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      menu.togglePinEntry(this.entry.id);
+    });
 
     this.$refsLink = document.createElement('a');
     this.$refsLink.setAttribute('href', '#');
-    this.$refsLink.addEventListener(
-      'click',
-      function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        referencePane.showReferencesFor(this.entry);
-      }.bind(this)
-    );
+    this.$refsLink.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      referencePane.showReferencesFor(this.entry);
+    });
     this.$container.appendChild(this.$permalink);
     this.$container.appendChild(this.$pinLink);
     this.$container.appendChild(this.$refsLink);
     document.body.appendChild(this.$outer);
   },
 
-  activate: function (el, entry, target) {
+  activate(el, entry, target) {
     if (el === this._activeEl) return;
     sdoBox.deactivate();
     this.active = true;
@@ -806,18 +765,18 @@ var Toolbox = {
     }
   },
 
-  updatePermalink: function () {
+  updatePermalink() {
     this.$permalink.setAttribute('href', '#' + this.entry.id);
   },
 
-  updateReferences: function () {
-    this.$refsLink.textContent = 'References (' + this.entry.referencingIds.length + ')';
+  updateReferences() {
+    this.$refsLink.textContent = `References (${this.entry.referencingIds.length})`;
   },
 
-  activateIfMouseOver: function (e) {
-    var ref = this.findReferenceUnder(e.target);
+  activateIfMouseOver(e) {
+    let ref = this.findReferenceUnder(e.target);
     if (ref && (!this.active || e.pageY > this._activeEl.offsetTop)) {
-      var entry = menu.search.biblio.byId[ref.id];
+      let entry = menu.search.biblio.byId[ref.id];
       this.activate(ref.element, entry, e.target);
     } else if (
       this.active &&
@@ -827,9 +786,9 @@ var Toolbox = {
     }
   },
 
-  findReferenceUnder: function (el) {
+  findReferenceUnder(el) {
     while (el) {
-      var parent = el.parentNode;
+      let parent = el.parentNode;
       if (el.nodeName === 'EMU-RHS' || el.nodeName === 'EMU-PRODUCTION') {
         return null;
       }
@@ -870,19 +829,19 @@ var Toolbox = {
     }
   },
 
-  deactivate: function () {
+  deactivate() {
     this.$outer.classList.remove('active');
     this._activeEl = null;
     this.active = false;
   },
 };
 
-var referencePane = {
-  init: function () {
+let referencePane = {
+  init() {
     this.$container = document.createElement('div');
     this.$container.setAttribute('id', 'references-pane-container');
 
-    var $spacer = document.createElement('div');
+    let $spacer = document.createElement('div');
     $spacer.setAttribute('id', 'references-pane-spacer');
 
     this.$pane = document.createElement('div');
@@ -899,16 +858,13 @@ var referencePane = {
     this.$header.appendChild(this.$headerRefId);
     this.$closeButton = document.createElement('span');
     this.$closeButton.setAttribute('id', 'references-pane-close');
-    this.$closeButton.addEventListener(
-      'click',
-      function (e) {
-        this.deactivate();
-      }.bind(this)
-    );
+    this.$closeButton.addEventListener('click', () => {
+      this.deactivate();
+    });
     this.$header.appendChild(this.$closeButton);
 
     this.$pane.appendChild(this.$header);
-    var tableContainer = document.createElement('div');
+    let tableContainer = document.createElement('div');
     tableContainer.setAttribute('id', 'references-pane-table-container');
 
     this.$table = document.createElement('table');
@@ -922,44 +878,42 @@ var referencePane = {
     menu.$specContainer.appendChild(this.$container);
   },
 
-  activate: function () {
+  activate() {
     this.$container.classList.add('active');
   },
 
-  deactivate: function () {
+  deactivate() {
     this.$container.classList.remove('active');
   },
 
-  showReferencesFor: function (entry) {
+  showReferencesFor(entry) {
     this.activate();
     this.$headerText.textContent = 'References to ';
-    var newBody = document.createElement('tbody');
-    var previousId;
-    var previousCell;
-    var dupCount = 0;
+    let newBody = document.createElement('tbody');
+    let previousId;
+    let previousCell;
+    let dupCount = 0;
     this.$headerRefId.textContent = '#' + entry.id;
     this.$headerRefId.setAttribute('href', '#' + entry.id);
     this.$headerRefId.style.display = 'inline';
     entry.referencingIds
-      .map(function (id) {
-        var target = document.getElementById(id);
-        var cid = findParentClauseId(target);
-        var clause = menu.search.biblio.byId[cid];
-        return { id: id, clause: clause };
+      .map(id => {
+        let target = document.getElementById(id);
+        let cid = findParentClauseId(target);
+        let clause = menu.search.biblio.byId[cid];
+        return { id, clause };
       })
-      .sort(function (a, b) {
-        return sortByClauseNumber(a.clause, b.clause);
-      })
-      .forEach(function (record, i) {
+      .sort((a, b) => sortByClauseNumber(a.clause, b.clause))
+      .forEach(record => {
         if (previousId === record.clause.id) {
-          previousCell.innerHTML += ' (<a href="#' + record.id + '">' + (dupCount + 2) + '</a>)';
+          previousCell.innerHTML += ` (<a href="#${record.id}">${dupCount + 2}</a>)`;
           dupCount++;
         } else {
-          var row = newBody.insertRow();
-          var cell = row.insertCell();
+          let row = newBody.insertRow();
+          let cell = row.insertCell();
           cell.innerHTML = record.clause.number;
           cell = row.insertCell();
-          cell.innerHTML = '<a href="#' + record.id + '">' + record.clause.titleHTML + '</a>';
+          cell.innerHTML = `<a href="#${record.id}">${record.clause.titleHTML}</a>`;
           previousCell = cell;
           previousId = record.clause.id;
           dupCount = 0;
@@ -970,45 +924,37 @@ var referencePane = {
     this.$table.appendChild(this.$tableBody);
   },
 
-  showSDOs: function (sdos, alternativeId) {
+  showSDOs(sdos, alternativeId) {
     this.activate();
-    var rhs = document.getElementById(alternativeId);
-    var parentName = rhs.parentNode.getAttribute('name');
-    var colons = rhs.parentNode.querySelector('emu-geq');
+    let rhs = document.getElementById(alternativeId);
+    let parentName = rhs.parentNode.getAttribute('name');
+    let colons = rhs.parentNode.querySelector('emu-geq');
     rhs = rhs.cloneNode(true);
-    rhs.querySelectorAll('emu-params,emu-constraints').forEach(function (e) {
+    rhs.querySelectorAll('emu-params,emu-constraints').forEach(e => {
       e.remove();
     });
-    rhs.querySelectorAll('[id]').forEach(function (e) {
+    rhs.querySelectorAll('[id]').forEach(e => {
       e.removeAttribute('id');
     });
-    rhs.querySelectorAll('a').forEach(function (e) {
+    rhs.querySelectorAll('a').forEach(e => {
       e.parentNode.replaceChild(document.createTextNode(e.textContent), e);
     });
-    var text = parentName + ' : ' + rhs.textContent.replace(/\s+/g, ' ');
 
-    this.$headerText.innerHTML =
-      'Syntax-Directed Operations for<br><a href="#' +
-      alternativeId +
-      '" class="menu-pane-header-production"><emu-nt>' +
-      parentName +
-      '</emu-nt> ' +
-      colons.outerHTML +
-      ' </a>';
+    this.$headerText.innerHTML = `Syntax-Directed Operations for<br><a href="#${alternativeId}" class="menu-pane-header-production"><emu-nt>${parentName}</emu-nt> ${colons.outerHTML} </a>`;
     this.$headerText.querySelector('a').append(rhs);
     this.$headerRefId.style.display = 'none';
-    var newBody = document.createElement('tbody');
-    Object.keys(sdos).forEach(function (sdoName) {
-      var pair = sdos[sdoName];
-      var clause = pair.clause;
-      var ids = pair.ids;
-      var first = ids[0];
-      var row = newBody.insertRow();
-      var cell = row.insertCell();
+    let newBody = document.createElement('tbody');
+    Object.keys(sdos).forEach(sdoName => {
+      let pair = sdos[sdoName];
+      let clause = pair.clause;
+      let ids = pair.ids;
+      let first = ids[0];
+      let row = newBody.insertRow();
+      let cell = row.insertCell();
       cell.innerHTML = clause;
       cell = row.insertCell();
-      var html = '<a href="#' + first + '">' + sdoName + '</a>';
-      for (var i = 1; i < ids.length; ++i) {
+      let html = '<a href="#' + first + '">' + sdoName + '</a>';
+      for (let i = 1; i < ids.length; ++i) {
         html += ' (<a href="#' + ids[i] + '">' + (i + 1) + '</a>)';
       }
       cell.innerHTML = html;
@@ -1031,19 +977,19 @@ function findParentClauseId(node) {
   return node.getAttribute('id');
 }
 
-function sortByClauseNumber(c1, c2) {
-  var c1c = c1.number.split('.');
-  var c2c = c2.number.split('.');
+function sortByClauseNumber(clause1, clause2) {
+  let c1c = clause1.number.split('.');
+  let c2c = clause2.number.split('.');
 
-  for (var i = 0; i < c1c.length; i++) {
+  for (let i = 0; i < c1c.length; i++) {
     if (i >= c2c.length) {
       return 1;
     }
 
-    var c1 = c1c[i];
-    var c2 = c2c[i];
-    var c1cn = Number(c1);
-    var c2cn = Number(c2);
+    let c1 = c1c[i];
+    let c2 = c2c[i];
+    let c1cn = Number(c1);
+    let c2cn = Number(c2);
 
     if (Number.isNaN(c1cn) && Number.isNaN(c2cn)) {
       if (c1 > c2) {
@@ -1068,87 +1014,41 @@ function sortByClauseNumber(c1, c2) {
   return -1;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
   Toolbox.init();
   referencePane.init();
 });
-var CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
-function findLocalReferences($elem) {
-  var name = $elem.innerHTML;
-  var references = [];
 
-  var parentClause = $elem.parentNode;
-  while (parentClause && CLAUSE_NODES.indexOf(parentClause.nodeName) === -1) {
-    parentClause = parentClause.parentNode;
-  }
-
-  if (!parentClause) return;
-
-  var vars = parentClause.querySelectorAll('var');
-
-  for (var i = 0; i < vars.length; i++) {
-    var $var = vars[i];
-
-    if ($var.innerHTML === name) {
-      references.push($var);
-    }
-  }
-
-  return references;
-}
-
-function toggleFindLocalReferences($elem) {
-  var references = findLocalReferences($elem);
-  if ($elem.classList.contains('referenced')) {
-    references.forEach(function ($reference) {
-      $reference.classList.remove('referenced');
-    });
-  } else {
-    references.forEach(function ($reference) {
-      $reference.classList.add('referenced');
-    });
-  }
-}
-
-function installFindLocalReferences() {
-  document.addEventListener('click', function (e) {
-    if (e.target.nodeName === 'VAR') {
-      toggleFindLocalReferences(e.target);
-    }
-  });
-}
-
-document.addEventListener('DOMContentLoaded', installFindLocalReferences);
-var decimalBullet = Array.apply(null, Array(100)).map(function (a, i) {
-  return '' + (i + 1);
-});
-var alphaBullet = Array.apply(null, Array(26)).map(function (a, i) {
-  return String.fromCharCode('a'.charCodeAt(0) + i);
-});
+'use strict';
+let decimalBullet = Array.from({ length: 100 }, (a, i) => '' + (i + 1));
+let alphaBullet = Array.from({ length: 26 }, (a, i) => String.fromCharCode('a'.charCodeAt(0) + i));
 
 // prettier-ignore
-var romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
+let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
 // prettier-ignore
-var bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
+let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
 
 function addStepNumberText(ol, parentIndex) {
-  for (var i = 0; i < ol.children.length; ++i) {
-    var child = ol.children[i];
-    var index = parentIndex.concat([i]);
-    var applicable = bullets[Math.min(index.length - 1, 5)];
-    var span = document.createElement('span');
+  for (let i = 0; i < ol.children.length; ++i) {
+    let child = ol.children[i];
+    let index = parentIndex.concat([i]);
+    let applicable = bullets[Math.min(index.length - 1, 5)];
+    let span = document.createElement('span');
     span.textContent = (applicable[i] || '?') + '. ';
     span.style.fontSize = '0';
     span.setAttribute('aria-hidden', 'true');
     child.prepend(span);
-    var sublist = child.querySelector('ol');
+    let sublist = child.querySelector('ol');
     if (sublist != null) {
       addStepNumberText(sublist, index);
     }
   }
 }
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('emu-alg > ol').forEach(function (ol) {
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('emu-alg > ol').forEach(ol => {
     addStepNumberText(ol, []);
   });
 });
+
+let sdoMap = JSON.parse(`{}`);
+let biblio = JSON.parse(`[{"type":"clause","id":"intro","aoid":null,"titleHTML":"Ecmarkup","number":"","referencingIds":[],"key":"Ecmarkup"},{"type":"clause","id":"getting-started","aoid":null,"titleHTML":"Getting Started","number":"1","referencingIds":[],"key":"Getting Started"},{"type":"table","id":"build-options","node":{},"number":1,"caption":"Table 1: Build options","referencingIds":["_ref_13"],"key":"Table 1: Build options"},{"type":"table","id":"document-options","node":{},"number":2,"caption":"Table 2: Document options","referencingIds":["_ref_14"],"key":"Table 2: Document options"},{"type":"clause","id":"useful-options","aoid":null,"titleHTML":"Options","number":"2","referencingIds":[],"key":"Options"},{"type":"clause","id":"stylesheets-and-scripts","aoid":null,"titleHTML":"Stylesheets and Scripts","number":"3","referencingIds":[],"key":"Stylesheets and Scripts"},{"type":"table","id":"emd-overview","node":{},"number":4,"caption":"Table 4: Inline styles/conventions","referencingIds":["_ref_4"],"key":"Table 4: Inline styles/conventions"},{"type":"clause","id":"editorial-conventions","aoid":null,"titleHTML":"Editorial Conventions","number":"4","referencingIds":[],"key":"Editorial Conventions"},{"type":"clause","id":"metadata","aoid":null,"titleHTML":"Metadata","number":"5","referencingIds":[],"key":"Metadata"},{"type":"clause","id":"emu-intro","aoid":null,"titleHTML":"emu-intro","number":"6.1","referencingIds":["_ref_1"],"key":"emu-intro"},{"type":"clause","id":"example-normative-optional","aoid":null,"titleHTML":"Example Normative Optional Clause","number":"6.2.1","referencingIds":[],"key":"Example Normative Optional Clause"},{"type":"clause","id":"emu-clause","aoid":null,"titleHTML":"emu-clause","number":"6.2","referencingIds":["_ref_0","_ref_16"],"key":"emu-clause"},{"type":"clause","id":"emu-annex","aoid":null,"titleHTML":"emu-annex","number":"6.3","referencingIds":["_ref_2"],"key":"emu-annex"},{"type":"clause","id":"clauses","aoid":null,"titleHTML":"Clauses","number":"6","referencingIds":[],"key":"Clauses"},{"type":"step","id":"replace-me","stepNumbers":[2,1],"referencingIds":["_ref_15"],"key":"replace-me"},{"type":"op","aoid":"EmuAlg","refId":"emu-alg","referencingIds":[],"key":"EmuAlg"},{"type":"clause","id":"emu-alg","aoid":"EmuAlg","titleHTML":"emu-alg","number":"7","referencingIds":["_ref_3","_ref_20"],"key":"emu-alg"},{"type":"clause","id":"emu-eqn","aoid":null,"titleHTML":"emu-eqn","number":"8","referencingIds":["_ref_5"],"key":"emu-eqn"},{"type":"clause","id":"emu-note","aoid":null,"titleHTML":"emu-note","number":"9","referencingIds":["_ref_6","_ref_17"],"key":"emu-note"},{"type":"step","id":"example-step-label","stepNumbers":[1],"referencingIds":["_ref_19"],"key":"example-step-label"},{"type":"clause","id":"emu-xref","aoid":null,"titleHTML":"emu-xref","number":"10","referencingIds":["_ref_12"],"key":"emu-xref"},{"type":"clause","id":"emu-not-ref","aoid":null,"titleHTML":"emu-not-ref","number":"11","referencingIds":["_ref_21"],"key":"emu-not-ref"},{"type":"clause","id":"emu-figure","aoid":null,"titleHTML":"emu-figure","number":"12","referencingIds":["_ref_7"],"key":"emu-figure"},{"type":"clause","id":"emu-table","aoid":null,"titleHTML":"emu-table","number":"13","referencingIds":["_ref_8"],"key":"emu-table"},{"type":"clause","id":"emu-example","aoid":null,"titleHTML":"emu-example","number":"14","referencingIds":["_ref_9"],"key":"emu-example"},{"type":"clause","id":"emu-biblio","aoid":null,"titleHTML":"emu-biblio","number":"15","referencingIds":["_ref_18"],"key":"emu-biblio"},{"type":"production","id":"prod-WhileStatement","name":"WhileStatement","referencingIds":[],"key":"WhileStatement"},{"type":"production","id":"prod-ArgumentList","name":"ArgumentList","referencingIds":["_ref_22"],"key":"ArgumentList"},{"type":"production","id":"prod-IterationStatement","name":"IterationStatement","referencingIds":[],"key":"IterationStatement"},{"type":"production","id":"prod-Identifier","name":"Identifier","referencingIds":[],"key":"Identifier"},{"type":"production","id":"prod-SourceCharacter","name":"SourceCharacter","referencingIds":[],"key":"SourceCharacter"},{"type":"production","id":"prod-ExpressionStatement","name":"ExpressionStatement","referencingIds":["_ref_23"],"key":"ExpressionStatement"},{"type":"production","id":"prod-DecimalDigit","name":"DecimalDigit","referencingIds":[],"key":"DecimalDigit"},{"type":"production","id":"prod-StatementList","name":"StatementList","referencingIds":[],"key":"StatementList"},{"type":"clause","id":"emu-grammar","aoid":null,"titleHTML":"emu-grammar","number":"16.1","referencingIds":["_ref_10"],"key":"emu-grammar"},{"type":"clause","id":"emu-production","aoid":null,"titleHTML":"emu-production","number":"16.2","referencingIds":["_ref_11"],"key":"emu-production"},{"type":"clause","id":"emu-rhs","aoid":null,"titleHTML":"emu-rhs","number":"16.3","referencingIds":[],"key":"emu-rhs"},{"type":"clause","id":"emu-nt","aoid":null,"titleHTML":"emu-nt","number":"16.4","referencingIds":[],"key":"emu-nt"},{"type":"clause","id":"emu-t","aoid":null,"titleHTML":"emu-t","number":"16.5","referencingIds":[],"key":"emu-t"},{"type":"clause","id":"emu-gmod","aoid":null,"titleHTML":"emu-gmod","number":"16.6","referencingIds":[],"key":"emu-gmod"},{"type":"clause","id":"emu-gann","aoid":null,"titleHTML":"emu-gann","number":"16.7","referencingIds":[],"key":"emu-gann"},{"type":"clause","id":"emu-gprose","aoid":null,"titleHTML":"emu-gprose","number":"16.8","referencingIds":[],"key":"emu-gprose"},{"type":"clause","id":"emu-prodref","aoid":null,"titleHTML":"emu-prodref","number":"16.9","referencingIds":[],"key":"emu-prodref"},{"type":"clause","id":"grammar","aoid":null,"titleHTML":"Specifying Grammar","number":"16","referencingIds":[],"key":"Specifying Grammar"},{"type":"clause","id":"imports","aoid":null,"titleHTML":"Imports","number":"17","referencingIds":[],"key":"Imports"},{"type":"clause","id":"oldids","aoid":null,"titleHTML":"Old IDs","number":"18.1","referencingIds":[],"key":"Old IDs"},{"type":"clause","id":"ins-del","aoid":null,"titleHTML":"ins &amp; del","number":"18.2","referencingIds":[],"key":"ins & del"},{"type":"clause","id":"pre-code","aoid":null,"titleHTML":"Code Listings","number":"18.3","referencingIds":[],"key":"Code Listings"},{"type":"clause","id":"css","aoid":null,"titleHTML":"Other Styles &amp; Conventions","number":"18","referencingIds":[],"key":"Other Styles & Conventions"},{"type":"term","term":"example","refId":"emu-not-ref","referencingIds":[],"key":"example"}]`);
