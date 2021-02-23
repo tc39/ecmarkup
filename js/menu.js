@@ -25,11 +25,11 @@ function Search(menu) {
 }
 
 Search.prototype.loadBiblio = function () {
-  let $biblio = document.getElementById('menu-search-biblio');
-  if (!$biblio) {
+  if (typeof biblio === 'undefined') {
+    console.error('could not find biblio');
     this.biblio = [];
   } else {
-    this.biblio = JSON.parse($biblio.textContent);
+    this.biblio = biblio;
     this.biblio.clauses = this.biblio.filter(e => e.type === 'clause');
     this.biblio.byId = this.biblio.reduce((map, entry) => {
       map[entry.id] = entry;
