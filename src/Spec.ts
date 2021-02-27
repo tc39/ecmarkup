@@ -754,11 +754,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       let placeholder = this.doc.createElement('p');
       placeholder.innerHTML =
         'This page serves as an index. If you are not automatically redirected, you can navigate to the actual specification by using the table of contents on the left.';
-      let indexRedrectScript = this.doc.createElement('script');
-      indexRedrectScript.textContent = `if (!location.hash) location = 'intro.html';`;
+      let indexRedirectScript = this.doc.createElement('script');
+      indexRedirectScript.textContent = `if (!location.hash) location = 'intro.html';`;
       sections.push({
         name: 'index',
-        eles: [placeholder, indexRedrectScript],
+        eles: [placeholder, indexRedirectScript],
       });
     }
 
