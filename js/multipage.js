@@ -60,7 +60,7 @@ function getActiveTocPaths() {
   return [...menu.$menu.querySelectorAll('.active')].map(getTocPath).filter(p => p != null);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function loadStateFromSessionStorage() {
   if (!window.sessionStorage) {
     return;
   }
@@ -84,6 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (sessionStorage.activeTocPaths != null) {
+    document
+      .getElementById('menu-toc')
+      .querySelectorAll('.active')
+      .forEach(e => {
+        e.classList.remove('active');
+      });
     let active = JSON.parse(sessionStorage.activeTocPaths);
     active.forEach(activateTocPath);
     delete sessionStorage.activeTocPaths;
@@ -94,7 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
     menu.$toc.scrollTop = tocScroll;
     delete sessionStorage.tocScroll;
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', loadStateFromSessionStorage);
+
+window.addEventListener('pageshow', loadStateFromSessionStorage);
 
 window.addEventListener('beforeunload', () => {
   if (window.sessionStorage) {
