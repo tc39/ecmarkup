@@ -17,30 +17,89 @@ if (location.hash) {
   }
 }
 
+function getTocPath(li) {
+  let path = [];
+  let pointer = li;
+  while (true) {
+    let parent = pointer.parentElement;
+    if (parent == null) {
+      return null;
+    }
+    let index = [].indexOf.call(parent.children, pointer);
+    if (index == -1) {
+      return null;
+    }
+    path.unshift(index);
+    pointer = parent.parentElement;
+    if (pointer == null) {
+      return null;
+    }
+    if (pointer.id === 'menu-toc') {
+      break;
+    }
+    if (pointer.tagName !== 'LI') {
+      return null;
+    }
+  }
+  return path;
+}
+
+function activateTocPath(path) {
+  try {
+    let pointer = document.getElementById('menu-toc');
+    for (let index of path) {
+      pointer = pointer.querySelector('ol').children[index];
+    }
+    pointer.classList.add('active');
+  } catch (e) {
+    // pass
+  }
+}
+
+function getActiveTocPaths() {
+  return [...menu.$menu.querySelectorAll('.active')].map(getTocPath).filter(p => p != null);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  if (window.sessionStorage && sessionStorage.referencePaneState != null) {
+  if (!window.sessionStorage) {
+    return;
+  }
+  if (sessionStorage.referencePaneState != null) {
     let state = JSON.parse(sessionStorage.referencePaneState);
-    if (state == null) {
-      return;
-    }
-    if (state.type === 'ref') {
-      let entry = menu.search.biblio.byId[state.id];
-      if (entry != null) {
-        referencePane.showReferencesFor(entry);
+    if (state != null) {
+      if (state.type === 'ref') {
+        let entry = menu.search.biblio.byId[state.id];
+        if (entry != null) {
+          referencePane.showReferencesFor(entry);
+        }
+      } else if (state.type === 'sdo') {
+        let sdos = sdoMap[state.id];
+        if (sdos != null) {
+          referencePane.$headerText.innerHTML = state.html;
+          referencePane.showSDOsBody(sdos, state.id);
+        }
       }
-    } else if (state.type === 'sdo') {
-      let sdos = sdoMap[state.id];
-      if (sdos != null) {
-        referencePane.$headerText.innerHTML = state.html;
-        referencePane.showSDOsBody(sdos, state.id);
-      }
+      delete sessionStorage.referencePaneState;
     }
-    window.sessionStorage.referencePaneState = null;
+  }
+
+  if (sessionStorage.activeTocPaths != null) {
+    let active = JSON.parse(sessionStorage.activeTocPaths);
+    active.forEach(activateTocPath);
+    delete sessionStorage.activeTocPaths;
+  }
+
+  if (sessionStorage.tocScroll != null) {
+    let tocScroll = JSON.parse(sessionStorage.tocScroll);
+    menu.$toc.scrollTop = tocScroll;
+    delete sessionStorage.tocScroll;
   }
 });
 
 window.addEventListener('unload', () => {
   if (window.sessionStorage) {
     sessionStorage.referencePaneState = JSON.stringify(referencePane.state || null);
+    sessionStorage.activeTocPaths = JSON.stringify(getActiveTocPaths());
+    sessionStorage.tocScroll = JSON.stringify(menu.$toc.scrollTop);
   }
 });
