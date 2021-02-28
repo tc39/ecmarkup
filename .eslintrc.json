@@ -37,9 +37,12 @@
         "@typescript-eslint/no-unused-vars": "off"
       },
       "globals": {
+        "multipageMap": "readonly",
+        "idToSection": "readonly",
         "sdoMap": "readonly",
         "biblio": "readonly",
         "debounce": "writable",
+        "menu": "writable",
         "referencePane": "writable",
         "sdoBox": "writable",
         "Toolbox": "writable"

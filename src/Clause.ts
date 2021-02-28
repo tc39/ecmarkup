@@ -146,17 +146,16 @@ export default class Clause extends Builder {
     }
 
     // clauses are always at the spec-level namespace.
-    spec.biblio.add(
-      <ClauseBiblioEntry>{
-        type: 'clause',
-        id: clause.id,
-        aoid: clause.aoid,
-        title: clause.title,
-        titleHTML: clause.titleHTML,
-        number: clause.number,
-      },
-      spec.namespace
-    );
+    const entry: ClauseBiblioEntry = {
+      type: 'clause',
+      id: clause.id,
+      aoid: clause.aoid,
+      title: clause.title,
+      titleHTML: clause.titleHTML,
+      number: clause.number,
+      referencingIds: [],
+    };
+    spec.biblio.add(entry, spec.namespace);
 
     clauseStack.pop();
   }

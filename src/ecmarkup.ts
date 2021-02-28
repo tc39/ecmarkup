@@ -31,6 +31,7 @@ export interface Options {
   copyright?: boolean;
   date?: Date;
   location?: string;
+  multipage?: boolean;
   contributors?: string;
   toc?: boolean;
   oldToc?: boolean;

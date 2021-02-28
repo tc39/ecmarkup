@@ -20,7 +20,34 @@ if (args.js) {
 }
 
 if (args.strict && args.watch) {
-  console.error('Cannot use --strict with --watch');
+  fail('Cannot use --strict with --watch');
+}
+
+if (!args.outfile && (args.jsOut || args.cssOut)) {
+  fail('When using --js-out or --css-out you must specify an output file');
+}
+
+if (args.multipage) {
+  if (args.jsOut || args.cssOut) {
+    fail('Cannot use --multipage with --js-out or --css-out');
+  }
+
+  if (!args.outfile) {
+    fail('When using --multipage you must specify an output directory');
+  }
+
+  if (fs.existsSync(args.outfile) && !fs.lstatSync(args.outfile).isDirectory()) {
+    fail('When using --multipage, outfile (' + args.outfile + ') must be a directory');
+  }
+
+  fs.mkdirSync(path.resolve(args.outfile, 'multipage'), { recursive: true });
+
+  args.jsOut = path.resolve(args.outfile, 'ecmarkup.js');
+  args.cssOut = path.resolve(args.outfile, 'ecmarkup.css');
+}
+
+function fail(msg: string) {
+  console.error(msg);
   process.exit(1);
 }
 
@@ -108,11 +135,13 @@ const build = debounce(async function build() {
     if (!args.strict || !warned) {
       if (args.outfile) {
         if (args.verbose) {
-          utils.logVerbose('Writing output to ' + args.outfile);
+          utils.logVerbose('Writing output...');
         }
-        pending.push(utils.writeFile(args.outfile, spec.toHTML()));
+        for (let [file, contents] of spec.generatedFiles) {
+          pending.push(utils.writeFile(file!, contents));
+        }
       } else {
-        process.stdout.write(spec.toHTML());
+        process.stdout.write(spec.generatedFiles.get(null)!);
       }
     }
 

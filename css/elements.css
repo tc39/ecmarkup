@@ -14,6 +14,7 @@ body {
   flex-basis: 66%;
   box-sizing: border-box;
   overflow: hidden;
+  padding-bottom: 1em;
 }
 
 body.oldtoc {
@@ -528,6 +529,12 @@ emu-intro emu-intro emu-intro emu-intro emu-intro emu-intro,
 emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause,
 emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex {
   margin-top: 1.8em;
+}
+
+#spec-container > emu-intro:first-of-type,
+#spec-container > emu-clause:first-of-type,
+#spec-container > emu-annex:first-of-type {
+  margin-top: 0;
 }
 
 /* Figures and tables */

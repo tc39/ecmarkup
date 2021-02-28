@@ -1,4 +1,3 @@
-
 'use strict';
 let sdoBox = {
   init() {
@@ -111,14 +110,22 @@ function Search(menu) {
 Search.prototype.loadBiblio = function () {
   if (typeof biblio === 'undefined') {
     console.error('could not find biblio');
-    this.biblio = [];
+    this.biblio = { refToClause: {}, entries: [] };
   } else {
     this.biblio = biblio;
-    this.biblio.clauses = this.biblio.filter(e => e.type === 'clause');
-    this.biblio.byId = this.biblio.reduce((map, entry) => {
+    this.biblio.clauses = this.biblio.entries.filter(e => e.type === 'clause');
+    this.biblio.byId = this.biblio.entries.reduce((map, entry) => {
       map[entry.id] = entry;
       return map;
     }, {});
+    let refParentClause = Object.create(null);
+    this.biblio.refParentClause = refParentClause;
+    let refsByClause = this.biblio.refsByClause;
+    Object.keys(refsByClause).forEach(clause => {
+      refsByClause[clause].forEach(ref => {
+        refParentClause[ref] = clause;
+      });
+    });
   }
 };
 
@@ -206,8 +213,8 @@ Search.prototype.search = function (searchString) {
   } else {
     results = [];
 
-    for (let i = 0; i < this.biblio.length; i++) {
-      let entry = this.biblio[i];
+    for (let i = 0; i < this.biblio.entries.length; i++) {
+      let entry = this.biblio.entries[i];
       if (!entry.key) {
         // biblio entries without a key aren't searchable
         continue;
@@ -289,7 +296,8 @@ Search.prototype.displayResults = function (results) {
       }
 
       if (text) {
-        html += `<li class=menu-search-result-${cssClass}><a href="#${id}">${text}</a></li>`;
+        // prettier-ignore
+        html += `<li class=menu-search-result-${cssClass}><a href="${makeLinkToId(id)}">${text}</a></li>`;
       }
     });
 
@@ -387,10 +395,10 @@ Menu.prototype.revealInToc = function (path) {
 
   current = this.$toc;
   let index = 0;
-  while (index < path.length) {
+  outer: while (index < path.length) {
     let children = current.children;
     for (let i = 0; i < children.length; i++) {
-      if ('#' + path[index].id === children[i].children[1].getAttribute('href')) {
+      if ('#' + path[index].id === children[i].children[1].hash) {
         children[i].classList.add('revealed');
         if (index === path.length - 1) {
           children[i].classList.add('revealed-leaf');
@@ -406,9 +414,11 @@ Menu.prototype.revealInToc = function (path) {
         }
         current = children[i].querySelector('ol');
         index++;
-        break;
+        continue outer;
       }
     }
+    console.log('could not find location in table of contents', path);
+    break;
   }
 };
 
@@ -420,9 +430,12 @@ function findActiveClause(root, path) {
   while (($clause = clauses.nextNode())) {
     let rect = $clause.getBoundingClientRect();
     let $header = $clause.querySelector('h1');
-    let marginTop = parseInt(getComputedStyle($header)['margin-top']);
+    let marginTop = Math.max(
+      parseInt(getComputedStyle($clause)['margin-top']),
+      parseInt(getComputedStyle($header)['margin-top'])
+    );
 
-    if (rect.top - marginTop <= 0 && rect.bottom > 0) {
+    if (rect.top - marginTop <= 1 && rect.bottom > 0) {
       return findActiveClause($clause, path.concat($clause)) || path;
     }
   }
@@ -499,9 +512,10 @@ Menu.prototype.addPinEntry = function (id) {
     } else {
       prefix = '';
     }
-    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${prefix}${entry.titleHTML}</a></li>`;
+    // prettier-ignore
+    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${prefix}${entry.titleHTML}</a></li>`;
   } else {
-    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${entry.key}</a></li>`;
+    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${entry.key}</a></li>`;
   }
 
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -512,7 +526,7 @@ Menu.prototype.addPinEntry = function (id) {
 };
 
 Menu.prototype.removePinEntry = function (id) {
-  let item = this.$pinList.querySelector(`a[href="#${id}"]`).parentNode;
+  let item = this.$pinList.querySelector(`a[href="${makeLinkToId(id)}"]`).parentNode;
   this.$pinList.removeChild(item);
   delete this._pinnedIds[id];
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -766,7 +780,7 @@ let Toolbox = {
   },
 
   updatePermalink() {
-    this.$permalink.setAttribute('href', '#' + this.entry.id);
+    this.$permalink.setAttribute('href', makeLinkToId(this.entry.id));
   },
 
   updateReferences() {
@@ -884,36 +898,40 @@ let referencePane = {
 
   deactivate() {
     this.$container.classList.remove('active');
+    this.state = null;
   },
 
   showReferencesFor(entry) {
     this.activate();
+    this.state = { type: 'ref', id: entry.id };
     this.$headerText.textContent = 'References to ';
     let newBody = document.createElement('tbody');
     let previousId;
     let previousCell;
     let dupCount = 0;
     this.$headerRefId.textContent = '#' + entry.id;
-    this.$headerRefId.setAttribute('href', '#' + entry.id);
+    this.$headerRefId.setAttribute('href', makeLinkToId(entry.id));
     this.$headerRefId.style.display = 'inline';
     entry.referencingIds
       .map(id => {
-        let target = document.getElementById(id);
-        let cid = findParentClauseId(target);
+        let cid = menu.search.biblio.refParentClause[id];
         let clause = menu.search.biblio.byId[cid];
+        if (clause == null) {
+          throw new Error('could not find clause for id ' + cid);
+        }
         return { id, clause };
       })
       .sort((a, b) => sortByClauseNumber(a.clause, b.clause))
       .forEach(record => {
         if (previousId === record.clause.id) {
-          previousCell.innerHTML += ` (<a href="#${record.id}">${dupCount + 2}</a>)`;
+          previousCell.innerHTML += ` (<a href="${makeLinkToId(record.id)}">${dupCount + 2}</a>)`;
           dupCount++;
         } else {
           let row = newBody.insertRow();
           let cell = row.insertCell();
           cell.innerHTML = record.clause.number;
           cell = row.insertCell();
-          cell.innerHTML = `<a href="#${record.id}">${record.clause.titleHTML}</a>`;
+          cell.innerHTML = `<a href="${makeLinkToId(record.id)}">${record.clause.titleHTML}</a>`;
           previousCell = cell;
           previousId = record.clause.id;
           dupCount = 0;
@@ -925,7 +943,6 @@ let referencePane = {
   },
 
   showSDOs(sdos, alternativeId) {
-    this.activate();
     let rhs = document.getElementById(alternativeId);
     let parentName = rhs.parentNode.getAttribute('name');
     let colons = rhs.parentNode.querySelector('emu-geq');
@@ -940,8 +957,15 @@ let referencePane = {
       e.parentNode.replaceChild(document.createTextNode(e.textContent), e);
     });
 
-    this.$headerText.innerHTML = `Syntax-Directed Operations for<br><a href="#${alternativeId}" class="menu-pane-header-production"><emu-nt>${parentName}</emu-nt> ${colons.outerHTML} </a>`;
+    // prettier-ignore
+    this.$headerText.innerHTML = `Syntax-Directed Operations for<br><a href="${makeLinkToId(alternativeId)}" class="menu-pane-header-production"><emu-nt>${parentName}</emu-nt> ${colons.outerHTML} </a>`;
     this.$headerText.querySelector('a').append(rhs);
+    this.showSDOsBody(sdos, alternativeId);
+  },
+
+  showSDOsBody(sdos, alternativeId) {
+    this.activate();
+    this.state = { type: 'sdo', id: alternativeId, html: this.$headerText.innerHTML };
     this.$headerRefId.style.display = 'none';
     let newBody = document.createElement('tbody');
     Object.keys(sdos).forEach(sdoName => {
@@ -953,9 +977,9 @@ let referencePane = {
       let cell = row.insertCell();
       cell.innerHTML = clause;
       cell = row.insertCell();
-      let html = '<a href="#' + first + '">' + sdoName + '</a>';
+      let html = '<a href="' + makeLinkToId(first) + '">' + sdoName + '</a>';
       for (let i = 1; i < ids.length; ++i) {
-        html += ' (<a href="#' + ids[i] + '">' + (i + 1) + '</a>)';
+        html += ' (<a href="' + makeLinkToId(ids[i]) + '">' + (i + 1) + '</a>)';
       }
       cell.innerHTML = html;
     });
@@ -964,18 +988,6 @@ let referencePane = {
     this.$table.appendChild(this.$tableBody);
   },
 };
-function findParentClauseId(node) {
-  while (
-    node &&
-    node.nodeName !== 'EMU-CLAUSE' &&
-    node.nodeName !== 'EMU-INTRO' &&
-    node.nodeName !== 'EMU-ANNEX'
-  ) {
-    node = node.parentNode;
-  }
-  if (!node) return null;
-  return node.getAttribute('id');
-}
 
 function sortByClauseNumber(clause1, clause2) {
   let c1c = clause1.number.split('.');
@@ -1012,6 +1024,14 @@ function sortByClauseNumber(clause1, clause2) {
     return 0;
   }
   return -1;
+}
+
+function makeLinkToId(id) {
+  let hash = '#' + id;
+  if (typeof idToSection === 'undefined' || !idToSection[id]) {
+    return hash;
+  }
+  return idToSection[id] + '.html' + hash;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1051,4 +1071,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let sdoMap = JSON.parse(`{}`);
-let biblio = JSON.parse(`[{"type":"clause","id":"intro","aoid":null,"titleHTML":"Ecmarkup","number":"","referencingIds":[],"key":"Ecmarkup"},{"type":"clause","id":"getting-started","aoid":null,"titleHTML":"Getting Started","number":"1","referencingIds":[],"key":"Getting Started"},{"type":"table","id":"build-options","node":{},"number":1,"caption":"Table 1: Build options","referencingIds":["_ref_13"],"key":"Table 1: Build options"},{"type":"table","id":"document-options","node":{},"number":2,"caption":"Table 2: Document options","referencingIds":["_ref_14"],"key":"Table 2: Document options"},{"type":"clause","id":"useful-options","aoid":null,"titleHTML":"Options","number":"2","referencingIds":[],"key":"Options"},{"type":"clause","id":"stylesheets-and-scripts","aoid":null,"titleHTML":"Stylesheets and Scripts","number":"3","referencingIds":[],"key":"Stylesheets and Scripts"},{"type":"table","id":"emd-overview","node":{},"number":4,"caption":"Table 4: Inline styles/conventions","referencingIds":["_ref_4"],"key":"Table 4: Inline styles/conventions"},{"type":"clause","id":"editorial-conventions","aoid":null,"titleHTML":"Editorial Conventions","number":"4","referencingIds":[],"key":"Editorial Conventions"},{"type":"clause","id":"metadata","aoid":null,"titleHTML":"Metadata","number":"5","referencingIds":[],"key":"Metadata"},{"type":"clause","id":"emu-intro","aoid":null,"titleHTML":"emu-intro","number":"6.1","referencingIds":["_ref_1"],"key":"emu-intro"},{"type":"clause","id":"example-normative-optional","aoid":null,"titleHTML":"Example Normative Optional Clause","number":"6.2.1","referencingIds":[],"key":"Example Normative Optional Clause"},{"type":"clause","id":"emu-clause","aoid":null,"titleHTML":"emu-clause","number":"6.2","referencingIds":["_ref_0","_ref_16"],"key":"emu-clause"},{"type":"clause","id":"emu-annex","aoid":null,"titleHTML":"emu-annex","number":"6.3","referencingIds":["_ref_2"],"key":"emu-annex"},{"type":"clause","id":"clauses","aoid":null,"titleHTML":"Clauses","number":"6","referencingIds":[],"key":"Clauses"},{"type":"step","id":"replace-me","stepNumbers":[2,1],"referencingIds":["_ref_15"],"key":"replace-me"},{"type":"op","aoid":"EmuAlg","refId":"emu-alg","referencingIds":[],"key":"EmuAlg"},{"type":"clause","id":"emu-alg","aoid":"EmuAlg","titleHTML":"emu-alg","number":"7","referencingIds":["_ref_3","_ref_20"],"key":"emu-alg"},{"type":"clause","id":"emu-eqn","aoid":null,"titleHTML":"emu-eqn","number":"8","referencingIds":["_ref_5"],"key":"emu-eqn"},{"type":"clause","id":"emu-note","aoid":null,"titleHTML":"emu-note","number":"9","referencingIds":["_ref_6","_ref_17"],"key":"emu-note"},{"type":"step","id":"example-step-label","stepNumbers":[1],"referencingIds":["_ref_19"],"key":"example-step-label"},{"type":"clause","id":"emu-xref","aoid":null,"titleHTML":"emu-xref","number":"10","referencingIds":["_ref_12"],"key":"emu-xref"},{"type":"clause","id":"emu-not-ref","aoid":null,"titleHTML":"emu-not-ref","number":"11","referencingIds":["_ref_21"],"key":"emu-not-ref"},{"type":"clause","id":"emu-figure","aoid":null,"titleHTML":"emu-figure","number":"12","referencingIds":["_ref_7"],"key":"emu-figure"},{"type":"clause","id":"emu-table","aoid":null,"titleHTML":"emu-table","number":"13","referencingIds":["_ref_8"],"key":"emu-table"},{"type":"clause","id":"emu-example","aoid":null,"titleHTML":"emu-example","number":"14","referencingIds":["_ref_9"],"key":"emu-example"},{"type":"clause","id":"emu-biblio","aoid":null,"titleHTML":"emu-biblio","number":"15","referencingIds":["_ref_18"],"key":"emu-biblio"},{"type":"production","id":"prod-WhileStatement","name":"WhileStatement","referencingIds":[],"key":"WhileStatement"},{"type":"production","id":"prod-ArgumentList","name":"ArgumentList","referencingIds":["_ref_22"],"key":"ArgumentList"},{"type":"production","id":"prod-IterationStatement","name":"IterationStatement","referencingIds":[],"key":"IterationStatement"},{"type":"production","id":"prod-Identifier","name":"Identifier","referencingIds":[],"key":"Identifier"},{"type":"production","id":"prod-SourceCharacter","name":"SourceCharacter","referencingIds":[],"key":"SourceCharacter"},{"type":"production","id":"prod-ExpressionStatement","name":"ExpressionStatement","referencingIds":["_ref_23"],"key":"ExpressionStatement"},{"type":"production","id":"prod-DecimalDigit","name":"DecimalDigit","referencingIds":[],"key":"DecimalDigit"},{"type":"production","id":"prod-StatementList","name":"StatementList","referencingIds":[],"key":"StatementList"},{"type":"clause","id":"emu-grammar","aoid":null,"titleHTML":"emu-grammar","number":"16.1","referencingIds":["_ref_10"],"key":"emu-grammar"},{"type":"clause","id":"emu-production","aoid":null,"titleHTML":"emu-production","number":"16.2","referencingIds":["_ref_11"],"key":"emu-production"},{"type":"clause","id":"emu-rhs","aoid":null,"titleHTML":"emu-rhs","number":"16.3","referencingIds":[],"key":"emu-rhs"},{"type":"clause","id":"emu-nt","aoid":null,"titleHTML":"emu-nt","number":"16.4","referencingIds":[],"key":"emu-nt"},{"type":"clause","id":"emu-t","aoid":null,"titleHTML":"emu-t","number":"16.5","referencingIds":[],"key":"emu-t"},{"type":"clause","id":"emu-gmod","aoid":null,"titleHTML":"emu-gmod","number":"16.6","referencingIds":[],"key":"emu-gmod"},{"type":"clause","id":"emu-gann","aoid":null,"titleHTML":"emu-gann","number":"16.7","referencingIds":[],"key":"emu-gann"},{"type":"clause","id":"emu-gprose","aoid":null,"titleHTML":"emu-gprose","number":"16.8","referencingIds":[],"key":"emu-gprose"},{"type":"clause","id":"emu-prodref","aoid":null,"titleHTML":"emu-prodref","number":"16.9","referencingIds":[],"key":"emu-prodref"},{"type":"clause","id":"grammar","aoid":null,"titleHTML":"Specifying Grammar","number":"16","referencingIds":[],"key":"Specifying Grammar"},{"type":"clause","id":"imports","aoid":null,"titleHTML":"Imports","number":"17","referencingIds":[],"key":"Imports"},{"type":"clause","id":"oldids","aoid":null,"titleHTML":"Old IDs","number":"18.1","referencingIds":[],"key":"Old IDs"},{"type":"clause","id":"ins-del","aoid":null,"titleHTML":"ins &amp; del","number":"18.2","referencingIds":[],"key":"ins & del"},{"type":"clause","id":"pre-code","aoid":null,"titleHTML":"Code Listings","number":"18.3","referencingIds":[],"key":"Code Listings"},{"type":"clause","id":"css","aoid":null,"titleHTML":"Other Styles &amp; Conventions","number":"18","referencingIds":[],"key":"Other Styles & Conventions"},{"type":"term","term":"example","refId":"emu-not-ref","referencingIds":[],"key":"example"}]`);
+let biblio = JSON.parse(`{"refsByClause":{"editorial-conventions":["_ref_0","_ref_1","_ref_2","_ref_3","_ref_4","_ref_5","_ref_6","_ref_7","_ref_8","_ref_9","_ref_10","_ref_11","_ref_12"],"metadata":["_ref_13","_ref_14"],"emu-alg":["_ref_15","_ref_20"],"emu-xref":["_ref_16","_ref_17","_ref_18","_ref_19"],"emu-not-ref":["_ref_21"],"grammar":["_ref_22","_ref_23"]},"entries":[{"type":"clause","id":"intro","aoid":null,"titleHTML":"Ecmarkup","number":"","referencingIds":[],"key":"Ecmarkup"},{"type":"clause","id":"getting-started","aoid":null,"titleHTML":"Getting Started","number":"1","referencingIds":[],"key":"Getting Started"},{"type":"table","id":"build-options","node":{},"number":1,"caption":"Table 1: Build options","referencingIds":["_ref_13"],"key":"Table 1: Build options"},{"type":"table","id":"document-options","node":{},"number":2,"caption":"Table 2: Document options","referencingIds":["_ref_14"],"key":"Table 2: Document options"},{"type":"clause","id":"useful-options","aoid":null,"titleHTML":"Options","number":"2","referencingIds":[],"key":"Options"},{"type":"clause","id":"stylesheets-and-scripts","aoid":null,"titleHTML":"Stylesheets and Scripts","number":"3","referencingIds":[],"key":"Stylesheets and Scripts"},{"type":"table","id":"emd-overview","node":{},"number":4,"caption":"Table 4: Inline styles/conventions","referencingIds":["_ref_4"],"key":"Table 4: Inline styles/conventions"},{"type":"clause","id":"editorial-conventions","aoid":null,"titleHTML":"Editorial Conventions","number":"4","referencingIds":[],"key":"Editorial Conventions"},{"type":"clause","id":"metadata","aoid":null,"titleHTML":"Metadata","number":"5","referencingIds":[],"key":"Metadata"},{"type":"clause","id":"emu-intro","aoid":null,"titleHTML":"emu-intro","number":"6.1","referencingIds":["_ref_1"],"key":"emu-intro"},{"type":"clause","id":"example-normative-optional","aoid":null,"titleHTML":"Example Normative Optional Clause","number":"6.2.1","referencingIds":[],"key":"Example Normative Optional Clause"},{"type":"clause","id":"emu-clause","aoid":null,"titleHTML":"emu-clause","number":"6.2","referencingIds":["_ref_0","_ref_16"],"key":"emu-clause"},{"type":"clause","id":"emu-annex","aoid":null,"titleHTML":"emu-annex","number":"6.3","referencingIds":["_ref_2"],"key":"emu-annex"},{"type":"clause","id":"clauses","aoid":null,"titleHTML":"Clauses","number":"6","referencingIds":[],"key":"Clauses"},{"type":"step","id":"replace-me","stepNumbers":[2,1],"referencingIds":["_ref_15"],"key":"replace-me"},{"type":"op","aoid":"EmuAlg","refId":"emu-alg","referencingIds":[],"key":"EmuAlg"},{"type":"clause","id":"emu-alg","aoid":"EmuAlg","titleHTML":"emu-alg","number":"7","referencingIds":["_ref_3","_ref_20"],"key":"emu-alg"},{"type":"clause","id":"emu-eqn","aoid":null,"titleHTML":"emu-eqn","number":"8","referencingIds":["_ref_5"],"key":"emu-eqn"},{"type":"clause","id":"emu-note","aoid":null,"titleHTML":"emu-note","number":"9","referencingIds":["_ref_6","_ref_17"],"key":"emu-note"},{"type":"step","id":"example-step-label","stepNumbers":[1],"referencingIds":["_ref_19"],"key":"example-step-label"},{"type":"clause","id":"emu-xref","aoid":null,"titleHTML":"emu-xref","number":"10","referencingIds":["_ref_12"],"key":"emu-xref"},{"type":"clause","id":"emu-not-ref","aoid":null,"titleHTML":"emu-not-ref","number":"11","referencingIds":["_ref_21"],"key":"emu-not-ref"},{"type":"clause","id":"emu-figure","aoid":null,"titleHTML":"emu-figure","number":"12","referencingIds":["_ref_7"],"key":"emu-figure"},{"type":"clause","id":"emu-table","aoid":null,"titleHTML":"emu-table","number":"13","referencingIds":["_ref_8"],"key":"emu-table"},{"type":"clause","id":"emu-example","aoid":null,"titleHTML":"emu-example","number":"14","referencingIds":["_ref_9"],"key":"emu-example"},{"type":"clause","id":"emu-biblio","aoid":null,"titleHTML":"emu-biblio","number":"15","referencingIds":["_ref_18"],"key":"emu-biblio"},{"type":"production","id":"prod-WhileStatement","name":"WhileStatement","referencingIds":[],"key":"WhileStatement"},{"type":"production","id":"prod-ArgumentList","name":"ArgumentList","referencingIds":["_ref_22"],"key":"ArgumentList"},{"type":"production","id":"prod-IterationStatement","name":"IterationStatement","referencingIds":[],"key":"IterationStatement"},{"type":"production","id":"prod-Identifier","name":"Identifier","referencingIds":[],"key":"Identifier"},{"type":"production","id":"prod-SourceCharacter","name":"SourceCharacter","referencingIds":[],"key":"SourceCharacter"},{"type":"production","id":"prod-ExpressionStatement","name":"ExpressionStatement","referencingIds":["_ref_23"],"key":"ExpressionStatement"},{"type":"production","id":"prod-DecimalDigit","name":"DecimalDigit","referencingIds":[],"key":"DecimalDigit"},{"type":"production","id":"prod-StatementList","name":"StatementList","referencingIds":[],"key":"StatementList"},{"type":"clause","id":"emu-grammar","aoid":null,"titleHTML":"emu-grammar","number":"16.1","referencingIds":["_ref_10"],"key":"emu-grammar"},{"type":"clause","id":"emu-production","aoid":null,"titleHTML":"emu-production","number":"16.2","referencingIds":["_ref_11"],"key":"emu-production"},{"type":"clause","id":"emu-rhs","aoid":null,"titleHTML":"emu-rhs","number":"16.3","referencingIds":[],"key":"emu-rhs"},{"type":"clause","id":"emu-nt","aoid":null,"titleHTML":"emu-nt","number":"16.4","referencingIds":[],"key":"emu-nt"},{"type":"clause","id":"emu-t","aoid":null,"titleHTML":"emu-t","number":"16.5","referencingIds":[],"key":"emu-t"},{"type":"clause","id":"emu-gmod","aoid":null,"titleHTML":"emu-gmod","number":"16.6","referencingIds":[],"key":"emu-gmod"},{"type":"clause","id":"emu-gann","aoid":null,"titleHTML":"emu-gann","number":"16.7","referencingIds":[],"key":"emu-gann"},{"type":"clause","id":"emu-gprose","aoid":null,"titleHTML":"emu-gprose","number":"16.8","referencingIds":[],"key":"emu-gprose"},{"type":"clause","id":"emu-prodref","aoid":null,"titleHTML":"emu-prodref","number":"16.9","referencingIds":[],"key":"emu-prodref"},{"type":"clause","id":"grammar","aoid":null,"titleHTML":"Specifying Grammar","number":"16","referencingIds":[],"key":"Specifying Grammar"},{"type":"clause","id":"imports","aoid":null,"titleHTML":"Imports","number":"17","referencingIds":[],"key":"Imports"},{"type":"clause","id":"oldids","aoid":null,"titleHTML":"Old IDs","number":"18.1","referencingIds":[],"key":"Old IDs"},{"type":"clause","id":"ins-del","aoid":null,"titleHTML":"ins &amp; del","number":"18.2","referencingIds":[],"key":"ins & del"},{"type":"clause","id":"pre-code","aoid":null,"titleHTML":"Code Listings","number":"18.3","referencingIds":[],"key":"Code Listings"},{"type":"clause","id":"css","aoid":null,"titleHTML":"Other Styles &amp; Conventions","number":"18","referencingIds":[],"key":"Other Styles & Conventions"},{"type":"term","term":"example","refId":"emu-not-ref","referencingIds":[],"key":"example"}]}`);

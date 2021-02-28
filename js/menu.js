@@ -27,14 +27,22 @@ function Search(menu) {
 Search.prototype.loadBiblio = function () {
   if (typeof biblio === 'undefined') {
     console.error('could not find biblio');
-    this.biblio = [];
+    this.biblio = { refToClause: {}, entries: [] };
   } else {
     this.biblio = biblio;
-    this.biblio.clauses = this.biblio.filter(e => e.type === 'clause');
-    this.biblio.byId = this.biblio.reduce((map, entry) => {
+    this.biblio.clauses = this.biblio.entries.filter(e => e.type === 'clause');
+    this.biblio.byId = this.biblio.entries.reduce((map, entry) => {
       map[entry.id] = entry;
       return map;
     }, {});
+    let refParentClause = Object.create(null);
+    this.biblio.refParentClause = refParentClause;
+    let refsByClause = this.biblio.refsByClause;
+    Object.keys(refsByClause).forEach(clause => {
+      refsByClause[clause].forEach(ref => {
+        refParentClause[ref] = clause;
+      });
+    });
   }
 };
 
@@ -122,8 +130,8 @@ Search.prototype.search = function (searchString) {
   } else {
     results = [];
 
-    for (let i = 0; i < this.biblio.length; i++) {
-      let entry = this.biblio[i];
+    for (let i = 0; i < this.biblio.entries.length; i++) {
+      let entry = this.biblio.entries[i];
       if (!entry.key) {
         // biblio entries without a key aren't searchable
         continue;
@@ -205,7 +213,8 @@ Search.prototype.displayResults = function (results) {
       }
 
       if (text) {
-        html += `<li class=menu-search-result-${cssClass}><a href="#${id}">${text}</a></li>`;
+        // prettier-ignore
+        html += `<li class=menu-search-result-${cssClass}><a href="${makeLinkToId(id)}">${text}</a></li>`;
       }
     });
 
@@ -303,10 +312,10 @@ Menu.prototype.revealInToc = function (path) {
 
   current = this.$toc;
   let index = 0;
-  while (index < path.length) {
+  outer: while (index < path.length) {
     let children = current.children;
     for (let i = 0; i < children.length; i++) {
-      if ('#' + path[index].id === children[i].children[1].getAttribute('href')) {
+      if ('#' + path[index].id === children[i].children[1].hash) {
         children[i].classList.add('revealed');
         if (index === path.length - 1) {
           children[i].classList.add('revealed-leaf');
@@ -322,9 +331,11 @@ Menu.prototype.revealInToc = function (path) {
         }
         current = children[i].querySelector('ol');
         index++;
-        break;
+        continue outer;
       }
     }
+    console.log('could not find location in table of contents', path);
+    break;
   }
 };
 
@@ -336,9 +347,12 @@ function findActiveClause(root, path) {
   while (($clause = clauses.nextNode())) {
     let rect = $clause.getBoundingClientRect();
     let $header = $clause.querySelector('h1');
-    let marginTop = parseInt(getComputedStyle($header)['margin-top']);
+    let marginTop = Math.max(
+      parseInt(getComputedStyle($clause)['margin-top']),
+      parseInt(getComputedStyle($header)['margin-top'])
+    );
 
-    if (rect.top - marginTop <= 0 && rect.bottom > 0) {
+    if (rect.top - marginTop <= 1 && rect.bottom > 0) {
       return findActiveClause($clause, path.concat($clause)) || path;
     }
   }
@@ -415,9 +429,10 @@ Menu.prototype.addPinEntry = function (id) {
     } else {
       prefix = '';
     }
-    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${prefix}${entry.titleHTML}</a></li>`;
+    // prettier-ignore
+    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${prefix}${entry.titleHTML}</a></li>`;
   } else {
-    this.$pinList.innerHTML += `<li><a href="#${entry.id}">${entry.key}</a></li>`;
+    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${entry.key}</a></li>`;
   }
 
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -428,7 +443,7 @@ Menu.prototype.addPinEntry = function (id) {
 };
 
 Menu.prototype.removePinEntry = function (id) {
-  let item = this.$pinList.querySelector(`a[href="#${id}"]`).parentNode;
+  let item = this.$pinList.querySelector(`a[href="${makeLinkToId(id)}"]`).parentNode;
   this.$pinList.removeChild(item);
   delete this._pinnedIds[id];
   if (Object.keys(this._pinnedIds).length === 0) {
@@ -682,7 +697,7 @@ let Toolbox = {
   },
 
   updatePermalink() {
-    this.$permalink.setAttribute('href', '#' + this.entry.id);
+    this.$permalink.setAttribute('href', makeLinkToId(this.entry.id));
   },
 
   updateReferences() {
@@ -800,36 +815,40 @@ let referencePane = {
 
   deactivate() {
     this.$container.classList.remove('active');
+    this.state = null;
   },
 
   showReferencesFor(entry) {
     this.activate();
+    this.state = { type: 'ref', id: entry.id };
     this.$headerText.textContent = 'References to ';
     let newBody = document.createElement('tbody');
     let previousId;
     let previousCell;
     let dupCount = 0;
     this.$headerRefId.textContent = '#' + entry.id;
-    this.$headerRefId.setAttribute('href', '#' + entry.id);
+    this.$headerRefId.setAttribute('href', makeLinkToId(entry.id));
     this.$headerRefId.style.display = 'inline';
     entry.referencingIds
       .map(id => {
-        let target = document.getElementById(id);
-        let cid = findParentClauseId(target);
+        let cid = menu.search.biblio.refParentClause[id];
         let clause = menu.search.biblio.byId[cid];
+        if (clause == null) {
+          throw new Error('could not find clause for id ' + cid);
+        }
         return { id, clause };
       })
       .sort((a, b) => sortByClauseNumber(a.clause, b.clause))
       .forEach(record => {
         if (previousId === record.clause.id) {
-          previousCell.innerHTML += ` (<a href="#${record.id}">${dupCount + 2}</a>)`;
+          previousCell.innerHTML += ` (<a href="${makeLinkToId(record.id)}">${dupCount + 2}</a>)`;
           dupCount++;
         } else {
           let row = newBody.insertRow();
           let cell = row.insertCell();
           cell.innerHTML = record.clause.number;
           cell = row.insertCell();
-          cell.innerHTML = `<a href="#${record.id}">${record.clause.titleHTML}</a>`;
+          cell.innerHTML = `<a href="${makeLinkToId(record.id)}">${record.clause.titleHTML}</a>`;
           previousCell = cell;
           previousId = record.clause.id;
           dupCount = 0;
@@ -841,7 +860,6 @@ let referencePane = {
   },
 
   showSDOs(sdos, alternativeId) {
-    this.activate();
     let rhs = document.getElementById(alternativeId);
     let parentName = rhs.parentNode.getAttribute('name');
     let colons = rhs.parentNode.querySelector('emu-geq');
@@ -856,8 +874,15 @@ let referencePane = {
       e.parentNode.replaceChild(document.createTextNode(e.textContent), e);
     });
 
-    this.$headerText.innerHTML = `Syntax-Directed Operations for<br><a href="#${alternativeId}" class="menu-pane-header-production"><emu-nt>${parentName}</emu-nt> ${colons.outerHTML} </a>`;
+    // prettier-ignore
+    this.$headerText.innerHTML = `Syntax-Directed Operations for<br><a href="${makeLinkToId(alternativeId)}" class="menu-pane-header-production"><emu-nt>${parentName}</emu-nt> ${colons.outerHTML} </a>`;
     this.$headerText.querySelector('a').append(rhs);
+    this.showSDOsBody(sdos, alternativeId);
+  },
+
+  showSDOsBody(sdos, alternativeId) {
+    this.activate();
+    this.state = { type: 'sdo', id: alternativeId, html: this.$headerText.innerHTML };
     this.$headerRefId.style.display = 'none';
     let newBody = document.createElement('tbody');
     Object.keys(sdos).forEach(sdoName => {
@@ -869,9 +894,9 @@ let referencePane = {
       let cell = row.insertCell();
       cell.innerHTML = clause;
       cell = row.insertCell();
-      let html = '<a href="#' + first + '">' + sdoName + '</a>';
+      let html = '<a href="' + makeLinkToId(first) + '">' + sdoName + '</a>';
       for (let i = 1; i < ids.length; ++i) {
-        html += ' (<a href="#' + ids[i] + '">' + (i + 1) + '</a>)';
+        html += ' (<a href="' + makeLinkToId(ids[i]) + '">' + (i + 1) + '</a>)';
       }
       cell.innerHTML = html;
     });
@@ -880,18 +905,6 @@ let referencePane = {
     this.$table.appendChild(this.$tableBody);
   },
 };
-function findParentClauseId(node) {
-  while (
-    node &&
-    node.nodeName !== 'EMU-CLAUSE' &&
-    node.nodeName !== 'EMU-INTRO' &&
-    node.nodeName !== 'EMU-ANNEX'
-  ) {
-    node = node.parentNode;
-  }
-  if (!node) return null;
-  return node.getAttribute('id');
-}
 
 function sortByClauseNumber(clause1, clause2) {
   let c1c = clause1.number.split('.');
@@ -928,6 +941,14 @@ function sortByClauseNumber(clause1, clause2) {
     return 0;
   }
   return -1;
+}
+
+function makeLinkToId(id) {
+  let hash = '#' + id;
+  if (typeof idToSection === 'undefined' || !idToSection[id]) {
+    return hash;
+  }
+  return idToSection[id] + '.html' + hash;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

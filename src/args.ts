@@ -32,6 +32,11 @@ export const argParser = nomnom
       help:
         'The linting output formatter. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.',
     },
+    multipage: {
+      flag: true,
+      default: false,
+      help: 'Generate a multipage version of the spec. Cannot be used with --js-out or --css-out.',
+    },
     strict: {
       flag: true,
       default: false,
