@@ -764,13 +764,6 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
     for (let { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
-      let headClone = head.cloneNode(true) as HTMLHeadElement;
-      if (eles[0].hasAttribute('id')) {
-        let canonical = this.doc.createElement('link');
-        canonical.setAttribute('rel', 'canonical');
-        canonical.setAttribute('href', `../index.html#${eles[0].id}`);
-        headClone.appendChild(canonical);
-      }
       let tocClone = tocEles.map(e => e.cloneNode(true));
       let clones = eles.map(e => e.cloneNode(true));
       // @ts-ignore
@@ -815,7 +808,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       let tocHTML = tocClone.map(e => e.outerHTML).join('\n');
       // @ts-ignore
       let clonesHTML = clones.map(e => e.outerHTML).join('\n');
-      let content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${tocHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
+      let content = `<!doctype html>${htmlEle}\n${head.outerHTML}\n<body>${tocHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
 
       this.generatedFiles.set(path.resolve(this.opts.outfile!, `multipage/${name}.html`), content);
     }
