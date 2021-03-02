@@ -773,10 +773,14 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }
       let tocClone = tocEles.map(e => e.cloneNode(true));
       let clones = eles.map(e => e.cloneNode(true));
+      let allClones = tocClone.concat(clones);
       // @ts-ignore
-      let links = tocClone.concat(clones).flatMap(e => [...e.querySelectorAll('a')]);
+      let links = allClones.flatMap(e => [...e.querySelectorAll('a')]);
       for (let link of links) {
-        if (!link.host && !link.pathName && link.hash) {
+        if (linkIsAbsolute(link)) {
+          continue;
+        }
+        if (linkIsInternal(link)) {
           let p = link.hash.substring(1);
           if (!containedIdToSection.has(p)) {
             try {
@@ -796,21 +800,24 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           }
           let targetSec = containedIdToSection.get(p)!;
           link.href = targetSec + '.html' + link.hash;
+        } else if (linkIsPathRelative(link)) {
+          link.href = '../' + pathFromRelativeLink(link);
         }
       }
       // @ts-ignore
-      for (let img of tocClone.concat(clones).flatMap(e => [...e.querySelectorAll('img')])) {
+      for (let img of allClones.flatMap(e => [...e.querySelectorAll('img')])) {
         if (!/^(http:|https:|:|\/)/.test(img.src)) {
           img.src = '../' + img.src;
         }
       }
       // prettier-ignore
       // @ts-ignore
-      for (let object of tocClone.concat(clones).flatMap(e => [...e.querySelectorAll('object[data]')])) {
+      for (let object of allClones.flatMap(e => [...e.querySelectorAll('object[data]')])) {
         if (!/^(http:|https:|:|\/)/.test(object.data)) {
           object.data = '../' + object.data;
         }
       }
+
       // @ts-ignore
       let tocHTML = tocClone.map(e => e.outerHTML).join('\n');
       // @ts-ignore
@@ -1664,4 +1671,22 @@ function sha(str: string) {
     .slice(0, 8)
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
+}
+
+// jsdom does not handle the `.hostname` (etc) parts correctly, so we have to look at the href directly
+// it also (some?) relative links as links to about:blank, for the purposes of testing the href
+function linkIsAbsolute(link: HTMLAnchorElement) {
+  return !link.href.startsWith('about:blank') && /^[a-z]+:/.test(link.href);
+}
+
+function linkIsInternal(link: HTMLAnchorElement) {
+  return link.href.startsWith('#') || link.href.startsWith('about:blank#');
+}
+
+function linkIsPathRelative(link: HTMLAnchorElement) {
+  return !link.href.startsWith('/') && !link.href.startsWith('about:blank/');
+}
+
+function pathFromRelativeLink(link: HTMLAnchorElement) {
+  return link.href.startsWith('about:blank') ? link.href.substring(11) : link.href;
 }
