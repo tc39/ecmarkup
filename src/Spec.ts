@@ -616,6 +616,15 @@ export default class Spec {
       });
       return false;
     }
+    if (ele.id.toLowerCase() === 'sec-index') {
+      this.warn({
+        type: 'node',
+        ruleId: 'top-level-section-id',
+        message: 'When using --multipage, top-level sections must not be named "index"',
+        node: ele,
+      });
+      return false;
+    }
     return true;
   }
 
@@ -653,23 +662,24 @@ export default class Spec {
             continue;
           }
 
+          let name = 'index';
           introEles.push(child);
-          sections.push({ name: child.id.substring(4), eles: introEles });
+          sections.push({ name, eles: introEles });
 
           let contained: string[] = [];
-          sectionToContainedIds.set(child.id.substring(4), contained);
+          sectionToContainedIds.set(name, contained);
 
           for (let item of introEles) {
             if (item.id) {
               contained.push(item.id);
-              containedIdToSection.set(item.id, child.id.substring(4));
+              containedIdToSection.set(item.id, name);
             }
           }
 
           // @ts-ignore
           for (let item of [...introEles].flatMap(e => [...e.querySelectorAll('[id]')])) {
             contained.push(item.id);
-            containedIdToSection.set(item.id, child.id.substring(4));
+            containedIdToSection.set(item.id, name);
           }
         } else {
           introEles.push(child);
@@ -691,18 +701,19 @@ export default class Spec {
           continue;
         }
 
+        let name = child.id.substring(4);
         let contained: string[] = [];
-        sectionToContainedIds.set(child.id.substring(4), contained);
+        sectionToContainedIds.set(name, contained);
 
         contained.push(child.id);
-        containedIdToSection.set(child.id, child.id.substring(4));
+        containedIdToSection.set(child.id, name);
 
         // @ts-ignore
         for (let item of child.querySelectorAll('[id]')) {
           contained.push(item.id);
-          containedIdToSection.set(item.id, child.id.substring(4));
+          containedIdToSection.set(item.id, name);
         }
-        sections.push({ name: child.id.substring(4), eles: [child] });
+        sections.push({ name, eles: [child] });
       }
     }
 
@@ -749,18 +760,6 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     multipageScript.src = 'multipage.js?cache=' + sha(multipageJsContents);
     multipageScript.setAttribute('defer', '');
     head.appendChild(multipageScript);
-
-    if (!sections.some(({ name }) => name === 'index')) {
-      let placeholder = this.doc.createElement('p');
-      placeholder.innerHTML =
-        'This page serves as an index. If you are not automatically redirected, you can navigate to the actual specification by using the table of contents on the left.';
-      let indexRedirectScript = this.doc.createElement('script');
-      indexRedirectScript.textContent = `if (!location.hash) location = 'intro.html';`;
-      sections.push({
-        name: 'index',
-        eles: [placeholder, indexRedirectScript],
-      });
-    }
 
     for (let { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
