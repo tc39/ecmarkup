@@ -367,20 +367,28 @@ function ClauseWalker(root) {
     NodeFilter.SHOW_ELEMENT,
     {
       acceptNode(node) {
+        // reject nodes under an already-accepted element
         if (previous === node.parentNode) {
           return NodeFilter.FILTER_REJECT;
-        } else {
-          previous = node;
         }
+
+        // descend into <emu-import> to inspect immediate children
+        if (node.nodeName === 'EMU-IMPORT') {
+          return NodeFilter.FILTER_SKIP;
+        }
+
+        // accept <emu-clause>, <emu-intro>, and <emu-annex>
         if (
           node.nodeName === 'EMU-CLAUSE' ||
           node.nodeName === 'EMU-INTRO' ||
           node.nodeName === 'EMU-ANNEX'
         ) {
+          previous = node;
           return NodeFilter.FILTER_ACCEPT;
-        } else {
-          return NodeFilter.FILTER_SKIP;
         }
+
+        // reject everything else
+        return NodeFilter.FILTER_REJECT;
       },
     },
     false
