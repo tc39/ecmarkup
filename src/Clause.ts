@@ -10,8 +10,6 @@ import Builder from './Builder';
 export default class Clause extends Builder {
   id: string;
   namespace: string;
-  // @ts-ignore skipping the strictPropertyInitialization check
-  header: HTMLHeadingElement;
   parentClause: Clause;
   title?: string;
   // @ts-ignore skipping the strictPropertyInitialization check
@@ -54,13 +52,31 @@ export default class Clause extends Builder {
   }
 
   buildHeader() {
-    if (!this.number) return;
+    let header = this.node.firstElementChild;
+    while (header != null && header.tagName === 'SPAN' && header.children.length === 0) {
+      // skip oldids
+      header = header.nextElementSibling;
+    }
+    if (header == null || header.tagName !== 'H1') {
+      this.spec.warn({
+        type: 'node',
+        ruleId: 'missing-header',
+        message: "clause doesn't have a header, found: " + header?.tagName,
+        node: this.node,
+      });
+      return { title: 'UNKNOWN', titleHTML: 'UNKNOWN' };
+    }
 
-    const numElem = this.spec.doc.createElement('span');
-    numElem.setAttribute('class', 'secnum');
-    numElem.textContent = this.number;
-    this.header.insertBefore(this.spec.doc.createTextNode(' '), this.header.firstChild);
-    this.header.insertBefore(numElem, this.header.firstChild);
+    let { textContent: title, innerHTML: titleHTML } = header;
+    if (this.number) {
+      const numElem = this.spec.doc.createElement('span');
+      numElem.setAttribute('class', 'secnum');
+      numElem.textContent = this.number;
+      header.insertBefore(this.spec.doc.createTextNode(' '), header.firstChild);
+      header.insertBefore(numElem, header.firstChild);
+    }
+
+    return { title, titleHTML };
   }
 
   buildNotes() {
@@ -117,14 +133,9 @@ export default class Clause extends Builder {
   static exit({ node, spec, clauseStack, inAlg, currentId }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
-    if (!clause.header) {
-      // TODO make this not a hard failure
-      throw new Error("Couldn't find title for clause #" + clause.id);
-    }
-
-    clause.title = clause.header.textContent!;
-    clause.titleHTML = clause.header.innerHTML;
-    clause.buildHeader();
+    let { title, titleHTML } = clause.buildHeader();
+    clause.title = title!;
+    clause.titleHTML = titleHTML;
     clause.buildExamples();
     clause.buildNotes();
 
