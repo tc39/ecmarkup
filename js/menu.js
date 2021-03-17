@@ -340,11 +340,10 @@ Menu.prototype.revealInToc = function (path) {
 };
 
 function findActiveClause(root, path) {
-  let clauses = new ClauseWalker(root);
-  let $clause;
+  let clauses = getChildClauses(root);
   path = path || [];
 
-  while (($clause = clauses.nextNode())) {
+  for (let $clause of clauses) {
     let rect = $clause.getBoundingClientRect();
     let $header = $clause.querySelector('h1');
     let marginTop = Math.max(
@@ -360,41 +359,21 @@ function findActiveClause(root, path) {
   return path;
 }
 
-function ClauseWalker(root) {
-  let previous;
-  let treeWalker = document.createTreeWalker(
-    root,
-    NodeFilter.SHOW_ELEMENT,
-    {
-      acceptNode(node) {
-        // reject nodes under an already-accepted element
-        if (previous === node.parentNode) {
-          return NodeFilter.FILTER_REJECT;
-        }
+function* getChildClauses(root) {
+  for (let el of root.children) {
+    switch (el.nodeName) {
+      // descend into <emu-import>
+      case 'EMU-IMPORT':
+        yield* getChildClauses(el);
+        break;
 
-        // descend into <emu-import> to inspect immediate children
-        if (node.nodeName === 'EMU-IMPORT') {
-          return NodeFilter.FILTER_SKIP;
-        }
-
-        // accept <emu-clause>, <emu-intro>, and <emu-annex>
-        if (
-          node.nodeName === 'EMU-CLAUSE' ||
-          node.nodeName === 'EMU-INTRO' ||
-          node.nodeName === 'EMU-ANNEX'
-        ) {
-          previous = node;
-          return NodeFilter.FILTER_ACCEPT;
-        }
-
-        // reject everything else
-        return NodeFilter.FILTER_REJECT;
-      },
-    },
-    false
-  );
-
-  return treeWalker;
+      // accept <emu-clause>, <emu-intro>, and <emu-annex>
+      case 'EMU-CLAUSE':
+      case 'EMU-INTRO':
+      case 'EMU-ANNEX':
+        yield el;
+    }
+  }
 }
 
 Menu.prototype.toggle = function () {
