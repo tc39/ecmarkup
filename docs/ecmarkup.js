@@ -1018,7 +1018,8 @@ function makeLinkToId(id) {
   if (typeof idToSection === 'undefined' || !idToSection[id]) {
     return hash;
   }
-  return idToSection[id] + '.html' + hash;
+  let targetSec = idToSection[id];
+  return (targetSec === 'index' ? './' : targetSec + '.html') + hash;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
