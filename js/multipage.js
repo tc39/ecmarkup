@@ -12,7 +12,7 @@ if (location.hash) {
   if (targetSec != null) {
     let match = location.pathname.match(/([^/]+)\.html?$/);
     if ((match != null && match[1] !== targetSec) || location.pathname.endsWith('/multipage/')) {
-      location = targetSec + '.html' + location.hash;
+      location = (targetSec === 'index' ? './' : targetSec + '.html') + location.hash;
     }
   }
 }

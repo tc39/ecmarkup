@@ -798,7 +798,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
             }
           }
           let targetSec = containedIdToSection.get(p)!;
-          link.href = targetSec + '.html' + link.hash;
+          link.href = (targetSec === 'index' ? './' : targetSec + '.html') + link.hash;
         } else if (linkIsPathRelative(link)) {
           link.href = '../' + pathFromRelativeLink(link);
         }
