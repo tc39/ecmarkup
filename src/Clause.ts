@@ -5,14 +5,14 @@ import type { ClauseBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
+import { offsetToLineAndColumn } from './utils';
 
 /*@internal*/
 export default class Clause extends Builder {
   id: string;
   namespace: string;
   parentClause: Clause;
-  title?: string;
-  // @ts-ignore skipping the strictPropertyInitialization check
+  title: string;
   titleHTML: string;
   subclauses: Clause[];
   number: string;
@@ -49,6 +49,10 @@ export default class Clause extends Builder {
       // <emu-clause id=foo aoid> === <emu-clause id=foo aoid=foo>
       this.aoid = node.id;
     }
+
+    let { title, titleHTML } = this.buildHeader();
+    this.title = title!;
+    this.titleHTML = titleHTML;
   }
 
   buildHeader() {
@@ -61,10 +65,148 @@ export default class Clause extends Builder {
       this.spec.warn({
         type: 'node',
         ruleId: 'missing-header',
-        message: "clause doesn't have a header, found: " + header?.tagName,
+        message: `clause doesn't have a header, found: ${header?.tagName}`,
         node: this.node,
       });
       return { title: 'UNKNOWN', titleHTML: 'UNKNOWN' };
+    }
+
+    let dl = header.nextElementSibling;
+    structured: if (dl != null && dl.tagName === 'DL' && dl.classList.contains('header')) {
+      // if we find such a DL, treat this as a structured header
+      // parsing is intentionally permissive; the linter imposes stricter checks
+      let headerText = header.innerHTML;
+      let prefix = headerText.match(/^\s*(Static|Runtime) Semantics:\s*/);
+      if (prefix != null) {
+        headerText = headerText.substring(prefix[0].length);
+      }
+      let parsed = headerText.match(/^\s*([^(\s]+)\s*\(([^)]*)\)\s*$/);
+      if (parsed == null) {
+        // TODO deal with this properly
+        break structured;
+        // this.spec.warn({
+        //   type: 'contents',
+        //   ruleId: 'header-format',
+        //   message: `failed to parse header`,
+        //   node: header,
+        //   nodeRelativeColumn: 1,
+        //   nodeRelativeLine: 1,
+        // });
+        // break structured;
+      }
+      let name = parsed[1];
+      let paramText = parsed[2].trim();
+      let params: Array<string> = [];
+      let optionalParams: Array<string> = [];
+      let optional = false;
+      while (true) {
+        if (paramText.length == 0) {
+          break;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        let { success, text, match } = eat(paramText, /^\s*\[(\s*,)?/);
+        if (success) {
+          optional = true;
+          paramText = text;
+        }
+        ({ success, text, match } = eat(paramText, /^\s*([A-Za-z0-9_]+)/));
+        if (!success) {
+          console.log(paramText);
+          this.spec.warn({
+            type: 'contents',
+            ruleId: 'header-format',
+            message: `could not parse header`,
+            node: header,
+            // we could be more precise, but it's probably not worth the effort
+            nodeRelativeLine: 1,
+            nodeRelativeColumn: 1,
+          });
+          break;
+        }
+        paramText = text;
+        (optional ? optionalParams : params).push(match![1]);
+        ({ success, text } = eat(paramText, /^(\s*\])+|,/));
+        if (success) {
+          paramText = text;
+        }
+      }
+      let formattedParams;
+      if (params.length === 0 && optionalParams.length === 0) {
+        formattedParams = 'no arguments';
+      } else {
+        if (params.length > 0) {
+          formattedParams =
+            (params.length === 1 ? 'argument' : 'arguments') + ' ' + formatEnglishList(params);
+          if (optionalParams.length > 0) {
+            formattedParams += ' and ';
+          }
+        }
+        if (optionalParams.length > 0) {
+          formattedParams +=
+            'optional' +
+            (params.length === 1 ? 'argument' : 'arguments') +
+            ' ' +
+            formatEnglishList(optionalParams);
+        }
+      }
+
+      let description;
+      for (let i = 0; i < dl.children.length; ++i) {
+        let dt = dl.children[i];
+        if (dt.tagName !== 'DT') {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'header-format',
+            message: `expecting header to have DT, but found ${dt.tagName}`,
+            node: dt,
+          });
+          break structured;
+        }
+        ++i;
+        let dd = dl.children[i];
+        if (dd?.tagName !== 'DD') {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'header-format',
+            message: `expecting header to have DD, but found ${dd.tagName}`,
+            node: dd,
+          });
+          break structured;
+        }
+
+        let type = dt.textContent ?? '';
+        if (
+          ['op kind', 'name', 'for', 'parameters', 'returns', 'also has access to'].includes(type)
+        ) {
+          // TODO not ignore these
+          continue;
+        }
+        if (type !== 'description') {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'header-format',
+            message: `unknown structured header entry type ${type}`,
+            node: dd,
+          });
+          break structured;
+        }
+        description = dd;
+      }
+
+      let para = this.spec.doc.createElement('p');
+      para.append(`The abstract operation ${name} takes ${formattedParams}.`);
+      if (description != null) {
+        // @ts-ignore childNodes is iterable
+        para.append(' ', ...description.childNodes);
+      }
+      let next = dl.nextElementSibling;
+      while (next != null && next.tagName === 'EMU-NOTE') {
+        next = next.nextElementSibling;
+      }
+      if (next?.tagName == 'EMU-ALG') {
+        para.append(' It performs the following steps when called:');
+      }
+      dl.replaceWith(para);
     }
 
     let { textContent: title, innerHTML: titleHTML } = header;
@@ -133,9 +275,6 @@ export default class Clause extends Builder {
   static exit({ node, spec, clauseStack, inAlg, currentId }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
-    let { title, titleHTML } = clause.buildHeader();
-    clause.title = title!;
-    clause.titleHTML = titleHTML;
     clause.buildExamples();
     clause.buildNotes();
 
@@ -173,4 +312,22 @@ export default class Clause extends Builder {
 
   static elements = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];
   static linkElements = Clause.elements;
+}
+
+function eat(text: string, regex: RegExp) {
+  let match = text.match(regex);
+  if (match == null) {
+    return { success: false, match, text };
+  }
+  return { success: true, match, text: text.substring(match[0].length) };
+}
+
+function formatEnglishList(list: Array<string>) {
+  if (list.length === 1) {
+    return list[0];
+  }
+  if (list.length === 2) {
+    return `${list[0]} and ${list[1]}`;
+  }
+  return `${list.slice(0, -1).join(', ')}, and ${list[list.length - 1]}`;
 }
