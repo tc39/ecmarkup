@@ -111,16 +111,15 @@ export default class Clause extends Builder {
         }
         ({ success, text, match } = eat(paramText, /^\s*([A-Za-z0-9_]+)/));
         if (!success) {
-          console.log(paramText);
-          this.spec.warn({
-            type: 'contents',
-            ruleId: 'header-format',
-            message: `could not parse header`,
-            node: header,
-            // we could be more precise, but it's probably not worth the effort
-            nodeRelativeLine: 1,
-            nodeRelativeColumn: 1,
-          });
+          // this.spec.warn({
+          //   type: 'contents',
+          //   ruleId: 'header-format',
+          //   message: `could not parse header`,
+          //   node: header,
+          //   // we could be more precise, but it's probably not worth the effort
+          //   nodeRelativeLine: 1,
+          //   nodeRelativeColumn: 1,
+          // });
           break;
         }
         paramText = text;
@@ -175,22 +174,47 @@ export default class Clause extends Builder {
         }
 
         let type = dt.textContent ?? '';
-        if (
-          ['op kind', 'name', 'for', 'parameters', 'returns', 'also has access to'].includes(type)
-        ) {
-          // TODO not ignore these
-          continue;
+        if (type === 'op kind') {
+          if (dd.textContent !== 'abstract operation') {
+            dl.remove();
+            break structured;
+          }
         }
-        if (type !== 'description') {
-          this.spec.warn({
-            type: 'node',
-            ruleId: 'header-format',
-            message: `unknown structured header entry type ${type}`,
-            node: dd,
-          });
-          break structured;
+        switch (type) {
+          case 'description': {
+            if (description != null) {
+              this.spec.warn({
+                type: 'node',
+                ruleId: 'header-format',
+                message: `duplicate description`,
+                node: dd,
+              });
+            }
+            description = dd;
+            break;
+          }
+          case 'parameters': {
+            // TODO
+            break;
+          }
+          case 'op kind':
+          case 'name':
+          case 'for':
+          case 'returns':
+          case 'also has access to': {
+            // TODO not ignore these
+            break;
+          }
+          default: {
+            this.spec.warn({
+              type: 'node',
+              ruleId: 'header-format',
+              message: `unknown structured header entry type ${type}`,
+              node: dd,
+            });
+            break;
+          }
         }
-        description = dd;
       }
 
       let para = this.spec.doc.createElement('p');
