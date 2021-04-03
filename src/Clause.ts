@@ -80,6 +80,7 @@ export default class Clause extends Builder {
       if (prefix != null) {
         headerText = headerText.substring(prefix[0].length);
       }
+
       let parsed = headerText.match(/^\s*([^(\s]+)\s*\(([^)]*)\)\s*$/);
       if (parsed == null) {
         // TODO deal with this properly
@@ -94,58 +95,112 @@ export default class Clause extends Builder {
         // });
         // break structured;
       }
+
+      type Param = { name: string; type: string | null };
       let name = parsed[1];
       let paramText = parsed[2].trim();
-      let params: Array<string> = [];
-      let optionalParams: Array<string> = [];
-      let optional = false;
-      while (true) {
-        if (paramText.length == 0) {
-          break;
+      let params: Array<Param> = [];
+      let optionalParams: Array<Param> = [];
+
+      if (/\(\s*\n/.test(headerText)) {
+        // if it's multiline, parse it for types
+        let paramChunks = paramText
+          .split('\n')
+          .map(c => c.trim())
+          .filter(c => c.length > 1);
+        let index = 0;
+        for (let chunk of paramChunks) {
+          ++index;
+          // TODO linter enforces all optional params come after non-optional params
+          let parsedChunk = chunk.match(/^(optional\s*)?([A-Za-z0-9_]+)\s*:\s*(\S.*\S)/);
+          if (parsedChunk == null) {
+            this.spec.warn({
+              type: 'contents',
+              ruleId: 'header-format',
+              message: `failed to parse header (parameter ${index})`,
+              node: header,
+              nodeRelativeColumn: 1,
+              nodeRelativeLine: 1,
+            });
+            continue;
+          }
+          let optional = parsedChunk[1] != null;
+          let paramName = parsedChunk[2];
+          let paramType = parsedChunk[3];
+          if (paramType.endsWith(',')) {
+            paramType = paramType.slice(0, -1);
+          }
+          (optional ? optionalParams : params).push({
+            name: paramName,
+            type: paramType === 'unknown' ? null : paramType,
+          });
+          let formattedHeader = name + ' ( ' + params.map(n => n.name).join(', ');
+          if (optionalParams.length > 0) {
+            formattedHeader += ' [ ';
+            if (params.length > 0) {
+              formattedHeader += ', ';
+            }
+            formattedHeader += optionalParams.map(p => p.name).join(', ') + ' ]';
+          }
+          formattedHeader += ' )';
+          header.innerHTML = formattedHeader;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        let { success, text, match } = eat(paramText, /^\s*\[(\s*,)?/);
-        if (success) {
-          optional = true;
+      } else {
+        let optional = false;
+        while (true) {
+          if (paramText.length == 0) {
+            break;
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          let { success, text, match } = eat(paramText, /^\s*\[(\s*,)?/);
+          if (success) {
+            optional = true;
+            paramText = text;
+          }
+          ({ success, text, match } = eat(paramText, /^\s*([A-Za-z0-9_]+)/));
+          if (!success) {
+            // this.spec.warn({
+            //   type: 'contents',
+            //   ruleId: 'header-format',
+            //   message: `could not parse header`,
+            //   node: header,
+            //   // we could be more precise, but it's probably not worth the effort
+            //   nodeRelativeLine: 1,
+            //   nodeRelativeColumn: 1,
+            // });
+            break;
+          }
           paramText = text;
-        }
-        ({ success, text, match } = eat(paramText, /^\s*([A-Za-z0-9_]+)/));
-        if (!success) {
-          // this.spec.warn({
-          //   type: 'contents',
-          //   ruleId: 'header-format',
-          //   message: `could not parse header`,
-          //   node: header,
-          //   // we could be more precise, but it's probably not worth the effort
-          //   nodeRelativeLine: 1,
-          //   nodeRelativeColumn: 1,
-          // });
-          break;
-        }
-        paramText = text;
-        (optional ? optionalParams : params).push(match![1]);
-        ({ success, text } = eat(paramText, /^(\s*\])+|,/));
-        if (success) {
-          paramText = text;
+          (optional ? optionalParams : params).push({ name: match![1], type: null });
+          ({ success, text } = eat(paramText, /^(\s*\])+|,/));
+          if (success) {
+            paramText = text;
+          }
         }
       }
+
+      let printParam = (p: Param) => `${p.name}${p.type == null ? '' : ` (${p.type})`}`;
+      let paramsWithTypes = params.map(printParam);
+      let optionalParamsWithTypes = optionalParams.map(printParam);
       let formattedParams;
       if (params.length === 0 && optionalParams.length === 0) {
         formattedParams = 'no arguments';
       } else {
         if (params.length > 0) {
           formattedParams =
-            (params.length === 1 ? 'argument' : 'arguments') + ' ' + formatEnglishList(params);
+            (params.length === 1 ? 'argument' : 'arguments') +
+            ' ' +
+            formatEnglishList(paramsWithTypes);
           if (optionalParams.length > 0) {
             formattedParams += ' and ';
           }
         }
         if (optionalParams.length > 0) {
           formattedParams +=
-            'optional' +
+            'optional ' +
             (params.length === 1 ? 'argument' : 'arguments') +
             ' ' +
-            formatEnglishList(optionalParams);
+            formatEnglishList(optionalParamsWithTypes);
         }
       }
 
