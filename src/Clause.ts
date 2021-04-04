@@ -342,6 +342,7 @@ export default class Clause extends Builder {
     switch (type) {
       case 'abstract operation':
       case 'numeric method': {
+        // TODO numeric methods should enforce that the name contains `::`
         para.append(`The abstract operation ${name} takes ${formattedParams}.`);
         break;
       }
