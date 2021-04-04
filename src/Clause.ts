@@ -71,222 +71,7 @@ export default class Clause extends Builder {
       return { title: 'UNKNOWN', titleHTML: 'UNKNOWN' };
     }
 
-    let dl = header.nextElementSibling;
-    structured: if (dl != null && dl.tagName === 'DL' && dl.classList.contains('header')) {
-      // if we find such a DL, treat this as a structured header
-      // parsing is intentionally permissive; the linter imposes stricter checks
-      let headerText = header.innerHTML;
-      let prefix = headerText.match(/^\s*(Static|Runtime) Semantics:\s*/);
-      if (prefix != null) {
-        headerText = headerText.substring(prefix[0].length);
-      }
-
-      let parsed = headerText.match(/^\s*([^(\s]+)\s*\(([^)]*)\)\s*$/);
-      if (parsed == null) {
-        // TODO deal with this properly
-        break structured;
-        // this.spec.warn({
-        //   type: 'contents',
-        //   ruleId: 'header-format',
-        //   message: `failed to parse header`,
-        //   node: header,
-        //   nodeRelativeColumn: 1,
-        //   nodeRelativeLine: 1,
-        // });
-        // break structured;
-      }
-
-      type Param = { name: string; type: string | null };
-      let name = parsed[1];
-      let paramText = parsed[2].trim();
-      let params: Array<Param> = [];
-      let optionalParams: Array<Param> = [];
-
-      if (/\(\s*\n/.test(headerText)) {
-        // if it's multiline, parse it for types
-        let paramChunks = paramText
-          .split('\n')
-          .map(c => c.trim())
-          .filter(c => c.length > 1);
-        let index = 0;
-        for (let chunk of paramChunks) {
-          ++index;
-          // TODO linter enforces all optional params come after non-optional params
-          let parsedChunk = chunk.match(/^(optional\s*)?([A-Za-z0-9_]+)\s*:\s*(\S.*\S)/);
-          if (parsedChunk == null) {
-            this.spec.warn({
-              type: 'contents',
-              ruleId: 'header-format',
-              message: `failed to parse header (parameter ${index})`,
-              node: header,
-              nodeRelativeColumn: 1,
-              nodeRelativeLine: 1,
-            });
-            continue;
-          }
-          let optional = parsedChunk[1] != null;
-          let paramName = parsedChunk[2];
-          let paramType = parsedChunk[3];
-          if (paramType.endsWith(',')) {
-            paramType = paramType.slice(0, -1);
-          }
-          (optional ? optionalParams : params).push({
-            name: paramName,
-            type: paramType === 'unknown' ? null : paramType,
-          });
-          let formattedHeader = name + ' ( ' + params.map(n => n.name).join(', ');
-          if (optionalParams.length > 0) {
-            formattedHeader += ' [ ';
-            if (params.length > 0) {
-              formattedHeader += ', ';
-            }
-            formattedHeader += optionalParams.map(p => p.name).join(', ') + ' ]';
-          }
-          formattedHeader += ' )';
-          header.innerHTML = formattedHeader;
-        }
-      } else {
-        let optional = false;
-        while (true) {
-          if (paramText.length == 0) {
-            break;
-          }
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          let { success, text, match } = eat(paramText, /^\s*\[(\s*,)?/);
-          if (success) {
-            optional = true;
-            paramText = text;
-          }
-          ({ success, text, match } = eat(paramText, /^\s*([A-Za-z0-9_]+)/));
-          if (!success) {
-            // this.spec.warn({
-            //   type: 'contents',
-            //   ruleId: 'header-format',
-            //   message: `could not parse header`,
-            //   node: header,
-            //   // we could be more precise, but it's probably not worth the effort
-            //   nodeRelativeLine: 1,
-            //   nodeRelativeColumn: 1,
-            // });
-            break;
-          }
-          paramText = text;
-          (optional ? optionalParams : params).push({ name: match![1], type: null });
-          ({ success, text } = eat(paramText, /^(\s*\])+|,/));
-          if (success) {
-            paramText = text;
-          }
-        }
-      }
-
-      let printParam = (p: Param) => `${p.name}${p.type == null ? '' : ` (${p.type})`}`;
-      let paramsWithTypes = params.map(printParam);
-      let optionalParamsWithTypes = optionalParams.map(printParam);
-      let formattedParams;
-      if (params.length === 0 && optionalParams.length === 0) {
-        formattedParams = 'no arguments';
-      } else {
-        if (params.length > 0) {
-          formattedParams =
-            (params.length === 1 ? 'argument' : 'arguments') +
-            ' ' +
-            formatEnglishList(paramsWithTypes);
-          if (optionalParams.length > 0) {
-            formattedParams += ' and ';
-          }
-        }
-        if (optionalParams.length > 0) {
-          formattedParams +=
-            'optional ' +
-            (params.length === 1 ? 'argument' : 'arguments') +
-            ' ' +
-            formatEnglishList(optionalParamsWithTypes);
-        }
-      }
-
-      let description;
-      for (let i = 0; i < dl.children.length; ++i) {
-        let dt = dl.children[i];
-        if (dt.tagName !== 'DT') {
-          this.spec.warn({
-            type: 'node',
-            ruleId: 'header-format',
-            message: `expecting header to have DT, but found ${dt.tagName}`,
-            node: dt,
-          });
-          break structured;
-        }
-        ++i;
-        let dd = dl.children[i];
-        if (dd?.tagName !== 'DD') {
-          this.spec.warn({
-            type: 'node',
-            ruleId: 'header-format',
-            message: `expecting header to have DD, but found ${dd.tagName}`,
-            node: dd,
-          });
-          break structured;
-        }
-
-        let type = dt.textContent ?? '';
-        if (type === 'op kind') {
-          if (dd.textContent !== 'abstract operation') {
-            dl.remove();
-            break structured;
-          }
-        }
-        switch (type) {
-          case 'description': {
-            if (description != null) {
-              this.spec.warn({
-                type: 'node',
-                ruleId: 'header-format',
-                message: `duplicate description`,
-                node: dd,
-              });
-            }
-            description = dd;
-            break;
-          }
-          case 'parameters': {
-            // TODO
-            break;
-          }
-          case 'op kind':
-          case 'name':
-          case 'for':
-          case 'returns':
-          case 'also has access to': {
-            // TODO not ignore these
-            break;
-          }
-          default: {
-            this.spec.warn({
-              type: 'node',
-              ruleId: 'header-format',
-              message: `unknown structured header entry type ${type}`,
-              node: dd,
-            });
-            break;
-          }
-        }
-      }
-
-      let para = this.spec.doc.createElement('p');
-      para.append(`The abstract operation ${name} takes ${formattedParams}.`);
-      if (description != null) {
-        // @ts-ignore childNodes is iterable
-        para.append(' ', ...description.childNodes);
-      }
-      let next = dl.nextElementSibling;
-      while (next != null && next.tagName === 'EMU-NOTE') {
-        next = next.nextElementSibling;
-      }
-      if (next?.tagName == 'EMU-ALG') {
-        para.append(' It performs the following steps when called:');
-      }
-      dl.replaceWith(para);
-    }
+    this.buildStructuredHeader(header);
 
     let { textContent: title, innerHTML: titleHTML } = header;
     if (this.number) {
@@ -298,6 +83,311 @@ export default class Clause extends Builder {
     }
 
     return { title, titleHTML };
+  }
+
+  buildStructuredHeader(header: Element) {
+    let type = this.node.getAttribute('type');
+    // if (
+    //   ![
+    //     'abstract operation',
+    //     'host-defined abstract operation',
+    //     'concrete method',
+    //     'internal method',
+    //   ].includes(type!)
+    // ) {
+    //   // TODO warn
+    //   return;
+    // }
+
+    // TODO handle AOIDs
+
+    let dl = header.nextElementSibling;
+    if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
+      return;
+    }
+    // if we find such a DL, treat this as a structured header
+
+    let description;
+    let _for;
+    for (let i = 0; i < dl.children.length; ++i) {
+      let dt = dl.children[i];
+      if (dt.tagName !== 'DT') {
+        this.spec.warn({
+          type: 'node',
+          ruleId: 'header-format',
+          message: `expecting header to have DT, but found ${dt.tagName}`,
+          node: dt,
+        });
+        return;
+      }
+      ++i;
+      let dd = dl.children[i];
+      if (dd?.tagName !== 'DD') {
+        this.spec.warn({
+          type: 'node',
+          ruleId: 'header-format',
+          message: `expecting header to have DD, but found ${dd.tagName}`,
+          node: dd,
+        });
+        return;
+      }
+
+      let dtype = dt.textContent ?? '';
+      switch (dtype) {
+        case 'op kind': {
+          // TODO types should live in the attributes
+          type = dd.textContent!;
+          if (
+            ['anonymous built-in function', 'function property', 'accessor property'].includes(type)
+          ) {
+            return;
+          }
+          if (
+            ![
+              'abstract operation',
+              'host-defined abstract operation',
+              'numeric method',
+              'concrete method',
+              'internal method',
+            ].includes(type)
+          ) {
+            this.spec.warn({
+              type: 'node',
+              ruleId: 'header-format',
+              message: `unknown operation type ${type}`,
+              node: dd,
+            });
+            return;
+          }
+          break;
+        }
+        case 'description': {
+          if (description != null) {
+            this.spec.warn({
+              type: 'node',
+              ruleId: 'header-format',
+              message: `duplicate description`,
+              node: dd,
+            });
+          }
+          description = dd;
+          break;
+        }
+        case 'for': {
+          if (type === 'concrete method' || type === 'internal method') {
+            _for = dd;
+          } else {
+            this.spec.warn({
+              type: 'node',
+              ruleId: 'header-format',
+              message: `"for" descriptions only apply to concrete or internal methods`,
+              node: dd,
+            });
+          }
+          break;
+        }
+        case 'parameters':
+        case 'name':
+        case 'returns':
+        case 'also has access to': {
+          break;
+        }
+        default: {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'header-format',
+            message: `unknown structured header entry type ${dtype}`,
+            node: dd,
+          });
+          break;
+        }
+      }
+    }
+
+    // parsing is intentionally permissive; the linter imposes stricter checks
+    // TODO have the linter do checks
+    let headerText = header.innerHTML;
+    let prefix = headerText.match(/^\s*(Static|Runtime) Semantics:\s*/);
+    if (prefix != null) {
+      headerText = headerText.substring(prefix[0].length);
+    }
+    let suffix = headerText.match(/\s*Concrete Method\s*$/);
+    if (suffix != null) {
+      headerText = headerText.substring(0, headerText.length - suffix[0].length);
+    }
+
+    let parsed = headerText.match(/^\s*([^(\s]+)\s*\(([^)]*)\)\s*$/);
+    if (parsed == null) {
+      // TODO deal with this properly
+      this.spec.warn({
+        type: 'contents',
+        ruleId: 'header-format',
+        message: `failed to parse header`,
+        node: header,
+        nodeRelativeColumn: 1,
+        nodeRelativeLine: 1,
+      });
+      return;
+    }
+
+    type Param = { name: string; type: string | null };
+    let name = parsed[1];
+    let paramText = parsed[2].trim();
+    let params: Array<Param> = [];
+    let optionalParams: Array<Param> = [];
+
+    if (/\(\s*\n/.test(headerText)) {
+      // if it's multiline, parse it for types
+      let paramChunks = paramText
+        .split('\n')
+        .map(c => c.trim())
+        .filter(c => c.length > 1);
+      let index = 0;
+      for (let chunk of paramChunks) {
+        ++index;
+        // TODO linter enforces all optional params come after non-optional params
+        let parsedChunk = chunk.match(/^(optional\s*)?([A-Za-z0-9_]+)\s*:\s*(\S.*\S)/);
+        if (parsedChunk == null) {
+          this.spec.warn({
+            type: 'contents',
+            ruleId: 'header-format',
+            message: `failed to parse header (parameter ${index})`,
+            node: header,
+            nodeRelativeColumn: 1,
+            nodeRelativeLine: 1,
+          });
+          continue;
+        }
+        let optional = parsedChunk[1] != null;
+        let paramName = parsedChunk[2];
+        let paramType = parsedChunk[3];
+        if (paramType.endsWith(',')) {
+          paramType = paramType.slice(0, -1);
+        }
+        (optional ? optionalParams : params).push({
+          name: paramName,
+          type: paramType === 'unknown' ? null : paramType,
+        });
+        let formattedHeader = name + ' ( ' + params.map(n => n.name).join(', ');
+        if (optionalParams.length > 0) {
+          formattedHeader += ' [ ';
+          if (params.length > 0) {
+            formattedHeader += ', ';
+          }
+          formattedHeader += optionalParams.map(p => p.name).join(', ') + ' ]';
+        }
+        formattedHeader += ' )';
+        header.innerHTML = formattedHeader;
+      }
+    } else {
+      let optional = false;
+      while (true) {
+        if (paramText.length == 0) {
+          break;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        let { success, text, match } = eat(paramText, /^\s*\[(\s*,)?/);
+        if (success) {
+          optional = true;
+          paramText = text;
+        }
+        ({ success, text, match } = eat(paramText, /^\s*([A-Za-z0-9_]+)/));
+        if (!success) {
+          this.spec.warn({
+            type: 'contents',
+            ruleId: 'header-format',
+            message: `could not parse header`,
+            node: header,
+            // we could be more precise, but it's probably not worth the effort
+            nodeRelativeLine: 1,
+            nodeRelativeColumn: 1,
+          });
+          break;
+        }
+        paramText = text;
+        (optional ? optionalParams : params).push({ name: match![1], type: null });
+        ({ success, text } = eat(paramText, /^(\s*\])+|,/));
+        if (success) {
+          paramText = text;
+        }
+      }
+    }
+
+    let printParam = (p: Param) => `${p.name}${p.type == null ? '' : ` (${p.type})`}`;
+    let paramsWithTypes = params.map(printParam);
+    let optionalParamsWithTypes = optionalParams.map(printParam);
+    let formattedParams;
+    if (params.length === 0 && optionalParams.length === 0) {
+      formattedParams = 'no arguments';
+    } else {
+      if (params.length > 0) {
+        formattedParams =
+          (params.length === 1 ? 'argument' : 'arguments') +
+          ' ' +
+          formatEnglishList(paramsWithTypes);
+        if (optionalParams.length > 0) {
+          formattedParams += ' and ';
+        }
+      }
+      if (optionalParams.length > 0) {
+        formattedParams +=
+          'optional ' +
+          (params.length === 1 ? 'argument' : 'arguments') +
+          ' ' +
+          formatEnglishList(optionalParamsWithTypes);
+      }
+    }
+
+    let para = this.spec.doc.createElement('p');
+    switch (type) {
+      case 'abstract operation':
+      case 'numeric method': {
+        para.append(`The abstract operation ${name} takes ${formattedParams}.`);
+        break;
+      }
+      case 'host-defined abstract operation': {
+        // TODO maybe a property instead?
+        para.append(`The host-defined abstract operation ${name} takes ${formattedParams}.`);
+        break;
+      }
+      case 'internal method':
+      case 'concrete method': {
+        let word = type === 'internal method' ? 'interal' : 'concrete';
+        if (_for == null) {
+          this.spec.warn({
+            type: 'contents',
+            ruleId: 'header-format',
+            message: `expected ${word} method to have a "for"`,
+            node: dl,
+            nodeRelativeLine: 1,
+            nodeRelativeColumn: 1,
+          });
+          _for = this.spec.doc.createElement('div');
+        }
+        para.append(
+          `The ${name} ${word} method of `,
+          // @ts-ignore childNodes is iterable
+          ..._for.childNodes,
+          ` takes ${formattedParams}.`
+        );
+        break;
+      }
+      default: {
+        throw new Error(`unreachable: clause type ${type}`);
+      }
+    }
+    if (description != null) {
+      // @ts-ignore childNodes is iterable
+      para.append(' ', ...description.childNodes);
+    }
+    let next = dl.nextElementSibling;
+    while (next != null && next.tagName === 'EMU-NOTE') {
+      next = next.nextElementSibling;
+    }
+    if (next?.tagName == 'EMU-ALG') {
+      para.append(' It performs the following steps when called:');
+    }
+    dl.replaceWith(para);
   }
 
   buildNotes() {
