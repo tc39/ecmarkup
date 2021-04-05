@@ -343,12 +343,13 @@ export default class Clause extends Builder {
       case 'abstract operation':
       case 'numeric method': {
         // TODO numeric methods should enforce that the name contains `::`
-        para.append(`The abstract operation ${name} takes ${formattedParams}.`);
+        // TODO tests (for each type of parametered thing) which have HTML in the parameter type
+        para.innerHTML += `The abstract operation ${name} takes ${formattedParams}.`;
         break;
       }
       case 'host-defined abstract operation': {
         // TODO maybe a property instead?
-        para.append(`The host-defined abstract operation ${name} takes ${formattedParams}.`);
+        para.innerHTML += `The host-defined abstract operation ${name} takes ${formattedParams}.`;
         break;
       }
       case 'internal method':
@@ -368,9 +369,9 @@ export default class Clause extends Builder {
         para.append(
           `The ${name} ${word} method of `,
           // @ts-ignore childNodes is iterable
-          ..._for.childNodes,
-          ` takes ${formattedParams}.`
+          ..._for.childNodes
         );
+        para.innerHTML += ` takes ${formattedParams}.`;
         break;
       }
       default: {
