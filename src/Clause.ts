@@ -332,7 +332,7 @@ export default class Clause extends Builder {
       if (optionalParams.length > 0) {
         formattedParams +=
           'optional ' +
-          (params.length === 1 ? 'argument' : 'arguments') +
+          (optionalParams.length === 1 ? 'argument' : 'arguments') +
           ' ' +
           formatEnglishList(optionalParamsWithTypes);
       }
