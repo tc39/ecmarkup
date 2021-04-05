@@ -358,7 +358,7 @@ export default class Clause extends Builder {
       }
       case 'internal method':
       case 'concrete method': {
-        let word = type === 'internal method' ? 'interal' : 'concrete';
+        let word = type === 'internal method' ? 'internal' : 'concrete';
         if (_for == null) {
           this.spec.warn({
             type: 'contents',
