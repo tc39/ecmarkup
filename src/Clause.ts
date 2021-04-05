@@ -341,6 +341,11 @@ export default class Clause extends Builder {
         para.innerHTML += `The host-defined abstract operation ${name} takes ${formattedParams}.`;
         break;
       }
+      case 'implementation-defined abstract operation': {
+        // TODO maybe a property instead?
+        para.innerHTML += `The implementation-defined abstract operation ${name} takes ${formattedParams}.`;
+        break;
+      }
       case 'internal method':
       case 'concrete method': {
         let word = type === 'internal method' ? 'internal' : 'concrete';
