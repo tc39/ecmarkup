@@ -268,7 +268,8 @@ export default class Clause extends Builder {
           name: paramName,
           type: paramType === 'unknown' ? null : paramType,
         });
-        let formattedHeader = name + ' ( ' + params.map(n => n.name).join(', ');
+        let formattedHeader =
+          (prefix == null ? '' : prefix[0]) + name + ' ( ' + params.map(n => n.name).join(', ');
         if (optionalParams.length > 0) {
           formattedHeader += ' [ ';
           if (params.length > 0) {
@@ -276,7 +277,7 @@ export default class Clause extends Builder {
           }
           formattedHeader += optionalParams.map(p => p.name).join(', ') + ' ]';
         }
-        formattedHeader += ' )';
+        formattedHeader += ' )' + (suffix == null ? '' : suffix[0]);
         header.innerHTML = formattedHeader;
       }
     } else {
@@ -316,7 +317,7 @@ export default class Clause extends Builder {
     let printParam = (p: Param) => `${p.name}${p.type == null ? '' : ` (${p.type})`}`;
     let paramsWithTypes = params.map(printParam);
     let optionalParamsWithTypes = optionalParams.map(printParam);
-    let formattedParams;
+    let formattedParams = '';
     if (params.length === 0 && optionalParams.length === 0) {
       formattedParams = 'no arguments';
     } else {
