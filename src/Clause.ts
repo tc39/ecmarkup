@@ -270,18 +270,14 @@ export default class Clause extends Builder {
         });
       }
       let formattedHeader =
-        (prefix == null ? '' : prefix[0]) + name + ' ( ' + params.map(n => n.name).join(', ');
+        (prefix == null ? '' : prefix[0]) + name + ' (' + params.map(n => ' ' + n.name).join(',');
       if (optionalParams.length > 0) {
-        formattedHeader += ' [ ';
-        if (params.length > 0) {
-          formattedHeader += ', ';
-        }
-        formattedHeader += optionalParams.map(p => p.name).join(', ') + ' ]';
+        formattedHeader +=
+          optionalParams
+            .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + p.name)
+            .join('') + optionalParams.map(() => ' ]').join('');
       }
-      formattedHeader +=
-        (params.length > 0 || optionalParams.length > 0 ? ' ' : '') +
-        ')' +
-        (suffix == null ? '' : suffix[0]);
+      formattedHeader += ' )' + (suffix == null ? '' : suffix[0]);
       header.innerHTML = formattedHeader;
     } else {
       let optional = false;
