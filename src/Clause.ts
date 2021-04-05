@@ -205,7 +205,7 @@ export default class Clause extends Builder {
       headerText = headerText.substring(0, headerText.length - suffix[0].length);
     }
 
-    let parsed = headerText.match(/^\s*([^(\s]+)\s*\(([^)]*)\)\s*$/);
+    let parsed = headerText.match(/^\s*([^(\s]+)\s*\((.*)\)\s*$/s);
     if (parsed == null) {
       // TODO deal with this properly
       this.spec.warn({
