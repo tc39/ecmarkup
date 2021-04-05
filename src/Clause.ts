@@ -380,7 +380,7 @@ export default class Clause extends Builder {
     while (next != null && next.tagName === 'EMU-NOTE') {
       next = next.nextElementSibling;
     }
-    if (next?.tagName == 'EMU-ALG') {
+    if (next?.tagName == 'EMU-ALG' && !next.hasAttribute('replaces-step')) {
       para.append(' It performs the following steps when called:');
     }
     dl.replaceWith(para);
