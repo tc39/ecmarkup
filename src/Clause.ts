@@ -94,6 +94,8 @@ export default class Clause extends Builder {
     }
     // if we find such a DL, treat this as a structured header
 
+    this.node.removeAttribute('type'); // TODO maybe leave it in; this is just to minimize the diff
+
     let description;
     let _for;
     for (let i = 0; i < dl.children.length; ++i) {
