@@ -12,7 +12,10 @@ export default class Clause extends Builder {
   id: string;
   namespace: string;
   parentClause: Clause;
-  title: string;
+  header: Element | null;
+  // @ts-ignore skipping the strictPropertyInitialization check
+  title: string | null;
+  // @ts-ignore skipping the strictPropertyInitialization check
   titleHTML: string;
   subclauses: Clause[];
   number: string;
@@ -50,12 +53,6 @@ export default class Clause extends Builder {
       this.aoid = node.id;
     }
 
-    let { title, titleHTML } = this.buildHeader();
-    this.title = title!;
-    this.titleHTML = titleHTML;
-  }
-
-  buildHeader() {
     let header = this.node.firstElementChild;
     while (header != null && header.tagName === 'SPAN' && header.children.length === 0) {
       // skip oldids
@@ -68,21 +65,11 @@ export default class Clause extends Builder {
         message: `clause doesn't have a header, found: ${header?.tagName}`,
         node: this.node,
       });
-      return { title: 'UNKNOWN', titleHTML: 'UNKNOWN' };
+      header = null;
+    } else {
+      this.buildStructuredHeader(header);
     }
-
-    this.buildStructuredHeader(header);
-
-    let { textContent: title, innerHTML: titleHTML } = header;
-    if (this.number) {
-      const numElem = this.spec.doc.createElement('span');
-      numElem.setAttribute('class', 'secnum');
-      numElem.textContent = this.number;
-      header.insertBefore(this.spec.doc.createTextNode(' '), header.firstChild);
-      header.insertBefore(numElem, header.firstChild);
-    }
-
-    return { title, titleHTML };
+    this.header = header;
   }
 
   buildStructuredHeader(header: Element) {
@@ -446,6 +433,21 @@ export default class Clause extends Builder {
   static exit({ node, spec, clauseStack, inAlg, currentId }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
+    let header = clause.header;
+    if (header == null) {
+      clause.title = 'UNKNOWN';
+      clause.titleHTML = 'UNKNOWN';
+    } else {
+      ({ textContent: clause.title, innerHTML: clause.titleHTML } = header);
+      if (clause.number) {
+        const numElem = clause.spec.doc.createElement('span');
+        numElem.setAttribute('class', 'secnum');
+        numElem.textContent = clause.number;
+        header.insertBefore(clause.spec.doc.createTextNode(' '), header.firstChild);
+        header.insertBefore(numElem, header.firstChild);
+      }
+    }
+
     clause.buildExamples();
     clause.buildNotes();
 
@@ -471,8 +473,8 @@ export default class Clause extends Builder {
       type: 'clause',
       id: clause.id,
       aoid: clause.aoid,
-      title: clause.title,
-      titleHTML: clause.titleHTML,
+      title: clause.title!,
+      titleHTML: clause.titleHTML!,
       number: clause.number,
       referencingIds: [],
     };
