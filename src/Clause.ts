@@ -268,18 +268,21 @@ export default class Clause extends Builder {
           name: paramName,
           type: paramType === 'unknown' ? null : paramType,
         });
-        let formattedHeader =
-          (prefix == null ? '' : prefix[0]) + name + ' ( ' + params.map(n => n.name).join(', ');
-        if (optionalParams.length > 0) {
-          formattedHeader += ' [ ';
-          if (params.length > 0) {
-            formattedHeader += ', ';
-          }
-          formattedHeader += optionalParams.map(p => p.name).join(', ') + ' ]';
-        }
-        formattedHeader += ' )' + (suffix == null ? '' : suffix[0]);
-        header.innerHTML = formattedHeader;
       }
+      let formattedHeader =
+        (prefix == null ? '' : prefix[0]) + name + ' ( ' + params.map(n => n.name).join(', ');
+      if (optionalParams.length > 0) {
+        formattedHeader += ' [ ';
+        if (params.length > 0) {
+          formattedHeader += ', ';
+        }
+        formattedHeader += optionalParams.map(p => p.name).join(', ') + ' ]';
+      }
+      formattedHeader +=
+        (params.length > 0 || optionalParams.length > 0 ? ' ' : '') +
+        ')' +
+        (suffix == null ? '' : suffix[0]);
+      header.innerHTML = formattedHeader;
     } else {
       let optional = false;
       while (true) {
