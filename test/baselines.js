@@ -3,7 +3,13 @@ const fs = require('fs');
 
 const emu = require('../lib/ecmarkup');
 
-const files = fs.readdirSync('test').filter(f => f.endsWith('.html') && !f.endsWith('.bad.html'));
+const SOURCES_DIR = 'test/baselines/sources/';
+const LOCAL_DIR = 'test/baselines/generated-local/';
+const REFERENCE_DIR = 'test/baselines/generated-reference/';
+
+const files = fs
+  .readdirSync(SOURCES_DIR)
+  .filter(f => f.endsWith('.html') && !f.endsWith('.bad.html'));
 
 function build(file) {
   return emu.build(
@@ -17,9 +23,9 @@ function build(file) {
 
 describe('baselines', () => {
   files.forEach(file => {
-    const local = 'test/baselines/local/' + file;
-    const reference = 'test/baselines/reference/' + file;
-    file = 'test/' + file;
+    const local = LOCAL_DIR + file;
+    const reference = REFERENCE_DIR + file;
+    file = SOURCES_DIR + file;
     it(file, async () => {
       let spec = await build(file);
       const contents = spec.toHTML();
@@ -31,7 +37,7 @@ describe('baselines', () => {
       }
       if (contents !== str) {
         try {
-          fs.mkdirSync('test/baselines/local');
+          fs.mkdirSync(LOCAL_DIR);
         } catch (e) {
           // ignored
         }
