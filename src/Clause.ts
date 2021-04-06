@@ -328,6 +328,7 @@ export default class Clause extends Builder {
     }
 
     let para = this.spec.doc.createElement('p');
+    let paras = [para];
     switch (type) {
       case 'abstract operation':
       case 'numeric method': {
@@ -374,16 +375,31 @@ export default class Clause extends Builder {
     }
     if (description != null) {
       // @ts-ignore childNodes is iterable
-      para.append(' ', ...description.childNodes);
+      let isJustElements = [...(description.childNodes as Iterable<Node>)].every(
+        n => n.nodeType === 1 || (n.nodeType === 3 && n.textContent?.trim() === '')
+      );
+      if (isJustElements) {
+        // @ts-ignore childNodes is iterable
+        paras.push(...description.childNodes);
+      } else {
+        // @ts-ignore childNodes is iterable
+        para.append(' ', ...description.childNodes);
+      }
     }
     let next = dl.nextElementSibling;
     while (next != null && next.tagName === 'EMU-NOTE') {
       next = next.nextElementSibling;
     }
     if (next?.tagName == 'EMU-ALG' && !next.hasAttribute('replaces-step')) {
-      para.append(' It performs the following steps when called:');
+      if (paras.length > 1) {
+        let after = this.spec.doc.createElement('p');
+        after.append('It performs the following steps when called:');
+        paras.push(after);
+      } else {
+        para.append(' It performs the following steps when called:');
+      }
     }
-    dl.replaceWith(para);
+    dl.replaceWith(...paras);
   }
 
   buildNotes() {
