@@ -110,6 +110,76 @@ describe('linting algorithms', () => {
       );
     });
 
+    it('NOTE:', async () => {
+      await assertLint(
+        positioned`<emu-alg>
+          1. NOTE: ${M}foo.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'the clause after "NOTE:" should begin with a capital letter',
+        }
+      );
+
+      await assertLint(
+        positioned`<emu-alg>
+          1. ${M}Note: Foo.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: '"NOTE:" should be fully capitalized',
+        }
+      );
+
+      await assertLint(
+        positioned`<emu-alg>
+          1. NOTE: Foo${M}
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected freeform line to end with "." (found "NOTE: Foo")',
+        }
+      );
+    });
+
+    it('Assert:', async () => {
+      await assertLint(
+        positioned`<emu-alg>
+          1. Assert: ${M}foo.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'the clause after "Assert:" should begin with a capital letter',
+        }
+      );
+
+      await assertLint(
+        positioned`<emu-alg>
+          1. ${M}ASSERT: Foo.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: '"Assert:" should be capitalized',
+        }
+      );
+
+      await assertLint(
+        positioned`<emu-alg>
+          1. Assert: Foo${M}
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected freeform line to end with "." (found "Assert: Foo")',
+        }
+      );
+    });
+
     it('pre', async () => {
       await assertLint(
         positioned`<emu-alg>
@@ -154,6 +224,12 @@ describe('linting algorithms', () => {
           1. For each foo, do bar.
           1. For each foo, do
             1. Substep.
+          1. NOTE: Foo.
+          1. NOTE: The following algorithm returns *true*:
+            1. Return *true*.
+          1. Assert: Foo.
+          1. Assert: The following algorithm returns *true*:
+            1. Return *true*.
           1. Other.
           1. Other:
             1. Substep.

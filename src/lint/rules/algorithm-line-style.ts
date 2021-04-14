@@ -17,6 +17,8 @@ Checks that every algorithm step has one of these forms:
 - `Repeat, until foo,` + substeps
 - `For each foo, bar.`
 - `For each foo, do` + substeps
+- `NOTE: Something.`
+- `Assert: Something.`
 - `Other.`
 - `Other:` + substeps
 */
@@ -286,6 +288,32 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
           }
         }
       } else {
+        // these are not else-ifs because we still want to enforce the line-ending rules
+        if (/^(NOTE|Assert): [a-z]/.test(initialText)) {
+          let kind = initialText.match(/^(NOTE|Assert)/)![1];
+          report({
+            ruleId,
+            line: first.location!.start.line,
+            column: first.location!.start.column + kind.length + 2,
+            message: `the clause after "${kind}:" should begin with a capital letter`,
+          });
+        }
+        if (/^NOTE:/i.test(initialText) && !/^NOTE:/.test(initialText)) {
+          report({
+            ruleId,
+            line: first.location!.start.line,
+            column: first.location!.start.column,
+            message: `"NOTE:" should be fully capitalized`,
+          });
+        }
+        if (/^Assert:/i.test(initialText) && !/^Assert:/.test(initialText)) {
+          report({
+            ruleId,
+            line: first.location!.start.line,
+            column: first.location!.start.column,
+            message: `"Assert:" should be capitalized`,
+          });
+        }
         if (hasSubsteps) {
           if (!/:$/.test(last.contents)) {
             report({
