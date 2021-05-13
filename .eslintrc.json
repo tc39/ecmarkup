@@ -38,6 +38,7 @@
       },
       "globals": {
         "multipageMap": "readonly",
+        "usesMultipage": "readonly",
         "idToSection": "readonly",
         "sdoMap": "readonly",
         "biblio": "readonly",

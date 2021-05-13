@@ -15,7 +15,7 @@
 		"posttest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
 		"lint": "eslint --ext .js,.ts js src test",
 		"format": "prettier --write .",
-		"update-baselines": "echo 'for f in test/*.html; do echo processing \"$f\"; node bin/ecmarkup.js $f test/baselines/reference/$(basename $f); done' | bash",
+		"update-baselines": "echo 'for f in test/baselines/sources/*.html; do echo processing \"$f\"; node bin/ecmarkup.js $f test/baselines/generated-reference/$(basename $f); done' | bash",
 		"version": "auto-changelog && git add CHANGELOG.md",
 		"postversion": "auto-changelog && git add CHANGELOG.md && git commit --no-edit --amend && git tag -f \"v$(node -e \"console.log(require('./package.json').version)\")\""
 	},

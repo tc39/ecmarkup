@@ -476,7 +476,8 @@ export default class Spec {
       this.doc.body.insertBefore(ele, this.doc.body.firstChild);
     }
 
-    const jsContents = await concatJs(sdoJs, tocJs);
+    const jsContents =
+      (await concatJs(sdoJs, tocJs)) + `\n;let usesMultipage = ${!!this.opts.multipage}`;
     const jsSha = sha(jsContents);
 
     if (this.opts.multipage) {
