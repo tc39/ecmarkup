@@ -1022,6 +1022,37 @@ function makeLinkToId(id) {
   return (targetSec === 'index' ? './' : targetSec + '.html') + hash;
 }
 
+function doShortcut(e) {
+  if (!(e.target instanceof HTMLElement)) {
+    return;
+  }
+  let target = e.target;
+  let name = target.nodeName.toLowerCase();
+  if (name === 'textarea' || name === 'input' || name === 'select' || target.isContentEditable) {
+    return;
+  }
+  if (e.key === 'm' && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && usesMultipage) {
+    let pathParts = location.pathname.split('/');
+    let hash = location.hash;
+    if (pathParts[pathParts.length - 2] === 'multipage') {
+      if (hash === '') {
+        let sectionName = pathParts[pathParts.length - 1];
+        if (sectionName.endsWith('.html')) {
+          sectionName = sectionName.slice(0, -5);
+        }
+        if (idToSection['sec-' + sectionName] !== undefined) {
+          hash = '#sec-' + sectionName;
+        }
+      }
+      location = pathParts.slice(0, -2).join('/') + '/' + hash;
+    } else {
+      location = 'multipage/' + hash;
+    }
+  }
+}
+
+document.addEventListener('keypress', doShortcut);
+
 document.addEventListener('DOMContentLoaded', () => {
   Toolbox.init();
   referencePane.init();
@@ -1060,3 +1091,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let sdoMap = JSON.parse(`{}`);
 let biblio = JSON.parse(`{"refsByClause":{"editorial-conventions":["_ref_0","_ref_1","_ref_2","_ref_3","_ref_4","_ref_5","_ref_6","_ref_7","_ref_8","_ref_9","_ref_10","_ref_11","_ref_12"],"metadata":["_ref_13","_ref_14"],"emu-alg":["_ref_15","_ref_20"],"emu-xref":["_ref_16","_ref_17","_ref_18","_ref_19"],"emu-not-ref":["_ref_21"],"grammar":["_ref_22","_ref_23"]},"entries":[{"type":"clause","id":"intro","aoid":null,"titleHTML":"Ecmarkup","number":"","referencingIds":[],"key":"Ecmarkup"},{"type":"clause","id":"getting-started","aoid":null,"titleHTML":"Getting Started","number":"1","referencingIds":[],"key":"Getting Started"},{"type":"table","id":"build-options","node":{},"number":1,"caption":"Table 1: Build options","referencingIds":["_ref_13"],"key":"Table 1: Build options"},{"type":"table","id":"document-options","node":{},"number":2,"caption":"Table 2: Document options","referencingIds":["_ref_14"],"key":"Table 2: Document options"},{"type":"clause","id":"useful-options","aoid":null,"titleHTML":"Options","number":"2","referencingIds":[],"key":"Options"},{"type":"clause","id":"stylesheets-and-scripts","aoid":null,"titleHTML":"Stylesheets and Scripts","number":"3","referencingIds":[],"key":"Stylesheets and Scripts"},{"type":"table","id":"emd-overview","node":{},"number":4,"caption":"Table 4: Inline styles/conventions","referencingIds":["_ref_4"],"key":"Table 4: Inline styles/conventions"},{"type":"clause","id":"editorial-conventions","aoid":null,"titleHTML":"Editorial Conventions","number":"4","referencingIds":[],"key":"Editorial Conventions"},{"type":"clause","id":"metadata","aoid":null,"titleHTML":"Metadata","number":"5","referencingIds":[],"key":"Metadata"},{"type":"clause","id":"emu-intro","aoid":null,"titleHTML":"emu-intro","number":"6.1","referencingIds":["_ref_1"],"key":"emu-intro"},{"type":"clause","id":"example-normative-optional","aoid":null,"titleHTML":"Example Normative Optional Clause","number":"6.2.1","referencingIds":[],"key":"Example Normative Optional Clause"},{"type":"clause","id":"emu-clause","aoid":null,"titleHTML":"emu-clause","number":"6.2","referencingIds":["_ref_0","_ref_16"],"key":"emu-clause"},{"type":"clause","id":"emu-annex","aoid":null,"titleHTML":"emu-annex","number":"6.3","referencingIds":["_ref_2"],"key":"emu-annex"},{"type":"clause","id":"clauses","aoid":null,"titleHTML":"Clauses","number":"6","referencingIds":[],"key":"Clauses"},{"type":"step","id":"replace-me","stepNumbers":[2,1],"referencingIds":["_ref_15"],"key":"replace-me"},{"type":"op","aoid":"EmuAlg","refId":"emu-alg","referencingIds":[],"key":"EmuAlg"},{"type":"clause","id":"emu-alg","aoid":"EmuAlg","titleHTML":"emu-alg","number":"7","referencingIds":["_ref_3","_ref_20"],"key":"emu-alg"},{"type":"clause","id":"emu-eqn","aoid":null,"titleHTML":"emu-eqn","number":"8","referencingIds":["_ref_5"],"key":"emu-eqn"},{"type":"clause","id":"emu-note","aoid":null,"titleHTML":"emu-note","number":"9","referencingIds":["_ref_6","_ref_17"],"key":"emu-note"},{"type":"step","id":"example-step-label","stepNumbers":[1],"referencingIds":["_ref_19"],"key":"example-step-label"},{"type":"clause","id":"emu-xref","aoid":null,"titleHTML":"emu-xref","number":"10","referencingIds":["_ref_12"],"key":"emu-xref"},{"type":"clause","id":"emu-not-ref","aoid":null,"titleHTML":"emu-not-ref","number":"11","referencingIds":["_ref_21"],"key":"emu-not-ref"},{"type":"clause","id":"emu-figure","aoid":null,"titleHTML":"emu-figure","number":"12","referencingIds":["_ref_7"],"key":"emu-figure"},{"type":"clause","id":"emu-table","aoid":null,"titleHTML":"emu-table","number":"13","referencingIds":["_ref_8"],"key":"emu-table"},{"type":"clause","id":"emu-example","aoid":null,"titleHTML":"emu-example","number":"14","referencingIds":["_ref_9"],"key":"emu-example"},{"type":"clause","id":"emu-biblio","aoid":null,"titleHTML":"emu-biblio","number":"15","referencingIds":["_ref_18"],"key":"emu-biblio"},{"type":"production","id":"prod-WhileStatement","name":"WhileStatement","referencingIds":[],"key":"WhileStatement"},{"type":"production","id":"prod-ArgumentList","name":"ArgumentList","referencingIds":["_ref_22"],"key":"ArgumentList"},{"type":"production","id":"prod-IterationStatement","name":"IterationStatement","referencingIds":[],"key":"IterationStatement"},{"type":"production","id":"prod-Identifier","name":"Identifier","referencingIds":[],"key":"Identifier"},{"type":"production","id":"prod-SourceCharacter","name":"SourceCharacter","referencingIds":[],"key":"SourceCharacter"},{"type":"production","id":"prod-ExpressionStatement","name":"ExpressionStatement","referencingIds":["_ref_23"],"key":"ExpressionStatement"},{"type":"production","id":"prod-DecimalDigit","name":"DecimalDigit","referencingIds":[],"key":"DecimalDigit"},{"type":"production","id":"prod-StatementList","name":"StatementList","referencingIds":[],"key":"StatementList"},{"type":"clause","id":"emu-grammar","aoid":null,"titleHTML":"emu-grammar","number":"16.1","referencingIds":["_ref_10"],"key":"emu-grammar"},{"type":"clause","id":"emu-production","aoid":null,"titleHTML":"emu-production","number":"16.2","referencingIds":["_ref_11"],"key":"emu-production"},{"type":"clause","id":"emu-rhs","aoid":null,"titleHTML":"emu-rhs","number":"16.3","referencingIds":[],"key":"emu-rhs"},{"type":"clause","id":"emu-nt","aoid":null,"titleHTML":"emu-nt","number":"16.4","referencingIds":[],"key":"emu-nt"},{"type":"clause","id":"emu-t","aoid":null,"titleHTML":"emu-t","number":"16.5","referencingIds":[],"key":"emu-t"},{"type":"clause","id":"emu-gmod","aoid":null,"titleHTML":"emu-gmod","number":"16.6","referencingIds":[],"key":"emu-gmod"},{"type":"clause","id":"emu-gann","aoid":null,"titleHTML":"emu-gann","number":"16.7","referencingIds":[],"key":"emu-gann"},{"type":"clause","id":"emu-gprose","aoid":null,"titleHTML":"emu-gprose","number":"16.8","referencingIds":[],"key":"emu-gprose"},{"type":"clause","id":"emu-prodref","aoid":null,"titleHTML":"emu-prodref","number":"16.9","referencingIds":[],"key":"emu-prodref"},{"type":"clause","id":"grammar","aoid":null,"titleHTML":"Specifying Grammar","number":"16","referencingIds":[],"key":"Specifying Grammar"},{"type":"clause","id":"imports","aoid":null,"titleHTML":"Imports","number":"17","referencingIds":[],"key":"Imports"},{"type":"clause","id":"oldids","aoid":null,"titleHTML":"Old IDs","number":"18.1","referencingIds":[],"key":"Old IDs"},{"type":"clause","id":"ins-del","aoid":null,"titleHTML":"ins &amp; del","number":"18.2","referencingIds":[],"key":"ins & del"},{"type":"clause","id":"pre-code","aoid":null,"titleHTML":"Code Listings","number":"18.3","referencingIds":[],"key":"Code Listings"},{"type":"clause","id":"css","aoid":null,"titleHTML":"Other Styles &amp; Conventions","number":"18","referencingIds":[],"key":"Other Styles & Conventions"},{"type":"term","term":"example","refId":"emu-not-ref","referencingIds":[],"key":"example"}]}`);
+;let usesMultipage = false
