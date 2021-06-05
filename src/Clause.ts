@@ -86,8 +86,6 @@ export default class Clause extends Builder {
     //   return;
     // }
 
-    // TODO handle AOIDs
-
     let dl = header.nextElementSibling;
     if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
       return;
@@ -126,11 +124,6 @@ export default class Clause extends Builder {
         case 'op kind': {
           // TODO types should live in the attributes
           type = dd.textContent!;
-          if (
-            ['anonymous built-in function', 'function property', 'accessor property'].includes(type)
-          ) {
-            return;
-          }
           if (
             ![
               'abstract operation',
@@ -401,6 +394,24 @@ export default class Clause extends Builder {
       }
     }
     dl.replaceWith(...paras);
+
+    if (type === 'abstract operation' || type === 'host-defined abstract operation') {
+      // TODO the aoid check goes outside the if
+      if (this.node.hasAttribute('aoid')) {
+        // this.spec.warn({
+        //   type: 'attr',
+        //   ruleId: 'header-format',
+        //   message: `nodes with formatted headers should not include an AOID`,
+        //   node: this.node,
+        //   attr: 'aoid',
+        // });
+        // TODO remove these lines; we want to preserve the original in this case
+        this.node.removeAttribute('aoid');
+        this.node.setAttribute('aoid', name);
+      } else {
+        this.node.setAttribute('aoid', name);
+      }
+    }
   }
 
   buildNotes() {
