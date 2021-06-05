@@ -121,28 +121,6 @@ export default class Clause extends Builder {
 
       let dtype = dt.textContent ?? '';
       switch (dtype) {
-        case 'op kind': {
-          // TODO types should live in the attributes
-          type = dd.textContent!;
-          if (
-            ![
-              'abstract operation',
-              'host-defined abstract operation',
-              'numeric method',
-              'concrete method',
-              'internal method',
-            ].includes(type)
-          ) {
-            this.spec.warn({
-              type: 'node',
-              ruleId: 'header-format',
-              message: `unknown operation type ${type}`,
-              node: dd,
-            });
-            return;
-          }
-          break;
-        }
         case 'description': {
           if (description != null) {
             this.spec.warn({
@@ -395,22 +373,19 @@ export default class Clause extends Builder {
     }
     dl.replaceWith(...paras);
 
-    if (type === 'abstract operation' || type === 'host-defined abstract operation') {
-      // TODO the aoid check goes outside the if
-      if (this.node.hasAttribute('aoid')) {
-        // this.spec.warn({
-        //   type: 'attr',
-        //   ruleId: 'header-format',
-        //   message: `nodes with formatted headers should not include an AOID`,
-        //   node: this.node,
-        //   attr: 'aoid',
-        // });
-        // TODO remove these lines; we want to preserve the original in this case
-        this.node.removeAttribute('aoid');
-        this.node.setAttribute('aoid', name);
-      } else {
-        this.node.setAttribute('aoid', name);
-      }
+    if (this.node.hasAttribute('aoid')) {
+      this.spec.warn({
+        type: 'attr',
+        ruleId: 'header-format',
+        message: `nodes with formatted headers should not include an AOID`,
+        node: this.node,
+        attr: 'aoid',
+      });
+      // TODO remove these lines; we want to preserve the original in this case
+      this.node.removeAttribute('aoid');
+      this.node.setAttribute('aoid', name);
+    } else if (type === 'abstract operation' || type === 'host-defined abstract operation') {
+      this.node.setAttribute('aoid', name);
     }
   }
 
