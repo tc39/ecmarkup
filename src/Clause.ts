@@ -385,10 +385,10 @@ export default class Clause extends Builder {
       next = next.nextElementSibling;
     }
     if (next?.tagName == 'EMU-ALG' && !next.hasAttribute('replaces-step')) {
-      if (paras.length > 1) {
+      if (paras.length > 1 || next !== dl.nextElementSibling) {
         let after = this.spec.doc.createElement('p');
         after.append('It performs the following steps when called:');
-        paras.push(after);
+        next.parentElement!.insertBefore(after, next);
       } else {
         para.append(' It performs the following steps when called:');
       }
