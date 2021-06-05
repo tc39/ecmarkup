@@ -200,6 +200,7 @@ export default class Clause extends Builder {
     if (prefix != null) {
       headerText = headerText.substring(prefix[0].length);
     }
+    // TODO drop this upstream
     let suffix = headerText.match(/\s*Concrete Method\s*$/);
     if (suffix != null) {
       headerText = headerText.substring(0, headerText.length - suffix[0].length);
@@ -258,8 +259,8 @@ export default class Clause extends Builder {
           type: paramType === 'unknown' ? null : paramType,
         });
       }
-      let formattedHeader =
-        (prefix == null ? '' : prefix[0]) + name + ' (' + params.map(n => ' ' + n.name).join(',');
+      let formattedprefix = prefix == null ? '' : prefix[0].trim() + ' ';
+      let formattedHeader = `${formattedprefix}${name} (${params.map(n => ' ' + n.name).join(',')}`;
       if (optionalParams.length > 0) {
         formattedHeader +=
           optionalParams
