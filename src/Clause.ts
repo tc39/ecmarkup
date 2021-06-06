@@ -364,9 +364,15 @@ export default class Clause extends Builder {
     }
     if (next?.tagName == 'EMU-ALG' && !next.hasAttribute('replaces-step')) {
       if (paras.length > 1 || next !== dl.nextElementSibling) {
+        let whitespace = next.previousSibling;
         let after = this.spec.doc.createElement('p');
         after.append('It performs the following steps when called:');
         next.parentElement!.insertBefore(after, next);
+
+        // fix up the whitespace in the generated HTML
+        if (whitespace?.nodeType === 3 /* TEXT_NODE */ && /^\s+$/.test(whitespace.nodeValue!)) {
+          next.parentElement!.insertBefore(whitespace.cloneNode(), next);
+        }
       } else {
         para.append(' It performs the following steps when called:');
       }
@@ -381,11 +387,15 @@ export default class Clause extends Builder {
         node: this.node,
         attr: 'aoid',
       });
-      // TODO remove these lines; we want to preserve the original in this case
-      this.node.removeAttribute('aoid');
+    } else if (
+      [
+        'abstract operation',
+        'host-defined abstract operation',
+        'implementation-defined abstract operation',
+      ].includes(type)
+    ) {
       this.node.setAttribute('aoid', name);
-    } else if (type === 'abstract operation' || type === 'host-defined abstract operation') {
-      this.node.setAttribute('aoid', name);
+      this.aoid = name;
     }
   }
 
