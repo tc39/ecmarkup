@@ -134,6 +134,14 @@ export default class Clause extends Builder {
           break;
         }
         case 'for': {
+          if (_for != null) {
+            this.spec.warn({
+              type: 'node',
+              ruleId: 'header-format',
+              message: `duplicate "for" attribute"`,
+              node: dd,
+            });
+          }
           if (type === 'concrete method' || type === 'internal method') {
             _for = dd;
           } else {
@@ -146,8 +154,7 @@ export default class Clause extends Builder {
           }
           break;
         }
-        case 'parameters':
-        case 'name':
+        // TODO drop these
         case 'returns':
         case 'also has access to': {
           break;
@@ -179,7 +186,6 @@ export default class Clause extends Builder {
 
     let parsed = headerText.match(/^\s*([^(\s]+)\s*\((.*)\)\s*$/s);
     if (parsed == null) {
-      // TODO deal with this properly
       this.spec.warn({
         type: 'contents',
         ruleId: 'header-format',
@@ -302,20 +308,30 @@ export default class Clause extends Builder {
     let para = this.spec.doc.createElement('p');
     let paras = [para];
     switch (type) {
-      case 'abstract operation':
       case 'numeric method': {
+        if (!name.includes('::')) {
+          this.spec.warn({
+            type: 'contents',
+            ruleId: 'numberic-method-for',
+            message: `numeric methods should be of the form \`Type::operation\``,
+            node: dl,
+            nodeRelativeLine: 1,
+            nodeRelativeColumn: 1,
+          });
+        }
+      }
+      // fall through
+      case 'abstract operation': {
         // TODO numeric methods should enforce that the name contains `::`
         // TODO tests (for each type of parametered thing) which have HTML in the parameter type
         para.innerHTML += `The abstract operation ${name} takes ${formattedParams}.`;
         break;
       }
       case 'host-defined abstract operation': {
-        // TODO maybe a property instead?
         para.innerHTML += `The host-defined abstract operation ${name} takes ${formattedParams}.`;
         break;
       }
       case 'implementation-defined abstract operation': {
-        // TODO maybe a property instead?
         para.innerHTML += `The implementation-defined abstract operation ${name} takes ${formattedParams}.`;
         break;
       }
