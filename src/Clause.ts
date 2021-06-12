@@ -5,7 +5,6 @@ import type { ClauseBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
-import { offsetToLineAndColumn } from './utils';
 
 /*@internal*/
 export default class Clause extends Builder {
@@ -108,7 +107,7 @@ export default class Clause extends Builder {
       }
 
       let dtype = dt.textContent ?? '';
-      switch (dtype) {
+      switch (dtype.trim()) {
         case 'description': {
           if (description != null) {
             this.spec.warn({
