@@ -392,6 +392,7 @@ export default class Clause extends Builder {
         'abstract operation',
         'host-defined abstract operation',
         'implementation-defined abstract operation',
+        'numeric method',
       ].includes(type)
     ) {
       this.node.setAttribute('aoid', name);
