@@ -73,25 +73,13 @@ export default class Clause extends Builder {
   }
 
   buildStructuredHeader(header: Element) {
-    let type = this.node.getAttribute('type');
-    // if (
-    //   ![
-    //     'abstract operation',
-    //     'host-defined abstract operation',
-    //     'concrete method',
-    //     'internal method',
-    //   ].includes(type!)
-    // ) {
-    //   // TODO warn
-    //   return;
-    // }
-
     let dl = header.nextElementSibling;
     if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
       return;
     }
     // if we find such a DL, treat this as a structured header
 
+    let type = this.node.getAttribute('type') ?? 'unknown';
     this.node.removeAttribute('type'); // TODO maybe leave it in; this is just to minimize the diff
 
     let description;
@@ -322,7 +310,6 @@ export default class Clause extends Builder {
       }
       // fall through
       case 'abstract operation': {
-        // TODO numeric methods should enforce that the name contains `::`
         // TODO tests (for each type of parametered thing) which have HTML in the parameter type
         para.innerHTML += `The abstract operation ${name} takes ${formattedParams}.`;
         break;
@@ -358,7 +345,22 @@ export default class Clause extends Builder {
         break;
       }
       default: {
-        throw new Error(`unreachable: clause type ${type}`);
+        if (type === 'unknown') {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'header-type',
+            message: `clauses with structured headers should have a type`,
+            node: this.node,
+          });
+        } else {
+          this.spec.warn({
+            type: 'attr',
+            ruleId: 'header-type',
+            message: `unknown clause type ${type}`,
+            node: this.node,
+            attr: 'type',
+          });
+        }
       }
     }
     if (description != null) {
