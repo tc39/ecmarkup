@@ -36,7 +36,7 @@ export default class RHS extends Builder {
 
   terminalify(parentNode: Element) {
     // we store effects to perform later so the iteration doesn't get messed up
-    let pairs: { parent: Element; child: Text }[] = [];
+    const pairs: { parent: Element; child: Text }[] = [];
     for (let i = 0; i < parentNode.childNodes.length; i++) {
       const node = parentNode.childNodes[i];
       if (node.nodeType === 3) {
@@ -54,7 +54,7 @@ export default class RHS extends Builder {
       }
     }
     let first = true;
-    for (let { parent, child } of pairs) {
+    for (const { parent, child } of pairs) {
       if (!first && !/^\s+$/.test(child.textContent ?? '')) {
         if (parent === parentNode) {
           parentNode.insertBefore(this.spec.doc.createTextNode(' '), child);

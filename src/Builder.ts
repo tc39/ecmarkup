@@ -18,7 +18,7 @@ export default class Builder {
     this.spec = spec;
     this.node = node;
 
-    let nodeId = node.getAttribute('id')!;
+    const nodeId = node.getAttribute('id')!;
 
     if (nodeId !== null) {
       if (spec.nodeIds.has(nodeId)) {

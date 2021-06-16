@@ -110,8 +110,8 @@ export default class Biblio {
   inScopeByType(ns: string, type: 'table' | 'figure' | 'example' | 'note'): FigureBiblioEntry[];
   inScopeByType(ns: string, type: string): BiblioEntry[];
   inScopeByType(ns: string, type: string) {
-    let seen = new Set<string>();
-    let results: BiblioEntry[] = [];
+    const seen = new Set<string>();
+    const results: BiblioEntry[] = [];
     let current = this._nsToEnvRec[ns];
     while (current) {
       (current._byType[type] || []).forEach(entry => {
@@ -179,7 +179,7 @@ export default class Biblio {
       throw new Error('Cannot create namespace without a name');
     }
 
-    let env = new EnvRec(parentEnv, ns);
+    const env = new EnvRec(parentEnv, ns);
     this._nsToEnvRec[ns] = env;
   }
 

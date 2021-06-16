@@ -29,13 +29,13 @@ export async function lint(
 
   collectTagDiagnostics(report, spec, document);
 
-  let collection = collectNodes(report, sourceText, spec, document);
+  const collection = collectNodes(report, sourceText, spec, document);
   if (!collection.success) {
     return;
   }
-  let { mainGrammar, headers, sdos, earlyErrors, algorithms } = collection;
+  const { mainGrammar, headers, sdos, earlyErrors, algorithms } = collection;
 
-  let { grammar, oneOffGrammars } = await collectGrammarDiagnostics(
+  const { grammar, oneOffGrammars } = await collectGrammarDiagnostics(
     report,
     spec,
     sourceText,
@@ -52,15 +52,15 @@ export async function lint(
   // This isn't actually necessary for linting, but we might as well avoid redoing work later when we can.
 
   await grammar.emit(undefined, (file, source) => {
-    let name = +file.split('.')[0];
-    let node = mainGrammar[name].element;
+    const name = +file.split('.')[0];
+    const node = mainGrammar[name].element;
     if ('grammarkdownOut' in node) {
       throw new Error('unexpectedly regenerating grammarkdown output for node ' + name);
     }
     // @ts-ignore we are intentionally adding a property here
     node.grammarkdownOut = source;
   });
-  for (let { grammarEle, grammar } of oneOffGrammars) {
+  for (const { grammarEle, grammar } of oneOffGrammars) {
     await grammar.emit(undefined, (file, source) => {
       if ('grammarkdownOut' in grammarEle) {
         throw new Error('unexpectedly regenerating grammarkdown output');
@@ -70,7 +70,7 @@ export async function lint(
     });
   }
 
-  for (let pair of algorithms) {
+  for (const pair of algorithms) {
     if ('tree' in pair) {
       // @ts-ignore we are intentionally adding a property here
       pair.element.ecmarkdownTree = pair.tree;

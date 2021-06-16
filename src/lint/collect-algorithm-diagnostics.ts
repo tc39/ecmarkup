@@ -11,7 +11,7 @@ import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
 import lintForEachElement from './rules/for-each-element';
 
-let algorithmRules = [
+const algorithmRules = [
   lintAlgorithmLineStyle,
   lintAlgorithmStepNumbering,
   lintAlgorithmStepLabels,
@@ -21,12 +21,12 @@ let algorithmRules = [
 function composeObservers(...observers: Observer[]): Observer {
   return {
     enter(node: EcmarkdownNode) {
-      for (let observer of observers) {
+      for (const observer of observers) {
         observer.enter?.(node);
       }
     },
     exit(node: EcmarkdownNode) {
-      for (let observer of observers) {
+      for (const observer of observers) {
         observer.exit?.(node);
       }
     },
@@ -39,20 +39,20 @@ export function collectAlgorithmDiagnostics(
   mainSource: string,
   algorithms: { element: Element; tree?: EcmarkdownNode }[]
 ) {
-  for (let algorithm of algorithms) {
-    let element = algorithm.element;
+  for (const algorithm of algorithms) {
+    const element = algorithm.element;
 
     const location = spec.locate(element);
     if (!location) continue;
 
-    let { source: importSource } = location;
+    const { source: importSource } = location;
     if (location.endTag == null) {
       // we'll warn for this in collect-tag-diagnostics; no need to do so here
       continue;
     }
 
     // TODO this wrapper is maybe not necessary
-    let reporter = ({ ruleId, message, line, column }: LintingError) => {
+    const reporter = ({ ruleId, message, line, column }: LintingError) => {
       report({
         type: 'contents',
         ruleId,
@@ -63,11 +63,11 @@ export function collectAlgorithmDiagnostics(
       });
     };
 
-    let algorithmSource = (importSource ?? mainSource).slice(
+    const algorithmSource = (importSource ?? mainSource).slice(
       location.startTag.endOffset,
       location.endTag.startOffset
     );
-    let observer = composeObservers(
+    const observer = composeObservers(
       ...algorithmRules.map(f => f(reporter, element, algorithmSource))
     );
     let tree;
