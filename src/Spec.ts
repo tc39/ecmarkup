@@ -1000,7 +1000,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const classAttr = codes[i].getAttribute('class');
       if (!classAttr) continue;
 
-      const lang = classAttr.replace(/lang(uage)?-/, '');
+      const language = classAttr.replace(/lang(uage)?-/, '');
       let input = codes[i].textContent!;
 
       // remove leading and trailing blank lines
@@ -1011,7 +1011,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const baseIndentRe = new RegExp('^' + baseIndent, 'gm');
       input = input.replace(baseIndentRe, '');
 
-      const result = hljs.highlight(lang, input);
+      const result = hljs.highlight(input, { language });
       codes[i].innerHTML = result.value;
       codes[i].setAttribute('class', classAttr + ' hljs');
     }
