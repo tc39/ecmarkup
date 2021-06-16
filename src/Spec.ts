@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as crypto from 'crypto';
 import * as yaml from 'js-yaml';
 import * as utils from './utils';
-import hljs from 'highlight.js';
+import * as hljs from 'highlight.js';
 // Builders
 import Import, { EmuImportElement } from './Import';
 import H1 from './H1';
@@ -39,8 +39,8 @@ import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
 
-const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
-const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
+const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+const STANDARD_DATE_FORMAT: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', timeZone: 'UTC' };
 const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
 const YES_EMD = new Set(['EMU-GMOD']); // these are processed even if they are nested in NO_EMD contexts
 
@@ -1011,6 +1011,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const baseIndentRe = new RegExp('^' + baseIndent, 'gm');
       input = input.replace(baseIndentRe, '');
 
+      // @ts-expect-error the type definitions for highlight.js are broken
       const result = hljs.highlight(input, { language });
       codes[i].innerHTML = result.value;
       codes[i].setAttribute('class', classAttr + ' hljs');
