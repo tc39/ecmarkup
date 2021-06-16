@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as crypto from 'crypto';
 import * as yaml from 'js-yaml';
 import * as utils from './utils';
-import * as hljs from 'highlight.js';
+import hljs from 'highlight.js';
 // Builders
 import Import, { EmuImportElement } from './Import';
 import H1 from './H1';
