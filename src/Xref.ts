@@ -145,7 +145,7 @@ export default class Xref extends Builder {
         return;
       }
 
-      let namespaceSuffix =
+      const namespaceSuffix =
         namespace === '<no location>' ? '' : ` in namespace ${JSON.stringify(namespace)}`;
       spec.warn({
         type: 'attr-value',
@@ -238,13 +238,13 @@ function buildFigureLink(
   }
 }
 
-let decimalBullet = Array.from({ length: 100 }).map((a, i) => '' + (i + 1));
-let alphaBullet = Array.from({ length: 26 }).map((a, i) =>
+const decimalBullet = Array.from({ length: 100 }).map((a, i) => '' + (i + 1));
+const alphaBullet = Array.from({ length: 26 }).map((a, i) =>
   String.fromCharCode('a'.charCodeAt(0) + i)
 );
 // prettier-ignore
-let romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
-let bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
+const romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
+const bullets = [decimalBullet, alphaBullet, romanBullet, decimalBullet, alphaBullet, romanBullet];
 
 function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry) {
   if (xref.innerHTML !== '') {
@@ -258,8 +258,8 @@ function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry)
     });
   }
 
-  let stepBullets = entry.stepNumbers.map((s, i) => {
-    let applicable = bullets[Math.min(i, 5)];
+  const stepBullets = entry.stepNumbers.map((s, i) => {
+    const applicable = bullets[Math.min(i, 5)];
     if (s > applicable.length) {
       spec.warn({
         type: 'attr-value',
@@ -272,7 +272,7 @@ function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry)
     }
     return applicable[s - 1];
   });
-  let text = stepBullets.join('.');
+  const text = stepBullets.join('.');
   xref.innerHTML = buildXrefLink(entry, text);
 }
 

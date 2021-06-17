@@ -3,10 +3,10 @@ import type { default as Import } from '../Import';
 
 import { offsetToLineAndColumn } from '../utils';
 
-let ruleId = 'spelling';
+const ruleId = 'spelling';
 
 // Note that these will be composed, so cannot contain backreferences
-let matchers = [
+const matchers = [
   {
     pattern: /\*this\* object/gu,
     message: 'prefer "*this* value"',
@@ -138,21 +138,21 @@ export function collectSpellingDiagnostics(
   mainSource: string,
   imports: Import[]
 ) {
-  let composed = new RegExp(matchers.map(m => `(?:${m.pattern.source})`).join('|'), 'u');
+  const composed = new RegExp(matchers.map(m => `(?:${m.pattern.source})`).join('|'), 'u');
 
-  let toTest: { source: string; importLocation?: string }[] = [{ source: mainSource }].concat(
+  const toTest: { source: string; importLocation?: string }[] = [{ source: mainSource }].concat(
     imports
   );
-  for (let { source, importLocation } of toTest) {
+  for (const { source, importLocation } of toTest) {
     // The usual case will be to have no errors, so we have a fast path for that case.
     // We only fall back to slower individual tests if there is at least one error.
     if (composed.test(source)) {
       let reported = false;
-      for (let { pattern, message } of matchers) {
+      for (const { pattern, message } of matchers) {
         let match = pattern.exec(source);
         while (match !== null) {
           reported = true;
-          let { line, column } = offsetToLineAndColumn(source, match.index);
+          const { line, column } = offsetToLineAndColumn(source, match.index);
           report({
             type: 'raw',
             ruleId,

@@ -21,20 +21,20 @@ export function collectNodes(
   spec: Spec,
   document: Document
 ): CollectNodesReturnType {
-  let headers: { element: Element; contents: string }[] = [];
-  let mainGrammar: { element: Element; source: string }[] = [];
-  let sdos: { grammar: Element; alg: Element }[] = [];
-  let earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[] = [];
-  let algorithms: { element: Element; tree?: EcmarkdownNode }[] = [];
+  const headers: { element: Element; contents: string }[] = [];
+  const mainGrammar: { element: Element; source: string }[] = [];
+  const sdos: { grammar: Element; alg: Element }[] = [];
+  const earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[] = [];
+  const algorithms: { element: Element; tree?: EcmarkdownNode }[] = [];
 
   let failed = false;
 
   let inAnnexB = false;
-  let lintWalker = document.createTreeWalker(document.body, 1 /* elements */);
+  const lintWalker = document.createTreeWalker(document.body, 1 /* elements */);
   function visitCurrentNode() {
-    let node: Element = lintWalker.currentNode as Element;
+    const node: Element = lintWalker.currentNode as Element;
 
-    let thisNodeIsAnnexB =
+    const thisNodeIsAnnexB =
       node.nodeName === 'EMU-ANNEX' &&
       node.id === 'sec-additional-ecmascript-features-for-web-browsers';
     if (thisNodeIsAnnexB) {
@@ -46,14 +46,14 @@ export function collectNodes(
     if (!inAnnexB) {
       if (node.nodeName === 'EMU-CLAUSE') {
         // Look for early errors
-        let first = node.firstElementChild;
+        const first = node.firstElementChild;
         if (first !== null && first.nodeName === 'H1') {
-          let title = textContentExcludingDeleted(first);
+          const title = textContentExcludingDeleted(first);
           headers.push({ element: first, contents: title });
           if (title.trim() === 'Static Semantics: Early Errors') {
             let grammar = null;
             let lists: HTMLUListElement[] = [];
-            for (let child of (node.children as any) as Iterable<Element>) {
+            for (const child of node.children as any as Iterable<Element>) {
               if (child.nodeName === 'EMU-GRAMMAR') {
                 if (grammar !== null) {
                   if (lists.length === 0) {
@@ -90,18 +90,18 @@ export function collectNodes(
           const loc = spec.locate(node);
           if (!loc) return;
 
-          let { source: importSource } = loc;
+          const { source: importSource } = loc;
           if (loc.endTag == null) {
             failed = true;
             // we'll warn for this in collect-tag-diagnostics; no need to do so here
           } else {
-            let start = loc.startTag.endOffset;
-            let end = loc.endTag.startOffset;
-            let realSource = (importSource ?? mainSource).slice(start, end);
+            const start = loc.startTag.endOffset;
+            const end = loc.endTag.startOffset;
+            const realSource = (importSource ?? mainSource).slice(start, end);
             mainGrammar.push({ element: node as Element, source: realSource });
           }
         } else {
-          let next = lintWalker.nextSibling() as Element;
+          const next = lintWalker.nextSibling() as Element;
           if (next) {
             if (next.nodeName === 'EMU-ALG') {
               sdos.push({ grammar: node, alg: next });
@@ -116,11 +116,11 @@ export function collectNodes(
       algorithms.push({ element: node });
     }
 
-    let firstChild = lintWalker.firstChild();
+    const firstChild = lintWalker.firstChild();
     if (firstChild) {
       while (true) {
         visitCurrentNode();
-        let next = lintWalker.nextSibling();
+        const next = lintWalker.nextSibling();
         if (!next) break;
       }
       lintWalker.parentNode();

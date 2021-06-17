@@ -63,15 +63,15 @@ export default class Grammar extends Builder {
       noChecks: true,
     };
 
-    let grammarHost = CoreAsyncHost.forFile(content);
-    let grammar = new GrammarFile([grammarHost.file], options, grammarHost);
+    const grammarHost = CoreAsyncHost.forFile(content);
+    const grammar = new GrammarFile([grammarHost.file], options, grammarHost);
     await grammar.parse();
     if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
       // Collect referenced nonterminals to check definedness later
       // The `'grammarkdownOut' in node` check at the top means we don't do this for nodes which have already been covered by a separate linting pass
-      let clause = clauseStack[clauseStack.length - 1];
-      let namespace = clause ? clause.namespace : spec.namespace;
-      let nonterminals = collectNonterminalsFromGrammar(grammar).map(({ name, loc }) => ({
+      const clause = clauseStack[clauseStack.length - 1];
+      const namespace = clause ? clause.namespace : spec.namespace;
+      const nonterminals = collectNonterminalsFromGrammar(grammar).map(({ name, loc }) => ({
         name,
         loc,
         node,

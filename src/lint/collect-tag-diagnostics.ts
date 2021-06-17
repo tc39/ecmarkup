@@ -1,6 +1,6 @@
 import type { default as Spec, Warning } from '../Spec';
 
-let knownEmuTags = new Set([
+const knownEmuTags = new Set([
   'emu-import',
   'emu-example',
   'emu-intro',
@@ -30,7 +30,7 @@ let knownEmuTags = new Set([
 ]);
 
 // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
-let voidElements = new Set([
+const voidElements = new Set([
   'area',
   'base',
   'br',
@@ -52,10 +52,10 @@ export function collectTagDiagnostics(
   spec: Spec,
   document: Document
 ) {
-  let lintWalker = document.createTreeWalker(document.body, 1 /* elements */);
+  const lintWalker = document.createTreeWalker(document.body, 1 /* elements */);
   function visit() {
-    let node: Element = lintWalker.currentNode as Element;
-    let name = node.tagName.toLowerCase();
+    const node: Element = lintWalker.currentNode as Element;
+    const name = node.tagName.toLowerCase();
 
     if (name.startsWith('emu-') && !knownEmuTags.has(name)) {
       report({
@@ -77,7 +77,7 @@ export function collectTagDiagnostics(
     }
 
     if (!voidElements.has(name)) {
-      let location = spec.locate(node);
+      const location = spec.locate(node);
       if (location != null && location.endTag == null) {
         report({
           type: 'node',
@@ -88,11 +88,11 @@ export function collectTagDiagnostics(
       }
     }
 
-    let firstChild = lintWalker.firstChild();
+    const firstChild = lintWalker.firstChild();
     if (firstChild) {
       while (true) {
         visit();
-        let next = lintWalker.nextSibling();
+        const next = lintWalker.nextSibling();
         if (!next) break;
       }
       lintWalker.parentNode();

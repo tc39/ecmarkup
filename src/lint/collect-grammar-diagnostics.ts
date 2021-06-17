@@ -24,36 +24,36 @@ export async function collectGrammarDiagnostics(
   // *******************
   // Parse the grammar with Grammarkdown and collect its diagnostics, if any
 
-  let mainHost = new CoreAsyncHost({
+  const mainHost = new CoreAsyncHost({
     ignoreCase: false,
     useBuiltinGrammars: false,
     resolveFile: file => file,
     readFile(file: string) {
-      let idx = parseInt(file);
+      const idx = parseInt(file);
       if (idx.toString() !== file || idx < 0 || idx >= mainGrammar.length) {
         throw new Error('tried to read non-existent ' + file);
       }
       return mainGrammar[idx].source;
     },
   });
-  let compilerOptions = {
+  const compilerOptions = {
     format: EmitFormat.ecmarkup,
     noChecks: false,
     noUnusedParameters: true,
   };
-  let grammar = new GrammarFile(Object.keys(mainGrammar), compilerOptions, mainHost);
+  const grammar = new GrammarFile(Object.keys(mainGrammar), compilerOptions, mainHost);
   await grammar.parse();
   await grammar.check();
 
-  let unusedParameterErrors: Map<string, Map<string, Warning>> = new Map();
+  const unusedParameterErrors: Map<string, Map<string, Warning>> = new Map();
 
   if (grammar.diagnostics.size > 0) {
     // `detailedMessage: false` prevents prepending line numbers, which is good because we're going to make our own
     grammar.diagnostics
       .getDiagnosticInfos({ formatMessage: true, detailedMessage: false })
       .forEach(m => {
-        let idx = +m.sourceFile!.filename;
-        let error: Warning = {
+        const idx = +m.sourceFile!.filename;
+        const error: Warning = {
           type: 'contents',
           ruleId: `grammarkdown:${m.code}`,
           message: m.formattedMessage!,
@@ -63,15 +63,15 @@ export async function collectGrammarDiagnostics(
         };
 
         if (m.code === Diagnostics.Parameter_0_is_unused.code) {
-          let param = m.node as Parameter;
-          let navigator = grammar.resolver.createNavigator(param)!;
+          const param = m.node as Parameter;
+          const navigator = grammar.resolver.createNavigator(param)!;
           navigator.moveToAncestor(node => node.kind === SyntaxKind.Production);
-          let nodeName = (navigator.getNode() as Production).name.text!;
-          let paramName = param.name.text!;
+          const nodeName = (navigator.getNode() as Production).name.text!;
+          const paramName = param.name.text!;
           if (!unusedParameterErrors.has(nodeName)) {
             unusedParameterErrors.set(nodeName, new Map());
           }
-          let paramToError = unusedParameterErrors.get(nodeName)!;
+          const paramToError = unusedParameterErrors.get(nodeName)!;
           paramToError.set(paramName, error);
         } else {
           report(error);
@@ -83,42 +83,42 @@ export async function collectGrammarDiagnostics(
   // Check that SDOs and Early Errors are defined in terms of productions which actually exist
   // Also filter out any "unused parameter" warnings for grammar productions for which the parameter is used in an early error or SDO
 
-  let oneOffGrammars: { grammarEle: Element; grammar: GrammarFile }[] = [];
-  let actualGrammarProductions = getProductions(grammar);
-  let grammarsAndRules = [
+  const oneOffGrammars: { grammarEle: Element; grammar: GrammarFile }[] = [];
+  const actualGrammarProductions = getProductions(grammar);
+  const grammarsAndRules = [
     ...sdos.map(s => ({ grammar: s.grammar, rules: [s.alg], type: 'syntax-directed operation' })),
     ...earlyErrors.map(e => ({ grammar: e.grammar, rules: e.lists, type: 'early error' })),
   ];
-  for (let { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
+  for (const { grammar: grammarEle, rules: rulesEles, type } of grammarsAndRules) {
     const grammarLoc = spec.locate(grammarEle);
     if (!grammarLoc) continue;
 
-    let { source: importSource } = grammarLoc;
+    const { source: importSource } = grammarLoc;
 
     if (grammarLoc.endTag == null) {
       // we'll warn for this in collect-tag-diagnostics; no need to do so here
       continue;
     }
 
-    let grammarHost = CoreAsyncHost.forFile(
+    const grammarHost = CoreAsyncHost.forFile(
       (importSource ?? mainSource).slice(
         grammarLoc.startTag.endOffset,
         grammarLoc.endTag.startOffset
       )
     );
-    let grammar = new GrammarFile(
+    const grammar = new GrammarFile(
       [grammarHost.file],
       { format: EmitFormat.ecmarkup, noChecks: true },
       grammarHost
     );
     await grammar.parse();
     oneOffGrammars.push({ grammarEle, grammar });
-    let productions = getProductions(grammar);
+    const productions = getProductions(grammar);
 
-    for (let [name, { production, rhses }] of productions) {
-      let originalRhses = actualGrammarProductions.get(name)?.rhses;
+    for (const [name, { production, rhses }] of productions) {
+      const originalRhses = actualGrammarProductions.get(name)?.rhses;
       if (originalRhses === undefined) {
-        let { line, column } = getLocationInGrammar(grammar, production.pos);
+        const { line, column } = getLocationInGrammar(grammar, production.pos);
         report({
           type: 'contents',
           ruleId: 'undefined-nonterminal',
@@ -129,9 +129,9 @@ export async function collectGrammarDiagnostics(
         });
         continue;
       }
-      for (let rhs of rhses) {
+      for (const rhs of rhses) {
         if (!originalRhses.some(o => rhsMatches(rhs, o))) {
-          let { line, column } = getLocationInGrammar(grammar, rhs.pos);
+          const { line, column } = getLocationInGrammar(grammar, rhs.pos);
           report({
             type: 'contents',
             ruleId: 'undefined-nonterminal',
@@ -148,7 +148,7 @@ export async function collectGrammarDiagnostics(
               return;
             }
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
-              let { line, column } = getLocationInGrammar(grammar, s.symbol.pos);
+              const { line, column } = getLocationInGrammar(grammar, s.symbol.pos);
               report({
                 type: 'contents',
                 ruleId: `NLTH-in-SDO`,
@@ -164,7 +164,7 @@ export async function collectGrammarDiagnostics(
           })(rhs.head);
 
           if (rhs.constraints !== undefined) {
-            let { line, column } = getLocationInGrammar(grammar, rhs.constraints.pos);
+            const { line, column } = getLocationInGrammar(grammar, rhs.constraints.pos);
             report({
               type: 'contents',
               ruleId: `guard-in-SDO`,
@@ -179,8 +179,8 @@ export async function collectGrammarDiagnostics(
 
       // Filter out unused parameter errors for which the parameter is actually used in an SDO or Early Error
       if (unusedParameterErrors.has(name)) {
-        let paramToError = unusedParameterErrors.get(name)!;
-        for (let paramName of paramToError.keys()) {
+        const paramToError = unusedParameterErrors.get(name)!;
+        for (const paramName of paramToError.keys()) {
           // This isn't the most elegant check, but it works.
           if (rulesEles.some(r => r.innerHTML.indexOf('[' + paramName + ']') !== -1)) {
             paramToError.delete(paramName);
@@ -190,8 +190,8 @@ export async function collectGrammarDiagnostics(
     }
   }
 
-  for (let paramToError of unusedParameterErrors.values()) {
-    for (let error of paramToError.values()) {
+  for (const paramToError of unusedParameterErrors.values()) {
+    for (const error of paramToError.values()) {
       report(error);
     }
   }

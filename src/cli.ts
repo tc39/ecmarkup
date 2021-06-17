@@ -66,13 +66,13 @@ const build = debounce(async function build() {
     } catch {
       descriptor = args.lintFormatter;
     }
-    let formatter = require(descriptor);
-    let warnings: EcmarkupError[] = [];
+    const formatter = require(descriptor);
+    const warnings: EcmarkupError[] = [];
     opts.warn = err => {
       warned = true;
-      let file = normalizePath(err.file ?? args.infile);
+      const file = normalizePath(err.file ?? args.infile);
       // prettier-ignore
-      let message = `${args.strict ? 'Error' : 'Warning'}: ${file}:${err.line == null ? '' : `${err.line}:${err.column}:`} ${err.message}`;
+      const message = `${args.strict ? 'Error' : 'Warning'}: ${file}:${err.line == null ? '' : `${err.line}:${err.column}:`} ${err.message}`;
       utils.logWarning(message);
       warnings.push(err);
     };
@@ -93,8 +93,8 @@ const build = debounce(async function build() {
 
     if (args.verbose && warned) {
       warnings.sort((a, b) => {
-        let aPath = normalizePath(a.file ?? args.infile);
-        let bPath = normalizePath(a.file ?? args.infile);
+        const aPath = normalizePath(a.file ?? args.infile);
+        const bPath = normalizePath(a.file ?? args.infile);
         if (aPath !== bPath) {
           return aPath.localeCompare(bPath);
         }
@@ -118,7 +118,7 @@ const build = debounce(async function build() {
         }
         return a.line - b.line;
       });
-      let results = warnings.map(err => ({
+      const results = warnings.map(err => ({
         filePath: normalizePath(err.file ?? args.infile),
         messages: [{ severity: args.strict ? 2 : 1, ...err }],
         errorCount: args.strict ? 1 : 0,
@@ -137,7 +137,7 @@ const build = debounce(async function build() {
         if (args.verbose) {
           utils.logVerbose('Writing output...');
         }
-        for (let [file, contents] of spec.generatedFiles) {
+        for (const [file, contents] of spec.generatedFiles) {
           pending.push(utils.writeFile(file!, contents));
         }
       } else {

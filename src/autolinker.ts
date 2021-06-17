@@ -6,7 +6,7 @@ import type { BiblioEntry } from './Biblio';
 import Xref from './Xref';
 import * as utils from './utils';
 
-let escape: (_: string) => string = require('html-escape');
+const escape: (_: string) => string = require('html-escape');
 
 export const NO_CLAUSE_AUTOLINK = new Set([
   'PRE',
@@ -138,11 +138,11 @@ function isCommonTerm(op: string) {
 
 // regexp-string where the first character is case insensitive
 function caseInsensitiveRegExp(str: string) {
-  let lower = str[0].toLowerCase();
+  const lower = str[0].toLowerCase();
 
   if (lower !== str[0]) return str;
 
-  let upper = lower.toUpperCase();
+  const upper = lower.toUpperCase();
   if (lower === upper) {
     return str;
   }

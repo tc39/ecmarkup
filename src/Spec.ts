@@ -39,8 +39,17 @@ import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
 
-const DRAFT_DATE_FORMAT = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
-const STANDARD_DATE_FORMAT = { year: 'numeric', month: 'long', timeZone: 'UTC' };
+const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+};
+const STANDARD_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: 'long',
+  timeZone: 'UTC',
+};
 const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
 const YES_EMD = new Set(['EMU-GMOD']); // these are processed even if they are nested in NO_EMD contexts
 
@@ -55,7 +64,7 @@ interface TextNodeContext {
   currentId: string | null;
 }
 
-let builders: BuilderInterface[] = [
+const builders: BuilderInterface[] = [
   Clause,
   H1,
   Algorithm,
@@ -132,7 +141,7 @@ export type Warning =
 
 function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void) {
   return (e: Warning) => {
-    let { message, ruleId } = e;
+    const { message, ruleId } = e;
     let line: number | undefined;
     let column: number | undefined;
     let nodeType: string;
@@ -153,7 +162,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
         break;
       case 'node':
         if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
-          let loc = spec.locate(e.node);
+          const loc = spec.locate(e.node);
           if (loc) {
             file = loc.file;
             source = loc.source;
@@ -161,7 +170,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           }
           nodeType = 'text';
         } else {
-          let loc = spec.locate(e.node as Element);
+          const loc = spec.locate(e.node as Element);
           if (loc) {
             file = loc.file;
             source = loc.source;
@@ -171,7 +180,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
         }
         break;
       case 'attr': {
-        let loc = spec.locate(e.node);
+        const loc = spec.locate(e.node);
         if (loc) {
           file = loc.file;
           source = loc.source;
@@ -181,7 +190,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
         break;
       }
       case 'attr-value': {
-        let loc = spec.locate(e.node);
+        const loc = spec.locate(e.node);
         if (loc) {
           file = loc.file;
           source = loc.source;
@@ -191,10 +200,10 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
         break;
       }
       case 'contents': {
-        let { nodeRelativeLine, nodeRelativeColumn } = e;
+        const { nodeRelativeLine, nodeRelativeColumn } = e;
         if (e.node.nodeType === 3 /* Node.TEXT_NODE */) {
           // i.e. a text node, which does not have a tag
-          let loc = spec.locate(e.node);
+          const loc = spec.locate(e.node);
           if (loc) {
             file = loc.file;
             source = loc.source;
@@ -203,14 +212,14 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           }
           nodeType = 'text';
         } else {
-          let loc = spec.locate(e.node);
+          const loc = spec.locate(e.node);
           if (loc) {
             file = loc.file;
             source = loc.source;
             // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
             // TODO switch to using loc.startTag.end{Line,Col} once parse5 can be upgraded
-            let tagSrc = source.slice(loc.startTag.startOffset, loc.startTag.endOffset);
-            let tagEnd = utils.offsetToLineAndColumn(
+            const tagSrc = source.slice(loc.startTag.startOffset, loc.startTag.endOffset);
+            const tagEnd = utils.offsetToLineAndColumn(
               tagSrc,
               loc.startTag.endOffset - loc.startOffset
             );
@@ -459,7 +468,7 @@ export default class Spec {
 
     this.highlightCode();
     this.setCharset();
-    let wrapper = this.buildSpecWrapper();
+    const wrapper = this.buildSpecWrapper();
 
     let tocEles: HTMLElement[] = [];
     let tocJs = '';
@@ -472,7 +481,7 @@ export default class Spec {
         ({ js: tocJs, eles: tocEles } = makeMenu(this));
       }
     }
-    for (let ele of tocEles) {
+    for (const ele of tocEles) {
       this.doc.body.insertBefore(ele, this.doc.body.firstChild);
     }
 
@@ -495,7 +504,7 @@ export default class Spec {
   }
 
   private toHTML() {
-    let htmlEle = this.doc.documentElement;
+    const htmlEle = this.doc.documentElement;
     return '<!doctype html>\n' + (htmlEle.hasAttributes() ? htmlEle.outerHTML : htmlEle.innerHTML);
   }
 
@@ -510,7 +519,7 @@ export default class Spec {
       pointer = pointer.parentElement;
     }
     if (pointer == null) {
-      let loc = (this.dom as JSDOM).nodeLocation(node);
+      const loc = (this.dom as JSDOM).nodeLocation(node);
       if (loc) {
         // we can't just spread `loc` because not all properties are own/enumerable
         return {
@@ -525,7 +534,7 @@ export default class Spec {
         };
       }
     } else if (pointer.dom) {
-      let loc = pointer.dom.nodeLocation(node);
+      const loc = pointer.dom.nodeLocation(node);
       if (loc) {
         return {
           file: pointer.importPath!,
@@ -544,7 +553,7 @@ export default class Spec {
 
   private buildReferenceGraph() {
     const refToClause = this.refsByClause;
-    let setParent = (node: Element) => {
+    const setParent = (node: Element) => {
       let pointer: Node | null = node;
       while (pointer && !['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'].includes(pointer.nodeName)) {
         pointer = pointer.parentNode;
@@ -631,13 +640,13 @@ export default class Spec {
 
   private async buildMultipage(wrapper: Element, tocEles: Element[], jsSha: string) {
     let stillIntro = true;
-    let introEles = [];
-    let sections: { name: string; eles: Element[] }[] = [];
-    let containedIdToSection: Map<string, string> = new Map();
-    let sectionToContainedIds: Map<string, string[]> = new Map();
-    let clauseTypes = ['EMU-ANNEX', 'EMU-CLAUSE'];
+    const introEles = [];
+    const sections: { name: string; eles: Element[] }[] = [];
+    const containedIdToSection: Map<string, string> = new Map();
+    const sectionToContainedIds: Map<string, string[]> = new Map();
+    const clauseTypes = ['EMU-ANNEX', 'EMU-CLAUSE'];
     // @ts-ignore
-    for (let child of wrapper.children) {
+    for (const child of wrapper.children) {
       if (stillIntro) {
         if (clauseTypes.includes(child.nodeName)) {
           throw new Error('cannot make multipage build without intro');
@@ -663,14 +672,14 @@ export default class Spec {
             continue;
           }
 
-          let name = 'index';
+          const name = 'index';
           introEles.push(child);
           sections.push({ name, eles: introEles });
 
-          let contained: string[] = [];
+          const contained: string[] = [];
           sectionToContainedIds.set(name, contained);
 
-          for (let item of introEles) {
+          for (const item of introEles) {
             if (item.id) {
               contained.push(item.id);
               containedIdToSection.set(item.id, name);
@@ -678,7 +687,7 @@ export default class Spec {
           }
 
           // @ts-ignore
-          for (let item of [...introEles].flatMap(e => [...e.querySelectorAll('[id]')])) {
+          for (const item of [...introEles].flatMap(e => [...e.querySelectorAll('[id]')])) {
             contained.push(item.id);
             containedIdToSection.set(item.id, name);
           }
@@ -702,15 +711,15 @@ export default class Spec {
           continue;
         }
 
-        let name = child.id.substring(4);
-        let contained: string[] = [];
+        const name = child.id.substring(4);
+        const contained: string[] = [];
         sectionToContainedIds.set(name, contained);
 
         contained.push(child.id);
         containedIdToSection.set(child.id, name);
 
         // @ts-ignore
-        for (let item of child.querySelectorAll('[id]')) {
+        for (const item of child.querySelectorAll('[id]')) {
           contained.push(item.id);
           containedIdToSection.set(item.id, name);
         }
@@ -720,19 +729,19 @@ export default class Spec {
 
     let htmlEle = '';
     if (this.doc.documentElement.hasAttributes()) {
-      let clonedHtmlEle = this.doc.documentElement.cloneNode(false) as HTMLElement;
+      const clonedHtmlEle = this.doc.documentElement.cloneNode(false) as HTMLElement;
       clonedHtmlEle.innerHTML = '';
-      let src = clonedHtmlEle.outerHTML!;
+      const src = clonedHtmlEle.outerHTML!;
       htmlEle = src.substring(0, src.length - '<head></head><body></body></html>'.length);
     }
 
-    let head = this.doc.head.cloneNode(true) as Element;
+    const head = this.doc.head.cloneNode(true) as Element;
     const style = this.doc.createElement('link');
     style.setAttribute('rel', 'stylesheet');
     style.setAttribute('href', '../ecmarkup.css');
 
     // insert early so that the document's own stylesheets can override
-    let firstLink = head.querySelector('link[rel=stylesheet], style');
+    const firstLink = head.querySelector('link[rel=stylesheet], style');
     if (firstLink != null) {
       head.insertBefore(style, firstLink);
     } else {
@@ -748,7 +757,7 @@ export default class Spec {
       /[\\`$]/g,
       '\\$&'
     );
-    let multipageJsContents = `'use strict';
+    const multipageJsContents = `'use strict';
 let multipageMap = JSON.parse(\`${containedMap}\`);
 ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 `;
@@ -762,21 +771,21 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     multipageScript.setAttribute('defer', '');
     head.appendChild(multipageScript);
 
-    for (let { name, eles } of sections) {
+    for (const { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
-      let headClone = head.cloneNode(true) as HTMLHeadElement;
+      const headClone = head.cloneNode(true) as HTMLHeadElement;
       if (eles[0].hasAttribute('id')) {
-        let canonical = this.doc.createElement('link');
+        const canonical = this.doc.createElement('link');
         canonical.setAttribute('rel', 'canonical');
         canonical.setAttribute('href', `../index.html#${eles[0].id}`);
         headClone.appendChild(canonical);
       }
-      let tocClone = tocEles.map(e => e.cloneNode(true));
-      let clones = eles.map(e => e.cloneNode(true));
-      let allClones = tocClone.concat(clones);
+      const tocClone = tocEles.map(e => e.cloneNode(true));
+      const clones = eles.map(e => e.cloneNode(true));
+      const allClones = tocClone.concat(clones);
       // @ts-ignore
-      let links = allClones.flatMap(e => [...e.querySelectorAll('a')]);
-      for (let link of links) {
+      const links = allClones.flatMap(e => [...e.querySelectorAll('a')]);
+      for (const link of links) {
         if (linkIsAbsolute(link)) {
           continue;
         }
@@ -798,31 +807,31 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
               continue;
             }
           }
-          let targetSec = containedIdToSection.get(p)!;
+          const targetSec = containedIdToSection.get(p)!;
           link.href = (targetSec === 'index' ? './' : targetSec + '.html') + link.hash;
         } else if (linkIsPathRelative(link)) {
           link.href = '../' + pathFromRelativeLink(link);
         }
       }
       // @ts-ignore
-      for (let img of allClones.flatMap(e => [...e.querySelectorAll('img')])) {
+      for (const img of allClones.flatMap(e => [...e.querySelectorAll('img')])) {
         if (!/^(http:|https:|:|\/)/.test(img.src)) {
           img.src = '../' + img.src;
         }
       }
       // prettier-ignore
       // @ts-ignore
-      for (let object of allClones.flatMap(e => [...e.querySelectorAll('object[data]')])) {
+      for (const object of allClones.flatMap(e => [...e.querySelectorAll('object[data]')])) {
         if (!/^(http:|https:|:|\/)/.test(object.data)) {
           object.data = '../' + object.data;
         }
       }
 
       // @ts-ignore
-      let tocHTML = tocClone.map(e => e.outerHTML).join('\n');
+      const tocHTML = tocClone.map(e => e.outerHTML).join('\n');
       // @ts-ignore
-      let clonesHTML = clones.map(e => e.outerHTML).join('\n');
-      let content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${tocHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
+      const clonesHTML = clones.map(e => e.outerHTML).join('\n');
+      const content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${tocHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
 
       this.generatedFiles.set(path.resolve(this.opts.outfile!, `multipage/${name}.html`), content);
     }
@@ -841,7 +850,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
     if (this.opts.assets === 'none') return;
 
-    let outDir = this.opts.outfile
+    const outDir = this.opts.outfile
       ? this.opts.multipage
         ? this.opts.outfile
         : path.dirname(this.opts.outfile)
@@ -888,7 +897,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         style.setAttribute('href', path.relative(outDir, this.opts.cssOut));
 
         // insert early so that the document's own stylesheets can override
-        let firstLink = this.doc.head.querySelector('link[rel=stylesheet], style');
+        const firstLink = this.doc.head.querySelector('link[rel=stylesheet], style');
         if (firstLink != null) {
           this.doc.head.insertBefore(style, firstLink);
         } else {
@@ -1000,7 +1009,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const classAttr = codes[i].getAttribute('class');
       if (!classAttr) continue;
 
-      const lang = classAttr.replace(/lang(uage)?-/, '');
+      const language = classAttr.replace(/lang(uage)?-/, '');
       let input = codes[i].textContent!;
 
       // remove leading and trailing blank lines
@@ -1011,7 +1020,8 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const baseIndentRe = new RegExp('^' + baseIndent, 'gm');
       input = input.replace(baseIndentRe, '');
 
-      const result = hljs.highlight(lang, input);
+      // @ts-expect-error the type definitions for highlight.js are broken
+      const result = hljs.highlight(input, { language });
       codes[i].innerHTML = result.value;
       codes[i].setAttribute('class', classAttr + ' hljs');
     }
@@ -1097,10 +1107,6 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
   }
 
   private buildCopyrightBoilerplate() {
-    let address: string;
-    let copyright: string;
-    let license: string;
-
     let addressFile: string | undefined;
     let copyrightFile: string | undefined;
     let licenseFile: string | undefined;
@@ -1118,9 +1124,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     }
 
     // Get content from files
-    address = getBoilerplate(addressFile || 'address');
-    copyright = getBoilerplate(copyrightFile || `${this.opts.status}-copyright`);
-    license = getBoilerplate(licenseFile || 'software-license');
+    let address = getBoilerplate(addressFile || 'address');
+    let copyright = getBoilerplate(copyrightFile || `${this.opts.status}-copyright`);
+    const license = getBoilerplate(licenseFile || 'software-license');
 
     if (this.opts.status === 'proposal') {
       address = '';
@@ -1165,26 +1171,26 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
   }
 
   private generateSDOMap() {
-    let sdoMap = Object.create(null);
+    const sdoMap = Object.create(null);
 
     this.log('Building SDO map...');
 
     // prettier-ignore
-    let mainGrammar: Set<Element> = new Set(
+    const mainGrammar: Set<Element> = new Set(
       (this.doc.querySelectorAll('emu-grammar[type=definition]:not([example])') as any) as Iterable<Element>
     );
 
     // we can't just do `:not(emu-annex emu-grammar)` because that selector is too complicated for this version of jsdom
     // @ts-ignore
-    for (let annexEle of this.doc.querySelectorAll('emu-annex emu-grammar[type=definition]')) {
+    for (const annexEle of this.doc.querySelectorAll('emu-annex emu-grammar[type=definition]')) {
       mainGrammar.delete(annexEle);
     }
 
-    let productions: Map<String, Array<Element>> = new Map();
-    for (let grammar of mainGrammar) {
-      for (let production of (grammar.querySelectorAll('emu-production') as any) as Iterable<
-        Element
-      >) {
+    const productions: Map<String, Array<Element>> = new Map();
+    for (const grammar of mainGrammar) {
+      for (const production of grammar.querySelectorAll(
+        'emu-production'
+      ) as any as Iterable<Element>) {
         if (!production.hasAttribute('name')) {
           // I don't think this is possible, but we can at least be graceful about it
           this.warn({
@@ -1196,7 +1202,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           });
           continue;
         }
-        let name = production.getAttribute('name')!;
+        const name = production.getAttribute('name')!;
         if (productions.has(name)) {
           this.warn({
             type: 'node',
@@ -1207,16 +1213,16 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           continue;
         }
         // @ts-ignore
-        let rhses: Array<Element> = [...production.querySelectorAll('emu-rhs')];
+        const rhses: Array<Element> = [...production.querySelectorAll('emu-rhs')];
         productions.set(name, rhses);
       }
     }
 
-    let sdos = this.doc.querySelectorAll('emu-clause[type=sdo]');
+    const sdos = this.doc.querySelectorAll('emu-clause[type=sdo]');
     // @ts-ignore
-    outer: for (let sdo of sdos) {
+    outer: for (const sdo of sdos) {
       let header;
-      for (let child of sdo.children) {
+      for (const child of sdo.children) {
         if (child.tagName === 'SPAN' && child.childNodes.length === 0) {
           // an `oldid` marker, presumably
           continue;
@@ -1234,8 +1240,8 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         continue outer;
       }
 
-      let clause = header.firstElementChild.textContent;
-      let nameMatch = header.textContent
+      const clause = header.firstElementChild.textContent;
+      const nameMatch = header.textContent
         .slice(clause.length + 1)
         .match(/^(?:(?:Static|Runtime) Semantics: )?\s*(\w+)\b/);
       if (nameMatch == null) {
@@ -1249,13 +1255,13 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         });
         continue;
       }
-      let sdoName = nameMatch[1];
+      const sdoName = nameMatch[1];
       // @ts-ignore
-      let grammars = [...sdo.children].filter(e => e.tagName === 'EMU-GRAMMAR');
-      for (let grammar of grammars) {
-        for (let production of (grammar.querySelectorAll('emu-production') as any) as Iterable<
-          Element
-        >) {
+      const grammars = [...sdo.children].filter(e => e.tagName === 'EMU-GRAMMAR');
+      for (const grammar of grammars) {
+        for (const production of grammar.querySelectorAll(
+          'emu-production'
+        ) as any as Iterable<Element>) {
           if (!production.hasAttribute('name')) {
             // I don't think this is possible, but we can at least be graceful about it
             this.warn({
@@ -1266,7 +1272,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
             });
             continue;
           }
-          let name = production.getAttribute('name')!;
+          const name = production.getAttribute('name')!;
           if (!productions.has(name)) {
             this.warn({
               type: 'node',
@@ -1276,9 +1282,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
             });
             continue;
           }
-          let mainRhses = productions.get(name)!;
-          for (let rhs of (production.querySelectorAll('emu-rhs') as any) as Iterable<Element>) {
-            let matches = mainRhses.filter(r => rhsMatches(rhs, r));
+          const mainRhses = productions.get(name)!;
+          for (const rhs of production.querySelectorAll('emu-rhs') as any as Iterable<Element>) {
+            const matches = mainRhses.filter(r => rhsMatches(rhs, r));
             if (matches.length === 0) {
               this.warn({
                 type: 'node',
@@ -1297,18 +1303,18 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
               });
               continue;
             }
-            let match = matches[0];
+            const match = matches[0];
             if (match.id == '') {
               match.id = 'prod-' + sha(`${name} : ${match.textContent}`);
             }
-            let mainId = match.id;
+            const mainId = match.id;
             if (rhs.id == '') {
               rhs.id = 'prod-' + sha(`[${sdoName}] ${name} ${rhs.textContent}`);
             }
             if (!{}.hasOwnProperty.call(sdoMap, mainId)) {
               sdoMap[mainId] = Object.create(null);
             }
-            let sdosForThisId = sdoMap[mainId];
+            const sdosForThisId = sdoMap[mainId];
             if (!{}.hasOwnProperty.call(sdosForThisId, sdoName)) {
               sdosForThisId[sdoName] = { clause, ids: [] };
             } else if (sdosForThisId[sdoName].clause !== clause) {
@@ -1331,10 +1337,10 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
   private setReplacementAlgorithmOffsets() {
     this.log('Finding offsets for replacement algorithm steps...');
-    let pending: Map<string, Element[]> = new Map();
+    const pending: Map<string, Element[]> = new Map();
 
-    let setReplacementAlgorithmStart = (element: Element, stepNumbers: number[]) => {
-      let rootList = element.firstElementChild! as HTMLOListElement;
+    const setReplacementAlgorithmStart = (element: Element, stepNumbers: number[]) => {
+      const rootList = element.firstElementChild! as HTMLOListElement;
       rootList.start = stepNumbers[stepNumbers.length - 1];
       if (stepNumbers.length > 1) {
         // Note the off-by-one here: a length of 1 indicates we are replacing a top-level step, which means we do not need to adjust the styling.
@@ -1353,22 +1359,22 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }
 
       // Fix up the biblio entries for any labeled steps in the algorithm
-      for (let entry of this.replacementAlgorithmToContainedLabeledStepEntries.get(element)!) {
+      for (const entry of this.replacementAlgorithmToContainedLabeledStepEntries.get(element)!) {
         entry.stepNumbers = [...stepNumbers, ...entry.stepNumbers.slice(1)];
         this.labeledStepsToBeRectified.delete(entry.id);
 
         // Now that we've figured out where the step is, we can deal with algorithms replacing it
         if (pending.has(entry.id)) {
-          let todo = pending.get(entry.id)!;
+          const todo = pending.get(entry.id)!;
           pending.delete(entry.id);
-          for (let replacementAlgorithm of todo) {
+          for (const replacementAlgorithm of todo) {
             setReplacementAlgorithmStart(replacementAlgorithm, entry.stepNumbers);
           }
         }
       }
     };
 
-    for (let { element, target } of this.replacementAlgorithms) {
+    for (const { element, target } of this.replacementAlgorithms) {
       if (this.labeledStepsToBeRectified.has(target)) {
         if (!pending.has(target)) {
           pending.set(target, []);
@@ -1376,7 +1382,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         pending.get(target)!.push(element);
       } else {
         // When the target is not itself within a replacement, or is within a replacement which we have already rectified, we can just use its step number directly
-        let targetEntry = this.biblio.byId(target);
+        const targetEntry = this.biblio.byId(target);
         if (targetEntry == null) {
           this.warn({
             type: 'attr-value',
@@ -1411,11 +1417,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
   public autolink() {
     this.log('Autolinking terms and abstract ops...');
-    let namespaces = Object.keys(this._textNodes);
+    const namespaces = Object.keys(this._textNodes);
     for (let i = 0; i < namespaces.length; i++) {
-      let namespace = namespaces[i];
+      const namespace = namespaces[i];
       const [replacer, autolinkmap] = replacerForNamespace(namespace, this.biblio);
-      let nodes = this._textNodes[namespace];
+      const nodes = this._textNodes[namespace];
 
       for (let j = 0; j < nodes.length; j++) {
         const { node, clause, inAlg, currentId } = nodes[j];
@@ -1465,16 +1471,16 @@ function getBoilerplate(file: string) {
 }
 
 async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: string) {
-  let imports = rootElement.querySelectorAll('EMU-IMPORT');
+  const imports = rootElement.querySelectorAll('EMU-IMPORT');
   for (let i = 0; i < imports.length; i++) {
-    let node = imports[i];
-    let imp = await Import.build(spec, node as EmuImportElement, rootPath);
+    const node = imports[i];
+    const imp = await Import.build(spec, node as EmuImportElement, rootPath);
     await loadImports(spec, node as HTMLElement, imp.relativeRoot);
   }
 }
 
 async function walk(walker: TreeWalker, context: Context) {
-  let previousInNoAutolink = context.inNoAutolink;
+  const previousInNoAutolink = context.inNoAutolink;
   let previousInNoEmd = context.inNoEmd;
   const { spec } = context;
 
@@ -1510,7 +1516,7 @@ async function walk(walker: TreeWalker, context: Context) {
       }
       // else, there's no more nodes to process and inNoEmd does not need to be tracked
 
-      utils.emdTextNode(context.spec, (context.node as unknown) as Text, namespace);
+      utils.emdTextNode(context.spec, context.node as unknown as Text, namespace);
     }
 
     if (!context.inNoAutolink) {
@@ -1530,7 +1536,7 @@ async function walk(walker: TreeWalker, context: Context) {
   // context.node is an HTMLElement (node type 1)
 
   // handle oldids
-  let oldids = context.node.getAttribute('oldids');
+  const oldids = context.node.getAttribute('oldids');
   if (oldids) {
     if (!context.node.childNodes) {
       throw new Error('oldids found on unsupported element: ' + context.node.nodeName);
@@ -1539,13 +1545,13 @@ async function walk(walker: TreeWalker, context: Context) {
       .split(/,/g)
       .map(s => s.trim())
       .forEach(oid => {
-        let s = spec.doc.createElement('span');
+        const s = spec.doc.createElement('span');
         s.setAttribute('id', oid);
         context.node.insertBefore(s, context.node.childNodes[0]);
       });
   }
 
-  let parentId = context.currentId;
+  const parentId = context.currentId;
   if (context.node.hasAttribute('id')) {
     context.currentId = context.node.getAttribute('id');
   }
@@ -1597,8 +1603,8 @@ async function concatJs(...extras: string[]) {
 // todo move this to utils maybe
 // this is very similar to the identically-named method in lint/utils.ts, but operates on HTML elements rather than grammarkdown nodes
 function rhsMatches(aRhs: Element, bRhs: Element) {
-  let a = aRhs.firstElementChild;
-  let b = bRhs.firstElementChild;
+  const a = aRhs.firstElementChild;
+  const b = bRhs.firstElementChild;
   if (a == null || b == null) {
     throw new Error('RHS must have content');
   }
@@ -1637,8 +1643,8 @@ function canSkipSymbol(a: Element): boolean {
 }
 
 function symbolMatches(a: Element, b: Element): boolean {
-  let aKind = a.tagName.toLowerCase();
-  let bKind = b.tagName.toLowerCase();
+  const aKind = a.tagName.toLowerCase();
+  const bKind = b.tagName.toLowerCase();
   if (aKind !== bKind) {
     return false;
   }

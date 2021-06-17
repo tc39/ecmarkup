@@ -129,9 +129,9 @@ export default class Clause extends Builder {
     clause.buildNotes();
 
     if (node.hasAttribute('normative-optional')) {
-      let tag = spec.doc.createElement('div');
+      const tag = spec.doc.createElement('div');
       tag.className = 'normative-optional-tag';
-      let contents = spec.doc.createTextNode('Normative Optional');
+      const contents = spec.doc.createTextNode('Normative Optional');
       tag.append(contents);
       node.prepend(tag);
 

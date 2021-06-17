@@ -8,16 +8,16 @@ export function collectHeaderDiagnostics(
   report: (e: Warning) => void,
   headers: { element: Element; contents: string }[]
 ) {
-  for (let { element, contents } of headers) {
+  for (const { element, contents } of headers) {
     if (!/\(.*\)$/.test(contents) || / Operator \( `[^`]+` \)$/.test(contents)) {
       continue;
     }
 
-    let name = contents.substring(0, contents.indexOf('('));
-    let params = contents.substring(contents.indexOf('(') + 1, contents.length - 1);
+    const name = contents.substring(0, contents.indexOf('('));
+    const params = contents.substring(contents.indexOf('(') + 1, contents.length - 1);
 
     if (!/[\S] $/.test(name)) {
-      let { line, column } = offsetToLineAndColumn(contents, name.length - 1);
+      const { line, column } = offsetToLineAndColumn(contents, name.length - 1);
 
       report({
         type: 'contents',
@@ -29,7 +29,7 @@ export function collectHeaderDiagnostics(
       });
     }
 
-    let nameMatches = [
+    const nameMatches = [
       // Runtime Semantics: Foo
       /^(Runtime|Static) Semantics: [A-Z][A-Za-z0-9/]*\s*$/,
 
@@ -55,7 +55,7 @@ export function collectHeaderDiagnostics(
     ].some(r => r.test(name));
 
     if (!nameMatches) {
-      let { line, column } = offsetToLineAndColumn(contents, 0);
+      const { line, column } = offsetToLineAndColumn(contents, 0);
       report({
         type: 'contents',
         ruleId,
@@ -68,7 +68,7 @@ export function collectHeaderDiagnostics(
       });
     }
 
-    let paramsMatches =
+    const paramsMatches =
       params.match(/\[/g)?.length === params.match(/\]/g)?.length &&
       [
         // Foo ( )
@@ -89,7 +89,7 @@ export function collectHeaderDiagnostics(
       ].some(r => r.test(params));
 
     if (!paramsMatches) {
-      let { line, column } = offsetToLineAndColumn(contents, name.length);
+      const { line, column } = offsetToLineAndColumn(contents, name.length);
       report({
         type: 'contents',
         ruleId,

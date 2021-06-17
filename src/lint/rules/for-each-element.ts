@@ -12,7 +12,7 @@ export default function (report: Reporter): Observer {
       if (node.name !== 'ordered-list-item' || node.contents.length < 2) {
         return;
       }
-      let [first, second] = node.contents;
+      const [first, second] = node.contents;
       if (first.name === 'text' && first.contents === 'For each ' && second.name === 'underscore') {
         report({
           ruleId,

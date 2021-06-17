@@ -17,10 +17,8 @@ import { Grammar as GrammarFile, SyntaxKind, skipTrivia, NodeVisitor } from 'gra
 import * as emd from 'ecmarkdown';
 
 export function getProductions(grammar: GrammarFile) {
-  let productions: Map<
-    string,
-    { production: Production; rhses: (RightHandSide | OneOfList)[] }
-  > = new Map();
+  const productions: Map<string, { production: Production; rhses: (RightHandSide | OneOfList)[] }> =
+    new Map();
   grammar.rootFiles.forEach(f =>
     f.elements.forEach(e => {
       if (e.kind !== SyntaxKind.Production) {
@@ -60,8 +58,8 @@ export function rhsMatches(a: RightHandSide | OneOfList, b: RightHandSide | OneO
   }
   switch (a.kind) {
     case SyntaxKind.RightHandSide: {
-      let aHead = a.head;
-      let bHead = (b as RightHandSide).head;
+      const aHead = a.head;
+      const bHead = (b as RightHandSide).head;
       if (aHead === undefined || bHead === undefined) {
         throw new Error('RHS must have content');
       }
@@ -159,7 +157,7 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
   return (
     a.elements.length === b.elements.length &&
     a.elements.every((ae, i) => {
-      let be = b.elements![i];
+      const be = b.elements![i];
       if (ae.operatorToken === undefined || be.operatorToken === undefined) {
         throw new Error('arguments must have operators');
       }
@@ -173,9 +171,9 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
 
 // this is only for use with single-file grammars
 export function getLocationInGrammar(grammar: GrammarFile, pos: number) {
-  let file = grammar.sourceFiles[0];
-  let posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
-  let { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(posWithoutWhitespace);
+  const file = grammar.sourceFiles[0];
+  const posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
+  const { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(posWithoutWhitespace);
   // grammarkdown use 0-based line and column, we want 1-based
   return { line: gmdLine + 1, column: gmdCharacter + 1 };
 }
@@ -206,7 +204,7 @@ class CollectNonterminalsFromGrammar extends NodeVisitor {
 }
 
 export function collectNonterminalsFromGrammar(grammar: GrammarFile) {
-  let visitor = new CollectNonterminalsFromGrammar(grammar);
+  const visitor = new CollectNonterminalsFromGrammar(grammar);
   grammar.rootFiles.forEach(f => {
     visitor.visitEach(f.elements);
   });
@@ -219,7 +217,7 @@ export function collectNonterminalsFromEmd(
   if (Array.isArray(emdNode)) {
     return emdNode.flatMap(collectNonterminalsFromEmd);
   }
-  let results: ReturnType<typeof collectNonterminalsFromEmd> = [];
+  const results: ReturnType<typeof collectNonterminalsFromEmd> = [];
   emd.visit(emdNode, {
     enter(emdNode: EcmarkdownNode) {
       if (emdNode.name === 'pipe') {

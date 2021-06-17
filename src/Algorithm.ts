@@ -8,7 +8,7 @@ import { collectNonterminalsFromEmd } from './lint/utils';
 import * as emd from 'ecmarkdown';
 
 function findLabeledSteps(root: EcmarkdownNode) {
-  let steps: OrderedListItemNode[] = [];
+  const steps: OrderedListItemNode[] = [];
   emd.visit(root, {
     enter(node: EcmarkdownNode) {
       if (node.name === 'ordered-list-item' && node.id != null) {
@@ -25,7 +25,7 @@ export default class Algorithm extends Builder {
     context.inAlg = true;
     const { spec, node, clauseStack } = context;
 
-    let innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
+    const innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
 
     let emdTree;
     if ('ecmarkdownTree' in node) {
@@ -43,9 +43,9 @@ export default class Algorithm extends Builder {
     }
 
     if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
-      let clause = clauseStack[clauseStack.length - 1];
-      let namespace = clause ? clause.namespace : spec.namespace;
-      let nonterminals = collectNonterminalsFromEmd(emdTree).map(({ name, loc }) => ({
+      const clause = clauseStack[clauseStack.length - 1];
+      const namespace = clause ? clause.namespace : spec.namespace;
+      const nonterminals = collectNonterminalsFromEmd(emdTree).map(({ name, loc }) => ({
         name,
         loc,
         node,
@@ -60,8 +60,8 @@ export default class Algorithm extends Builder {
     const html = rawHtml.replace(/((?:\s+|>)[!?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
     node.innerHTML = html;
 
-    let labeledStepEntries: StepBiblioEntry[] = [];
-    let replaces = node.getAttribute('replaces-step');
+    const labeledStepEntries: StepBiblioEntry[] = [];
+    const replaces = node.getAttribute('replaces-step');
     if (replaces) {
       context.spec.replacementAlgorithms.push({
         element: node,
@@ -71,10 +71,10 @@ export default class Algorithm extends Builder {
     }
 
     if (replaces && node.firstElementChild!.children.length > 1) {
-      let labeledSteps = findLabeledSteps(emdTree);
-      for (let step of labeledSteps) {
-        let itemSource = innerHTML.slice(step.location!.start.offset, step.location!.end.offset);
-        let offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
+      const labeledSteps = findLabeledSteps(emdTree);
+      for (const step of labeledSteps) {
+        const itemSource = innerHTML.slice(step.location!.start.offset, step.location!.end.offset);
+        const offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
         spec.warn({
           type: 'contents',
           ruleId: 'labeled-step-in-replacement',
@@ -88,7 +88,7 @@ export default class Algorithm extends Builder {
     }
 
     for (const step of Array.from(node.querySelectorAll('li[id]'))) {
-      let entry: StepBiblioEntry = {
+      const entry: StepBiblioEntry = {
         type: 'step',
         id: step.id,
         stepNumbers: getStepNumbers(step as Element),
@@ -110,7 +110,7 @@ export default class Algorithm extends Builder {
 }
 
 function getStepNumbers(item: Element) {
-  let counts = [];
+  const counts = [];
   while (item.parentElement?.tagName === 'OL') {
     counts.unshift(1 + Array.from(item.parentElement.children).indexOf(item));
     item = item.parentElement.parentElement!;

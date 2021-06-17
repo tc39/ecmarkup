@@ -10,11 +10,11 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
   return {
     enter(node: EcmarkdownNode) {
       if (node.name === 'ordered-list-item') {
-        let itemSource = algorithmSource.slice(
+        const itemSource = algorithmSource.slice(
           node.location!.start.offset,
           node.location!.end.offset
         );
-        let match = itemSource.match(/^(\s*)(\d+\.) /)!;
+        const match = itemSource.match(/^(\s*)(\d+\.) /)!;
         if (match[2] !== '1.') {
           report({
             ruleId,

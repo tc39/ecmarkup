@@ -15,9 +15,9 @@ export default class Eqn extends Builder {
   static async enter(context: Context) {
     const { spec, node, clauseStack } = context;
 
-    let aoid = node.getAttribute('aoid');
+    const aoid = node.getAttribute('aoid');
     if (aoid) {
-      let id = node.getAttribute('id');
+      const id = node.getAttribute('id');
       if (id) {
         spec.biblio.add(<AlgorithmBiblioEntry>{
           type: 'op',

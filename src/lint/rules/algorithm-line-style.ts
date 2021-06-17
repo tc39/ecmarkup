@@ -121,7 +121,7 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
         return;
       }
 
-      let hasSubsteps = node.sublist !== null;
+      const hasSubsteps = node.sublist !== null;
 
       // Special case: lines without substeps can end in `pre` tags.
       if (last.name === 'opaqueTag' && /^\s*<pre>/.test(last.contents)) {
@@ -146,7 +146,7 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
         return;
       }
 
-      let initialText = first.name === 'text' ? first.contents : '';
+      const initialText = first.name === 'text' ? first.contents : '';
 
       if (/^(?:If |Else if)/.test(initialText)) {
         if (hasSubsteps) {
@@ -174,11 +174,11 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
             }
           }
         } else {
-          let lineSource = algorithmSource.slice(
+          const lineSource = algorithmSource.slice(
             first.location!.start.offset,
             last.location!.end.offset
           );
-          let ifThenMatch = lineSource.match(/^If[^,\n]+, then /);
+          const ifThenMatch = lineSource.match(/^If[^,\n]+, then /);
           if (ifThenMatch != null) {
             report({
               ruleId,
@@ -290,7 +290,7 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
       } else {
         // these are not else-ifs because we still want to enforce the line-ending rules
         if (/^(NOTE|Assert): [a-z]/.test(initialText)) {
-          let kind = initialText.match(/^(NOTE|Assert)/)![1];
+          const kind = initialText.match(/^(NOTE|Assert)/)![1];
           report({
             ruleId,
             line: first.location!.start.line,

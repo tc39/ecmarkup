@@ -82,9 +82,12 @@
       "error",
       "global"
     ],
-    "no-use-before-define": [
+    "@typescript-eslint/no-use-before-define": [
       "error",
-      "nofunc"
+      {
+        "functions": false,
+        "typedefs": false
+      }
     ],
     "no-underscore-dangle": "off",
     "no-constant-condition": "off",

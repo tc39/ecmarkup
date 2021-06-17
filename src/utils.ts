@@ -38,21 +38,21 @@ export function wrapEmdFailure(src: string) {
 
 /*@internal*/
 export function emdTextNode(spec: Spec, node: Text, namespace: string) {
-  let loc = spec.locate(node);
+  const loc = spec.locate(node);
   let c;
   if (loc?.endTag == null) {
     c = node.textContent!.replace(/</g, '&lt;');
   } else {
-    let start = loc.startTag.endOffset;
-    let end = loc.endTag.startOffset;
+    const start = loc.startTag.endOffset;
+    const end = loc.endTag.startOffset;
     c = loc.source.slice(start, end);
   }
 
   let processed;
   try {
-    let parts = emd.parseFragment(c);
+    const parts = emd.parseFragment(c);
     if (spec.opts.lintSpec && loc != null) {
-      let nonterminals = collectNonterminalsFromEmd(parts).map(({ name, loc }) => ({
+      const nonterminals = collectNonterminalsFromEmd(parts).map(({ name, loc }) => ({
         name,
         loc,
         node,
@@ -118,13 +118,13 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
 
 /*@internal*/
 export function logVerbose(str: string) {
-  let dateString = new Date().toISOString();
+  const dateString = new Date().toISOString();
   console.error(chalk.gray('[' + dateString + '] ') + str);
 }
 
 /*@internal*/
 export function logWarning(str: string) {
-  let dateString = new Date().toISOString();
+  const dateString = new Date().toISOString();
   console.error(chalk.gray('[' + dateString + '] ') + chalk.red(str));
 }
 
@@ -170,7 +170,7 @@ export async function copyFile(src: string, dest: string) {
 }
 
 export function offsetToLineAndColumn(string: string, offset: number) {
-  let lines = string.split('\n');
+  const lines = string.split('\n');
   let line = 0;
   let seen = 0;
   while (true) {
@@ -183,7 +183,7 @@ export function offsetToLineAndColumn(string: string, offset: number) {
     seen += lines[line].length + 1; // +1 for the '\n'
     ++line;
   }
-  let column = offset - seen;
+  const column = offset - seen;
   return { line: line + 1, column: column + 1 };
 }
 
@@ -192,7 +192,7 @@ export function attrLocation(
   loc: MarkupData.ElementLocation,
   attr: string
 ) {
-  let attrLoc = loc.startTag.attrs[attr];
+  const attrLoc = loc.startTag.attrs[attr];
   if (attrLoc == null) {
     return { line: loc.startTag.line, column: loc.startTag.col };
   } else {
@@ -205,13 +205,13 @@ export function attrValueLocation(
   loc: MarkupData.ElementLocation,
   attr: string
 ) {
-  let attrLoc = loc.startTag.attrs[attr];
+  const attrLoc = loc.startTag.attrs[attr];
   if (attrLoc == null || source == null) {
     return { line: loc.startTag.line, column: loc.startTag.col };
   } else {
-    let tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
+    const tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
     // RegExp.escape when
-    let matcher = new RegExp(attr.replace(/[/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
+    const matcher = new RegExp(attr.replace(/[/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
     return { line: attrLoc.line, column: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
   }
 }
