@@ -158,17 +158,12 @@ export default class Clause extends Builder {
       }
     }
 
-    // parsing is intentionally permissive; the linter imposes stricter checks
+    // parsing is intentionally permissive; the linter can do stricter checks
     // TODO have the linter do checks
     let headerText = header.innerHTML;
     let prefix = headerText.match(/^\s*(Static|Runtime) Semantics:\s*/);
     if (prefix != null) {
       headerText = headerText.substring(prefix[0].length);
-    }
-    // TODO drop this upstream
-    let suffix = headerText.match(/\s*Concrete Method\s*$/);
-    if (suffix != null) {
-      headerText = headerText.substring(0, headerText.length - suffix[0].length);
     }
 
     let parsed = headerText.match(/^\s*([^(\s]+)\s*\((.*)\)\s*$/s);
@@ -231,7 +226,7 @@ export default class Clause extends Builder {
             .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + p.name)
             .join('') + optionalParams.map(() => ' ]').join('');
       }
-      formattedHeader += ' )' + (suffix == null ? '' : suffix[0]);
+      formattedHeader += ' )';
       header.innerHTML = formattedHeader;
     } else {
       let optional = false;
