@@ -301,8 +301,8 @@ export default class Clause extends Builder {
             nodeRelativeColumn: 1,
           });
         }
+        // fall through
       }
-      // fall through
       case 'abstract operation': {
         // TODO tests (for each type of parametered thing) which have HTML in the parameter type
         para.innerHTML += `The abstract operation ${name} takes ${formattedParams}.`;
