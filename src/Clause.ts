@@ -94,8 +94,7 @@ export default class Clause extends Builder {
       });
     }
     if (formattedHeader != null) {
-      // @ts-ignore I promise innerText exists
-      header.innerText = formattedHeader;
+      header.innerHTML = formattedHeader;
     }
 
     let { description, for: _for } = parseStructuredHeaderDl(this.spec, type, dl);
