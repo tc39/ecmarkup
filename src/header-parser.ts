@@ -249,12 +249,11 @@ export function formatPreamble(
     }
     case 'internal method':
     case 'concrete method': {
-      let word = type === 'internal method' ? 'internal' : 'concrete';
       if (_for == null) {
         spec.warn({
           type: 'contents',
           ruleId: 'header-format',
-          message: `expected ${word} method to have a "for"`,
+          message: `expected ${type} to have a "for"`,
           node: dl,
           nodeRelativeLine: 1,
           nodeRelativeColumn: 1,
@@ -262,7 +261,7 @@ export function formatPreamble(
         _for = spec.doc.createElement('div');
       }
       para.append(
-        `The ${name} ${word} method of `,
+        `The ${name} ${type} of `,
         // @ts-ignore childNodes is iterable
         ..._for.childNodes
       );
