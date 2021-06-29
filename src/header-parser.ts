@@ -7,7 +7,7 @@ export function parseStructuredHeaderH1(
   // parsing is intentionally permissive; the linter can do stricter checks
   // TODO have the linter do checks
   let headerText = header.innerHTML;
-  let prefix = headerText.match(/^\s*(Static|Runtime) Semantics:\s*/);
+  const prefix = headerText.match(/^\s*(Static|Runtime) Semantics:\s*/);
   if (prefix != null) {
     headerText = headerText.substring(prefix[0].length);
   }
@@ -15,7 +15,7 @@ export function parseStructuredHeaderH1(
   let formattedHeader = null;
   let formattedParams = null;
 
-  let parsed = headerText.match(/^\s*([^(\s]+)\s*\((.*)\)\s*$/s);
+  const parsed = headerText.match(/^\s*([^(\s]+)\s*\((.*)\)\s*$/s);
   if (parsed == null) {
     spec.warn({
       type: 'contents',
@@ -29,22 +29,22 @@ export function parseStructuredHeaderH1(
   }
 
   type Param = { name: string; type: string | null };
-  let name = parsed[1];
+  const name = parsed[1];
   let paramText = parsed[2].trim();
-  let params: Array<Param> = [];
-  let optionalParams: Array<Param> = [];
+  const params: Array<Param> = [];
+  const optionalParams: Array<Param> = [];
 
   if (/\(\s*\n/.test(headerText)) {
     // if it's multiline, parse it for types
-    let paramChunks = paramText
+    const paramChunks = paramText
       .split('\n')
       .map(c => c.trim())
       .filter(c => c.length > 1);
     let index = 0;
-    for (let chunk of paramChunks) {
+    for (const chunk of paramChunks) {
       ++index;
       // TODO linter enforces all optional params come after non-optional params
-      let parsedChunk = chunk.match(/^(optional\s*)?([A-Za-z0-9_]+)\s*:\s*(\S.*\S)/);
+      const parsedChunk = chunk.match(/^(optional\s*)?([A-Za-z0-9_]+)\s*:\s*(\S.*\S)/);
       if (parsedChunk == null) {
         spec.warn({
           type: 'contents',
@@ -56,8 +56,8 @@ export function parseStructuredHeaderH1(
         });
         continue;
       }
-      let optional = parsedChunk[1] != null;
-      let paramName = parsedChunk[2];
+      const optional = parsedChunk[1] != null;
+      const paramName = parsedChunk[2];
       let paramType = parsedChunk[3];
       if (paramType.endsWith(',')) {
         paramType = paramType.slice(0, -1);
@@ -67,7 +67,7 @@ export function parseStructuredHeaderH1(
         type: paramType === 'unknown' ? null : paramType,
       });
     }
-    let formattedprefix = prefix == null ? '' : prefix[0].trim() + ' ';
+    const formattedprefix = prefix == null ? '' : prefix[0].trim() + ' ';
     formattedHeader = `${formattedprefix}${name} (${params.map(n => ' ' + n.name).join(',')}`;
     if (optionalParams.length > 0) {
       formattedHeader +=
@@ -110,9 +110,9 @@ export function parseStructuredHeaderH1(
     }
   }
 
-  let printParam = (p: Param) => `${p.name}${p.type == null ? '' : ` (${p.type})`}`;
-  let paramsWithTypes = params.map(printParam);
-  let optionalParamsWithTypes = optionalParams.map(printParam);
+  const printParam = (p: Param) => `${p.name}${p.type == null ? '' : ` (${p.type})`}`;
+  const paramsWithTypes = params.map(printParam);
+  const optionalParamsWithTypes = optionalParams.map(printParam);
   formattedParams = '';
   if (params.length === 0 && optionalParams.length === 0) {
     formattedParams = 'no arguments';
@@ -144,7 +144,7 @@ export function parseStructuredHeaderDl(
   let description = null;
   let _for = null;
   for (let i = 0; i < dl.children.length; ++i) {
-    let dt = dl.children[i];
+    const dt = dl.children[i];
     if (dt.tagName !== 'DT') {
       spec.warn({
         type: 'node',
@@ -155,7 +155,7 @@ export function parseStructuredHeaderDl(
       break;
     }
     ++i;
-    let dd = dl.children[i];
+    const dd = dl.children[i];
     if (dd?.tagName !== 'DD') {
       spec.warn({
         type: 'node',
@@ -166,7 +166,7 @@ export function parseStructuredHeaderDl(
       break;
     }
 
-    let dtype = dt.textContent ?? '';
+    const dtype = dt.textContent ?? '';
     switch (dtype.trim()) {
       case 'description': {
         if (description != null) {
@@ -230,8 +230,8 @@ export function formatPreamble(
   _for: Element | null,
   description: Element | null
 ): Array<Element> {
-  let para = spec.doc.createElement('p');
-  let paras = [para];
+  const para = spec.doc.createElement('p');
+  const paras = [para];
   switch (type) {
     case 'numeric method':
     case 'abstract operation': {
@@ -289,7 +289,7 @@ export function formatPreamble(
   }
   if (description != null) {
     // @ts-ignore childNodes is iterable
-    let isJustElements = [...(description.childNodes as Iterable<Node>)].every(
+    const isJustElements = [...(description.childNodes as Iterable<Node>)].every(
       n => n.nodeType === 1 || (n.nodeType === 3 && n.textContent?.trim() === '')
     );
     if (isJustElements) {
@@ -306,8 +306,8 @@ export function formatPreamble(
   }
   if (next?.tagName == 'EMU-ALG' && !next.hasAttribute('replaces-step')) {
     if (paras.length > 1 || next !== dl.nextElementSibling) {
-      let whitespace = next.previousSibling;
-      let after = spec.doc.createElement('p');
+      const whitespace = next.previousSibling;
+      const after = spec.doc.createElement('p');
       after.append('It performs the following steps when called:');
       next.parentElement!.insertBefore(after, next);
 
@@ -323,7 +323,7 @@ export function formatPreamble(
 }
 
 function eat(text: string, regex: RegExp) {
-  let match = text.match(regex);
+  const match = text.match(regex);
   if (match == null) {
     return { success: false, match, text };
   }

@@ -73,16 +73,16 @@ export default class Clause extends Builder {
   }
 
   buildStructuredHeader(header: Element) {
-    let dl = header.nextElementSibling;
+    const dl = header.nextElementSibling;
     if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
       return;
     }
     // if we find such a DL, treat this as a structured header
 
-    let type = this.node.getAttribute('type') ?? 'unknown';
+    const type = this.node.getAttribute('type') ?? 'unknown';
     this.node.removeAttribute('type'); // TODO maybe leave it in; this is just to minimize the diff
 
-    let { name, formattedHeader, formattedParams } = parseStructuredHeaderH1(this.spec, header);
+    const { name, formattedHeader, formattedParams } = parseStructuredHeaderH1(this.spec, header);
     if (type === 'numeric method' && name != null && !name.includes('::')) {
       this.spec.warn({
         type: 'contents',
@@ -97,9 +97,9 @@ export default class Clause extends Builder {
       header.innerHTML = formattedHeader;
     }
 
-    let { description, for: _for } = parseStructuredHeaderDl(this.spec, type, dl);
+    const { description, for: _for } = parseStructuredHeaderDl(this.spec, type, dl);
 
-    let paras = formatPreamble(
+    const paras = formatPreamble(
       this.spec,
       this.node,
       dl,
@@ -187,7 +187,7 @@ export default class Clause extends Builder {
   static exit({ node, spec, clauseStack, inAlg, currentId }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
 
-    let header = clause.header;
+    const header = clause.header;
     if (header == null) {
       clause.title = 'UNKNOWN';
       clause.titleHTML = 'UNKNOWN';
