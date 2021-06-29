@@ -201,11 +201,6 @@ export function parseStructuredHeaderDl(
         }
         break;
       }
-      // TODO drop these
-      case 'returns':
-      case 'also has access to': {
-        break;
-      }
       default: {
         spec.warn({
           type: 'node',
