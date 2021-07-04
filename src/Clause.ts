@@ -128,10 +128,18 @@ export default class Clause extends Builder {
     clause.buildExamples();
     clause.buildNotes();
 
+    const attributes = [];
     if (node.hasAttribute('normative-optional')) {
+      attributes.push('Normative Optional');
+    }
+    if (node.hasAttribute('legacy')) {
+      attributes.push('Legacy');
+    }
+    if (attributes.length > 0) {
       const tag = spec.doc.createElement('div');
-      tag.className = 'normative-optional-tag';
-      const contents = spec.doc.createTextNode('Normative Optional');
+      tag.className = 'clause-attributes-tag';
+      const text = attributes.join(', ');
+      const contents = spec.doc.createTextNode(text);
       tag.append(contents);
       node.prepend(tag);
 
