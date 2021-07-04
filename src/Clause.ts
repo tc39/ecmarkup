@@ -58,11 +58,19 @@ export default class Clause extends Builder {
       // skip oldids
       header = header.nextElementSibling;
     }
-    if (header == null || header.tagName !== 'H1') {
+    if (header == null) {
       this.spec.warn({
         type: 'node',
         ruleId: 'missing-header',
-        message: `clause doesn't have a header, found: ${header?.tagName}`,
+        message: `could not locate header element`,
+        node: this.node,
+      });
+      header = null;
+    } else if (header.tagName !== 'H1') {
+      this.spec.warn({
+        type: 'node',
+        ruleId: 'missing-header',
+        message: `clause doesn't have a header, found ${header.tagName} before any H1`,
         node: this.node,
       });
       header = null;
@@ -86,8 +94,8 @@ export default class Clause extends Builder {
     if (type === 'numeric method' && name != null && !name.includes('::')) {
       this.spec.warn({
         type: 'contents',
-        ruleId: 'numberic-method-for',
-        message: `numeric methods should be of the form \`Type::operation\``,
+        ruleId: 'numeric-method-for',
+        message: 'numeric methods should be of the form `Type::operation`',
         node: dl,
         nodeRelativeLine: 1,
         nodeRelativeColumn: 1,

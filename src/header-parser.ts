@@ -1,4 +1,5 @@
 import type Spec from './Spec';
+import { offsetToLineAndColumn } from './utils';
 
 export function parseStructuredHeaderH1(
   spec: Spec,
@@ -12,10 +13,7 @@ export function parseStructuredHeaderH1(
     headerText = headerText.substring(prefix[0].length);
   }
 
-  let formattedHeader = null;
-  let formattedParams = null;
-
-  const parsed = headerText.match(/^\s*([^(\s]+)\s*\((.*)\)\s*$/s);
+  const parsed = headerText.match(/^(?<beforeParams>\s*(?<name>[^(\s]+)\s*\()(?<params>.*)\)\s*$/s);
   if (parsed == null) {
     spec.warn({
       type: 'contents',
@@ -25,34 +23,50 @@ export function parseStructuredHeaderH1(
       nodeRelativeColumn: 1,
       nodeRelativeLine: 1,
     });
-    return { name: null, formattedHeader, formattedParams };
+    return { name: null, formattedHeader: null, formattedParams: null };
   }
 
   type Param = { name: string; type: string | null };
-  const name = parsed[1];
-  let paramText = parsed[2].trim();
+  const name = parsed.groups!.name;
+  let paramText = parsed.groups!.params;
   const params: Array<Param> = [];
   const optionalParams: Array<Param> = [];
+  let formattedHeader = null;
 
   if (/\(\s*\n/.test(headerText)) {
     // if it's multiline, parse it for types
-    const paramChunks = paramText
-      .split('\n')
-      .map(c => c.trim())
-      .filter(c => c.length > 1);
+    const paramLines = paramText.split('\n');
     let index = 0;
-    for (const chunk of paramChunks) {
+    let offset = 0;
+    for (const line of paramLines) {
+      offset += line.length;
+      const chunk = line.trim();
+      if (chunk === '') {
+        continue;
+      }
       ++index;
-      // TODO linter enforces all optional params come after non-optional params
-      const parsedChunk = chunk.match(/^(optional\s*)?([A-Za-z0-9_]+)\s*:\s*(\S.*\S)/);
+      function getParameterOffset() {
+        return (
+          (prefix?.[0].length ?? 0) +
+          parsed!.groups!.beforeParams.length +
+          (offset - line.length) + // we've already updated offset to include line.length at this point
+          index + // to account for the `\n`s eaten by the .split
+          line.match(/^\s*/)![0].length
+        );
+      }
+      const parsedChunk = chunk.match(/^(optional\s+)?([A-Za-z0-9_]+)\s*:\s*(\S.*\S)/);
       if (parsedChunk == null) {
+        const { line: nodeRelativeLine, column: nodeRelativeColumn } = offsetToLineAndColumn(
+          header.innerHTML,
+          getParameterOffset()
+        );
         spec.warn({
           type: 'contents',
           ruleId: 'header-format',
           message: `failed to parse header (parameter ${index})`,
           node: header,
-          nodeRelativeColumn: 1,
-          nodeRelativeLine: 1,
+          nodeRelativeColumn,
+          nodeRelativeLine,
         });
         continue;
       }
@@ -62,13 +76,27 @@ export function parseStructuredHeaderH1(
       if (paramType.endsWith(',')) {
         paramType = paramType.slice(0, -1);
       }
+      if (!optional && optionalParams.length > 0) {
+        const { line: nodeRelativeLine, column: nodeRelativeColumn } = offsetToLineAndColumn(
+          header.innerHTML,
+          getParameterOffset()
+        );
+        spec.warn({
+          type: 'contents',
+          ruleId: 'header-format',
+          message: `required parameters should not follow optional parameters`,
+          node: header,
+          nodeRelativeColumn,
+          nodeRelativeLine,
+        });
+      }
       (optional ? optionalParams : params).push({
         name: paramName,
         type: paramType === 'unknown' ? null : paramType,
       });
     }
-    const formattedprefix = prefix == null ? '' : prefix[0].trim() + ' ';
-    formattedHeader = `${formattedprefix}${name} (${params.map(n => ' ' + n.name).join(',')}`;
+    const formattedPrefix = prefix == null ? '' : prefix[0].trim() + ' ';
+    formattedHeader = `${formattedPrefix}${name} (${params.map(n => ' ' + n.name).join(',')}`;
     if (optionalParams.length > 0) {
       formattedHeader +=
         optionalParams
@@ -113,7 +141,7 @@ export function parseStructuredHeaderH1(
   const printParam = (p: Param) => `${p.name}${p.type == null ? '' : ` (${p.type})`}`;
   const paramsWithTypes = params.map(printParam);
   const optionalParamsWithTypes = optionalParams.map(printParam);
-  formattedParams = '';
+  let formattedParams = '';
   if (params.length === 0 && optionalParams.length === 0) {
     formattedParams = 'no arguments';
   } else {
@@ -326,6 +354,9 @@ function eat(text: string, regex: RegExp) {
 }
 
 function formatEnglishList(list: Array<string>) {
+  if (list.length === 0) {
+    throw new Error('formatEnglishList should not be called with an empty list');
+  }
   if (list.length === 1) {
     return list[0];
   }
