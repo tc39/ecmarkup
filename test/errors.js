@@ -350,6 +350,46 @@ ${M}      </pre>
     );
   });
 
+  it('ecmarkdown failed: table', async () => {
+    await assertError(
+      positioned`
+      <emu-table>
+        <table>
+          <tr>
+          <td>
+          Some text${M}
+
+          <p>Another paragraph</p>
+          </td>
+          </tr>
+        </table>
+      </emu-table>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'text',
+        message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
+      }
+    );
+  });
+
+  it('ecmarkdown failed: example', async () => {
+    await assertError(
+      positioned`
+      <emu-example>
+        Some text${M}
+
+        <p>Another paragraph</p>
+      </emu-example>
+      `,
+      {
+        ruleId: 'invalid-emd',
+        nodeType: 'text',
+        message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
+      }
+    );
+  });
+
   it('ecmarkdown failed: equation', async () => {
     await assertError(
       positioned`

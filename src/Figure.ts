@@ -52,7 +52,11 @@ export default class Figure extends Builder {
       figure.captionElem.parentNode.removeChild(figure.captionElem);
     }
 
-    node.innerHTML = '<figure>' + node.innerHTML + '</figure>';
+    const ele = spec.doc.createElement('figure');
+
+    // @ts-ignore childNodes is iterable
+    ele.append(...node.childNodes);
+    node.append(ele);
 
     const captionElem = spec.doc.createElement('figcaption');
     captionElem.innerHTML = figure.caption;
