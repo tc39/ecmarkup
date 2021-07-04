@@ -63,7 +63,7 @@ export function parseStructuredHeaderH1(
         spec.warn({
           type: 'contents',
           ruleId: 'header-format',
-          message: `failed to parse header (parameter ${index})`,
+          message: `failed to parse parameter ${index}`,
           node: header,
           nodeRelativeColumn,
           nodeRelativeLine,
@@ -106,6 +106,7 @@ export function parseStructuredHeaderH1(
     formattedHeader += ' )';
   } else {
     let optional = false;
+    paramText = paramText.trim();
     while (true) {
       if (paramText.length == 0) {
         break;
@@ -121,7 +122,7 @@ export function parseStructuredHeaderH1(
         spec.warn({
           type: 'contents',
           ruleId: 'header-format',
-          message: `could not parse header`,
+          message: `failed to parse header`,
           node: header,
           // we could be more precise, but it's probably not worth the effort
           nodeRelativeLine: 1,
@@ -166,7 +167,7 @@ export function parseStructuredHeaderH1(
 
 export function parseStructuredHeaderDl(
   spec: Spec,
-  type: string,
+  type: string | null,
   dl: Element
 ): { description: Element | null; for: Element | null } {
   let description = null;
@@ -195,14 +196,14 @@ export function parseStructuredHeaderDl(
     }
 
     const dtype = dt.textContent ?? '';
-    switch (dtype.trim()) {
+    switch (dtype.trim().toLowerCase()) {
       case 'description': {
         if (description != null) {
           spec.warn({
             type: 'node',
             ruleId: 'header-format',
-            message: `duplicate description`,
-            node: dd,
+            message: `duplicate "description" attribute`,
+            node: dt,
           });
         }
         description = dd;
@@ -213,8 +214,8 @@ export function parseStructuredHeaderDl(
           spec.warn({
             type: 'node',
             ruleId: 'header-format',
-            message: `duplicate "for" attribute"`,
-            node: dd,
+            message: `duplicate "for" attribute`,
+            node: dt,
           });
         }
         if (type === 'concrete method' || type === 'internal method') {
@@ -223,18 +224,27 @@ export function parseStructuredHeaderDl(
           spec.warn({
             type: 'node',
             ruleId: 'header-format',
-            message: `"for" descriptions only apply to concrete or internal methods`,
-            node: dd,
+            message: `"for" attributes only apply to concrete or internal methods`,
+            node: dt,
           });
         }
+        break;
+      }
+      case '': {
+        spec.warn({
+          type: 'node',
+          ruleId: 'header-format',
+          message: `missing value for structured header attribute`,
+          node: dt,
+        });
         break;
       }
       default: {
         spec.warn({
           type: 'node',
           ruleId: 'header-format',
-          message: `unknown structured header entry type ${dtype}`,
-          node: dd,
+          message: `unknown structured header entry type ${JSON.stringify(dtype)}`,
+          node: dt,
         });
         break;
       }
@@ -247,7 +257,7 @@ export function formatPreamble(
   spec: Spec,
   clause: Element,
   dl: Element,
-  type: string,
+  type: string | null,
   name: string,
   formattedParams: string,
   _for: Element | null,
@@ -255,7 +265,7 @@ export function formatPreamble(
 ): Array<Element> {
   const para = spec.doc.createElement('p');
   const paras = [para];
-  switch (type) {
+  switch (type?.toLowerCase()) {
     case 'numeric method':
     case 'abstract operation': {
       // TODO tests (for each type of parametered thing) which have HTML in the parameter type
@@ -292,20 +302,20 @@ export function formatPreamble(
       break;
     }
     default: {
-      if (type === 'unknown') {
+      if (type) {
+        spec.warn({
+          type: 'attr-value',
+          ruleId: 'header-type',
+          message: `unknown clause type ${JSON.stringify(type)}`,
+          node: clause,
+          attr: 'type',
+        });
+      } else {
         spec.warn({
           type: 'node',
           ruleId: 'header-type',
           message: `clauses with structured headers should have a type`,
           node: clause,
-        });
-      } else {
-        spec.warn({
-          type: 'attr',
-          ruleId: 'header-type',
-          message: `unknown clause type ${type}`,
-          node: clause,
-          attr: 'type',
         });
       }
     }

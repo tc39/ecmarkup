@@ -70,8 +70,8 @@ export default class Clause extends Builder {
       this.spec.warn({
         type: 'node',
         ruleId: 'missing-header',
-        message: `clause doesn't have a header, found ${header.tagName} before any H1`,
-        node: this.node,
+        message: `could not locate header element; found <${header.tagName.toLowerCase()}> before any <h1>`,
+        node: header,
       });
       header = null;
     } else {
@@ -87,7 +87,7 @@ export default class Clause extends Builder {
     }
     // if we find such a DL, treat this as a structured header
 
-    const type = this.node.getAttribute('type') ?? 'unknown';
+    const type = this.node.getAttribute('type');
     this.node.removeAttribute('type'); // TODO maybe leave it in; this is just to minimize the diff
 
     const { name, formattedHeader, formattedParams } = parseStructuredHeaderH1(this.spec, header);
@@ -96,7 +96,7 @@ export default class Clause extends Builder {
         type: 'contents',
         ruleId: 'numeric-method-for',
         message: 'numeric methods should be of the form `Type::operation`',
-        node: dl,
+        node: header,
         nodeRelativeLine: 1,
         nodeRelativeColumn: 1,
       });
@@ -123,12 +123,13 @@ export default class Clause extends Builder {
       this.spec.warn({
         type: 'attr',
         ruleId: 'header-format',
-        message: `nodes with formatted headers should not include an AOID`,
+        message: `nodes with structured headers should not include an AOID`,
         node: this.node,
         attr: 'aoid',
       });
     } else if (
       name != null &&
+      type != null &&
       [
         'abstract operation',
         'host-defined abstract operation',
