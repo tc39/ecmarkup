@@ -12,7 +12,6 @@ import * as utils from './utils';
 import * as hljs from 'highlight.js';
 // Builders
 import Import, { EmuImportElement } from './Import';
-import H1 from './H1';
 import Clause from './Clause';
 import ClauseNumbers from './clauseNums';
 import Algorithm from './Algorithm';
@@ -66,7 +65,6 @@ interface TextNodeContext {
 
 const builders: BuilderInterface[] = [
   Clause,
-  H1,
   Algorithm,
   Xref,
   Dfn,

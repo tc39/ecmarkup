@@ -1159,18 +1159,19 @@ li.menu-search-result-term:before {
   }
 }
 
-[normative-optional] {
+[normative-optional],
+[legacy] {
   border-left: 5px solid #ff6600;
   padding: 0.5em;
   display: block;
   background: #ffeedd;
 }
 
-.normative-optional-tag {
+.clause-attributes-tag {
   text-transform: uppercase;
   color: #884400;
 }
 
-.normative-optional-tag a {
+.clause-attributes-tag a {
   color: #884400;
 }
