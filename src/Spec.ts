@@ -733,18 +733,8 @@ export default class Spec {
       htmlEle = src.substring(0, src.length - '<head></head><body></body></html>'.length);
     }
 
-    const head = this.doc.head.cloneNode(true) as Element;
-    const style = this.doc.createElement('link');
-    style.setAttribute('rel', 'stylesheet');
-    style.setAttribute('href', '../ecmarkup.css');
-
-    // insert early so that the document's own stylesheets can override
-    const firstLink = head.querySelector('link[rel=stylesheet], style');
-    if (firstLink != null) {
-      head.insertBefore(style, firstLink);
-    } else {
-      head.appendChild(style);
-    }
+    const head = this.doc.head.cloneNode(true) as HTMLHeadElement;
+    this.addStyle(head, '../ecmarkup.css');
 
     const script = this.doc.createElement('script');
     script.src = '../ecmarkup.js?cache=' + jsSha;
@@ -890,23 +880,27 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         }
       }
       if (!skipCss) {
-        const style = this.doc.createElement('link');
-        style.setAttribute('rel', 'stylesheet');
-        style.setAttribute('href', path.relative(outDir, this.opts.cssOut));
-
-        // insert early so that the document's own stylesheets can override
-        const firstLink = this.doc.head.querySelector('link[rel=stylesheet], style');
-        if (firstLink != null) {
-          this.doc.head.insertBefore(style, firstLink);
-        } else {
-          this.doc.head.appendChild(style);
-        }
+        this.addStyle(this.doc.head, path.relative(outDir, this.opts.cssOut));
       }
     } else {
       this.log('Inlining CSS assets...');
       const style = this.doc.createElement('style');
       style.textContent = cssContents;
       this.doc.head.appendChild(style);
+    }
+  }
+
+  private addStyle(head: HTMLHeadElement, href: string) {
+    const style = this.doc.createElement('link');
+    style.setAttribute('rel', 'stylesheet');
+    style.setAttribute('href', href);
+
+    // insert early so that the document's own stylesheets can override
+    const firstLink = head.querySelector('link[rel=stylesheet], style');
+    if (firstLink != null) {
+      head.insertBefore(style, firstLink);
+    } else {
+      head.appendChild(style);
     }
   }
 
