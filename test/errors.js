@@ -484,4 +484,314 @@ ${M}      </pre>
       },
     ]);
   });
+
+  it('missing header', async () => {
+    await assertError(
+      positioned`
+        ${M}<emu-clause id="sec-test" type="abstract operation">
+        </emu-clause>
+      `,
+      {
+        ruleId: 'missing-header',
+        nodeType: 'emu-clause',
+        message: 'could not locate header element',
+      },
+      { lintSpec: true }
+    );
+
+    await assertError(
+      positioned`
+        <emu-clause id="sec-test" type="abstract operation">
+        ${M}<p></p>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'missing-header',
+        nodeType: 'p',
+        message: 'could not locate header element; found <p> before any <h1>',
+      },
+      { lintSpec: true }
+    );
+  });
+
+  it('numeric method name formatting', async () => {
+    await assertError(
+      positioned`
+        <emu-clause id="sec-test" type="numeric method">
+        <h1>${M}Foo ( )</h1>
+        <dl class='header'>
+        </dl>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'numeric-method-for',
+        nodeType: 'h1',
+        message: 'numeric methods should be of the form `Type::operation`',
+      },
+      { lintSpec: true }
+    );
+  });
+
+  describe('structured header', () => {
+    it('header is not parseable', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>${M}
+          Some Example (
+          )
+          </h1>
+          <dl class='header'>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'h1',
+          message: 'failed to parse header',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('parameter is unparseable', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>
+          Example (
+            x: a number,
+            y: a number,
+            ${M}z,
+          )
+          </h1>
+          <dl class='header'>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'h1',
+          message: 'failed to parse parameter 3',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('required parameter after optional', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>
+          Example (
+            optional x: a number,
+            ${M}y: a number,
+          )
+          </h1>
+          <dl class='header'>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'h1',
+          message: 'required parameters should not follow optional parameters',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('unexpected element in dl', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+            ${M}<p></p>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'p',
+          message: 'expecting header to have DT, but found P',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('duplicate items in dl', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+            <dt>description</dt>
+            <dd>Foo.</dd>
+            ${M}<dt>description</dt>
+            <dd>Foo.</dd>
+            </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'dt',
+          message: 'duplicate "description" attribute',
+        },
+        { lintSpec: true }
+      );
+
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="concrete method">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+            <dt>for</dt>
+            <dd>Something</dd>
+            ${M}<dt>for</dt>
+            <dd>Something</dd>
+            </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'dt',
+          message: 'duplicate "for" attribute',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('"for" for AO', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+            ${M}<dt>for</dt>
+            <dd>Something</dd>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'dt',
+          message: '"for" attributes only apply to concrete or internal methods',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('missing "for" for concrete method', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="concrete method">
+          <h1>Example ( )</h1>
+          <dl class='header'>${M}
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'dl',
+          message: 'expected concrete method to have a "for"',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('empty attribute', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+            ${M}<dt></dt>
+            <dd>Something</dd>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'dt',
+          message: 'missing value for structured header attribute',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('unknown attribute', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+            ${M}<dt>unknown</dt>
+            <dd>Something</dd>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'dt',
+          message: 'unknown structured header entry type "unknown"',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('missing clause type', async () => {
+      await assertError(
+        positioned`
+          ${M}<emu-clause id="sec-test">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-type',
+          nodeType: 'emu-clause',
+          message: 'clauses with structured headers should have a type',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('unknown clause type', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="${M}unknown">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-type',
+          nodeType: 'emu-clause',
+          message: 'unknown clause type "unknown"',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('extra AOID', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation" ${M}aoid="Whatever">
+          <h1>Foo ( )</h1>
+          <dl class='header'>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'emu-clause',
+          message: 'nodes with structured headers should not include an AOID',
+        },
+        { lintSpec: true }
+      );
+    });
+  });
 });
