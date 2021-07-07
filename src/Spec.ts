@@ -735,6 +735,12 @@ export default class Spec {
 
     const head = this.doc.head.cloneNode(true) as HTMLHeadElement;
     this.addStyle(head, '../ecmarkup.css');
+    this.addStyle(
+      head,
+      `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
+        (hljs as any).versionString
+      }/styles/base16/solarized-light.min.css`
+    );
 
     const script = this.doc.createElement('script');
     script.src = '../ecmarkup.js?cache=' + jsSha;
@@ -888,6 +894,12 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       style.textContent = cssContents;
       this.doc.head.appendChild(style);
     }
+    this.addStyle(
+      this.doc.head,
+      `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
+        (hljs as any).versionString
+      }/styles/base16/solarized-light.min.css`
+    );
   }
 
   private addStyle(head: HTMLHeadElement, href: string) {
