@@ -587,18 +587,17 @@ function debounce(fn, opts) {
 }
 
 let CLAUSE_NODES = ['EMU-CLAUSE', 'EMU-INTRO', 'EMU-ANNEX'];
-function findLocalReferences($elem) {
-  let name = $elem.innerHTML;
-  let references = [];
-
+function findContainer($elem) {
   let parentClause = $elem.parentNode;
   while (parentClause && CLAUSE_NODES.indexOf(parentClause.nodeName) === -1) {
     parentClause = parentClause.parentNode;
   }
+  return parentClause;
+}
 
-  if (!parentClause) return;
-
+function findLocalReferences(parentClause, name) {
   let vars = parentClause.querySelectorAll('var');
+  let references = [];
 
   for (let i = 0; i < vars.length; i++) {
     let $var = vars[i];
@@ -611,15 +610,32 @@ function findLocalReferences($elem) {
   return references;
 }
 
+let REFERENCED_CLASSES = Array.from({ length: 7 }, (x, i) => `referenced${i}`);
+function chooseHighlightIndex(parentClause) {
+  let counts = REFERENCED_CLASSES.map($class => parentClause.getElementsByClassName($class).length);
+  // Find the earliest index with the lowest count.
+  let minCount = Infinity;
+  let index = null;
+  for (let i = 0; i < counts.length; i++) {
+    if (counts[i] < minCount) {
+      minCount = counts[i];
+      index = i;
+    }
+  }
+  return index;
+}
+
 function toggleFindLocalReferences($elem) {
-  let references = findLocalReferences($elem);
+  let parentClause = findContainer($elem);
+  let references = findLocalReferences(parentClause, $elem.innerHTML);
   if ($elem.classList.contains('referenced')) {
     references.forEach($reference => {
-      $reference.classList.remove('referenced');
+      $reference.classList.remove('referenced', ...REFERENCED_CLASSES);
     });
   } else {
+    let index = chooseHighlightIndex(parentClause);
     references.forEach($reference => {
-      $reference.classList.add('referenced');
+      $reference.classList.add('referenced', `referenced${index}`);
     });
   }
 }
