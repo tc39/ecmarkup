@@ -293,11 +293,7 @@ export function formatPreamble(
         });
         _for = spec.doc.createElement('div');
       }
-      para.append(
-        `The ${name} ${type} of `,
-        // @ts-ignore childNodes is iterable
-        ..._for.childNodes
-      );
+      para.append(`The ${name} ${type} of `, ..._for.childNodes);
       para.innerHTML += ` takes ${formattedParams}.`;
       break;
     }
@@ -321,15 +317,12 @@ export function formatPreamble(
     }
   }
   if (description != null) {
-    // @ts-ignore childNodes is iterable
-    const isJustElements = [...(description.childNodes as Iterable<Node>)].every(
+    const isJustElements = [...description.childNodes].every(
       n => n.nodeType === 1 || (n.nodeType === 3 && n.textContent?.trim() === '')
     );
     if (isJustElements) {
-      // @ts-ignore childNodes is iterable
-      paras.push(...description.childNodes);
+      paras.push(...(description.childNodes as Iterable<HTMLParagraphElement>));
     } else {
-      // @ts-ignore childNodes is iterable
       para.append(' ', ...description.childNodes);
     }
   }

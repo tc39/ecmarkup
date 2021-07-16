@@ -54,7 +54,6 @@ export default class Figure extends Builder {
 
     const ele = spec.doc.createElement('figure');
 
-    // @ts-ignore childNodes is iterable
     ele.append(...node.childNodes);
     node.append(ele);
 

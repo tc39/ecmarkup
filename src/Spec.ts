@@ -716,7 +716,6 @@ export default class Spec {
         contained.push(child.id);
         containedIdToSection.set(child.id, name);
 
-        // @ts-ignore
         for (const item of child.querySelectorAll('[id]')) {
           contained.push(item.id);
           containedIdToSection.set(item.id, name);
@@ -974,7 +973,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
   private async loadBiblios() {
     this.cancellationToken.throwIfCancellationRequested();
     await Promise.all(
-      Array.from(this.doc.querySelectorAll('emu-biblio')).map(biblio =>
+      Array.from(this.doc.querySelectorAll('emu-biblio'), biblio =>
         this.loadBiblio(path.join(this.rootDir, biblio.getAttribute('href')!))
       )
     );
@@ -1179,22 +1178,18 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
     this.log('Building SDO map...');
 
-    // prettier-ignore
     const mainGrammar: Set<Element> = new Set(
-      (this.doc.querySelectorAll('emu-grammar[type=definition]:not([example])') as any) as Iterable<Element>
+      this.doc.querySelectorAll('emu-grammar[type=definition]:not([example])')
     );
 
     // we can't just do `:not(emu-annex emu-grammar)` because that selector is too complicated for this version of jsdom
-    // @ts-ignore
     for (const annexEle of this.doc.querySelectorAll('emu-annex emu-grammar[type=definition]')) {
       mainGrammar.delete(annexEle);
     }
 
     const productions: Map<String, Array<Element>> = new Map();
     for (const grammar of mainGrammar) {
-      for (const production of grammar.querySelectorAll(
-        'emu-production'
-      ) as any as Iterable<Element>) {
+      for (const production of grammar.querySelectorAll('emu-production')) {
         if (!production.hasAttribute('name')) {
           // I don't think this is possible, but we can at least be graceful about it
           this.warn({
@@ -1216,16 +1211,14 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           });
           continue;
         }
-        // @ts-ignore
         const rhses: Array<Element> = [...production.querySelectorAll('emu-rhs')];
         productions.set(name, rhses);
       }
     }
 
     const sdos = this.doc.querySelectorAll('emu-clause[type=sdo]');
-    // @ts-ignore
     outer: for (const sdo of sdos) {
-      let header;
+      let header: Element | undefined;
       for (const child of sdo.children) {
         if (child.tagName === 'SPAN' && child.childNodes.length === 0) {
           // an `oldid` marker, presumably
@@ -1243,10 +1236,13 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         });
         continue outer;
       }
+      if (!header) {
+        continue;
+      }
 
-      const clause = header.firstElementChild.textContent;
+      const clause = header.firstElementChild!.textContent!;
       const nameMatch = header.textContent
-        .slice(clause.length + 1)
+        ?.slice(clause.length + 1)
         .match(/^(?:(?:Static|Runtime) Semantics: )?\s*(\w+)\b/);
       if (nameMatch == null) {
         this.warn({
@@ -1260,12 +1256,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         continue;
       }
       const sdoName = nameMatch[1];
-      // @ts-ignore
-      const grammars = [...sdo.children].filter(e => e.tagName === 'EMU-GRAMMAR');
-      for (const grammar of grammars) {
-        for (const production of grammar.querySelectorAll(
-          'emu-production'
-        ) as any as Iterable<Element>) {
+      for (const grammar of sdo.children) {
+        if (grammar.tagName !== 'EMU-GRAMMAR') {
+          continue;
+        }
+        for (const production of grammar.querySelectorAll('emu-production')) {
           if (!production.hasAttribute('name')) {
             // I don't think this is possible, but we can at least be graceful about it
             this.warn({
@@ -1287,7 +1282,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
             continue;
           }
           const mainRhses = productions.get(name)!;
-          for (const rhs of production.querySelectorAll('emu-rhs') as any as Iterable<Element>) {
+          for (const rhs of production.querySelectorAll('emu-rhs')) {
             const matches = mainRhses.filter(r => rhsMatches(rhs, r));
             if (matches.length === 0) {
               this.warn({

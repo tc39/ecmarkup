@@ -87,7 +87,7 @@ export default class Algorithm extends Builder {
       }
     }
 
-    for (const step of Array.from(node.querySelectorAll('li[id]'))) {
+    for (const step of node.querySelectorAll('li[id]')) {
       const entry: StepBiblioEntry = {
         type: 'step',
         id: step.id,
@@ -110,9 +110,10 @@ export default class Algorithm extends Builder {
 }
 
 function getStepNumbers(item: Element) {
+  const { indexOf } = Array.prototype;
   const counts = [];
   while (item.parentElement?.tagName === 'OL') {
-    counts.unshift(1 + Array.from(item.parentElement.children).indexOf(item));
+    counts.unshift(1 + indexOf.call(item.parentElement.children, item));
     item = item.parentElement.parentElement!;
   }
   return counts;
