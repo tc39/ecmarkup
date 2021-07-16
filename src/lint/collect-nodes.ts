@@ -53,7 +53,7 @@ export function collectNodes(
           if (title.trim() === 'Static Semantics: Early Errors') {
             let grammar = null;
             let lists: HTMLUListElement[] = [];
-            for (const child of node.children as any as Iterable<Element>) {
+            for (const child of node.children) {
               if (child.nodeName === 'EMU-GRAMMAR') {
                 if (grammar !== null) {
                   if (lists.length === 0) {
