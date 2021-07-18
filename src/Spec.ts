@@ -341,20 +341,13 @@ export default class Spec {
         throw new Error('Cannot use --multipage with --js-out or --css-out');
       }
 
-      const { outfile } = this.opts;
-      if (!outfile) {
-        throw new Error('When using --multipage you must specify an output directory');
+      if (this.opts.outfile == null) {
+        this.opts.outfile = '';
       }
-
-      if (fs.existsSync(outfile) && !fs.lstatSync(outfile).isDirectory()) {
-        throw new Error(`When using --multipage, outfile (${outfile}) must be a directory`);
-      }
-
-      fs.mkdirSync(path.resolve(outfile, 'multipage'), { recursive: true });
 
       if (this.opts.assets !== 'none') {
-        this.opts.jsOut = path.resolve(outfile, 'ecmarkup.js');
-        this.opts.cssOut = path.resolve(outfile, 'ecmarkup.css');
+        this.opts.jsOut = path.join(this.opts.outfile, 'ecmarkup.js');
+        this.opts.cssOut = path.join(this.opts.outfile, 'ecmarkup.css');
       }
     }
 
@@ -516,7 +509,7 @@ export default class Spec {
     await this.buildAssets(jsContents, jsSha);
 
     const file = this.opts.multipage
-      ? path.resolve(this.opts.outfile!, 'index.html')
+      ? path.join(this.opts.outfile!, 'index.html')
       : this.opts.outfile ?? null;
     this.generatedFiles.set(file, this.toHTML());
 
@@ -778,7 +771,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 `;
     if (this.opts.assets !== 'none') {
       this.generatedFiles.set(
-        path.resolve(this.opts.outfile!, 'multipage/multipage.js'),
+        path.join(this.opts.outfile!, 'multipage/multipage.js'),
         multipageJsContents
       );
     }
@@ -850,7 +843,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const clonesHTML = clones.map(e => e.outerHTML).join('\n');
       const content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${tocHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
 
-      this.generatedFiles.set(path.resolve(this.opts.outfile!, `multipage/${name}.html`), content);
+      this.generatedFiles.set(path.join(this.opts.outfile!, `multipage/${name}.html`), content);
     }
   }
 

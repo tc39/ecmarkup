@@ -6,6 +6,7 @@ import * as jsdom from 'jsdom';
 import * as chalk from 'chalk';
 import * as emd from 'ecmarkdown';
 import * as fs from 'fs';
+import * as path from 'path';
 import { collectNonterminalsFromEmd } from './lint/utils';
 
 export function warnEmdFailure(
@@ -159,6 +160,9 @@ export function readFile(file: string) {
 /*@internal*/
 export function writeFile(file: string, content: string) {
   return new Promise<void>((resolve, reject) => {
+    // we could do this async, but it's not worth worrying about
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+
     fs.writeFile(file, content, { encoding: 'utf8' }, err => (err ? reject(err) : resolve()));
   });
 }

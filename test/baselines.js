@@ -1,5 +1,7 @@
 'use strict';
+const assert = require('assert');
 const fs = require('fs');
+const path = require('path');
 
 const emu = require('../lib/ecmarkup');
 
@@ -23,29 +25,47 @@ function build(file) {
 
 describe('baselines', () => {
   files.forEach(file => {
-    const local = LOCAL_DIR + file;
     const reference = REFERENCE_DIR + file;
-    file = SOURCES_DIR + file;
-    it(file, async () => {
-      let spec = await build(file);
-      const contents = spec.toHTML();
-      let str;
-      try {
-        str = fs.readFileSync(reference, 'utf8');
-      } catch (e) {
-        // ignored
-      }
-      if (contents !== str) {
-        try {
-          fs.mkdirSync(LOCAL_DIR);
-        } catch (e) {
-          // ignored
+    it(SOURCES_DIR + file, async () => {
+      let spec = await build(SOURCES_DIR + file);
+
+      let expectedFiles = new Map();
+
+      (function walk(f) {
+        if (!fs.existsSync(f)) {
+          return;
         }
-        fs.writeFileSync(local, contents, 'utf8');
-        const error = new Error('Incorrect baseline');
-        error.expected = str || '';
-        error.actual = contents;
-        throw error;
+        if (fs.lstatSync(f).isDirectory()) {
+          for (let file of fs.readdirSync(f)) {
+            walk(path.join(f, file));
+          }
+        } else {
+          expectedFiles.set(path.relative(reference, f), fs.readFileSync(f, 'utf8'));
+        }
+      })(reference);
+
+      let actualFiles = spec.generatedFiles;
+      if (actualFiles.size === 1 && actualFiles.has(null)) {
+        // i.e. single-file output
+        actualFiles.set('', actualFiles.get(null));
+        actualFiles.delete(null);
+      }
+
+      let threw = true;
+      try {
+        if (expectedFiles.size === 0) {
+          throw new Error('Baseline does not exist');
+        }
+        assert.deepStrictEqual(actualFiles, expectedFiles);
+        threw = false;
+      } finally {
+        if (threw || true) {
+          for (let [fileToWrite, contents] of expectedFiles) {
+            let toWrite = path.resolve(LOCAL_DIR, path.join(file, fileToWrite));
+            fs.mkdirSync(path.dirname(toWrite), { recursive: true });
+            fs.writeFileSync(toWrite, contents, 'utf8');
+          }
+        }
       }
     });
   });
