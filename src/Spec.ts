@@ -336,6 +336,28 @@ export default class Spec {
     this.processMetadata();
     Object.assign(this.opts, opts);
 
+    if (this.opts.multipage) {
+      if (this.opts.jsOut || this.opts.cssOut) {
+        throw new Error('Cannot use --multipage with --js-out or --css-out');
+      }
+
+      const { outfile } = this.opts;
+      if (!outfile) {
+        throw new Error('When using --multipage you must specify an output directory');
+      }
+
+      if (fs.existsSync(outfile) && !fs.lstatSync(outfile).isDirectory()) {
+        throw new Error(`When using --multipage, outfile (${outfile}) must be a directory`);
+      }
+
+      fs.mkdirSync(path.resolve(outfile, 'multipage'), { recursive: true });
+
+      if (this.opts.assets !== 'none') {
+        this.opts.jsOut = path.resolve(outfile, 'ecmarkup.js');
+        this.opts.cssOut = path.resolve(outfile, 'ecmarkup.css');
+      }
+    }
+
     if (typeof this.opts.status === 'undefined') {
       this.opts.status = 'proposal';
     }
@@ -754,10 +776,12 @@ export default class Spec {
 let multipageMap = JSON.parse(\`${containedMap}\`);
 ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 `;
-    this.generatedFiles.set(
-      path.resolve(this.opts.outfile!, 'multipage/multipage.js'),
-      multipageJsContents
-    );
+    if (this.opts.assets !== 'none') {
+      this.generatedFiles.set(
+        path.resolve(this.opts.outfile!, 'multipage/multipage.js'),
+        multipageJsContents
+      );
+    }
 
     const multipageScript = this.doc.createElement('script');
     multipageScript.src = 'multipage.js?cache=' + sha(multipageJsContents);

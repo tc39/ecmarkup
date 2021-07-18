@@ -39,11 +39,6 @@ if (args.multipage) {
   if (fs.existsSync(args.outfile) && !fs.lstatSync(args.outfile).isDirectory()) {
     fail('When using --multipage, outfile (' + args.outfile + ') must be a directory');
   }
-
-  fs.mkdirSync(path.resolve(args.outfile, 'multipage'), { recursive: true });
-
-  args.jsOut = path.resolve(args.outfile, 'ecmarkup.js');
-  args.cssOut = path.resolve(args.outfile, 'ecmarkup.css');
 }
 
 function fail(msg: string) {
