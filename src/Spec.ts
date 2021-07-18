@@ -787,7 +787,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       if (eles[0].hasAttribute('id')) {
         const canonical = this.doc.createElement('link');
         canonical.setAttribute('rel', 'canonical');
-        canonical.setAttribute('href', `../index.html#${eles[0].id}`);
+        canonical.setAttribute('href', `../#${eles[0].id}`);
         headClone.appendChild(canonical);
       }
       const tocClone = tocEles.map(e => e.cloneNode(true));
