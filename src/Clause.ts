@@ -206,7 +206,7 @@ export default class Clause extends Builder {
         a.replaceWith(...a.childNodes);
       }
       clause.titleHTML = headerClone.innerHTML;
-      clause.title = header.textContent;
+      clause.title = headerClone.textContent;
       if (clause.number) {
         const numElem = clause.spec.doc.createElement('span');
         numElem.setAttribute('class', 'secnum');
