@@ -59,7 +59,7 @@ describe('baselines', () => {
         assert.deepStrictEqual(actualFiles, expectedFiles);
         threw = false;
       } finally {
-        if (threw || true) {
+        if (threw) {
           for (let [fileToWrite, contents] of expectedFiles) {
             let toWrite = path.resolve(LOCAL_DIR, path.join(file, fileToWrite));
             fs.mkdirSync(path.dirname(toWrite), { recursive: true });
