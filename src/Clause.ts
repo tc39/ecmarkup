@@ -201,7 +201,12 @@ export default class Clause extends Builder {
       clause.title = 'UNKNOWN';
       clause.titleHTML = 'UNKNOWN';
     } else {
-      ({ textContent: clause.title, innerHTML: clause.titleHTML } = header);
+      const headerClone = header.cloneNode(true) as Element;
+      for (const a of headerClone.querySelectorAll('a')) {
+        a.replaceWith(...a.childNodes);
+      }
+      clause.titleHTML = headerClone.innerHTML;
+      clause.title = headerClone.textContent;
       if (clause.number) {
         const numElem = clause.spec.doc.createElement('span');
         numElem.setAttribute('class', 'secnum');
