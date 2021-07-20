@@ -679,7 +679,7 @@ export default class Spec {
             this.warn({
               type: 'node',
               ruleId: 'top-level-section-id',
-              message: 'When using --multipage, the introduction must have id "emu-intro"',
+              message: 'When using --multipage, the introduction must have id "sec-intro"',
               node: child,
             });
             continue;
@@ -748,7 +748,7 @@ export default class Spec {
     }
 
     const head = this.doc.head.cloneNode(true) as HTMLHeadElement;
-    this.addStyle(head, '../ecmarkup.css');
+    this.addStyle(head, 'ecmarkup.css'); // omit `../` because we rewrite `<link>` elements below
     this.addStyle(
       head,
       `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
@@ -784,17 +784,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     for (const { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
       const headClone = head.cloneNode(true) as HTMLHeadElement;
-      if (eles[0].hasAttribute('id')) {
-        const canonical = this.doc.createElement('link');
-        canonical.setAttribute('rel', 'canonical');
-        canonical.setAttribute('href', `../#${eles[0].id}`);
-        headClone.appendChild(canonical);
-      }
       const tocClone = tocEles.map(e => e.cloneNode(true));
       const clones = eles.map(e => e.cloneNode(true));
-      const allClones = tocClone.concat(clones);
+      const allClones = [headClone, ...tocClone, ...clones];
       // @ts-ignore
-      const links = allClones.flatMap(e => [...e.querySelectorAll('a')]);
+      const links = allClones.flatMap(e => [...e.querySelectorAll('a,link')]);
       for (const link of links) {
         if (linkIsAbsolute(link)) {
           continue;
@@ -835,6 +829,13 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         if (!/^(http:|https:|:|\/)/.test(object.data)) {
           object.data = '../' + object.data;
         }
+      }
+
+      if (eles[0].hasAttribute('id')) {
+        const canonical = this.doc.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        canonical.setAttribute('href', `../#${eles[0].id}`);
+        headClone.appendChild(canonical);
       }
 
       // @ts-ignore
@@ -1697,18 +1698,18 @@ function sha(str: string) {
 
 // jsdom does not handle the `.hostname` (etc) parts correctly, so we have to look at the href directly
 // it also (some?) relative links as links to about:blank, for the purposes of testing the href
-function linkIsAbsolute(link: HTMLAnchorElement) {
+function linkIsAbsolute(link: HTMLAnchorElement | HTMLLinkElement) {
   return !link.href.startsWith('about:blank') && /^[a-z]+:/.test(link.href);
 }
 
-function linkIsInternal(link: HTMLAnchorElement) {
+function linkIsInternal(link: HTMLAnchorElement | HTMLLinkElement) {
   return link.href.startsWith('#') || link.href.startsWith('about:blank#');
 }
 
-function linkIsPathRelative(link: HTMLAnchorElement) {
+function linkIsPathRelative(link: HTMLAnchorElement | HTMLLinkElement) {
   return !link.href.startsWith('/') && !link.href.startsWith('about:blank/');
 }
 
-function pathFromRelativeLink(link: HTMLAnchorElement) {
+function pathFromRelativeLink(link: HTMLAnchorElement | HTMLLinkElement) {
   return link.href.startsWith('about:blank') ? link.href.substring(11) : link.href;
 }
