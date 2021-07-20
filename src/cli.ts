@@ -41,9 +41,6 @@ if (args.multipage) {
   }
 
   fs.mkdirSync(path.resolve(args.outfile, 'multipage'), { recursive: true });
-
-  args.jsOut = path.resolve(args.outfile, 'ecmarkup.js');
-  args.cssOut = path.resolve(args.outfile, 'ecmarkup.css');
 }
 
 function fail(msg: string) {

@@ -1,0 +1,23 @@
+<!doctype html>
+<head><meta charset="utf-8"></head><body><div id="menu-toggle">☰</div><div id="menu-spacer"></div><div id="menu"><div id="menu-search"><input type="text" id="menu-search-box" placeholder="Search..."><div id="menu-search-results" class="inactive"></div></div><div id="menu-pins"><div class="menu-pane-header">Pins</div><ul id="menu-pins-list"></ul></div><div class="menu-pane-header">Table of Contents</div><div id="menu-toc"><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-intro" title="Intro">Intro</a></li><li><span class="item-toggle-none"></span><a href="#sec-second" title="Second Clause"><span class="secnum">1</span> Second Clause</a></li><li><span class="item-toggle">◢</span><a href="#sec-third" title="Third Clause"><span class="secnum">2</span> Third Clause</a><ol class="toc"><li><span class="item-toggle-none"></span><a href="#sec-alg" title="Algorithm"><span class="secnum">2.1</span> Algorithm</a></li></ol></li></ol></div></div><div id="spec-container">
+
+<emu-intro id="sec-intro">
+  <h1>Intro</h1>
+  <p>Some text.</p>
+</emu-intro>
+
+<emu-clause id="sec-second">
+  <h1><span class="secnum">1</span> Second Clause</h1>
+  <p>A cross-section reference: <emu-xref aoid="Alg" id="_ref_0"><a href="#sec-alg">Alg</a></emu-xref>.</p>
+  <p>A relative image: <img src="example.png">.</p>
+</emu-clause>
+
+<emu-clause id="sec-third">
+  <h1><span class="secnum">2</span> Third Clause</h1>
+  <p>Some text.</p>
+  <emu-clause id="sec-alg" aoid="Alg">
+    <h1><span class="secnum">2.1</span> Algorithm</h1>
+    <p>Pretend there's an algorithm here.</p>
+  </emu-clause>
+</emu-clause>
+</div></body>

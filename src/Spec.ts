@@ -336,6 +336,21 @@ export default class Spec {
     this.processMetadata();
     Object.assign(this.opts, opts);
 
+    if (this.opts.multipage) {
+      if (this.opts.jsOut || this.opts.cssOut) {
+        throw new Error('Cannot use --multipage with --js-out or --css-out');
+      }
+
+      if (this.opts.outfile == null) {
+        this.opts.outfile = '';
+      }
+
+      if (this.opts.assets !== 'none') {
+        this.opts.jsOut = path.join(this.opts.outfile, 'ecmarkup.js');
+        this.opts.cssOut = path.join(this.opts.outfile, 'ecmarkup.css');
+      }
+    }
+
     if (typeof this.opts.status === 'undefined') {
       this.opts.status = 'proposal';
     }
@@ -494,7 +509,7 @@ export default class Spec {
     await this.buildAssets(jsContents, jsSha);
 
     const file = this.opts.multipage
-      ? path.resolve(this.opts.outfile!, 'index.html')
+      ? path.join(this.opts.outfile!, 'index.html')
       : this.opts.outfile ?? null;
     this.generatedFiles.set(file, this.toHTML());
 
@@ -754,10 +769,12 @@ export default class Spec {
 let multipageMap = JSON.parse(\`${containedMap}\`);
 ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 `;
-    this.generatedFiles.set(
-      path.resolve(this.opts.outfile!, 'multipage/multipage.js'),
-      multipageJsContents
-    );
+    if (this.opts.assets !== 'none') {
+      this.generatedFiles.set(
+        path.join(this.opts.outfile!, 'multipage/multipage.js'),
+        multipageJsContents
+      );
+    }
 
     const multipageScript = this.doc.createElement('script');
     multipageScript.src = 'multipage.js?cache=' + sha(multipageJsContents);
@@ -770,7 +787,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       if (eles[0].hasAttribute('id')) {
         const canonical = this.doc.createElement('link');
         canonical.setAttribute('rel', 'canonical');
-        canonical.setAttribute('href', `../index.html#${eles[0].id}`);
+        canonical.setAttribute('href', `../#${eles[0].id}`);
         headClone.appendChild(canonical);
       }
       const tocClone = tocEles.map(e => e.cloneNode(true));
@@ -826,7 +843,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const clonesHTML = clones.map(e => e.outerHTML).join('\n');
       const content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${tocHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
 
-      this.generatedFiles.set(path.resolve(this.opts.outfile!, `multipage/${name}.html`), content);
+      this.generatedFiles.set(path.join(this.opts.outfile!, `multipage/${name}.html`), content);
     }
   }
 

@@ -33,7 +33,6 @@ export const argParser = nomnom
     },
     multipage: {
       flag: true,
-      default: false,
       help: 'Generate a multipage version of the spec. Cannot be used with --js-out or --css-out.',
     },
     strict: {
