@@ -91,33 +91,7 @@ export function replacerForNamespace(namespace: string, biblio: Biblio): [RegExp
     .inScopeByType(namespace, 'op')
     .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
 
-  const clauseReplacer = new RegExp(
-    Object.keys(autolinkmap)
-      .sort((a, b) => b.length - a.length)
-      .map(k => {
-        const entry = autolinkmap[k];
-        const key = regexpEscape(entry.key!);
-
-        if (entry.type === 'term') {
-          if (isCommonTerm(key)) {
-            return '\\b' + widenSpace(key) + '\\b(?!\\.\\w|%%|\\]\\])';
-          } else if (key[0].match(/[A-Za-z0-9]/)) {
-            return '\\b' + widenSpace(caseInsensitiveRegExp(key)) + '\\b(?!\\.\\w|%%|\\]\\])';
-          } else {
-            return key;
-          }
-        } else {
-          // type is "op"
-          if (isCommonAbstractOp(key)) {
-            return '\\b' + key + '\\b(?=\\()';
-          } else {
-            return '\\b' + key + '\\b(?!\\.\\w|%%|\\]\\])';
-          }
-        }
-      })
-      .join('|'),
-    'g'
-  );
+  const clauseReplacer = new RegExp(regexpForList(autolinkmap, Object.keys(autolinkmap), 0), 'g');
 
   return [clauseReplacer, autolinkmap];
 }
@@ -136,30 +110,128 @@ function isCommonTerm(op: string) {
   return op === 'List' || op === 'Reference' || op === 'Record';
 }
 
-// regexp-string where the first character is case insensitive
-function caseInsensitiveRegExp(str: string) {
-  const lower = str[0].toLowerCase();
-
-  if (lower !== str[0]) return str;
-
-  const upper = lower.toUpperCase();
-  if (lower === upper) {
-    return str;
+function lookAheadBeyond(entry: BiblioEntry) {
+  if (entry.type === 'term') {
+    if (/^\w/.test(entry.key!)) {
+      return '\\b(?!\\.\\w|%%|\\]\\])';
+    } else {
+      return '';
+    }
+  } else {
+    // type is "op"
+    if (isCommonAbstractOp(entry.key!)) {
+      return '\\b(?=\\()';
+    } else {
+      return '\\b(?!\\.\\w|%%|\\]\\])';
+    }
   }
-
-  return `[${lower}${upper}]${str.slice(1)}`;
 }
 
 // returns a regexp string where each space can be many spaces or line breaks.
 function widenSpace(str: string) {
-  return str.replace(/\s+/g, '[\\s\\r\\n]+');
+  return str.replace(/\s+/g, '\\s+');
 }
 
 // replaces multiple whitespace characters with a single space
 function narrowSpace(str: string) {
-  return str.replace(/[\s\r\n]+/g, ' ');
+  return str.replace(/\s+/g, ' ');
 }
 
 function regexpEscape(str: string) {
   return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
+function regexpUnion(alternatives: string[]) {
+  if (alternatives.length < 2) {
+    return `${alternatives[0] ?? ''}`;
+  }
+  return `(?:${alternatives.join('|')})`;
+}
+
+// binary search for the longest common prefix in an array of strings
+function longestCommonPrefix(items: string[], offset: number = 0) {
+  let result = '';
+  let low = offset;
+  let high = items[0].length;
+  OUTER: while (low < high) {
+    const end = high - ((high - low) >>> 1);
+    const prefix = items[0].slice(offset, end);
+    for (let i = 1; i < items.length; ++i) {
+      if (!items[i].startsWith(prefix, offset)) {
+        high = end - 1;
+        continue OUTER;
+      }
+    }
+    low = end;
+    result = prefix;
+  }
+  return result;
+}
+
+function regexpForList(autolinkmap: AutoLinkMap, autolinkkeys: string[], position: number) {
+  const resultAlternatives: string[] = [];
+  const wordStartAlternatives: string[] = [];
+  const groups: { [char: string]: string[] } = {};
+
+  const getEntry = (k: string) => autolinkmap[narrowSpace(k).toLowerCase()];
+
+  for (const k of autolinkkeys) {
+    const entry = getEntry(k);
+    const key = narrowSpace(entry.key!);
+    const char = key[position];
+    let group = (groups[char] ??= []);
+    group.push(key);
+    if (position === 0 && /^[a-z]/.test(char)) {
+      // include capitalized variant of words
+      // starting with lowercase letter
+      const upper = char.toUpperCase();
+      group = groups[upper] ??= [];
+      group.push(upper + key.slice(1));
+    }
+  }
+
+  const matchEmpty = '' in groups;
+  if (matchEmpty) {
+    delete groups[''];
+  }
+
+  const longestFirst = (a: string, b: string) => b.length - a.length;
+
+  for (const groupChar of Object.keys(groups).sort()) {
+    // sort by length to ensure longer keys are tested first
+    const groupItems = groups[groupChar].sort(longestFirst);
+    const prefix = longestCommonPrefix(groupItems, position);
+    const prefixRegex = widenSpace(regexpEscape(prefix));
+    const suffixPos = position + prefix.length;
+    let suffixRegex: string;
+
+    if (groupItems.length > 5) {
+      // recursively split the group into smaller chunks
+      suffixRegex = regexpForList(autolinkmap, groupItems, suffixPos);
+    } else {
+      suffixRegex = regexpUnion(
+        groupItems.map(k => {
+          const item = widenSpace(regexpEscape(k.slice(suffixPos)));
+          return item + lookAheadBeyond(getEntry(k));
+        })
+      );
+    }
+    if (position === 0 && /^\w/.test(prefix)) {
+      wordStartAlternatives.push(prefixRegex + suffixRegex);
+    } else {
+      resultAlternatives.push(prefixRegex + suffixRegex);
+    }
+  }
+
+  if (matchEmpty) {
+    resultAlternatives.push('');
+  }
+  if (wordStartAlternatives.length) {
+    resultAlternatives.unshift('\\b' + regexpUnion(wordStartAlternatives));
+  }
+
+  // prettier-ignore
+  return position === 0
+    ? resultAlternatives.join('|')
+    : regexpUnion(resultAlternatives);
 }
