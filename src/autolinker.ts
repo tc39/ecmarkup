@@ -106,10 +106,6 @@ function isCommonAbstractOp(op: string) {
   );
 }
 
-function isCommonTerm(op: string) {
-  return op === 'List' || op === 'Reference' || op === 'Record';
-}
-
 function lookAheadBeyond(entry: BiblioEntry) {
   if (entry.type === 'term') {
     if (/^\w/.test(entry.key!)) {
