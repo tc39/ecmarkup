@@ -42,7 +42,7 @@ export function autolink(
   const spec = clause.spec;
   const template = spec.doc.createElement('template');
   const content = escape(node.textContent!);
-  const autolinked = content.replace(replacer, match => {
+  const autolinked = content.replace(replacer, (match, offset) => {
     const entry = autolinkmap[narrowSpace(match)];
     if (!entry) {
       return match;
@@ -56,7 +56,16 @@ export function autolink(
     }
 
     if (entry.aoid) {
-      return '<emu-xref aoid="' + entry.aoid + '">' + match + '</emu-xref>';
+      let isInvocationAttribute = '';
+      // Matches function-style invocation with parentheses and SDO-style 'of'
+      // invocation.
+      if (content[offset + match.length] === '(' ||
+          (content[offset + match.length] === ' ' &&
+           content[offset + match.length + 1] === 'o' &&
+           content[offset + match.length + 2] === 'f')) {
+        isInvocationAttribute = ' is-invocation';
+      }
+      return '<emu-xref aoid="' + entry.aoid + '"' + isInvocationAttribute + '>' + match + '</emu-xref>';
     } else {
       return '<emu-xref href="#' + (entry.id || entry.refId) + '">' + match + '</emu-xref>';
     }

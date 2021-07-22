@@ -4,12 +4,14 @@ import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
 import Builder from './Builder';
+import * as utils from './utils';
 
 /*@internal*/
 export default class Xref extends Builder {
   namespace: string;
   href: string;
   aoid: string;
+  isInvocation: boolean;
   clause: Clause | null;
   id: string;
   entry: Biblio.BiblioEntry | undefined;
@@ -30,6 +32,7 @@ export default class Xref extends Builder {
     this.aoid = aoid;
     this.clause = clause;
     this.id = node.getAttribute('id')!;
+    this.isInvocation = node.hasAttribute('is-invocation');
   }
 
   static async enter({ node, spec, clauseStack }: Context) {
@@ -141,7 +144,34 @@ export default class Xref extends Builder {
       this.entry = spec.biblio.byAoid(aoid, namespace);
 
       if (this.entry) {
-        buildAOLink(node, this.entry);
+        let effects = null;
+
+        // Check if there's metadata overriding the effects, otherwise look up
+        // the effects.
+        if (node.parentElement &&
+            node.parentElement.tagName === 'EMU-META' &&
+            node.parentElement.hasAttribute('effects')) {
+          effects = node.parentElement.getAttribute('effects')!.split(',');
+          if (effects.length === 0) {
+            effects = null;
+          }
+        } else if (this.isInvocation) {
+          effects = spec.getEffectsByAoid(aoid);
+        }
+
+        let classNames = null;
+        if (effects) {
+          classNames = '';
+          let parentClause = this.clause;
+          let isFirst = true;
+          for (let effect of effects) {
+            if (!parentClause || parentClause.isEffectApplicable(effect)) {
+              classNames += (isFirst ? '' : ' ') + 'e-' + effect;
+              isFirst = false;
+            }
+          }
+        }
+        buildAOLink(node, this.entry, classNames);
         return;
       }
 
@@ -179,11 +209,11 @@ function buildProductionLink(xref: Element, entry: Biblio.ProductionBiblioEntry)
   }
 }
 
-function buildAOLink(xref: Element, entry: Biblio.BiblioEntry) {
+function buildAOLink(xref: Element, entry: Biblio.BiblioEntry, classNames: string | null) {
   if (xref.textContent!.trim() === '') {
-    xref.innerHTML = buildXrefLink(entry, xref.getAttribute('aoid'));
+    xref.innerHTML = buildXrefLink(entry, xref.getAttribute('aoid'), classNames);
   } else {
-    xref.innerHTML = buildXrefLink(entry, xref.innerHTML);
+    xref.innerHTML = buildXrefLink(entry, xref.innerHTML, classNames);
   }
 }
 
@@ -276,6 +306,7 @@ function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry)
   xref.innerHTML = buildXrefLink(entry, text);
 }
 
-function buildXrefLink(entry: Biblio.BiblioEntry, contents: string | number | undefined | null) {
-  return '<a href="' + entry.location + '#' + (entry.id || entry.refId) + '">' + contents + '</a>';
+function buildXrefLink(entry: Biblio.BiblioEntry, contents: string | number | undefined | null, classNames: string | null = null) {
+  let classSnippet = classNames == null ? '' : (' class="' + classNames + '"');
+  return '<a href="' + entry.location + '#' + (entry.id || entry.refId) + '"' + classSnippet + '>' + contents + '</a>';
 }

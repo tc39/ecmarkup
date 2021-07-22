@@ -290,6 +290,8 @@ export default class Spec {
   }[];
   _prodRefs: ProdRef[];
   _textNodes: { [s: string]: [TextNodeContext] };
+  _effectWorklist: Map<string, Clause[]>;
+  _effectfulAOs: Map<string, Clause>;
   refsByClause: { [refId: string]: [string] };
 
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
@@ -332,6 +334,8 @@ export default class Spec {
     this._ntStringRefs = [];
     this._prodRefs = [];
     this._textNodes = {};
+    this._effectWorklist = new Map();
+    this._effectfulAOs = new Map();
     this.refsByClause = Object.create(null);
 
     this.processMetadata();
@@ -455,6 +459,8 @@ export default class Spec {
 
     this.autolink();
 
+    this.log('Propagating can-call-user-code annotations...');
+    this.propagateEffects();
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');
@@ -650,6 +656,51 @@ export default class Spec {
       return false;
     }
     return true;
+  }
+
+  private propagateEffects() {
+    for (let [effectName, worklist] of this._effectWorklist) {
+      this.propagateEffect(effectName, worklist);
+    }
+  }
+
+  private propagateEffect(effectName: string, worklist: Clause[]) {
+    let usersOfAoid : Map<string, Set<Clause>> = new Map();
+    for (let xref of this._xrefs) {
+      if (xref.clause == null) {
+        continue;
+      }
+      let usedAoid = xref.aoid;
+      if (!usersOfAoid.has(usedAoid)) {
+        usersOfAoid.set(usedAoid, new Set());
+      }
+      usersOfAoid.get(usedAoid)!.add(xref.clause);
+    }
+
+    while (worklist.length != 0) {
+      let clause = worklist.shift() as Clause;
+      let aoid = clause.aoid;
+      if (aoid == null || !usersOfAoid.has(aoid)) {
+        continue;
+      }
+
+      this._effectfulAOs.set(aoid, clause);
+      for (let userClause of usersOfAoid.get(aoid)!) {
+        if (userClause.isEffectApplicable(effectName) &&
+            userClause.effects.indexOf(effectName) === -1) {
+          userClause.effects.push(effectName);
+          worklist.push(userClause);
+        }
+      }
+      // TODO(syg): Support "of" form of SDO invocation
+    }
+  }
+
+  public getEffectsByAoid(aoid: string): string[] | null {
+    if (this._effectfulAOs.has(aoid)) {
+      return this._effectfulAOs.get(aoid)!.effects;
+    }
+    return null;
   }
 
   private async buildMultipage(wrapper: Element, tocEles: Element[], jsSha: string) {
