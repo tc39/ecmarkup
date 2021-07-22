@@ -107,20 +107,15 @@ function isCommonAbstractOp(op: string) {
 }
 
 function lookAheadBeyond(entry: BiblioEntry) {
-  if (entry.type === 'term') {
-    if (/^\w/.test(entry.key!)) {
-      return '\\b(?!\\.\\w|%%|\\]\\])';
-    } else {
-      return '';
-    }
-  } else {
-    // type is "op"
-    if (isCommonAbstractOp(entry.key!)) {
-      return '\\b(?=\\()';
-    } else {
-      return '\\b(?!\\.\\w|%%|\\]\\])';
-    }
+  if (entry.type === 'op' && isCommonAbstractOp(entry.key!)) {
+    // must be followed by parentheses
+    return '\\b(?=\\()';
   }
+  if (entry.type !== 'term' || /^\w/.test(entry.key!)) {
+    // must not be followed by `.word` or `%%` or `]]`
+    return '\\b(?!\\.\\w|%%|\\]\\])';
+  }
+  return '';
 }
 
 // returns a regexp string where each space can be many spaces or line breaks.
@@ -223,8 +218,5 @@ function regexpForList(autolinkmap: AutoLinkMap, autolinkkeys: string[], positio
     resultAlternatives.unshift('\\b' + regexpUnion(wordStartAlternatives));
   }
 
-  // prettier-ignore
-  return position === 0
-    ? resultAlternatives.join('|')
-    : regexpUnion(resultAlternatives);
+  return regexpUnion(resultAlternatives);
 }
