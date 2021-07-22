@@ -91,7 +91,10 @@ export function replacerForNamespace(namespace: string, biblio: Biblio): [RegExp
     .inScopeByType(namespace, 'op')
     .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
 
-  const clauseReplacer = new RegExp(regexpForList(autolinkmap, Object.keys(autolinkmap), 0), 'g');
+  const clauseReplacer = new RegExp(
+    regexpPatternForAutolinkKeys(autolinkmap, Object.keys(autolinkmap), 0),
+    'g'
+  );
 
   return [clauseReplacer, autolinkmap];
 }
@@ -156,20 +159,24 @@ function longestCommonPrefix(items: string[], beginIndex: number = 0) {
   return items[0].slice(beginIndex, endIndex);
 }
 
-function regexpForList(autolinkmap: AutoLinkMap, autolinkkeys: string[], position: number) {
+function regexpPatternForAutolinkKeys(
+  autolinkmap: AutoLinkMap,
+  subsetKeys: string[],
+  initialCommonLength: number
+) {
   const resultAlternatives: string[] = [];
   const wordStartAlternatives: string[] = [];
   const groups: { [char: string]: string[] } = {};
 
   const getEntry = (k: string) => autolinkmap[narrowSpace(k).toLowerCase()];
 
-  for (const k of autolinkkeys) {
+  for (const k of subsetKeys) {
     const entry = getEntry(k);
     const key = narrowSpace(entry.key!);
-    const char = key[position];
+    const char = key[initialCommonLength];
     let group = (groups[char] ??= []);
     group.push(key);
-    if (position === 0 && /^[a-z]/.test(char)) {
+    if (initialCommonLength === 0 && /^[a-z]/.test(char)) {
       // include capitalized variant of words
       // starting with lowercase letter
       const upper = char.toUpperCase();
@@ -188,14 +195,14 @@ function regexpForList(autolinkmap: AutoLinkMap, autolinkkeys: string[], positio
   for (const groupChar of Object.keys(groups).sort()) {
     // sort by length to ensure longer keys are tested first
     const groupItems = groups[groupChar].sort(longestFirst);
-    const prefix = longestCommonPrefix(groupItems, position);
+    const prefix = longestCommonPrefix(groupItems, initialCommonLength);
     const prefixRegex = widenSpace(regexpEscape(prefix));
-    const suffixPos = position + prefix.length;
+    const suffixPos = initialCommonLength + prefix.length;
     let suffixRegex: string;
 
     if (groupItems.length > 5) {
       // recursively split the group into smaller chunks
-      suffixRegex = regexpForList(autolinkmap, groupItems, suffixPos);
+      suffixRegex = regexpPatternForAutolinkKeys(autolinkmap, groupItems, suffixPos);
     } else {
       suffixRegex = regexpUnion(
         groupItems.map(k => {
@@ -204,7 +211,7 @@ function regexpForList(autolinkmap: AutoLinkMap, autolinkkeys: string[], positio
         })
       );
     }
-    if (position === 0 && /^\w/.test(prefix)) {
+    if (initialCommonLength === 0 && /^\w/.test(prefix)) {
       wordStartAlternatives.push(prefixRegex + suffixRegex);
     } else {
       resultAlternatives.push(prefixRegex + suffixRegex);
