@@ -144,24 +144,21 @@ function regexpUnion(alternatives: string[]) {
   return `(?:${alternatives.join('|')})`;
 }
 
-// binary search for the longest common prefix in an array of strings
-function longestCommonPrefix(items: string[], offset: number = 0) {
-  let result = '';
-  let low = offset;
-  let high = items[0].length;
-  OUTER: while (low < high) {
-    const end = high - ((high - low) >>> 1);
-    const prefix = items[0].slice(offset, end);
+// Search a non-empty array of string `items` for the longest common
+// substring starting at position `beginIndex`. The part of each string
+// before `beginIndex` is ignored, and is not included in the result.
+function longestCommonPrefix(items: string[], beginIndex: number = 0) {
+  let endIndex = beginIndex;
+  OUTER: while (endIndex < items[0].length) {
+    const char = items[0][endIndex];
     for (let i = 1; i < items.length; ++i) {
-      if (!items[i].startsWith(prefix, offset)) {
-        high = end - 1;
-        continue OUTER;
+      if (char !== items[i][endIndex]) {
+        break OUTER;
       }
     }
-    low = end;
-    result = prefix;
+    ++endIndex;
   }
-  return result;
+  return items[0].slice(beginIndex, endIndex);
 }
 
 function regexpForList(autolinkmap: AutoLinkMap, autolinkkeys: string[], position: number) {
