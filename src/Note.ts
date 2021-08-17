@@ -49,7 +49,6 @@ export default class Note extends Builder {
         node: this.node,
         number: number || 1,
         clauseId: this.clause.id,
-        referencingIds: [],
       });
     }
 

@@ -40,7 +40,6 @@ export default class Figure extends Builder {
         node: this.node,
         number: this.number,
         caption: this.caption,
-        referencingIds: [],
       });
     }
   }

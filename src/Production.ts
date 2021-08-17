@@ -1,5 +1,5 @@
 import type Spec from './Spec';
-import type { UnkeyedBiblioEntry } from './Biblio';
+import type { PartialBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import RHS from './RHS';
@@ -76,11 +76,10 @@ export default class Production extends Builder {
         entry._instance.node.removeAttribute('id');
       }
 
-      const newEntry: UnkeyedBiblioEntry = {
+      const newEntry: PartialBiblioEntry = {
         type: 'production',
         id,
         name: this.name,
-        referencingIds: [],
       };
 
       // non-enumerable to JSON-stringifying the biblio doesn't include this

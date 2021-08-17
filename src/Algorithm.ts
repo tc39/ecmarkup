@@ -1,6 +1,6 @@
 import type { Context } from './Context';
 import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
-import type { UnkeyedBiblioEntry, StepBiblioEntry } from './Biblio';
+import type { PartialBiblioEntry, StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
 import { warnEmdFailure, wrapEmdFailure } from './utils';
@@ -88,11 +88,10 @@ export default class Algorithm extends Builder {
     }
 
     for (const step of node.querySelectorAll('li[id]')) {
-      const entry: UnkeyedBiblioEntry = {
+      const entry: PartialBiblioEntry = {
         type: 'step',
         id: step.id,
         stepNumbers: getStepNumbers(step as Element),
-        referencingIds: [],
       };
       context.spec.biblio.add(entry);
       if (replaces) {

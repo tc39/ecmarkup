@@ -26,21 +26,15 @@ class EnvRec extends Array<BiblioEntry> {
   }
 
   // this mutates each item to fill in missing properties
-  push(...items: MaybeKeyedBiblioEntry[]) {
-    for (const partialItem of items) {
-      partialItem.location = partialItem.location || '';
-      partialItem.referencingIds = partialItem.referencingIds || [];
-      if (!partialItem.key) {
-        partialItem.key = getKey(partialItem);
-      }
-      const item = partialItem as BiblioEntry;
-
+  push(...items: BiblioEntry[]) {
+    for (const item of items) {
       pushKey(this._byType, item.type, item);
       pushKey(this._byLocation, item.location, item);
 
       if (item.type === 'clause' && item.aoid) {
-        const op: MaybeKeyedBiblioEntry = {
+        const op: BiblioEntry = {
           type: 'op',
+          key: item.aoid,
           aoid: item.aoid,
           refId: item.id,
           location: item.location,
@@ -58,7 +52,7 @@ class EnvRec extends Array<BiblioEntry> {
       }
     }
 
-    return super.push(...(items as BiblioEntry[]));
+    return super.push(...items);
   }
 }
 
@@ -144,11 +138,22 @@ export default class Biblio {
     return undefined;
   }
 
-  add(entry: UnkeyedBiblioEntry, ns?: string | null) {
+  add(entry: PartialBiblioEntry, ns?: string | null) {
     ns = ns || this._location;
     const env = this._nsToEnvRec[ns];
     entry.namespace = ns;
-    env!.push(entry);
+
+    // @ts-ignore
+    entry.location = entry.location || '';
+    // @ts-ignore
+    entry.referencingIds = entry.referencingIds || [];
+    // @ts-ignore
+    if (!entry.key) {
+      // @ts-ignore
+      entry.key = getKey(entry);
+    }
+
+    env!.push(entry as BiblioEntry);
     if (entry.id) {
       if ({}.hasOwnProperty.call(this, entry.id)) {
         throw new Error('Duplicate biblio entry ' + JSON.stringify(entry.id) + '.');
@@ -284,10 +289,9 @@ export type BiblioEntry =
 
 // the generic is necessary for this trick to work
 // see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
-type Unkey<T> = T extends any ? Omit<T, 'key' | 'location'> : never;
+type Unkey<T> = T extends any ? Omit<T, 'key' | 'location' | 'referencingIds'> : never;
 
-export type UnkeyedBiblioEntry = Unkey<BiblioEntry>;
-type MaybeKeyedBiblioEntry = UnkeyedBiblioEntry & { key?: string; location?: string };
+export type PartialBiblioEntry = Unkey<BiblioEntry>;
 
 function dumpEnv(env: EnvRec) {
   console.log('## ' + env._namespace);
@@ -306,7 +310,7 @@ function pushKey(arr: { [key: string]: BiblioEntry[] }, key: string, value: Bibl
   arr[key].push(value);
 }
 
-function getKey(item: MaybeKeyedBiblioEntry) {
+function getKey(item: PartialBiblioEntry) {
   switch (item.type) {
     case 'clause':
       return item.title;
