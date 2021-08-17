@@ -1437,7 +1437,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     const namespaces = Object.keys(this._textNodes);
     for (let i = 0; i < namespaces.length; i++) {
       const namespace = namespaces[i];
-      const [replacer, autolinkmap] = replacerForNamespace(namespace, this.biblio);
+      const { replacer, autolinkmap } = replacerForNamespace(namespace, this.biblio);
       const nodes = this._textNodes[namespace];
 
       for (let j = 0; j < nodes.length; j++) {

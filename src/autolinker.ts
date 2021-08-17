@@ -80,7 +80,10 @@ export function autolink(
   }
 }
 
-export function replacerForNamespace(namespace: string, biblio: Biblio): [RegExp, AutoLinkMap] {
+export function replacerForNamespace(
+  namespace: string,
+  biblio: Biblio
+): { replacer: RegExp; autolinkmap: AutoLinkMap } {
   const autolinkmap: AutoLinkMap = {};
 
   biblio
@@ -91,12 +94,12 @@ export function replacerForNamespace(namespace: string, biblio: Biblio): [RegExp
     .inScopeByType(namespace, 'op')
     .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
 
-  const clauseReplacer = new RegExp(
+  const replacer = new RegExp(
     regexpPatternForAutolinkKeys(autolinkmap, Object.keys(autolinkmap), 0),
     'g'
   );
 
-  return [clauseReplacer, autolinkmap];
+  return { replacer, autolinkmap };
 }
 
 export interface AutoLinkMap {
