@@ -98,7 +98,7 @@ export function collectNodes(
             const start = loc.startTag.endOffset;
             const end = loc.endTag.startOffset;
             const realSource = (importSource ?? mainSource).slice(start, end);
-            mainGrammar.push({ element: node as Element, source: realSource });
+            mainGrammar.push({ element: node, source: realSource });
           }
         } else {
           const next = lintWalker.nextSibling() as Element;

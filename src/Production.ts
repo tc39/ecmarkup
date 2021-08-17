@@ -34,7 +34,7 @@ export default class Production extends Builder {
     this.rhsesById = {};
     this.namespace = namespace;
 
-    const rhses = this.node.querySelectorAll('emu-rhs') as NodeListOf<HTMLElement>;
+    const rhses = this.node.querySelectorAll<HTMLElement>('emu-rhs');
     for (let i = 0; i < rhses.length; i++) {
       const rhs = new RHS(this.spec, this, rhses[i]);
       this.rhses.push(rhs);
@@ -46,7 +46,7 @@ export default class Production extends Builder {
 
     const id = this._id();
 
-    const entry = this.spec.biblio.byProductionName(this.name!, this.namespace);
+    const entry = this.spec.biblio.byProductionName(this.name, this.namespace);
 
     let primary = false;
     if (node.hasAttribute('primary')) {
@@ -129,12 +129,12 @@ export default class Production extends Builder {
 
     prod.rhses.forEach(rhs => rhs.build());
 
-    const ganns = node.querySelectorAll('emu-gann') as NodeListOf<HTMLElement>;
+    const ganns = node.querySelectorAll<HTMLElement>('emu-gann');
     for (let i = 0; i < ganns.length; i++) {
       new GrammarAnnotation(spec, prod, ganns[i]).build();
     }
 
-    const ts = node.querySelectorAll('emu-t') as NodeListOf<HTMLElement>;
+    const ts = node.querySelectorAll<HTMLElement>('emu-t');
     for (let i = 0; i < ts.length; i++) {
       new Terminal(spec, prod, ts[i]).build();
     }

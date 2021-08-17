@@ -321,7 +321,7 @@ export default class Spec {
     this.cancellationToken = token;
     this.generatedFiles = new Map();
     this.log = opts.log ?? (() => {});
-    this.warn = opts.warn ? wrapWarn(sourceText!, this, opts.warn) : () => {};
+    this.warn = opts.warn ? wrapWarn(sourceText, this, opts.warn) : () => {};
     this._figureCounts = {
       table: 0,
       figure: 0,
@@ -743,7 +743,7 @@ export default class Spec {
     if (this.doc.documentElement.hasAttributes()) {
       const clonedHtmlEle = this.doc.documentElement.cloneNode(false) as HTMLElement;
       clonedHtmlEle.innerHTML = '';
-      const src = clonedHtmlEle.outerHTML!;
+      const src = clonedHtmlEle.outerHTML;
       htmlEle = src.substring(0, src.length - '<head></head><body></body></html>'.length);
     }
 

@@ -73,7 +73,7 @@ export default class Algorithm extends Builder {
     if (replaces && node.firstElementChild!.children.length > 1) {
       const labeledSteps = findLabeledSteps(emdTree);
       for (const step of labeledSteps) {
-        const itemSource = innerHTML.slice(step.location!.start.offset, step.location!.end.offset);
+        const itemSource = innerHTML.slice(step.location.start.offset, step.location.end.offset);
         const offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
         spec.warn({
           type: 'contents',
@@ -81,8 +81,8 @@ export default class Algorithm extends Builder {
           message:
             'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
           node,
-          nodeRelativeLine: step.location!.start.line,
-          nodeRelativeColumn: step.location!.start.column + offset,
+          nodeRelativeLine: step.location.start.line,
+          nodeRelativeColumn: step.location.start.column + offset,
         });
       }
     }

@@ -28,14 +28,14 @@ export default class Grammar extends Builder {
     if (location) {
       if (location.startTag && location.endTag) {
         // the parser was able to find a matching end tag.
-        const start = location.startTag.endOffset as number;
-        const end = location.endTag.startOffset as number;
+        const start = location.startTag.endOffset;
+        const end = location.endTag.startOffset;
         content = location.source.slice(start, end);
       } else {
         // TODO this is not reached
         // the parser was *not* able to find a matching end tag. Try to recover by finding a
         // possible end tag, otherwise read the rest of the source text.
-        const start = (globalEndTagRe.lastIndex = location.endOffset as number);
+        const start = (globalEndTagRe.lastIndex = location.endOffset);
         const match = globalEndTagRe.exec(location.source);
         const end = match ? match.index : location.source.length;
         content = location.source.slice(start, end);

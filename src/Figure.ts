@@ -21,7 +21,7 @@ export default class Figure extends Builder {
     this.id = node.getAttribute('id');
 
     this.isInformative = node.hasAttribute('informative');
-    this.captionElem = node.querySelector('emu-caption') as HTMLElement | null;
+    this.captionElem = node.querySelector('emu-caption');
     this.caption = this.type.charAt(0).toUpperCase() + this.type.slice(1) + ' ' + this.number;
 
     if (this.isInformative) {

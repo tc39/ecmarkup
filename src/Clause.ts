@@ -250,7 +250,7 @@ export default class Clause extends Builder {
       id: clause.id,
       aoid: clause.aoid,
       title: clause.title!,
-      titleHTML: clause.titleHTML!,
+      titleHTML: clause.titleHTML,
       number: clause.number,
       referencingIds: [],
     };
