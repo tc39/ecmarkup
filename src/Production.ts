@@ -1,5 +1,5 @@
 import type Spec from './Spec';
-import type { ProductionBiblioEntry } from './Biblio';
+import type { UnkeyedBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import RHS from './RHS';
@@ -76,7 +76,7 @@ export default class Production extends Builder {
         entry._instance.node.removeAttribute('id');
       }
 
-      const newEntry: ProductionBiblioEntry = {
+      const newEntry: UnkeyedBiblioEntry = {
         type: 'production',
         id,
         name: this.name,

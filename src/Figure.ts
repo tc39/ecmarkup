@@ -1,5 +1,4 @@
 import type Spec from './Spec';
-import type { FigureBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
@@ -35,7 +34,7 @@ export default class Figure extends Builder {
     }
 
     if (this.id) {
-      spec.biblio.add(<FigureBiblioEntry>{
+      spec.biblio.add({
         type: this.type as 'table' | 'figure' | 'example' | 'note',
         id: this.id,
         node: this.node,

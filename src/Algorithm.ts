@@ -1,6 +1,6 @@
 import type { Context } from './Context';
 import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
-import type { StepBiblioEntry } from './Biblio';
+import type { UnkeyedBiblioEntry, StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
 import { warnEmdFailure, wrapEmdFailure } from './utils';
@@ -88,7 +88,7 @@ export default class Algorithm extends Builder {
     }
 
     for (const step of node.querySelectorAll('li[id]')) {
-      const entry: StepBiblioEntry = {
+      const entry: UnkeyedBiblioEntry = {
         type: 'step',
         id: step.id,
         stepNumbers: getStepNumbers(step as Element),
@@ -97,7 +97,7 @@ export default class Algorithm extends Builder {
       context.spec.biblio.add(entry);
       if (replaces) {
         // The biblio entries for labeled steps in replacement algorithms will be modified in-place by a subsequent pass
-        labeledStepEntries.push(entry);
+        labeledStepEntries.push(entry as StepBiblioEntry);
         context.spec.labeledStepsToBeRectified.add(step.id);
       }
     }

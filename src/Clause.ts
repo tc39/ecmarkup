@@ -1,7 +1,7 @@
 import type Note from './Note';
 import type Example from './Example';
 import type Spec from './Spec';
-import type { ClauseBiblioEntry } from './Biblio';
+import type { UnkeyedBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
@@ -245,7 +245,7 @@ export default class Clause extends Builder {
     }
 
     // clauses are always at the spec-level namespace.
-    const entry: ClauseBiblioEntry = {
+    const entry: UnkeyedBiblioEntry = {
       type: 'clause',
       id: clause.id,
       aoid: clause.aoid,

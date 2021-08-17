@@ -1,4 +1,3 @@
-import type { AlgorithmBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
@@ -19,7 +18,7 @@ export default class Eqn extends Builder {
     if (aoid) {
       const id = node.getAttribute('id');
       if (id) {
-        spec.biblio.add(<AlgorithmBiblioEntry>{
+        spec.biblio.add({
           type: 'op',
           aoid,
           id,
@@ -28,7 +27,7 @@ export default class Eqn extends Builder {
       } else {
         const clause = clauseStack[clauseStack.length - 1];
         const clauseId = clause ? clause.id : ''; // TODO: no eqns outside of clauses, eh?
-        spec.biblio.add(<AlgorithmBiblioEntry>{
+        spec.biblio.add({
           type: 'op',
           aoid,
           refId: clauseId,

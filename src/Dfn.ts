@@ -1,4 +1,4 @@
-import type { TermBiblioEntry } from './Biblio';
+import type { UnkeyedBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
@@ -9,7 +9,7 @@ export default class Dfn extends Builder {
     const parentClause = clauseStack[clauseStack.length - 1];
     if (!parentClause) return;
 
-    const entry: TermBiblioEntry = {
+    const entry: UnkeyedBiblioEntry = {
       type: 'term',
       term: node.textContent!,
       refId: parentClause.id,
