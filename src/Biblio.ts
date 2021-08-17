@@ -116,8 +116,8 @@ export default class Biblio {
     let current = this._nsToEnvRec[ns];
     while (current) {
       (current._byType[type] || []).forEach(entry => {
-        if (!seen.has(entry.key!)) {
-          seen.add(entry.key!);
+        if (!seen.has(entry.key)) {
+          seen.add(entry.key);
           results.push(entry);
         }
       });

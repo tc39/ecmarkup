@@ -88,11 +88,11 @@ export function replacerForNamespace(
 
   biblio
     .inScopeByType(namespace, 'term')
-    .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
+    .forEach(entry => (autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry));
 
   biblio
     .inScopeByType(namespace, 'op')
-    .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
+    .forEach(entry => (autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry));
 
   const replacer = new RegExp(
     regexpPatternForAutolinkKeys(autolinkmap, Object.keys(autolinkmap), 0),
@@ -113,11 +113,11 @@ function isCommonAbstractOp(op: string) {
 }
 
 function lookAheadBeyond(entry: BiblioEntry) {
-  if (entry.type === 'op' && isCommonAbstractOp(entry.key!)) {
+  if (entry.type === 'op' && isCommonAbstractOp(entry.key)) {
     // must be followed by parentheses
     return '\\b(?=\\()';
   }
-  if (entry.type !== 'term' || /^\w/.test(entry.key!)) {
+  if (entry.type !== 'term' || /^\w/.test(entry.key)) {
     // must not be followed by `.word` or `%%` or `]]`
     return '\\b(?!\\.\\w|%%|\\]\\])';
   }
@@ -175,7 +175,7 @@ function regexpPatternForAutolinkKeys(
 
   for (const k of subsetKeys) {
     const entry = getEntry(k);
-    const key = narrowSpace(entry.key!);
+    const key = narrowSpace(entry.key);
     const char = key[initialCommonLength];
     let group = (groups[char] ??= []);
     group.push(key);
