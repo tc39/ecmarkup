@@ -84,31 +84,7 @@ export function replacerForNamespace(
   namespace: string,
   biblio: Biblio
 ): { replacer: RegExp; autolinkmap: AutoLinkMap } {
-  const autolinkmap: AutoLinkMap = {};
-
-  Object.entries(biblio.getDefinedWords(namespace)).forEach(([key, entry]) => {
-    // if (narrowSpace(key.toLowerCase()) !== narrowSpace(key)) {
-    //   if (autolinkmap[narrowSpace(key.toLowerCase())]) {
-    //     console.log('dupe', key);
-    //   }
-    // }
-
-    // this is a dumb kludge necessitated by ecma262 dfn'ing both "type" and "Type"
-    // the latter originally masked the former, so that it didn't actually end up linking all usages of the word "type"
-    // we've changed the logic a bit so that masking no longer happens, and consequently the autolinker adds a bunch of spurious links
-    // this can be removed once ecma262 no longer dfn's it and we update ecma262-biblio
-    if (key === 'type') {
-      return;
-    }
-
-    if (/^[a-z]/.test(key)) {
-      // include capitalized variant of words
-      // starting with lowercase letter
-      autolinkmap[narrowSpace(key[0].toUpperCase() + key.slice(1))] = entry;
-    }
-
-    autolinkmap[narrowSpace(key)] = entry;
-  });
+  const autolinkmap: AutoLinkMap = biblio.getDefinedWords(namespace);
 
   const replacer = new RegExp(
     regexpPatternForAutolinkKeys(autolinkmap, Object.keys(autolinkmap), 0),

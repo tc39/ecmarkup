@@ -109,9 +109,26 @@ export default class Biblio {
       while (current) {
         const entries = current._byType[type] || [];
         for (const entry of entries) {
-          if (!seen.has(entry.key)) {
-            seen.add(entry.key);
-            result[entry.key] = entry;
+          if (entry.key === 'type') {
+            // this is a dumb kludge necessitated by ecma262 dfn'ing both "type" and "Type"
+            // the latter originally masked the former, so that it didn't actually end up linking all usages of the word "type"
+            // we've changed the logic a bit so that masking no longer happens, and consequently the autolinker adds a bunch of spurious links
+            // this can be removed once ecma262 no longer dfn's it and we update ecma262-biblio.json
+            continue;
+          }
+
+          const key = entry.key.replace(/\s+/g, ' ');
+          const keys = [key];
+          if (/^[a-z]/.test(key)) {
+            // include capitalized variant of words starting with lowercase letter
+            keys.push(key[0].toUpperCase() + key.slice(1));
+          }
+
+          for (const key of keys) {
+            if (!seen.has(key)) {
+              seen.add(key);
+              result[key] = entry;
+            }
           }
         }
         current = current._parent;
