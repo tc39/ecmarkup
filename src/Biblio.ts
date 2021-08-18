@@ -107,7 +107,6 @@ export default class Biblio {
       const seen = new Set<string>();
       let current = this._nsToEnvRec[ns];
       while (current) {
-        // const entries = (current._byType['term'] || []).concat(current._byType['op'] || []);
         const entries = current._byType[type] || [];
         for (const entry of entries) {
           if (!seen.has(entry.key)) {

@@ -43,7 +43,7 @@ export function autolink(
   const template = spec.doc.createElement('template');
   const content = escape(node.textContent!);
   const autolinked = content.replace(replacer, match => {
-    const entry = autolinkmap[narrowSpace(match.toLowerCase())];
+    const entry = autolinkmap[narrowSpace(match)];
     if (!entry) {
       return match;
     }
@@ -87,7 +87,27 @@ export function replacerForNamespace(
   const autolinkmap: AutoLinkMap = {};
 
   Object.entries(biblio.getDefinedWords(namespace)).forEach(([key, entry]) => {
-    autolinkmap[narrowSpace(key.toLowerCase())] = entry;
+    // if (narrowSpace(key.toLowerCase()) !== narrowSpace(key)) {
+    //   if (autolinkmap[narrowSpace(key.toLowerCase())]) {
+    //     console.log('dupe', key);
+    //   }
+    // }
+
+    // this is a dumb kludge necessitated by ecma262 dfn'ing both "type" and "Type"
+    // the latter originally masked the former, so that it didn't actually end up linking all usages of the word "type"
+    // we've changed the logic a bit so that masking no longer happens, and consequently the autolinker adds a bunch of spurious links
+    // this can be removed once ecma262 no longer dfn's it and we update ecma262-biblio
+    if (key === 'type') {
+      return;
+    }
+
+    if (/^[a-z]/.test(key)) {
+      // include capitalized variant of words
+      // starting with lowercase letter
+      autolinkmap[narrowSpace(key[0].toUpperCase() + key.slice(1))] = entry;
+    }
+
+    autolinkmap[narrowSpace(key)] = entry;
   });
 
   const replacer = new RegExp(
@@ -167,21 +187,10 @@ function regexpPatternForAutolinkKeys(
   const wordStartAlternatives: string[] = [];
   const groups: { [char: string]: string[] } = {};
 
-  const getEntry = (k: string) => autolinkmap[narrowSpace(k).toLowerCase()];
-
-  for (const k of subsetKeys) {
-    const entry = getEntry(k);
-    const key = narrowSpace(entry.key);
+  for (const key of subsetKeys) {
     const char = key[initialCommonLength];
-    let group = (groups[char] ??= []);
+    const group = (groups[char] ??= []);
     group.push(key);
-    if (initialCommonLength === 0 && /^[a-z]/.test(char)) {
-      // include capitalized variant of words
-      // starting with lowercase letter
-      const upper = char.toUpperCase();
-      group = groups[upper] ??= [];
-      group.push(upper + key.slice(1));
-    }
   }
 
   const matchEmpty = '' in groups;
@@ -206,7 +215,7 @@ function regexpPatternForAutolinkKeys(
       suffixRegex = regexpUnion(
         groupItems.map(k => {
           const item = widenSpace(regexpEscape(k.slice(suffixPos)));
-          return item + lookAheadBeyond(getEntry(k));
+          return item + lookAheadBeyond(autolinkmap[k]);
         })
       );
     }
