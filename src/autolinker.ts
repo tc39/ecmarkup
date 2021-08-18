@@ -86,13 +86,9 @@ export function replacerForNamespace(
 ): { replacer: RegExp; autolinkmap: AutoLinkMap } {
   const autolinkmap: AutoLinkMap = {};
 
-  biblio
-    .inScopeByType(namespace, 'term')
-    .forEach(entry => (autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry));
-
-  biblio
-    .inScopeByType(namespace, 'op')
-    .forEach(entry => (autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry));
+  Object.entries(biblio.getDefinedWords(namespace)).forEach(([key, entry]) => {
+    autolinkmap[narrowSpace(key.toLowerCase())] = entry;
+  });
 
   const replacer = new RegExp(
     regexpPatternForAutolinkKeys(autolinkmap, Object.keys(autolinkmap), 0),
@@ -113,7 +109,7 @@ function isCommonAbstractOp(op: string) {
 }
 
 function lookAheadBeyond(entry: BiblioEntry) {
-  if (entry.type === 'op' && isCommonAbstractOp(entry.key)) {
+  if (isCommonAbstractOp(entry.key)) {
     // must be followed by parentheses
     return '\\b(?=\\()';
   }

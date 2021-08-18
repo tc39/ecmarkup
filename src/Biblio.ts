@@ -98,27 +98,28 @@ export default class Biblio {
     return this.lookup(ns, env => env._byAoid[aoid]);
   }
 
-  inScopeByType(ns: string, type: 'op'): AlgorithmBiblioEntry[];
-  inScopeByType(ns: string, type: 'production'): ProductionBiblioEntry[];
-  inScopeByType(ns: string, type: 'clause'): ClauseBiblioEntry[];
-  inScopeByType(ns: string, type: 'term'): TermBiblioEntry[];
-  inScopeByType(ns: string, type: 'table' | 'figure' | 'example' | 'note'): FigureBiblioEntry[];
-  inScopeByType(ns: string, type: string): BiblioEntry[];
-  inScopeByType(ns: string, type: string) {
-    const seen = new Set<string>();
-    const results: BiblioEntry[] = [];
-    let current = this._nsToEnvRec[ns];
-    while (current) {
-      (current._byType[type] || []).forEach(entry => {
-        if (!seen.has(entry.key)) {
-          seen.add(entry.key);
-          results.push(entry);
+  getDefinedWords(ns: string): Record<string, AlgorithmBiblioEntry | TermBiblioEntry> {
+    const result = Object.create(null);
+
+    for (const type of ['term', 'op']) {
+      // note that the `seen` set is not shared across types
+      // this is dumb but is the current semantics: ops always clobber terms
+      const seen = new Set<string>();
+      let current = this._nsToEnvRec[ns];
+      while (current) {
+        // const entries = (current._byType['term'] || []).concat(current._byType['op'] || []);
+        const entries = current._byType[type] || [];
+        for (const entry of entries) {
+          if (!seen.has(entry.key)) {
+            seen.add(entry.key);
+            result[entry.key] = entry;
+          }
         }
-      });
-      current = current._parent;
+        current = current._parent;
+      }
     }
 
-    return results;
+    return result;
   }
 
   private lookup<T>(ns: string, cb: (env: EnvRec) => T) {
