@@ -587,7 +587,6 @@ export default class Spec {
     };
 
     let counter = 0;
-    const counterMap: Map<string, number> = new Map;
     this._xrefs.forEach(xref => {
       let entry = xref.entry;
       if (!entry || entry.namespace === 'global') return;
@@ -597,14 +596,7 @@ export default class Spec {
       }
 
       if (!xref.id) {
-        // revert me: this was just to get more-stable biblios
-        const t = xref.node.textContent ?? '';
-        if (!counterMap.has(t)) {
-          counterMap.set(t, 0);
-        }
-        const c = counterMap.get(t)!;
-        counterMap.set(t, c + 1);
-        const id = `_ref_${t}_${c}`;
+        const id = `_ref_${counter++}`;
         xref.node.setAttribute('id', id);
         xref.id = id;
       }
