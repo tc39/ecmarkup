@@ -91,7 +91,7 @@ export default interface Spec {
   rootDir: string;
   namespace: string;
   exportBiblio(): any;
-  generatedFiles: ReadonlyMap<string | null, string>;
+  generatedFiles: Map<string | null, string>;
 }
 
 export type Warning =
