@@ -190,6 +190,23 @@ toc: false
   </emu-clause>
 </emu-clause>
 
+<emu-clause id="definitions">
+  <h1>Definitions</h1>
+  <p>Terms can be defined using the `&lt;dfn>` element. Any uses of that term will be automatically linked to the clause containing the definition, or, if the `&lt;dfn>` element has an `id`, to the `&lt;dfn>` itself. This can be suppressed with the <a href="#emu-not-ref">`emu-not-ref`</a> element.</p>
+  <p>When the term starts with a lowercase English letter, usages of the term with the first letter capitalized will also link.</p>
+  <p>Other variants of the term, such as plural forms, can be provided as a comma-seperated list in the `variants` attribute on the element.</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html">
+  &lt;p>A &lt;dfn id="swordfish" variants="swordfishes,Xiphias gladius">swordfish&lt;/dfn> is large fish characterized by a long, pointed bill.&lt;/p>
+  &lt;p>The Latin name for swordfishes, &lt;em>Xiphias gladius&lt;/em>, comes from the Greek word "ξίφος" (xiphos, "sword") and from the Latin word "gladius" ("sword").&lt;/p>
+  </code></pre>
+
+  <b>Result</b>
+  <p>A <dfn id="swordfish" variants="swordfishes,Xiphias gladius">swordfish</dfn> is large fish characterized by a long, pointed bill.</p>
+  <p>The Latin name for swordfishes, <em>Xiphias gladius</em>, comes from the Greek word "ξίφος" (xiphos, "sword") and from the Latin word "gladius" ("sword").</p>
+</emu-clause>
+
 <emu-clause id="emu-alg" aoid="EmuAlg">
   <h1>emu-alg</h1>
   <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>

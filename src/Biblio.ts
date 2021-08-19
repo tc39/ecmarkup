@@ -130,12 +130,17 @@ export default class Biblio {
               continue;
             }
 
-            const key = (entry as TermBiblioEntry).term.replace(/\s+/g, ' ');
-            keys = [key];
-            if (/^[a-z]/.test(key)) {
-              // include capitalized variant of words starting with lowercase letter
-              keys.push(key[0].toUpperCase() + key.slice(1));
-            }
+            keys = [
+              (entry as TermBiblioEntry).term,
+              ...((entry as TermBiblioEntry).variants || []),
+            ].flatMap(v => {
+              const key = v.replace(/\s+/g, ' ');
+              if (/^[a-z]/.test(key)) {
+                // include capitalized variant of words starting with lowercase letter
+                return [key, key[0].toUpperCase() + key.slice(1)];
+              }
+              return key;
+            });
           } else {
             keys = [(entry as AlgorithmBiblioEntry).aoid];
           }
@@ -288,6 +293,7 @@ export interface TermBiblioEntry extends BiblioEntryBase {
   type: 'term';
   term: string;
   refId: string;
+  variants?: string[];
   id?: string;
 }
 

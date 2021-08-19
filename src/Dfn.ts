@@ -19,6 +19,13 @@ export default class Dfn extends Builder {
       entry.id = node.id;
     }
 
+    if (node.hasAttribute('variants')) {
+      entry.variants = node
+        .getAttribute('variants')!
+        .split(',')
+        .map(v => v.trim());
+    }
+
     spec.biblio.add(entry, parentClause.namespace);
   }
 
