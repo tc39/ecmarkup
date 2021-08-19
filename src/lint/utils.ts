@@ -29,7 +29,7 @@ export function getProductions(grammar: GrammarFile) {
         throw new Error('production lacks body ' + JSON.stringify(e));
       }
       if (!productions.has(e.name.text!)) {
-        productions.set(e.name.text!, { production: e as Production, rhses: [] });
+        productions.set(e.name.text!, { production: e, rhses: [] });
       }
       productions.get(e.name.text!)!.rhses.push(...productionBodies(e.body));
     })

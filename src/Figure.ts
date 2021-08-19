@@ -1,5 +1,4 @@
 import type Spec from './Spec';
-import type { FigureBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
@@ -21,7 +20,7 @@ export default class Figure extends Builder {
     this.id = node.getAttribute('id');
 
     this.isInformative = node.hasAttribute('informative');
-    this.captionElem = node.querySelector('emu-caption') as HTMLElement | null;
+    this.captionElem = node.querySelector('emu-caption');
     this.caption = this.type.charAt(0).toUpperCase() + this.type.slice(1) + ' ' + this.number;
 
     if (this.isInformative) {
@@ -35,13 +34,12 @@ export default class Figure extends Builder {
     }
 
     if (this.id) {
-      spec.biblio.add(<FigureBiblioEntry>{
+      spec.biblio.add({
         type: this.type as 'table' | 'figure' | 'example' | 'note',
         id: this.id,
         node: this.node,
         number: this.number,
         caption: this.caption,
-        referencingIds: [],
       });
     }
   }

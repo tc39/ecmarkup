@@ -1,7 +1,7 @@
 import type Note from './Note';
 import type Example from './Example';
 import type Spec from './Spec';
-import type { ClauseBiblioEntry } from './Biblio';
+import type { PartialBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
@@ -245,14 +245,13 @@ export default class Clause extends Builder {
     }
 
     // clauses are always at the spec-level namespace.
-    const entry: ClauseBiblioEntry = {
+    const entry: PartialBiblioEntry = {
       type: 'clause',
       id: clause.id,
       aoid: clause.aoid,
       title: clause.title!,
-      titleHTML: clause.titleHTML!,
+      titleHTML: clause.titleHTML,
       number: clause.number,
-      referencingIds: [],
     };
     spec.biblio.add(entry, spec.namespace);
 

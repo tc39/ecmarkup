@@ -25,17 +25,16 @@ class EnvRec extends Array<BiblioEntry> {
     this._byAoid = {};
   }
 
+  // this mutates each item to fill in missing properties
   push(...items: BiblioEntry[]) {
     for (const item of items) {
-      item.location = item.location || '';
-      item.referencingIds = item.referencingIds || [];
-
       pushKey(this._byType, item.type, item);
       pushKey(this._byLocation, item.location, item);
 
       if (item.type === 'clause' && item.aoid) {
         const op: BiblioEntry = {
           type: 'op',
+          key: item.aoid,
           aoid: item.aoid,
           refId: item.id,
           location: item.location,
@@ -50,10 +49,6 @@ class EnvRec extends Array<BiblioEntry> {
 
       if (item.type === 'production') {
         this._byProductionName[item.name] = item;
-      }
-
-      if (!item.key) {
-        item.key = getKey(item);
       }
     }
 
@@ -115,8 +110,8 @@ export default class Biblio {
     let current = this._nsToEnvRec[ns];
     while (current) {
       (current._byType[type] || []).forEach(entry => {
-        if (!seen.has(entry.key!)) {
-          seen.add(entry.key!);
+        if (!seen.has(entry.key)) {
+          seen.add(entry.key);
           results.push(entry);
         }
       });
@@ -143,16 +138,27 @@ export default class Biblio {
     return undefined;
   }
 
-  add(entry: BiblioEntry, ns?: string | null) {
+  add(entry: PartialBiblioEntry, ns?: string | null) {
     ns = ns || this._location;
     const env = this._nsToEnvRec[ns];
     entry.namespace = ns;
-    env!.push(entry);
+
+    // @ts-ignore
+    entry.location = entry.location || '';
+    // @ts-ignore
+    entry.referencingIds = entry.referencingIds || [];
+    // @ts-ignore
+    if (!entry.key) {
+      // @ts-ignore
+      entry.key = getKey(entry);
+    }
+
+    env!.push(entry as BiblioEntry);
     if (entry.id) {
       if ({}.hasOwnProperty.call(this, entry.id)) {
         throw new Error('Duplicate biblio entry ' + JSON.stringify(entry.id) + '.');
       }
-      this._byId[entry.id] = entry;
+      this._byId[entry.id] = entry as BiblioEntry;
     }
   }
 
@@ -214,14 +220,14 @@ export interface BiblioData {
 
 export interface BiblioEntryBase {
   type: string;
-  location?: string;
+  location: string;
   namespace?: string;
   id?: string;
   aoid?: string | null;
   refId?: string;
   clauseId?: string;
   name?: string;
-  key?: string;
+  key: string;
   title?: string;
   number?: string | number;
   caption?: string;
@@ -281,6 +287,12 @@ export type BiblioEntry =
   | FigureBiblioEntry
   | StepBiblioEntry;
 
+// the generic is necessary for this trick to work
+// see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
+type Unkey<T> = T extends any ? Omit<T, 'key' | 'location' | 'referencingIds'> : never;
+
+export type PartialBiblioEntry = Unkey<BiblioEntry>;
+
 function dumpEnv(env: EnvRec) {
   console.log('## ' + env._namespace);
   console.log(env.map(entry => JSON.stringify(entry)).join(', '));
@@ -298,7 +310,7 @@ function pushKey(arr: { [key: string]: BiblioEntry[] }, key: string, value: Bibl
   arr[key].push(value);
 }
 
-function getKey(item: BiblioEntry) {
+function getKey(item: PartialBiblioEntry) {
   switch (item.type) {
     case 'clause':
       return item.title;

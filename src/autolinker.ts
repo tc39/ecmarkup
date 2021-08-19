@@ -80,23 +80,26 @@ export function autolink(
   }
 }
 
-export function replacerForNamespace(namespace: string, biblio: Biblio): [RegExp, AutoLinkMap] {
+export function replacerForNamespace(
+  namespace: string,
+  biblio: Biblio
+): { replacer: RegExp; autolinkmap: AutoLinkMap } {
   const autolinkmap: AutoLinkMap = {};
 
   biblio
     .inScopeByType(namespace, 'term')
-    .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
+    .forEach(entry => (autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry));
 
   biblio
     .inScopeByType(namespace, 'op')
-    .forEach(entry => (autolinkmap[narrowSpace(entry.key!.toLowerCase())] = entry));
+    .forEach(entry => (autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry));
 
-  const clauseReplacer = new RegExp(
+  const replacer = new RegExp(
     regexpPatternForAutolinkKeys(autolinkmap, Object.keys(autolinkmap), 0),
     'g'
   );
 
-  return [clauseReplacer, autolinkmap];
+  return { replacer, autolinkmap };
 }
 
 export interface AutoLinkMap {
@@ -110,11 +113,11 @@ function isCommonAbstractOp(op: string) {
 }
 
 function lookAheadBeyond(entry: BiblioEntry) {
-  if (entry.type === 'op' && isCommonAbstractOp(entry.key!)) {
+  if (entry.type === 'op' && isCommonAbstractOp(entry.key)) {
     // must be followed by parentheses
     return '\\b(?=\\()';
   }
-  if (entry.type !== 'term' || /^\w/.test(entry.key!)) {
+  if (entry.type !== 'term' || /^\w/.test(entry.key)) {
     // must not be followed by `.word` or `%%` or `]]`
     return '\\b(?!\\.\\w|%%|\\]\\])';
   }
@@ -172,7 +175,7 @@ function regexpPatternForAutolinkKeys(
 
   for (const k of subsetKeys) {
     const entry = getEntry(k);
-    const key = narrowSpace(entry.key!);
+    const key = narrowSpace(entry.key);
     const char = key[initialCommonLength];
     let group = (groups[char] ??= []);
     group.push(key);

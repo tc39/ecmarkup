@@ -1,6 +1,6 @@
 import type { Context } from './Context';
 import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
-import type { StepBiblioEntry } from './Biblio';
+import type { PartialBiblioEntry, StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
 import { warnEmdFailure, wrapEmdFailure } from './utils';
@@ -73,7 +73,7 @@ export default class Algorithm extends Builder {
     if (replaces && node.firstElementChild!.children.length > 1) {
       const labeledSteps = findLabeledSteps(emdTree);
       for (const step of labeledSteps) {
-        const itemSource = innerHTML.slice(step.location!.start.offset, step.location!.end.offset);
+        const itemSource = innerHTML.slice(step.location.start.offset, step.location.end.offset);
         const offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
         spec.warn({
           type: 'contents',
@@ -81,23 +81,22 @@ export default class Algorithm extends Builder {
           message:
             'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
           node,
-          nodeRelativeLine: step.location!.start.line,
-          nodeRelativeColumn: step.location!.start.column + offset,
+          nodeRelativeLine: step.location.start.line,
+          nodeRelativeColumn: step.location.start.column + offset,
         });
       }
     }
 
     for (const step of node.querySelectorAll('li[id]')) {
-      const entry: StepBiblioEntry = {
+      const entry: PartialBiblioEntry = {
         type: 'step',
         id: step.id,
         stepNumbers: getStepNumbers(step as Element),
-        referencingIds: [],
       };
       context.spec.biblio.add(entry);
       if (replaces) {
         // The biblio entries for labeled steps in replacement algorithms will be modified in-place by a subsequent pass
-        labeledStepEntries.push(entry);
+        labeledStepEntries.push(entry as StepBiblioEntry);
         context.spec.labeledStepsToBeRectified.add(step.id);
       }
     }
