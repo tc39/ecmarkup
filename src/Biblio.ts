@@ -1,10 +1,22 @@
 import type Production from './Production';
 
+type Entries = {
+  op?: AlgorithmBiblioEntry[];
+  production?: ProductionBiblioEntry[];
+  clause?: ClauseBiblioEntry[];
+  term?: TermBiblioEntry[];
+  table?: FigureBiblioEntry[];
+  figure?: FigureBiblioEntry[];
+  example?: FigureBiblioEntry[];
+  note?: FigureBiblioEntry[];
+  step?: StepBiblioEntry[];
+};
+
 class EnvRec extends Array<BiblioEntry> {
   _parent: EnvRec | undefined;
   _namespace: string;
   _children: EnvRec[];
-  _byType: { [key: string]: BiblioEntry[] };
+  _byType: Entries;
   _byLocation: { [key: string]: BiblioEntry[] };
   _byProductionName: { [key: string]: ProductionBiblioEntry };
   _byAoid: { [key: string]: AlgorithmBiblioEntry };
@@ -101,7 +113,7 @@ export default class Biblio {
   getDefinedWords(ns: string): Record<string, AlgorithmBiblioEntry | TermBiblioEntry> {
     const result = Object.create(null);
 
-    for (const type of ['term', 'op']) {
+    for (const type of ['term', 'op'] as ('term' | 'op')[]) {
       // note that the `seen` set is not shared across types
       // this is dumb but is the current semantics: ops always clobber terms
       const seen = new Set<string>();
