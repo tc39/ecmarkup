@@ -1,3 +1,4 @@
+import type { BiblioEntry } from './Biblio';
 import type Spec from './Spec';
 
 import Toc from './Toc';
@@ -47,11 +48,21 @@ export default function makeMenu(spec: Spec) {
 
   const json = JSON.stringify(
     { refsByClause: spec.refsByClause, entries: spec.biblio.toJSON() },
-    (k, v) => (['title', 'namespace', 'location'].includes(k) ? undefined : v)
+    biblioReplacer
   );
 
   return {
     eles: [menuContainer, menuSpacer, menuToggle],
     js: `let biblio = JSON.parse(\`${json.replace(/[\\`$]/g, '\\$&')}\`);`,
   };
+}
+
+function biblioReplacer(this: BiblioEntry, k: string, v: unknown) {
+  if (!['title', 'namespace', 'location'].includes(k)) {
+    return v;
+  }
+  if (k === 'title' && this.type === 'clause' && this.title !== this.titleHTML) {
+    return v;
+  }
+  return undefined;
 }

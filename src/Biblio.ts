@@ -1,10 +1,22 @@
 import type Production from './Production';
 
+type Entries = {
+  op?: AlgorithmBiblioEntry[];
+  production?: ProductionBiblioEntry[];
+  clause?: ClauseBiblioEntry[];
+  term?: TermBiblioEntry[];
+  table?: FigureBiblioEntry[];
+  figure?: FigureBiblioEntry[];
+  example?: FigureBiblioEntry[];
+  note?: FigureBiblioEntry[];
+  step?: StepBiblioEntry[];
+};
+
 class EnvRec extends Array<BiblioEntry> {
   _parent: EnvRec | undefined;
   _namespace: string;
   _children: EnvRec[];
-  _byType: { [key: string]: BiblioEntry[] };
+  _byType: Entries;
   _byLocation: { [key: string]: BiblioEntry[] };
   _byProductionName: { [key: string]: ProductionBiblioEntry };
   _byAoid: { [key: string]: AlgorithmBiblioEntry };
@@ -34,7 +46,6 @@ class EnvRec extends Array<BiblioEntry> {
       if (item.type === 'clause' && item.aoid) {
         const op: BiblioEntry = {
           type: 'op',
-          key: item.aoid,
           aoid: item.aoid,
           refId: item.id,
           location: item.location,
@@ -101,7 +112,7 @@ export default class Biblio {
   getDefinedWords(ns: string): Record<string, AlgorithmBiblioEntry | TermBiblioEntry> {
     const result = Object.create(null);
 
-    for (const type of ['term', 'op']) {
+    for (const type of ['term', 'op'] as ('term' | 'op')[]) {
       // note that the `seen` set is not shared across types
       // this is dumb but is the current semantics: ops always clobber terms
       const seen = new Set<string>();
@@ -109,19 +120,29 @@ export default class Biblio {
       while (current) {
         const entries = current._byType[type] || [];
         for (const entry of entries) {
-          if (entry.key === 'type') {
-            // this is a dumb kludge necessitated by ecma262 dfn'ing both "type" and "Type"
-            // the latter originally masked the former, so that it didn't actually end up linking all usages of the word "type"
-            // we've changed the logic a bit so that masking no longer happens, and consequently the autolinker adds a bunch of spurious links
-            // this can be removed once ecma262 no longer dfn's it and we update ecma262-biblio.json
-            continue;
-          }
+          let keys;
+          if (type === 'term') {
+            if (entry.term === 'type') {
+              // this is a dumb kludge necessitated by ecma262 dfn'ing both "type" and "Type"
+              // the latter originally masked the former, so that it didn't actually end up linking all usages of the word "type"
+              // we've changed the logic a bit so that masking no longer happens, and consequently the autolinker adds a bunch of spurious links
+              // this can be removed once ecma262 no longer dfn's it and we update ecma262-biblio.json
+              continue;
+            }
 
-          const key = entry.key.replace(/\s+/g, ' ');
-          const keys = [key];
-          if (/^[a-z]/.test(key)) {
-            // include capitalized variant of words starting with lowercase letter
-            keys.push(key[0].toUpperCase() + key.slice(1));
+            keys = [
+              (entry as TermBiblioEntry).term,
+              ...((entry as TermBiblioEntry).variants || []),
+            ].flatMap(v => {
+              const key = v.replace(/\s+/g, ' ');
+              if (/^[a-z]/.test(key)) {
+                // include capitalized variant of words starting with lowercase letter
+                return [key, key[0].toUpperCase() + key.slice(1)];
+              }
+              return key;
+            });
+          } else {
+            keys = [(entry as AlgorithmBiblioEntry).aoid];
           }
 
           for (const key of keys) {
@@ -164,11 +185,6 @@ export default class Biblio {
     entry.location = entry.location || '';
     // @ts-ignore
     entry.referencingIds = entry.referencingIds || [];
-    // @ts-ignore
-    if (!entry.key) {
-      // @ts-ignore
-      entry.key = getKey(entry);
-    }
 
     env!.push(entry as BiblioEntry);
     if (entry.id) {
@@ -244,7 +260,6 @@ export interface BiblioEntryBase {
   refId?: string;
   clauseId?: string;
   name?: string;
-  key: string;
   title?: string;
   number?: string | number;
   caption?: string;
@@ -278,6 +293,7 @@ export interface TermBiblioEntry extends BiblioEntryBase {
   type: 'term';
   term: string;
   refId: string;
+  variants?: string[];
   id?: string;
 }
 
@@ -306,7 +322,7 @@ export type BiblioEntry =
 
 // the generic is necessary for this trick to work
 // see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
-type Unkey<T> = T extends any ? Omit<T, 'key' | 'location' | 'referencingIds'> : never;
+type Unkey<T> = T extends any ? Omit<T, 'key' | 'keys' | 'location' | 'referencingIds'> : never;
 
 export type PartialBiblioEntry = Unkey<BiblioEntry>;
 
@@ -325,26 +341,4 @@ function pushKey(arr: { [key: string]: BiblioEntry[] }, key: string, value: Bibl
   }
 
   arr[key].push(value);
-}
-
-function getKey(item: PartialBiblioEntry) {
-  switch (item.type) {
-    case 'clause':
-      return item.title;
-    case 'production':
-      return item.name;
-    case 'op':
-      return item.aoid;
-    case 'term':
-      return item.term;
-    case 'table':
-    case 'figure':
-    case 'example':
-    case 'note':
-      return item.caption;
-    case 'step':
-      return item.id;
-    default:
-      throw new Error("Can't get key for " + (<BiblioEntry>item).type);
-  }
 }

@@ -104,12 +104,12 @@ function isCommonAbstractOp(op: string) {
   );
 }
 
-function lookAheadBeyond(entry: BiblioEntry) {
-  if (isCommonAbstractOp(entry.key)) {
+function lookAheadBeyond(key: string, entry: BiblioEntry) {
+  if (isCommonAbstractOp(key)) {
     // must be followed by parentheses
     return '\\b(?=\\()';
   }
-  if (entry.type !== 'term' || /^\w/.test(entry.key)) {
+  if (entry.type !== 'term' || /^\w/.test(key)) {
     // must not be followed by `.word` or `%%` or `]]`
     return '\\b(?!\\.\\w|%%|\\]\\])';
   }
@@ -191,7 +191,7 @@ function regexpPatternForAutolinkKeys(
       suffixRegex = regexpUnion(
         groupItems.map(k => {
           const item = widenSpace(regexpEscape(k.slice(suffixPos)));
-          return item + lookAheadBeyond(autolinkmap[k]);
+          return item + lookAheadBeyond(k, autolinkmap[k]);
         })
       );
     }
