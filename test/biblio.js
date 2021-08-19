@@ -57,7 +57,7 @@ describe('Biblio', () => {
     assert(str.indexOf('aoid2') === -1);
   });
 
-  describe('inScopeByType', () => {
+  describe('getDefinedWords', () => {
     specify('de-dupes by key', () => {
       const opEntry1 = {
         type: 'op',
@@ -74,8 +74,8 @@ describe('Biblio', () => {
       biblio.add(opEntry1, location);
       biblio.add(opEntry2, 'global');
 
-      let results = biblio.inScopeByType(location, 'op');
-      assert.equal(results[0], opEntry1);
+      let results = biblio.getDefinedWords(location);
+      assert.equal(results.aoid, opEntry1);
     });
   });
 });

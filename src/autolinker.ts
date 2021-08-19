@@ -43,7 +43,7 @@ export function autolink(
   const template = spec.doc.createElement('template');
   const content = escape(node.textContent!);
   const autolinked = content.replace(replacer, match => {
-    const entry = autolinkmap[narrowSpace(match.toLowerCase())];
+    const entry = autolinkmap[narrowSpace(match)];
     if (!entry) {
       return match;
     }
@@ -84,15 +84,7 @@ export function replacerForNamespace(
   namespace: string,
   biblio: Biblio
 ): { replacer: RegExp; autolinkmap: AutoLinkMap } {
-  const autolinkmap: AutoLinkMap = {};
-
-  biblio
-    .inScopeByType(namespace, 'term')
-    .forEach(entry => (autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry));
-
-  biblio
-    .inScopeByType(namespace, 'op')
-    .forEach(entry => (autolinkmap[narrowSpace(entry.key.toLowerCase())] = entry));
+  const autolinkmap: AutoLinkMap = biblio.getDefinedWords(namespace);
 
   const replacer = new RegExp(
     regexpPatternForAutolinkKeys(autolinkmap, Object.keys(autolinkmap), 0),
@@ -113,7 +105,7 @@ function isCommonAbstractOp(op: string) {
 }
 
 function lookAheadBeyond(entry: BiblioEntry) {
-  if (entry.type === 'op' && isCommonAbstractOp(entry.key)) {
+  if (isCommonAbstractOp(entry.key)) {
     // must be followed by parentheses
     return '\\b(?=\\()';
   }
@@ -171,21 +163,10 @@ function regexpPatternForAutolinkKeys(
   const wordStartAlternatives: string[] = [];
   const groups: { [char: string]: string[] } = {};
 
-  const getEntry = (k: string) => autolinkmap[narrowSpace(k).toLowerCase()];
-
-  for (const k of subsetKeys) {
-    const entry = getEntry(k);
-    const key = narrowSpace(entry.key);
+  for (const key of subsetKeys) {
     const char = key[initialCommonLength];
-    let group = (groups[char] ??= []);
+    const group = (groups[char] ??= []);
     group.push(key);
-    if (initialCommonLength === 0 && /^[a-z]/.test(char)) {
-      // include capitalized variant of words
-      // starting with lowercase letter
-      const upper = char.toUpperCase();
-      group = groups[upper] ??= [];
-      group.push(upper + key.slice(1));
-    }
   }
 
   const matchEmpty = '' in groups;
@@ -210,7 +191,7 @@ function regexpPatternForAutolinkKeys(
       suffixRegex = regexpUnion(
         groupItems.map(k => {
           const item = widenSpace(regexpEscape(k.slice(suffixPos)));
-          return item + lookAheadBeyond(getEntry(k));
+          return item + lookAheadBeyond(autolinkmap[k]);
         })
       );
     }

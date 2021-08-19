@@ -98,27 +98,44 @@ export default class Biblio {
     return this.lookup(ns, env => env._byAoid[aoid]);
   }
 
-  inScopeByType(ns: string, type: 'op'): AlgorithmBiblioEntry[];
-  inScopeByType(ns: string, type: 'production'): ProductionBiblioEntry[];
-  inScopeByType(ns: string, type: 'clause'): ClauseBiblioEntry[];
-  inScopeByType(ns: string, type: 'term'): TermBiblioEntry[];
-  inScopeByType(ns: string, type: 'table' | 'figure' | 'example' | 'note'): FigureBiblioEntry[];
-  inScopeByType(ns: string, type: string): BiblioEntry[];
-  inScopeByType(ns: string, type: string) {
-    const seen = new Set<string>();
-    const results: BiblioEntry[] = [];
-    let current = this._nsToEnvRec[ns];
-    while (current) {
-      (current._byType[type] || []).forEach(entry => {
-        if (!seen.has(entry.key)) {
-          seen.add(entry.key);
-          results.push(entry);
+  getDefinedWords(ns: string): Record<string, AlgorithmBiblioEntry | TermBiblioEntry> {
+    const result = Object.create(null);
+
+    for (const type of ['term', 'op']) {
+      // note that the `seen` set is not shared across types
+      // this is dumb but is the current semantics: ops always clobber terms
+      const seen = new Set<string>();
+      let current = this._nsToEnvRec[ns];
+      while (current) {
+        const entries = current._byType[type] || [];
+        for (const entry of entries) {
+          if (entry.key === 'type') {
+            // this is a dumb kludge necessitated by ecma262 dfn'ing both "type" and "Type"
+            // the latter originally masked the former, so that it didn't actually end up linking all usages of the word "type"
+            // we've changed the logic a bit so that masking no longer happens, and consequently the autolinker adds a bunch of spurious links
+            // this can be removed once ecma262 no longer dfn's it and we update ecma262-biblio.json
+            continue;
+          }
+
+          const key = entry.key.replace(/\s+/g, ' ');
+          const keys = [key];
+          if (/^[a-z]/.test(key)) {
+            // include capitalized variant of words starting with lowercase letter
+            keys.push(key[0].toUpperCase() + key.slice(1));
+          }
+
+          for (const key of keys) {
+            if (!seen.has(key)) {
+              seen.add(key);
+              result[key] = entry;
+            }
+          }
         }
-      });
-      current = current._parent;
+        current = current._parent;
+      }
     }
 
-    return results;
+    return result;
   }
 
   private lookup<T>(ns: string, cb: (env: EnvRec) => T) {
