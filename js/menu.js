@@ -102,7 +102,7 @@ function relevance(result) {
     relevance += 2048;
   }
 
-  relevance += Math.max(0, 255 - result.entry.key.length);
+  relevance += Math.max(0, 255 - result.key.length);
 
   return relevance;
 }
@@ -132,14 +132,15 @@ Search.prototype.search = function (searchString) {
 
     for (let i = 0; i < this.biblio.entries.length; i++) {
       let entry = this.biblio.entries[i];
-      if (!entry.key) {
+      let key = getKey(entry);
+      if (!key) {
         // biblio entries without a key aren't searchable
         continue;
       }
 
-      let match = fuzzysearch(searchString, entry.key);
+      let match = fuzzysearch(searchString, key);
       if (match) {
-        results.push({ entry, match });
+        results.push({ key, entry, match });
       }
     }
 
@@ -188,6 +189,7 @@ Search.prototype.displayResults = function (results) {
     let html = '<ul>';
 
     results.forEach(result => {
+      let key = result.key;
       let entry = result.entry;
       let id = entry.id;
       let cssClass = '';
@@ -195,19 +197,19 @@ Search.prototype.displayResults = function (results) {
 
       if (entry.type === 'clause') {
         let number = entry.number ? entry.number + ' ' : '';
-        text = number + entry.key;
+        text = number + key;
         cssClass = 'clause';
         id = entry.id;
       } else if (entry.type === 'production') {
-        text = entry.key;
+        text = key;
         cssClass = 'prod';
         id = entry.id;
       } else if (entry.type === 'op') {
-        text = entry.key;
+        text = key;
         cssClass = 'op';
         id = entry.id || entry.refId;
       } else if (entry.type === 'term') {
-        text = entry.key;
+        text = key;
         cssClass = 'term';
         id = entry.id || entry.refId;
       }
@@ -226,6 +228,31 @@ Search.prototype.displayResults = function (results) {
     this.$searchResults.classList.add('no-results');
   }
 };
+
+function getKey(item) {
+  if (item.key) {
+    return item.key;
+  }
+  switch (item.type) {
+    case 'clause':
+      return item.title || item.titleHTML;
+    case 'production':
+      return item.name;
+    case 'op':
+      return item.aoid;
+    case 'term':
+      return item.term;
+    case 'table':
+    case 'figure':
+    case 'example':
+    case 'note':
+      return item.caption;
+    case 'step':
+      return item.id;
+    default:
+      throw new Error("Can't get key for " + item.type);
+  }
+}
 
 function Menu() {
   this.$toggle = document.getElementById('menu-toggle');
