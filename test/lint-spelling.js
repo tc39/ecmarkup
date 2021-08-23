@@ -257,6 +257,19 @@ describe('spelling', () => {
     );
   });
 
+  it('indexes', async () => {
+    await assertLint(
+      positioned`
+        <p>Array ${M}indexes are a particular kind of index.</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'prefer "indices"',
+      }
+    );
+  });
+
   it('nonnegative', async () => {
     await assertLint(
       positioned`
@@ -539,6 +552,7 @@ windows:${M}\r
         *0*<sub>ℤ</sub>
         0
         behaviour
+        array indices
         a non-negative integer
         a non-zero integer
         Let _x_ be the mathematical value of _y_.
