@@ -1,4 +1,4 @@
-import type { PartialBiblioEntry } from './Biblio';
+import { getKeys, PartialBiblioEntry, TermBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
@@ -24,6 +24,27 @@ export default class Dfn extends Builder {
         .getAttribute('variants')!
         .split(',')
         .map(v => v.trim());
+    }
+
+    const keys = getKeys(entry as TermBiblioEntry);
+    const existing = spec.biblio.keysForNamespace(parentClause.namespace);
+    for (const [index, key] of keys.entries()) {
+      if (keys.indexOf(key) !== index) {
+        spec.warn({
+          type: 'node',
+          node,
+          ruleId: 'duplicate-definition',
+          message: `${JSON.stringify(key)} is defined twice in this definition`,
+        });
+      }
+      if (existing.has(key)) {
+        spec.warn({
+          type: 'node',
+          node,
+          ruleId: 'duplicate-definition',
+          message: `duplicate definition ${JSON.stringify(key)}`,
+        });
+      }
     }
 
     spec.biblio.add(entry, parentClause.namespace);

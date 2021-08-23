@@ -20,6 +20,7 @@ class EnvRec extends Array<BiblioEntry> {
   _byLocation: { [key: string]: BiblioEntry[] };
   _byProductionName: { [key: string]: ProductionBiblioEntry };
   _byAoid: { [key: string]: AlgorithmBiblioEntry };
+  _keys: Set<String>;
 
   constructor(parent: EnvRec | undefined, namespace: string) {
     super();
@@ -35,6 +36,7 @@ class EnvRec extends Array<BiblioEntry> {
     this._byLocation = {};
     this._byProductionName = {};
     this._byAoid = {};
+    this._keys = new Set();
   }
 
   // this mutates each item to fill in missing properties
@@ -56,10 +58,17 @@ class EnvRec extends Array<BiblioEntry> {
 
       if (item.type === 'op') {
         this._byAoid[item.aoid] = item;
+        this._keys.add(item.aoid);
       }
 
       if (item.type === 'production') {
         this._byProductionName[item.name] = item;
+      }
+
+      if (item.type === 'term') {
+        for (const key of getKeys(item)) {
+          this._keys.add(key);
+        }
       }
     }
 
@@ -130,11 +139,7 @@ export default class Biblio {
               continue;
             }
 
-            keys = [
-              (entry as TermBiblioEntry).term,
-              ...((entry as TermBiblioEntry).variants || []),
-            ].flatMap(v => {
-              const key = v.replace(/\s+/g, ' ');
+            keys = getKeys(entry as TermBiblioEntry).flatMap(key => {
               if (/^[a-z]/.test(key)) {
                 // include capitalized variant of words starting with lowercase letter
                 return [key, key[0].toUpperCase() + key.slice(1)];
@@ -178,7 +183,7 @@ export default class Biblio {
 
   add(entry: PartialBiblioEntry, ns?: string | null) {
     ns = ns || this._location;
-    const env = this._nsToEnvRec[ns];
+    const env = this._nsToEnvRec[ns]!;
     entry.namespace = ns;
 
     // @ts-ignore
@@ -186,7 +191,7 @@ export default class Biblio {
     // @ts-ignore
     entry.referencingIds = entry.referencingIds || [];
 
-    env!.push(entry as BiblioEntry);
+    env.push(entry as BiblioEntry);
     if (entry.id) {
       if ({}.hasOwnProperty.call(this, entry.id)) {
         throw new Error('Duplicate biblio entry ' + JSON.stringify(entry.id) + '.');
@@ -229,6 +234,10 @@ export default class Biblio {
         this.add(entry, 'global');
       });
     });
+  }
+
+  keysForNamespace(ns: string) {
+    return this._nsToEnvRec[ns]!._keys;
   }
 
   toJSON() {
@@ -341,4 +350,8 @@ function pushKey(arr: { [key: string]: BiblioEntry[] }, key: string, value: Bibl
   }
 
   arr[key].push(value);
+}
+
+export function getKeys(entry: TermBiblioEntry): string[] {
+  return [entry.term, ...(entry.variants || [])].map(v => v.replace(/\s+/g, ' '));
 }

@@ -16,6 +16,17 @@ export default class Eqn extends Builder {
 
     const aoid = node.getAttribute('aoid');
     if (aoid) {
+      const existing = spec.biblio.keysForNamespace(spec.namespace);
+      if (existing.has(aoid)) {
+        spec.warn({
+          type: 'attr-value',
+          attr: 'aoid',
+          node,
+          ruleId: 'duplicate-definition',
+          message: `duplicate definition ${JSON.stringify(aoid)}`,
+        });
+      }
+
       const id = node.getAttribute('id');
       if (id) {
         spec.biblio.add({
