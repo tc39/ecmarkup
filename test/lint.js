@@ -419,7 +419,7 @@ describe('linting whole program', () => {
         {
           ruleId: 'duplicate-definition',
           nodeType: 'dfn',
-          message: '"Foo" is defined twice in this definition',
+          message: '"Foo" is defined more than once in this definition',
         }
       );
 
@@ -433,7 +433,7 @@ describe('linting whole program', () => {
         {
           ruleId: 'duplicate-definition',
           nodeType: 'dfn',
-          message: '"Foo" is defined twice in this definition',
+          message: '"Foo" is defined more than once in this definition',
         }
       );
     });
