@@ -58,7 +58,7 @@ export default function makeMenu(spec: Spec) {
 }
 
 function biblioReplacer(this: BiblioEntry, k: string, v: unknown) {
-  if (!['title', 'namespace', 'location'].includes(k)) {
+  if (!['title', 'namespace', 'location', 'variants'].includes(k)) {
     return v;
   }
   if (k === 'title' && this.type === 'clause' && this.title !== this.titleHTML) {
