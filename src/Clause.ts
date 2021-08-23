@@ -253,6 +253,18 @@ export default class Clause extends Builder {
       titleHTML: clause.titleHTML,
       number: clause.number,
     };
+
+    if (clause.aoid) {
+      const existing = spec.biblio.keysForNamespace(spec.namespace);
+      if (existing.has(clause.aoid)) {
+        spec.warn({
+          type: 'node',
+          node,
+          ruleId: 'duplicate-definition',
+          message: `duplicate definition ${JSON.stringify(clause.aoid)}`,
+        });
+      }
+    }
     spec.biblio.add(entry, spec.namespace);
 
     clauseStack.pop();

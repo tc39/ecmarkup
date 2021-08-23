@@ -406,4 +406,156 @@ describe('linting whole program', () => {
       `);
     });
   });
+
+  describe('duplicate definitions', () => {
+    it('within dfns', async () => {
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example">
+            <h1>Example</h1>
+            ${M}<dfn variants="Foo">Foo</dfn>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'dfn',
+          message: '"Foo" is defined more than once in this definition',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example">
+            <h1>Example</h1>
+            ${M}<dfn variants="Foo,Foo">Bar</dfn>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'dfn',
+          message: '"Foo" is defined more than once in this definition',
+        }
+      );
+    });
+
+    it('across dfns', async () => {
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example">
+            <h1>Example</h1>
+            <dfn>Foo</dfn>
+            ${M}<dfn>Foo</dfn>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'dfn',
+          message: 'duplicate definition "Foo"',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example">
+            <h1>Example</h1>
+            <dfn>Foo</dfn>
+            ${M}<dfn variants="Foo">Bar</dfn>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'dfn',
+          message: 'duplicate definition "Foo"',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example">
+            <h1>Example</h1>
+            <dfn variants="Foo">Bar</dfn>
+            ${M}<dfn>Foo</dfn>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'dfn',
+          message: 'duplicate definition "Foo"',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example">
+            <h1>Example</h1>
+            <dfn variants="Foo">Bar</dfn>
+            ${M}<dfn variants="Foo">Baz</dfn>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'dfn',
+          message: 'duplicate definition "Foo"',
+        }
+      );
+    });
+    it('for clauses', async () => {
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example">
+            <h1>Example</h1>
+            <dfn>Foo</dfn>
+            ${M}<emu-clause id="sec-exampleao" aoid="Foo">
+              <h1>Foo ( _param_ )</h1>
+            </emu-clause>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'emu-clause',
+          message: 'duplicate definition "Foo"',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example">
+            <h1>Example</h1>
+            <dfn>Foo</dfn>
+            ${M}<emu-clause id="sec-exampleao" type="abstract operation">
+              <h1>
+                Foo (
+                  param : an integer,
+                )
+              </h1>
+              <dl class='header'>
+              </dl>
+            </emu-clause>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'emu-clause',
+          message: 'duplicate definition "Foo"',
+        }
+      );
+    });
+
+    it('for eqns', async () => {
+      await assertLint(
+        positioned`
+        <emu-clause id="sec-example">
+          <h1>Example</h1>
+          <dfn>Foo</dfn>
+          <p>The mathematical function <emu-eqn id="eqn-abs" aoid="${M}Foo" class="inline">Foo(<var>x</var>)</emu-eqn> is an example.</p>
+          </emu-clause>
+      `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'emu-eqn',
+          message: 'duplicate definition "Foo"',
+        }
+      );
+    });
+  });
 });
