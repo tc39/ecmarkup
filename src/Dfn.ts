@@ -34,7 +34,7 @@ export default class Dfn extends Builder {
           type: 'node',
           node,
           ruleId: 'duplicate-definition',
-          message: `${JSON.stringify(key)} is defined twice in this definition`,
+          message: `${JSON.stringify(key)} is defined more than once in this definition`,
         });
       }
       if (existing.has(key)) {
