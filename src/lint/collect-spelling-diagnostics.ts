@@ -70,6 +70,10 @@ const matchers = [
     message: 'ECMA-262 uses Oxford spelling ("behaviour")',
   },
   {
+    pattern: /[Ii]ndexes/gu,
+    message: 'prefer "indices"',
+  },
+  {
     pattern: /\b[Nn]onnegative\b/gu,
     message: 'prefer "non-negative"',
   },
