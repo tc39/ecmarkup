@@ -8,10 +8,10 @@ Checks that every algorithm step has one of these forms:
 
 - `If foo, bar.`
 - `If foo, then` + substeps
-- `If foo, bar; then` + substeps
+- `If foo, bar, or baz; then` + substeps
 - `Else if foo, bar.`
 - `Else if foo, then` + substeps
-- `Else if foo, bar; then` + substeps
+- `Else if foo, bar, or baz; then` + substeps
 - `Else, baz.`
 - `Else,` + substeps
 - `Repeat,` + substeps
