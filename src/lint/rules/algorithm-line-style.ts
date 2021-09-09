@@ -8,8 +8,10 @@ Checks that every algorithm step has one of these forms:
 
 - `If foo, bar.`
 - `If foo, then` + substeps
+- `If foo, bar, or baz; then` + substeps
 - `Else if foo, bar.`
 - `Else if foo, then` + substeps
+- `Else if foo, bar, or baz; then` + substeps
 - `Else, baz.`
 - `Else,` + substeps
 - `Repeat,` + substeps
@@ -151,7 +153,8 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
       if (/^(?:If |Else if)/.test(initialText)) {
         if (hasSubsteps) {
           if (node.sublist!.name === 'ol') {
-            if (!/, then$/.test(last.contents)) {
+            const end = last.contents.match(/[,;] then$/);
+            if (!end) {
               report({
                 ruleId,
                 line: last.location.end.line,
@@ -159,6 +162,16 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
                 message: `expected "If" with substeps to end with ", then" (found ${JSON.stringify(
                   last.contents
                 )})`,
+              });
+            } else if (
+              end[0][0] === ';' &&
+              !node.contents.some(c => c.name === 'text' && /,/.test(c.contents))
+            ) {
+              report({
+                ruleId,
+                line: last.location.end.line,
+                column: last.location.end.column - 6,
+                message: `expected "If" with substeps to end with ", then" rather than "; then" when there are no other commas`,
               });
             }
           } else {

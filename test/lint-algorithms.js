@@ -94,6 +94,19 @@ describe('linting algorithms', () => {
           message: 'expected "If" with substeps to end with ", then" (found ",")',
         }
       );
+
+      await assertLint(
+        positioned`<emu-alg>
+          1. If _x_${M}; then
+            1. Foo.
+          </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message:
+            'expected "If" with substeps to end with ", then" rather than "; then" when there are no other commas',
+        }
+      );
     });
 
     it('else if', async () => {
@@ -210,6 +223,8 @@ describe('linting algorithms', () => {
           1. Else if foo, bar.
           1. Else, bar.
           1. If foo, then
+            1. Substep.
+          1. If _x_, _y_, or _z_; then
             1. Substep.
           1. Else if foo, then
             1. Substep.
