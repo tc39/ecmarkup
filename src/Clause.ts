@@ -88,7 +88,6 @@ export default class Clause extends Builder {
     // if we find such a DL, treat this as a structured header
 
     const type = this.node.getAttribute('type');
-    this.node.removeAttribute('type'); // TODO maybe leave it in; this is just to minimize the diff
 
     const { name, formattedHeader, formattedParams } = parseStructuredHeaderH1(this.spec, header);
     if (type === 'numeric method' && name != null && !name.includes('::')) {
@@ -101,7 +100,11 @@ export default class Clause extends Builder {
         nodeRelativeColumn: 1,
       });
     }
-    if (formattedHeader != null) {
+    if (type === 'sdo' && (formattedHeader ?? header.innerHTML).includes('(')) {
+      // SDOs are rendered without parameter lists in the header, for the moment
+      const currentHeader = formattedHeader ?? header.innerHTML;
+      header.innerHTML = currentHeader.substring(0, currentHeader.indexOf('(')).trim();
+    } else if (formattedHeader != null) {
       header.innerHTML = formattedHeader;
     }
 
