@@ -24,6 +24,8 @@ function build(file) {
 }
 
 describe('baselines', () => {
+  let rebaseline = !!process.env.npm_config_update_baselines;
+  let dirToWriteOnFailure = rebaseline ? REFERENCE_DIR : LOCAL_DIR;
   files.forEach(file => {
     const reference = REFERENCE_DIR + file;
     it(SOURCES_DIR + file, async () => {
@@ -60,10 +62,16 @@ describe('baselines', () => {
         threw = false;
       } finally {
         if (threw) {
-          for (let [fileToWrite, contents] of expectedFiles) {
-            let toWrite = path.resolve(LOCAL_DIR, path.join(file, fileToWrite));
+          for (let [fileToWrite, contents] of actualFiles) {
+            let toWrite = path.resolve(dirToWriteOnFailure, path.join(file, fileToWrite));
             fs.mkdirSync(path.dirname(toWrite), { recursive: true });
             fs.writeFileSync(toWrite, contents, 'utf8');
+          }
+          if (rebaseline) {
+            console.log('Updated!');
+            // we intentionally swallow the exception
+            // eslint-disable-next-line no-unsafe-finally
+            return;
           }
         }
       }
