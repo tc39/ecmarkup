@@ -48,7 +48,7 @@ export default function makeMenu(spec: Spec) {
     // a square "hamburger" menu symbol consisting of three horizontal lines,
     // similar in appearance to U+2630 TRIGRAM FOR HEAVEN ☰
     `<svg xmlns="http://www.w3.org/2000/svg"
-        stroke="black" style="width:100%; height:100%; stroke:currentColor"
+        style="width:100%; height:100%; stroke:currentColor"
         viewBox="0 0 120 120">
       <title>Menu</title>
       <path stroke-width="10" stroke-linecap="round" d="M30,60 h60  M30,30 m0,5 h60  M30,90 m0,-5 h60" />
