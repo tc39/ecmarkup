@@ -7,7 +7,19 @@ export function parseStructuredHeaderH1(
 ): { name: string | null; formattedHeader: string | null; formattedParams: string | null } {
   // parsing is intentionally permissive; the linter can do stricter checks
   // TODO have the linter do checks
+
+  let wrapper = null;
   let headerText = header.innerHTML;
+  let beforeContents = 0;
+  const headerWrapperMatch = headerText.match(
+    /^(?<beforeContents>\s*<(?<tag>ins|del|mark)>)(?<contents>.*)<\/\k<tag>>\s*$/is
+  );
+  if (headerWrapperMatch != null) {
+    wrapper = headerWrapperMatch.groups!.tag;
+    headerText = headerWrapperMatch.groups!.contents;
+    beforeContents = headerWrapperMatch.groups!.beforeContents.length;
+  }
+
   const prefix = headerText.match(/^\s*(Static|Runtime) Semantics:\s*/);
   if (prefix != null) {
     headerText = headerText.substring(prefix[0].length);
@@ -28,7 +40,7 @@ export function parseStructuredHeaderH1(
     return { name: null, formattedHeader: null, formattedParams: null };
   }
 
-  type Param = { name: string; type: string | null };
+  type Param = { name: string; type: string | null; wrapper: string | null };
   const name = parsed.groups!.name;
   let paramText = parsed.groups!.params ?? '';
   const params: Array<Param> = [];
@@ -42,13 +54,20 @@ export function parseStructuredHeaderH1(
     let offset = 0;
     for (const line of paramLines) {
       offset += line.length;
-      const chunk = line.trim();
+      let chunk = line.trim();
       if (chunk === '') {
         continue;
+      }
+      const wrapperMatch = chunk.match(/^<(ins|del|mark)>(.*)<\/\1>$/i);
+      let paramWrapper = null;
+      if (wrapperMatch != null) {
+        paramWrapper = wrapperMatch[1];
+        chunk = wrapperMatch[2];
       }
       ++index;
       function getParameterOffset() {
         return (
+          beforeContents +
           (prefix?.[0].length ?? 0) +
           parsed!.groups!.beforeParams.length +
           1 + // `beforeParams` does not include the leading `(`
@@ -96,10 +115,13 @@ export function parseStructuredHeaderH1(
       (optional ? optionalParams : params).push({
         name: paramName,
         type: paramType === 'unknown' ? null : paramType,
+        wrapper: paramWrapper,
       });
     }
     const formattedPrefix = prefix == null ? '' : prefix[0].trim() + ' ';
-    formattedHeader = `${formattedPrefix}${name} (${params.map(n => ' ' + n.name).join(',')}`;
+    // prettier-ignore
+    const printParam = (p: Param) => ` ${p.wrapper == null ? '' : `<${p.wrapper}>`}${p.name}${p.wrapper == null ? '' : `</${p.wrapper}>`}`;
+    formattedHeader = `${formattedPrefix}${name} (${params.map(printParam).join(',')}`;
     if (optionalParams.length > 0) {
       formattedHeader +=
         optionalParams
@@ -134,7 +156,7 @@ export function parseStructuredHeaderH1(
         break;
       }
       paramText = text;
-      (optional ? optionalParams : params).push({ name: match![1], type: null });
+      (optional ? optionalParams : params).push({ name: match![1], type: null, wrapper: null });
       ({ success, text } = eat(paramText, /^(\s*\])+|,/));
       if (success) {
         paramText = text;
@@ -142,9 +164,10 @@ export function parseStructuredHeaderH1(
     }
   }
 
-  const printParam = (p: Param) => `${p.name}${p.type == null ? '' : ` (${p.type})`}`;
-  const paramsWithTypes = params.map(printParam);
-  const optionalParamsWithTypes = optionalParams.map(printParam);
+  // prettier-ignore
+  const printParamWithType = (p: Param) => `${p.wrapper == null ? '' : `<${p.wrapper}>`}${p.name}${p.type == null ? '' : ` (${p.type})`}${p.wrapper == null ? '' : `</${p.wrapper}>`}`;
+  const paramsWithTypes = params.map(printParamWithType);
+  const optionalParamsWithTypes = optionalParams.map(printParamWithType);
   let formattedParams = '';
   if (params.length === 0 && optionalParams.length === 0) {
     formattedParams = 'no arguments';
@@ -163,6 +186,10 @@ export function parseStructuredHeaderH1(
         ' ' +
         formatEnglishList(optionalParamsWithTypes);
     }
+  }
+
+  if (formattedHeader != null && wrapper != null) {
+    formattedHeader = `<${wrapper}>${formattedHeader}</${wrapper}>`;
   }
 
   return { name, formattedHeader, formattedParams };
