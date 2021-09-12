@@ -135,6 +135,8 @@ export default class Clause extends Builder {
       type != null &&
       [
         'abstract operation',
+        'sdo',
+        'syntax-directed operation',
         'host-defined abstract operation',
         'implementation-defined abstract operation',
         'numeric method',
