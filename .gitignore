@@ -5,3 +5,4 @@ test/baselines/generated-local
 package
 ecmarkup-*.tgz
 .vscode/
+docs/

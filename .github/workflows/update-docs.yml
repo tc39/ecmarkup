@@ -1,14 +1,13 @@
-name: check
+name: 'update docs'
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
-  check:
-    name: Check
+  docs:
+    name: 'deploy github pages'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,13 +22,9 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run build && npm run build-spec
 
-      - name: Test
-        run: npm test
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Test published files
-        run: npm run test-published-files
+      - name: Deploy docs
+        run: ./scripts/auto-deploy.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
