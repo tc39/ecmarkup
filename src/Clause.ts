@@ -103,7 +103,16 @@ export default class Clause extends Builder {
     if (type === 'sdo' && (formattedHeader ?? header.innerHTML).includes('(')) {
       // SDOs are rendered without parameter lists in the header, for the moment
       const currentHeader = formattedHeader ?? header.innerHTML;
-      header.innerHTML = currentHeader.substring(0, currentHeader.indexOf('(')).trim();
+      header.innerHTML = (
+        currentHeader.substring(0, currentHeader.indexOf('(')) +
+        currentHeader.substring(currentHeader.lastIndexOf(')') + 1)
+      ).trim();
+      if (
+        header.children.length === 1 &&
+        ['INS', 'DEL', 'MARK'].includes(header.children[0].tagName)
+      ) {
+        header.children[0].innerHTML = header.children[0].innerHTML.trim();
+      }
     } else if (formattedHeader != null) {
       header.innerHTML = formattedHeader;
     }
