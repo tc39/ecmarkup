@@ -1,7 +1,7 @@
 <!doctype html>
 <head><meta charset="utf-8"></head><body><div id="spec-container">
 
-<emu-clause id="sec-exampleao" aoid="ExampleAO">
+<emu-clause id="sec-exampleao" type="abstract operation" aoid="ExampleAO">
   <h1><span class="secnum">1</span> ExampleAO ( param [ , param2 ] )</h1>
   <p>The abstract operation ExampleAO takes argument param (an <emu-xref href="#integer"><a href="https://tc39.es/ecma262/#integer">integer</a></emu-xref>) and optional argument param2 (a String). It is an example.</p>
   <emu-note><span class="note">Note</span><div class="note-contents">
@@ -9,5 +9,42 @@
   </div></emu-note>
   <p>It performs the following steps when called:</p>
   <emu-alg><ol><li>Algorithm steps go here.</li></ol></emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-example-grammar">
+  <h1><span class="secnum">2</span> This and That</h1>
+  <emu-grammar type="definition"><emu-production name="PrimaryExpression" id="prod-PrimaryExpression">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-Joc9-5i9"><emu-t>this</emu-t></emu-rhs>
+    <emu-rhs a="_ditw-4g" id="prod-QC7Z2SC4"><emu-t>that</emu-t></emu-rhs>
+</emu-production>
+</emu-grammar>
+  <emu-clause id="sec-isthis" type="sdo" aoid="IsThis">
+    <h1><span class="secnum">2.1</span> IsThis</h1>
+    <p>The <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-syntax-directed-operations">syntax-directed operation</a></emu-xref> IsThis takes no arguments. It is an example. It is defined piecewise over the following productions:</p>
+    <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-oDKnYE2s"><emu-t>this</emu-t></emu-rhs>
+</emu-production>
+</emu-grammar>
+    <emu-alg><ol><li>Return <emu-val>true</emu-val>.</li></ol></emu-alg>
+    <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="_ditw-4g" id="prod-_G-zA61Z"><emu-t>that</emu-t></emu-rhs>
+</emu-production>
+</emu-grammar>
+    <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+  </emu-clause>
+  <emu-clause id="sec-isthat" type="sdo" aoid="IsThat">
+    <h1><span class="secnum">2.2</span> IsThat</h1>
+    <p>The <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-syntax-directed-operations">syntax-directed operation</a></emu-xref> IsThat takes argument <var>ignored</var> (an example). It is defined piecewise over the following productions:</p>
+    <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-QDgm4qgx"><emu-t>this</emu-t></emu-rhs>
+</emu-production>
+</emu-grammar>
+    <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+    <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
+    <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="_ditw-4g" id="prod-6qiWXvFG"><emu-t>that</emu-t></emu-rhs>
+</emu-production>
+</emu-grammar>
+    <emu-alg><ol><li>Return <emu-val>true</emu-val>.</li></ol></emu-alg>
+  </emu-clause>
 </emu-clause>
 </div></body>

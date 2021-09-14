@@ -1235,7 +1235,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }
     }
 
-    const sdos = this.doc.querySelectorAll('emu-clause[type=sdo]');
+    const sdos = this.doc.querySelectorAll(
+      'emu-clause[type=sdo],emu-clause[type="syntax-directed operation"]'
+    );
     outer: for (const sdo of sdos) {
       let header: Element | undefined;
       for (const child of sdo.children) {

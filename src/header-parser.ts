@@ -13,7 +13,9 @@ export function parseStructuredHeaderH1(
     headerText = headerText.substring(prefix[0].length);
   }
 
-  const parsed = headerText.match(/^(?<beforeParams>\s*(?<name>[^(\s]+)\s*\()(?<params>.*)\)\s*$/s);
+  const parsed = headerText.match(
+    /^(?<beforeParams>\s*(?<name>[^(\s]+)\s*)(?:\((?<params>.*)\)\s*)?$/s
+  );
   if (parsed == null) {
     spec.warn({
       type: 'contents',
@@ -28,7 +30,7 @@ export function parseStructuredHeaderH1(
 
   type Param = { name: string; type: string | null };
   const name = parsed.groups!.name;
-  let paramText = parsed.groups!.params;
+  let paramText = parsed.groups!.params ?? '';
   const params: Array<Param> = [];
   const optionalParams: Array<Param> = [];
   let formattedHeader = null;
@@ -49,6 +51,7 @@ export function parseStructuredHeaderH1(
         return (
           (prefix?.[0].length ?? 0) +
           parsed!.groups!.beforeParams.length +
+          1 + // `beforeParams` does not include the leading `(`
           (offset - line.length) + // we've already updated offset to include line.length at this point
           index + // to account for the `\n`s eaten by the .split
           line.match(/^\s*/)![0].length
@@ -265,7 +268,8 @@ export function formatPreamble(
 ): Array<Element> {
   const para = spec.doc.createElement('p');
   const paras = [para];
-  switch (type?.toLowerCase()) {
+  type = (type ?? '').toLowerCase();
+  switch (type) {
     case 'numeric method':
     case 'abstract operation': {
       // TODO tests (for each type of parametered thing) which have HTML in the parameter type
@@ -278,6 +282,11 @@ export function formatPreamble(
     }
     case 'implementation-defined abstract operation': {
       para.innerHTML += `The implementation-defined abstract operation ${name} takes ${formattedParams}.`;
+      break;
+    }
+    case 'sdo':
+    case 'syntax-directed operation': {
+      para.innerHTML += `The syntax-directed operation ${name} takes ${formattedParams}.`;
       break;
     }
     case 'internal method':
@@ -326,15 +335,22 @@ export function formatPreamble(
       para.append(' ', ...description.childNodes);
     }
   }
+  const isSdo = type === 'sdo' || type === 'syntax-directed operation';
+  const lastSentence = isSdo
+    ? 'It is defined piecewise over the following productions:'
+    : 'It performs the following steps when called:';
   let next = dl.nextElementSibling;
   while (next != null && next.tagName === 'EMU-NOTE') {
     next = next.nextElementSibling;
   }
-  if (next?.tagName == 'EMU-ALG' && !next.hasAttribute('replaces-step')) {
+  if (
+    (isSdo && next?.tagName === 'EMU-GRAMMAR') ||
+    (!isSdo && next?.tagName === 'EMU-ALG' && !next.hasAttribute('replaces-step'))
+  ) {
     if (paras.length > 1 || next !== dl.nextElementSibling) {
       const whitespace = next.previousSibling;
       const after = spec.doc.createElement('p');
-      after.append('It performs the following steps when called:');
+      after.append(lastSentence);
       next.parentElement!.insertBefore(after, next);
 
       // fix up the whitespace in the generated HTML
@@ -342,7 +358,7 @@ export function formatPreamble(
         next.parentElement!.insertBefore(whitespace.cloneNode(), next);
       }
     } else {
-      para.append(' It performs the following steps when called:');
+      para.append(' ' + lastSentence);
     }
   }
   return paras;

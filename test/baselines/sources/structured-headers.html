@@ -22,3 +22,44 @@
     1. Algorithm steps go here.
   </emu-alg>
 </emu-clause>
+
+<emu-clause id="sec-example-grammar">
+  <h1>This and That</h1>
+  <emu-grammar type="definition">
+    PrimaryExpression :
+      `this`
+      `that`
+  </emu-grammar>
+  <emu-clause id="sec-isthis" type="sdo">
+    <h1>IsThis</h1>
+    <dl class='header'>
+      <dt>description</dt>
+      <dd>It is an example.</dd>
+    </dl>
+    <emu-grammar>PrimaryExpression : `this`</emu-grammar>
+    <emu-alg>
+      1. Return *true*.
+    </emu-alg>
+    <emu-grammar>PrimaryExpression : `that`</emu-grammar>
+    <emu-alg>
+      1. Return *false*.
+    </emu-alg>
+  </emu-clause>
+  <emu-clause id="sec-isthat" type="sdo">
+    <h1>
+      IsThat (
+        _ignored_: an example,
+      )
+    </h1>
+    <dl class='header'>
+    </dl>
+    <emu-grammar>PrimaryExpression : `this`</emu-grammar>
+    <emu-alg>
+      1. Return *false*.
+    </emu-alg>
+    <emu-grammar>PrimaryExpression : `that`</emu-grammar>
+    <emu-alg>
+      1. Return *true*.
+    </emu-alg>
+  </emu-clause>
+</emu-clause>
