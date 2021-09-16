@@ -692,7 +692,6 @@ export default class Spec {
           worklist.push(userClause);
         }
       }
-      // TODO(syg): Support "of" form of SDO invocation
     }
   }
 
