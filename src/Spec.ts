@@ -677,7 +677,7 @@ export default class Spec {
       usersOfAoid.get(usedAoid)!.add(xref.clause);
     }
 
-    while (worklist.length != 0) {
+    while (worklist.length !== 0) {
       let clause = worklist.shift() as Clause;
       let aoid = clause.aoid;
       if (aoid == null || !usersOfAoid.has(aoid)) {
