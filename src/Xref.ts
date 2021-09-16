@@ -4,7 +4,6 @@ import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
 import Builder from './Builder';
-import * as utils from './utils';
 
 /*@internal*/
 export default class Xref extends Builder {
