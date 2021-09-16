@@ -794,4 +794,22 @@ ${M}      </pre>
       );
     });
   });
+
+  it('empty return types', async () => {
+    await assertError(
+      positioned`
+        <emu-clause id="sec-test" type="abstract operation">
+        <h1>Foo ( )${M}:</h1>
+        <dl class='header'>
+        </dl>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'header-format',
+        nodeType: 'h1',
+        message: 'if a return type is given, it must not be empty',
+      },
+      { lintSpec: true }
+    );
+  });
 });
