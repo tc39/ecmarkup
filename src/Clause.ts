@@ -60,7 +60,6 @@ export default class Clause extends Builder {
     if (this.type === '') {
       this.type = null;
     }
-    node.removeAttribute('type'); // TODO maybe leave it in; this is just to minimize the diff
 
     let header = this.node.firstElementChild;
     while (header != null && header.tagName === 'SPAN' && header.children.length === 0) {
@@ -96,7 +95,7 @@ export default class Clause extends Builder {
     }
     // if we find such a DL, treat this as a structured header
 
-    const type = this.node.getAttribute('type');
+    const type = this.type;
 
     const { name, formattedHeader, formattedParams } = parseStructuredHeaderH1(this.spec, header);
     if (type === 'numeric method' && name != null && !name.includes('::')) {
