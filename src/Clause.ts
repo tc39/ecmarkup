@@ -164,7 +164,7 @@ export default class Clause extends Builder {
     }
 
     this.effects = effects;
-    for (let effect of effects) {
+    for (const effect of effects) {
       if (!this.spec._effectWorklist.has(effect)) {
         this.spec._effectWorklist.set(effect, []);
       }
@@ -201,7 +201,7 @@ export default class Clause extends Builder {
     //
     // uc: Only runtime can call user code.
     if (this.type === 'static sdo') {
-      if (effectName == 'uc') return false;
+      if (effectName === 'uc') return false;
     }
     return true;
   }

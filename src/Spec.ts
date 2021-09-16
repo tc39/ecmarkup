@@ -659,18 +659,18 @@ export default class Spec {
   }
 
   private propagateEffects() {
-    for (let [effectName, worklist] of this._effectWorklist) {
+    for (const [effectName, worklist] of this._effectWorklist) {
       this.propagateEffect(effectName, worklist);
     }
   }
 
   private propagateEffect(effectName: string, worklist: Clause[]) {
-    let usersOfAoid : Map<string, Set<Clause>> = new Map();
-    for (let xref of this._xrefs) {
+    const usersOfAoid : Map<string, Set<Clause>> = new Map();
+    for (const xref of this._xrefs) {
       if (xref.clause == null) {
         continue;
       }
-      let usedAoid = xref.aoid;
+      const usedAoid = xref.aoid;
       if (!usersOfAoid.has(usedAoid)) {
         usersOfAoid.set(usedAoid, new Set());
       }
@@ -678,8 +678,8 @@ export default class Spec {
     }
 
     while (worklist.length !== 0) {
-      let clause = worklist.shift() as Clause;
-      let aoid = clause.aoid;
+      const clause = worklist.shift() as Clause;
+      const aoid = clause.aoid;
       if (aoid == null || !usersOfAoid.has(aoid)) {
         continue;
       }
