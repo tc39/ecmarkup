@@ -32,6 +32,7 @@ export default class Xref extends Builder {
     this.clause = clause;
     this.id = node.getAttribute('id')!;
     this.isInvocation = node.hasAttribute('is-invocation');
+    node.removeAttribute('is-invocation');
   }
 
   static async enter({ node, spec, clauseStack }: Context) {
