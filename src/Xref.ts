@@ -163,15 +163,11 @@ export default class Xref extends Builder {
 
         let classNames = null;
         if (effects) {
-          classNames = '';
           const parentClause = this.clause;
-          let isFirst = true;
-          for (const effect of effects) {
-            if (!parentClause || parentClause.isEffectApplicable(effect)) {
-              classNames += (isFirst ? '' : ' ') + 'e-' + effect;
-              isFirst = false;
-            }
-          }
+          const applicableEffects = parentClause
+            ? effects.filter(e => parentClause.isEffectApplicable(e))
+            : effects;
+          classNames = applicableEffects.map(e => `e-${e}`).join(' ');
         }
         buildAOLink(node, this.entry, classNames);
         return;
