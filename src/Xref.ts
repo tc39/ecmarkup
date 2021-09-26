@@ -164,9 +164,9 @@ export default class Xref extends Builder {
         let classNames = null;
         if (effects) {
           classNames = '';
-          let parentClause = this.clause;
+          const parentClause = this.clause;
           let isFirst = true;
-          for (let effect of effects) {
+          for (const effect of effects) {
             if (!parentClause || parentClause.isEffectApplicable(effect)) {
               classNames += (isFirst ? '' : ' ') + 'e-' + effect;
               isFirst = false;
@@ -313,6 +313,6 @@ function buildXrefLink(
   contents: string | number | undefined | null,
   classNames: string | null = null
 ) {
-  let classSnippet = classNames == null ? '' : ' class="' + classNames + '"';
+  const classSnippet = classNames == null ? '' : ' class="' + classNames + '"';
   return `<a href="${entry.location}#${entry.id || entry.refId}"${classSnippet}>${contents}</a>`;
 }

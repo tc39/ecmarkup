@@ -685,7 +685,7 @@ export default class Spec {
       }
 
       this._effectfulAOs.set(aoid, clause);
-      for (let userClause of usersOfAoid.get(aoid)!) {
+      for (const userClause of usersOfAoid.get(aoid)!) {
         if (
           userClause.isEffectApplicable(effectName) &&
           userClause.effects.indexOf(effectName) === -1
