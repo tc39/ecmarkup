@@ -314,15 +314,5 @@ function buildXrefLink(
   classNames: string | null = null
 ) {
   let classSnippet = classNames == null ? '' : ' class="' + classNames + '"';
-  return (
-    '<a href="' +
-    entry.location +
-    '#' +
-    (entry.id || entry.refId) +
-    '"' +
-    classSnippet +
-    '>' +
-    contents +
-    '</a>'
-  );
+  return `<a href="${entry.location}#${entry.id || entry.refId}"${classSnippet}>${contents}</a>`;
 }

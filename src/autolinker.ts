@@ -67,11 +67,9 @@ export function autolink(
       ) {
         isInvocationAttribute = ' is-invocation';
       }
-      return (
-        '<emu-xref aoid="' + entry.aoid + '"' + isInvocationAttribute + '>' + match + '</emu-xref>'
-      );
+      return `<emu-xref aoid="${entry.aoid}"${isInvocationAttribute}>${match}</emu-xref>`;
     } else {
-      return '<emu-xref href="#' + (entry.id || entry.refId) + '">' + match + '</emu-xref>';
+      return `<emu-xref href="#${entry.id || entry.refId}">${match}</emu-xref>`;
     }
   });
 
