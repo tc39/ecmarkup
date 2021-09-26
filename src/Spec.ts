@@ -665,7 +665,7 @@ export default class Spec {
   }
 
   private propagateEffect(effectName: string, worklist: Clause[]) {
-    const usersOfAoid : Map<string, Set<Clause>> = new Map();
+    const usersOfAoid: Map<string, Set<Clause>> = new Map();
     for (const xref of this._xrefs) {
       if (xref.clause == null) {
         continue;
@@ -686,8 +686,10 @@ export default class Spec {
 
       this._effectfulAOs.set(aoid, clause);
       for (let userClause of usersOfAoid.get(aoid)!) {
-        if (userClause.isEffectApplicable(effectName) &&
-            userClause.effects.indexOf(effectName) === -1) {
+        if (
+          userClause.isEffectApplicable(effectName) &&
+          userClause.effects.indexOf(effectName) === -1
+        ) {
           userClause.effects.push(effectName);
           worklist.push(userClause);
         }

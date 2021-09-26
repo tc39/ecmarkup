@@ -995,7 +995,8 @@ function doShortcut(e) {
       }
     } else if (e.key === 'u') {
       if (stylesheetWorkaroundForCanCallUserCodeAnnotation.innerText === '') {
-        stylesheetWorkaroundForCanCallUserCodeAnnotation.textContent = 'a.e-uc::before { display: block !important; }';
+        stylesheetWorkaroundForCanCallUserCodeAnnotation.textContent =
+          'a.e-uc::before { display: block !important; }';
       } else {
         stylesheetWorkaroundForCanCallUserCodeAnnotation.textContent = '';
       }

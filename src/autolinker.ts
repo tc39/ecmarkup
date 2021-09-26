@@ -59,13 +59,17 @@ export function autolink(
       let isInvocationAttribute = '';
       // Matches function-style invocation with parentheses and SDO-style 'of'
       // invocation.
-      if (content[offset + match.length] === '(' ||
-          (content[offset + match.length] === ' ' &&
-           content[offset + match.length + 1] === 'o' &&
-           content[offset + match.length + 2] === 'f')) {
+      if (
+        content[offset + match.length] === '(' ||
+        (content[offset + match.length] === ' ' &&
+          content[offset + match.length + 1] === 'o' &&
+          content[offset + match.length + 2] === 'f')
+      ) {
         isInvocationAttribute = ' is-invocation';
       }
-      return '<emu-xref aoid="' + entry.aoid + '"' + isInvocationAttribute + '>' + match + '</emu-xref>';
+      return (
+        '<emu-xref aoid="' + entry.aoid + '"' + isInvocationAttribute + '>' + match + '</emu-xref>'
+      );
     } else {
       return '<emu-xref href="#' + (entry.id || entry.refId) + '">' + match + '</emu-xref>';
     }

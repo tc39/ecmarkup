@@ -147,9 +147,11 @@ export default class Xref extends Builder {
 
         // Check if there's metadata overriding the effects, otherwise look up
         // the effects.
-        if (node.parentElement &&
-            node.parentElement.tagName === 'EMU-META' &&
-            node.parentElement.hasAttribute('effects')) {
+        if (
+          node.parentElement &&
+          node.parentElement.tagName === 'EMU-META' &&
+          node.parentElement.hasAttribute('effects')
+        ) {
           effects = node.parentElement.getAttribute('effects')!.split(',');
           if (effects.length === 0) {
             effects = null;
@@ -305,7 +307,21 @@ function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry)
   xref.innerHTML = buildXrefLink(entry, text);
 }
 
-function buildXrefLink(entry: Biblio.BiblioEntry, contents: string | number | undefined | null, classNames: string | null = null) {
-  let classSnippet = classNames == null ? '' : (' class="' + classNames + '"');
-  return '<a href="' + entry.location + '#' + (entry.id || entry.refId) + '"' + classSnippet + '>' + contents + '</a>';
+function buildXrefLink(
+  entry: Biblio.BiblioEntry,
+  contents: string | number | undefined | null,
+  classNames: string | null = null
+) {
+  let classSnippet = classNames == null ? '' : ' class="' + classNames + '"';
+  return (
+    '<a href="' +
+    entry.location +
+    '#' +
+    (entry.id || entry.refId) +
+    '"' +
+    classSnippet +
+    '>' +
+    contents +
+    '</a>'
+  );
 }
