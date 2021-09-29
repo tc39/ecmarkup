@@ -35,11 +35,11 @@ a:hover {
   color: #239dee;
 }
 
-a.e-uc {
+a.e-user-code {
   position: relative;
 }
 
-a.e-uc::before {
+a.e-user-code::before {
   display: none;
   color: brown;
   position: absolute;

@@ -199,9 +199,9 @@ export default class Clause extends Builder {
   isEffectApplicable(effectName: string) {
     // The following effects are runtime only:
     //
-    // uc: Only runtime can call user code.
+    // user-code: Only runtime can call user code.
     if (this.type === 'static sdo') {
-      if (effectName === 'uc') return false;
+      if (effectName === 'user-code') return false;
     }
     return true;
   }

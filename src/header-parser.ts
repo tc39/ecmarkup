@@ -195,6 +195,8 @@ export function parseStructuredHeaderH1(
   return { name, formattedHeader, formattedParams };
 }
 
+const KNOWN_EFFECTS = ['user-code'];
+
 export function parseStructuredHeaderDl(
   spec: Spec,
   type: string | null,
@@ -202,7 +204,7 @@ export function parseStructuredHeaderDl(
 ): { description: Element | null; for: Element | null; effects: string[] } {
   let description = null;
   let _for = null;
-  let effects = null;
+  let effects = [];
   for (let i = 0; i < dl.children.length; ++i) {
     const dt = dl.children[i];
     if (dt.tagName !== 'DT') {
@@ -264,7 +266,23 @@ export function parseStructuredHeaderDl(
       case 'effects': {
         // The dd contains a comma-separated list of effects.
         if (dd.textContent !== null) {
-          effects = dd.textContent.split(',');
+          let effectsRaw = dd.textContent.split(',');
+          let unknownEffects = [];
+          for (let e of effectsRaw) {
+            if (KNOWN_EFFECTS.indexOf(e) !== -1) {
+              effects.push(e);
+            } else {
+              unknownEffects.push(e);
+            }
+          }
+          if (unknownEffects.length !== 0) {
+            spec.warn({
+              type: 'node',
+              ruleId: 'unknown-effects',
+              message: `unknown effects: ${unknownEffects}`,
+              node: dd,
+            });
+          }
         }
         break;
       }
@@ -288,7 +306,7 @@ export function parseStructuredHeaderDl(
       }
     }
   }
-  return { description, for: _for, effects: effects == null ? [] : effects };
+  return { description, for: _for, effects: effects };
 }
 
 export function formatPreamble(
