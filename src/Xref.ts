@@ -42,24 +42,24 @@ export default class Xref extends Builder {
     this.suppressEffects = null;
     if (node.parentElement && node.parentElement.tagName === 'EMU-META') {
       if (node.parentElement.hasAttribute('effects')) {
-        let addEffects = node.parentElement.getAttribute('effects')!.split(',');
+        const addEffects = node.parentElement.getAttribute('effects')!.split(',');
         if (addEffects.length !== 0) {
           this.addEffects = validateEffects(spec, addEffects, node.parentElement);
         }
       }
       if (node.parentElement.hasAttribute('suppress-effects')) {
-        let suppressEffects = node.parentElement.getAttribute('suppress-effects')!.split(',');
+        const suppressEffects = node.parentElement.getAttribute('suppress-effects')!.split(',');
         if (suppressEffects.length !== 0) {
           this.suppressEffects = validateEffects(spec, suppressEffects, node.parentElement);
         }
       }
       if (this.addEffects !== null && this.suppressEffects !== null) {
-        for (let e of this.addEffects) {
+        for (const e of this.addEffects) {
           if (this.suppressEffects.includes(e)) {
             throw new Error('effect suppression is contradictory');
           }
         }
-        for (let e of this.suppressEffects) {
+        for (const e of this.suppressEffects) {
           if (this.addEffects.includes(e)) {
             throw new Error('effect suppression is contradictory');
           }
@@ -220,9 +220,7 @@ export default class Xref extends Builder {
           }
           if (effects.length !== 0) {
             const parentClause = this.clause;
-            effects = parentClause
-              ? effects.filter(e => parentClause.canHaveEffect(e))
-              : effects;
+            effects = parentClause ? effects.filter(e => parentClause.canHaveEffect(e)) : effects;
             if (effects.length !== 0) {
               classNames = effects.map(e => `e-${e}`).join(' ');
             }

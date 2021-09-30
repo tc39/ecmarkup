@@ -288,7 +288,7 @@ export function parseStructuredHeaderDl(
       }
     }
   }
-  return { description, for: _for, effects: effects };
+  return { description, for: _for, effects };
 }
 
 export function formatPreamble(

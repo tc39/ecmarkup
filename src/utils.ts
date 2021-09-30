@@ -222,10 +222,10 @@ export function attrValueLocation(
 
 const KNOWN_EFFECTS = ['user-code'];
 export function validateEffects(spec: Spec, effectsRaw: string[], node: Element) {
-  let effects = [];
-  let unknownEffects = [];
+  const effects = [];
+  const unknownEffects = [];
 
-  for (let e of effectsRaw) {
+  for (const e of effectsRaw) {
     if (KNOWN_EFFECTS.indexOf(e) !== -1) {
       effects.push(e);
     } else {
@@ -238,7 +238,7 @@ export function validateEffects(spec: Spec, effectsRaw: string[], node: Element)
       type: 'node',
       ruleId: 'unknown-effects',
       message: `unknown effects: ${unknownEffects}`,
-      node: node,
+      node,
     });
   }
 
