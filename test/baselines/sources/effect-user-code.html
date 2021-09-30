@@ -1,0 +1,135 @@
+<pre class=metadata>
+toc: false
+copyright: false
+assets: none
+</pre>
+
+<emu-clause id="sec-user-code" type="abstract operation">
+  <h1>UserCode ( )</h1>
+  <dl class="header">
+    <dt>effects</dt>
+    <dd>user-code</dd>
+  </dl>
+  <emu-alg>
+    1. Call user code.
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-nop" type="abstract operation">
+  <h1>Nop ( )</h1>
+  <dl class="header">
+  </dl>
+  <emu-alg>
+    1. Do nothing.
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-direct-call" type="abstract operation">
+  <h1>DirectCall()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Calling AOs that can call user code should insert <code>e-user-code</code> as a class into the AO link.</dd>
+  </dl>
+  <emu-alg>
+    1. UserCode().
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-transitive-call" type="abstract operation">
+  <h1>TransitiveCall()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Calling AOs that can transitively call user code should insert <code>e-user-code</code> as a class into the AO link.</dd>
+  </dl>
+  <emu-alg>
+    1. DirectCall().
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-suppressed-direct-call" type="abstract operation">
+  <h1>SuppressedDirectCall()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Can-call-user-code callsites that are suppressed do not get <code>e-user-code</code> as a class in the AO link.</dd>
+  </dl>
+  <emu-alg>
+    1. <emu-meta suppress-effects="user-code">TransitiveCall()</emu-meta>.
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-suppressed-transitive-call" type="abstract operation">
+  <h1>SuppressedTransitiveCall()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Can-call-user-code callsites that are suppressed do not propagate the effect</dd>
+  </dl>
+  <emu-alg>
+    1. SuppressedDirectCall().
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-added-direct-call" type="abstract operation">
+  <h1>AddedDirectCall()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>AOs can have manually added user-code effect at a callsite that propagates.</dd>
+  </dl>
+  <emu-alg>
+    1. <emu-meta effects="user-code">Nop()</emu-meta>.
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-added-transitive-call" type="abstract operation">
+  <h1>AddedTransitiveCall()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>AOs can have manually added user-code effect at a callsite that propagates.</dd>
+  </dl>
+  <emu-alg>
+    1. AddedDirectCall().
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-sdo-invocation" type="abstract operation">
+  <h1>SDOInvocations()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>SDO-style invocations of AOs that can call user code also have the <code>e-user-code</code> class in the link.</dd>
+  </dl>
+  <emu-alg>
+    1. UserCode of Bar.
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-non-invocations" type="abstract operation">
+  <h1>NonInvocations()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Non-invocations (i.e. not followed by () or " of") do not have <code>e-user-code</code> as a class in the AO link.</dd>
+  </dl>
+  <emu-alg>
+    1. UserCode is an abstract operation.
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-static-direct-call" type="sdo">
+  <h1>Static Semantics: StaticDirectCall</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Static semantics suppress user-code.</dd>
+  </dl>
+  <emu-alg>
+    1. UserCode().
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-static-transitive-call" type="sdo">
+  <h1>Static Semantics: StaticTransitiveCall</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Static semantics suppress user-code.</dd>
+  </dl>
+  <emu-alg>
+    1. StaticDirectCall of Baz.
+  </emu-alg>
+</emu-clause>
