@@ -200,7 +200,7 @@ export default class Clause extends Builder {
     // The following effects are runtime only:
     //
     // user-code: Only runtime can call user code.
-    if (this.type === 'static sdo') {
+    if (this.title !== null && this.title.startsWith('Static Semantics:')) {
       if (effectName === 'user-code') return false;
     }
     return true;

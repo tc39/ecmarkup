@@ -220,10 +220,12 @@ export default class Xref extends Builder {
           }
           if (effects.length !== 0) {
             const parentClause = this.clause;
-            const applicableEffects = parentClause
+            effects = parentClause
               ? effects.filter(e => parentClause.canHaveEffect(e))
               : effects;
-            classNames = applicableEffects.map(e => `e-${e}`).join(' ');
+            if (effects.length !== 0) {
+              classNames = effects.map(e => `e-${e}`).join(' ');
+            }
           }
         }
 
