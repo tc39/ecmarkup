@@ -219,3 +219,28 @@ export function attrValueLocation(
     return { line: attrLoc.line, column: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
   }
 }
+
+const KNOWN_EFFECTS = ['user-code'];
+export function validateEffects(spec: Spec, effectsRaw: string[], node: Element) {
+  let effects = [];
+  let unknownEffects = [];
+
+  for (let e of effectsRaw) {
+    if (KNOWN_EFFECTS.indexOf(e) !== -1) {
+      effects.push(e);
+    } else {
+      unknownEffects.push(e);
+    }
+  }
+
+  if (unknownEffects.length !== 0) {
+    spec.warn({
+      type: 'node',
+      ruleId: 'unknown-effects',
+      message: `unknown effects: ${unknownEffects}`,
+      node: node,
+    });
+  }
+
+  return effects;
+}

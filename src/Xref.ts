@@ -4,6 +4,7 @@ import type * as Biblio from './Biblio';
 import type Clause from './Clause';
 
 import Builder from './Builder';
+import { validateEffects } from './utils';
 
 /*@internal*/
 export default class Xref extends Builder {
@@ -14,6 +15,8 @@ export default class Xref extends Builder {
   clause: Clause | null;
   id: string;
   entry: Biblio.BiblioEntry | undefined;
+  addEffects: string[] | null;
+  suppressEffects: string[] | null;
 
   static elements = ['EMU-XREF'];
 
@@ -33,6 +36,59 @@ export default class Xref extends Builder {
     this.id = node.getAttribute('id')!;
     this.isInvocation = node.hasAttribute('is-invocation');
     node.removeAttribute('is-invocation');
+
+    // Check if there's metadata adding or suppressing effects
+    this.addEffects = null;
+    this.suppressEffects = null;
+    if (node.parentElement && node.parentElement.tagName === 'EMU-META') {
+      if (node.parentElement.hasAttribute('effects')) {
+        let addEffects = node.parentElement.getAttribute('effects')!.split(',');
+        if (addEffects.length !== 0) {
+          this.addEffects = validateEffects(spec, addEffects, node.parentElement);
+        }
+      }
+      if (node.parentElement.hasAttribute('suppress-effects')) {
+        let suppressEffects = node.parentElement.getAttribute('suppress-effects')!.split(',');
+        if (suppressEffects.length !== 0) {
+          this.suppressEffects = validateEffects(spec, suppressEffects, node.parentElement);
+        }
+      }
+      if (this.addEffects !== null && this.suppressEffects !== null) {
+        for (let e of this.addEffects) {
+          if (this.suppressEffects.includes(e)) {
+            throw new Error('effect suppression is contradictory');
+          }
+        }
+        for (let e of this.suppressEffects) {
+          if (this.addEffects.includes(e)) {
+            throw new Error('effect suppression is contradictory');
+          }
+        }
+      }
+
+      // Strip an outer <emu-meta> if present
+      const children = node.parentElement.childNodes;
+      node.parentElement.replaceWith(...children);
+    }
+  }
+
+  canHaveEffect(effectName: string) {
+    if (!this.isInvocation) return false;
+    if (this.clause && !this.clause.canHaveEffect(effectName)) {
+      return false;
+    }
+    if (this.suppressEffects !== null) {
+      return !this.suppressEffects.includes(effectName);
+    }
+    return true;
+  }
+
+  hasAddedEffect(effectName: string) {
+    if (!this.isInvocation) return false;
+    if (this.addEffects !== null) {
+      return this.addEffects.includes(effectName);
+    }
+    return false;
   }
 
   static async enter({ node, spec, clauseStack }: Context) {
@@ -145,30 +201,32 @@ export default class Xref extends Builder {
 
       if (this.entry) {
         let effects = null;
+        let classNames = null;
 
-        // Check if there's metadata overriding the effects, otherwise look up
-        // the effects.
-        if (
-          node.parentElement &&
-          node.parentElement.tagName === 'EMU-META' &&
-          node.parentElement.hasAttribute('effects')
-        ) {
-          effects = node.parentElement.getAttribute('effects')!.split(',');
-          if (effects.length === 0) {
-            effects = null;
-          }
-        } else if (this.isInvocation) {
+        if (this.isInvocation) {
           effects = spec.getEffectsByAoid(aoid);
         }
-
-        let classNames = null;
-        if (effects) {
-          const parentClause = this.clause;
-          const applicableEffects = parentClause
-            ? effects.filter(e => parentClause.isEffectApplicable(e))
-            : effects;
-          classNames = applicableEffects.map(e => `e-${e}`).join(' ');
+        if (this.addEffects !== null) {
+          if (effects !== null) {
+            effects.push(...this.addEffects);
+          } else {
+            effects = this.addEffects;
+          }
         }
+
+        if (effects) {
+          if (this.suppressEffects !== null) {
+            effects = effects.filter(e => !this.suppressEffects!.includes(e));
+          }
+          if (effects.length !== 0) {
+            const parentClause = this.clause;
+            const applicableEffects = parentClause
+              ? effects.filter(e => parentClause.canHaveEffect(e))
+              : effects;
+            classNames = applicableEffects.map(e => `e-${e}`).join(' ');
+          }
+        }
+
         buildAOLink(node, this.entry, classNames);
         return;
       }

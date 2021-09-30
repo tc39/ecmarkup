@@ -256,6 +256,17 @@ function isEmuImportElement(node: Node): node is EmuImportElement {
   return node.nodeType === 1 && node.nodeName === 'EMU-IMPORT';
 }
 
+function maybeAddClauseToEffectWorklist(effectName: string, clause: Clause, worklist: Clause[]) {
+  if (
+    !worklist.includes(clause) &&
+    clause.canHaveEffect(effectName) &&
+    !clause.effects.includes(effectName)
+  ) {
+    clause.effects.push(effectName);
+    worklist.push(clause);
+  }
+}
+
 /*@internal*/
 export default class Spec {
   spec: this;
@@ -667,9 +678,13 @@ export default class Spec {
   private propagateEffect(effectName: string, worklist: Clause[]) {
     const usersOfAoid: Map<string, Set<Clause>> = new Map();
     for (const xref of this._xrefs) {
-      if (xref.clause == null) {
-        continue;
+      if (xref.clause == null || xref.aoid == null) continue;
+      if (!xref.canHaveEffect(effectName)) continue;
+
+      if (xref.hasAddedEffect(effectName)) {
+        maybeAddClauseToEffectWorklist(effectName, xref.clause, worklist);
       }
+
       const usedAoid = xref.aoid;
       if (!usersOfAoid.has(usedAoid)) {
         usersOfAoid.set(usedAoid, new Set());
@@ -686,13 +701,7 @@ export default class Spec {
 
       this._effectfulAOs.set(aoid, clause);
       for (const userClause of usersOfAoid.get(aoid)!) {
-        if (
-          userClause.isEffectApplicable(effectName) &&
-          userClause.effects.indexOf(effectName) === -1
-        ) {
-          userClause.effects.push(effectName);
-          worklist.push(userClause);
-        }
+        maybeAddClauseToEffectWorklist(effectName, userClause, worklist);
       }
     }
   }

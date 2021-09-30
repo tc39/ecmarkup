@@ -196,7 +196,7 @@ export default class Clause extends Builder {
     }
   }
 
-  isEffectApplicable(effectName: string) {
+  canHaveEffect(effectName: string) {
     // The following effects are runtime only:
     //
     // user-code: Only runtime can call user code.

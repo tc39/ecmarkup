@@ -1,5 +1,5 @@
 import type Spec from './Spec';
-import { offsetToLineAndColumn } from './utils';
+import { offsetToLineAndColumn, validateEffects } from './utils';
 
 export function parseStructuredHeaderH1(
   spec: Spec,
@@ -195,8 +195,6 @@ export function parseStructuredHeaderH1(
   return { name, formattedHeader, formattedParams };
 }
 
-const KNOWN_EFFECTS = ['user-code'];
-
 export function parseStructuredHeaderDl(
   spec: Spec,
   type: string | null,
@@ -204,7 +202,7 @@ export function parseStructuredHeaderDl(
 ): { description: Element | null; for: Element | null; effects: string[] } {
   let description = null;
   let _for = null;
-  let effects = [];
+  let effects: string[] = [];
   for (let i = 0; i < dl.children.length; ++i) {
     const dt = dl.children[i];
     if (dt.tagName !== 'DT') {
@@ -266,23 +264,7 @@ export function parseStructuredHeaderDl(
       case 'effects': {
         // The dd contains a comma-separated list of effects.
         if (dd.textContent !== null) {
-          let effectsRaw = dd.textContent.split(',');
-          let unknownEffects = [];
-          for (let e of effectsRaw) {
-            if (KNOWN_EFFECTS.indexOf(e) !== -1) {
-              effects.push(e);
-            } else {
-              unknownEffects.push(e);
-            }
-          }
-          if (unknownEffects.length !== 0) {
-            spec.warn({
-              type: 'node',
-              ruleId: 'unknown-effects',
-              message: `unknown effects: ${unknownEffects}`,
-              node: dd,
-            });
-          }
+          effects = validateEffects(spec, dd.textContent.split(','), dd);
         }
         break;
       }
