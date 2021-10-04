@@ -264,7 +264,7 @@ export function parseStructuredHeaderDl(
       case 'effects': {
         // The dd contains a comma-separated list of effects.
         if (dd.textContent !== null) {
-          effects = validateEffects(spec, dd.textContent.split(','), dd);
+          effects = validateEffects(spec, dd.textContent.split(',').map(c => c.trim()), dd);
         }
         break;
       }
