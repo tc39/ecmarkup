@@ -4,7 +4,12 @@ import { offsetToLineAndColumn, validateEffects } from './utils';
 export function parseStructuredHeaderH1(
   spec: Spec,
   header: Element
-): { name: string | null; formattedHeader: string | null; formattedParams: string | null } {
+): {
+  name: string | null;
+  formattedHeader: string | null;
+  formattedParams: string | null;
+  formattedReturnType: string | null;
+} {
   // parsing is intentionally permissive; the linter can do stricter checks
   // TODO have the linter do checks
 
@@ -26,7 +31,7 @@ export function parseStructuredHeaderH1(
   }
 
   const parsed = headerText.match(
-    /^(?<beforeParams>\s*(?<name>[^(\s]+)\s*)(?:\((?<params>.*)\)\s*)?$/s
+    /^(?<beforeParams>\s*(?<name>[^(\s]+)\s*)(?:\((?<params>[^)]*)\)(?:\s*:(?<returnType>.*))?\s*)?$/s
   );
   if (parsed == null) {
     spec.warn({
@@ -37,12 +42,32 @@ export function parseStructuredHeaderH1(
       nodeRelativeColumn: 1,
       nodeRelativeLine: 1,
     });
-    return { name: null, formattedHeader: null, formattedParams: null };
+    return { name: null, formattedHeader: null, formattedParams: null, formattedReturnType: null };
   }
 
   type Param = { name: string; type: string | null; wrapper: string | null };
   const name = parsed.groups!.name;
   let paramText = parsed.groups!.params ?? '';
+  const returnType = parsed.groups!.returnType?.trim() ?? null;
+
+  if (returnType === '') {
+    const { column, line } = offsetToLineAndColumn(
+      header.innerHTML,
+      beforeContents +
+        (prefix?.[0].length ?? 0) +
+        (headerText.length - headerText.match(/\s*$/)![0].length) -
+        1
+    );
+    spec.warn({
+      type: 'contents',
+      ruleId: 'header-format',
+      message: `if a return type is given, it must not be empty`,
+      node: header,
+      nodeRelativeColumn: column,
+      nodeRelativeLine: line,
+    });
+  }
+
   const params: Array<Param> = [];
   const optionalParams: Array<Param> = [];
   let formattedHeader = null;
@@ -192,7 +217,7 @@ export function parseStructuredHeaderH1(
     formattedHeader = `<${wrapper}>${formattedHeader}</${wrapper}>`;
   }
 
-  return { name, formattedHeader, formattedParams };
+  return { name, formattedHeader, formattedParams, formattedReturnType: returnType };
 }
 
 export function parseStructuredHeaderDl(
@@ -302,6 +327,7 @@ export function formatPreamble(
   type: string | null,
   name: string,
   formattedParams: string,
+  formattedReturnType: string | null,
   _for: Element | null,
   description: Element | null
 ): Array<Element> {
@@ -312,20 +338,20 @@ export function formatPreamble(
     case 'numeric method':
     case 'abstract operation': {
       // TODO tests (for each type of parametered thing) which have HTML in the parameter type
-      para.innerHTML += `The abstract operation ${name} takes ${formattedParams}.`;
+      para.innerHTML += `The abstract operation ${name}`;
       break;
     }
     case 'host-defined abstract operation': {
-      para.innerHTML += `The host-defined abstract operation ${name} takes ${formattedParams}.`;
+      para.innerHTML += `The host-defined abstract operation ${name}`;
       break;
     }
     case 'implementation-defined abstract operation': {
-      para.innerHTML += `The implementation-defined abstract operation ${name} takes ${formattedParams}.`;
+      para.innerHTML += `The implementation-defined abstract operation ${name}`;
       break;
     }
     case 'sdo':
     case 'syntax-directed operation': {
-      para.innerHTML += `The syntax-directed operation ${name} takes ${formattedParams}.`;
+      para.innerHTML += `The syntax-directed operation ${name}`;
       break;
     }
     case 'internal method':
@@ -342,7 +368,6 @@ export function formatPreamble(
         _for = spec.doc.createElement('div');
       }
       para.append(`The ${name} ${type} of `, ..._for.childNodes);
-      para.innerHTML += ` takes ${formattedParams}.`;
       break;
     }
     default: {
@@ -364,6 +389,11 @@ export function formatPreamble(
       }
     }
   }
+  para.innerHTML += ` takes ${formattedParams}`;
+  if (formattedReturnType != null) {
+    para.innerHTML += ` and returns ${formattedReturnType}`;
+  }
+  para.innerHTML += '.';
   if (description != null) {
     const isJustElements = [...description.childNodes].every(
       n => n.nodeType === 1 || (n.nodeType === 3 && n.textContent?.trim() === '')

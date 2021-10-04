@@ -97,7 +97,10 @@ export default class Clause extends Builder {
 
     const type = this.type;
 
-    const { name, formattedHeader, formattedParams } = parseStructuredHeaderH1(this.spec, header);
+    const { name, formattedHeader, formattedParams, formattedReturnType } = parseStructuredHeaderH1(
+      this.spec,
+      header
+    );
     if (type === 'numeric method' && name != null && !name.includes('::')) {
       this.spec.warn({
         type: 'contents',
@@ -134,6 +137,7 @@ export default class Clause extends Builder {
       type,
       name ?? 'UNKNOWN',
       formattedParams ?? 'UNPARSEABLE ARGUMENTS',
+      formattedReturnType,
       _for,
       description
     );
