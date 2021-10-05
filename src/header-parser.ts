@@ -1,5 +1,5 @@
 import type Spec from './Spec';
-import { offsetToLineAndColumn } from './utils';
+import { offsetToLineAndColumn, validateEffects } from './utils';
 
 export function parseStructuredHeaderH1(
   spec: Spec,
@@ -224,9 +224,10 @@ export function parseStructuredHeaderDl(
   spec: Spec,
   type: string | null,
   dl: Element
-): { description: Element | null; for: Element | null } {
+): { description: Element | null; for: Element | null; effects: string[] } {
   let description = null;
   let _for = null;
+  let effects: string[] = [];
   for (let i = 0; i < dl.children.length; ++i) {
     const dt = dl.children[i];
     if (dt.tagName !== 'DT') {
@@ -285,6 +286,17 @@ export function parseStructuredHeaderDl(
         }
         break;
       }
+      case 'effects': {
+        // The dd contains a comma-separated list of effects.
+        if (dd.textContent !== null) {
+          effects = validateEffects(
+            spec,
+            dd.textContent.split(',').map(c => c.trim()),
+            dd
+          );
+        }
+        break;
+      }
       case '': {
         spec.warn({
           type: 'node',
@@ -305,7 +317,7 @@ export function parseStructuredHeaderDl(
       }
     }
   }
-  return { description, for: _for };
+  return { description, for: _for, effects };
 }
 
 export function formatPreamble(

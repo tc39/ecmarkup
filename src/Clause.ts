@@ -20,9 +20,11 @@ export default class Clause extends Builder {
   subclauses: Clause[];
   number: string;
   aoid: string | null;
+  type: string | null;
   notes: Note[];
   editorNotes: Note[];
   examples: Example[];
+  effects: string[];
 
   constructor(spec: Spec, node: HTMLElement, parent: Clause, number: string) {
     super(spec, node);
@@ -33,6 +35,7 @@ export default class Clause extends Builder {
     this.notes = [];
     this.editorNotes = [];
     this.examples = [];
+    this.effects = [];
 
     // namespace is either the entire spec or the parent clause's namespace.
     let parentNamespace = spec.namespace;
@@ -51,6 +54,11 @@ export default class Clause extends Builder {
     if (this.aoid === '') {
       // <emu-clause id=foo aoid> === <emu-clause id=foo aoid=foo>
       this.aoid = node.id;
+    }
+
+    this.type = node.getAttribute('type');
+    if (this.type === '') {
+      this.type = null;
     }
 
     let header = this.node.firstElementChild;
@@ -87,7 +95,7 @@ export default class Clause extends Builder {
     }
     // if we find such a DL, treat this as a structured header
 
-    const type = this.node.getAttribute('type');
+    const type = this.type;
 
     const { name, formattedHeader, formattedParams, formattedReturnType } = parseStructuredHeaderH1(
       this.spec,
@@ -120,7 +128,7 @@ export default class Clause extends Builder {
       header.innerHTML = formattedHeader;
     }
 
-    const { description, for: _for } = parseStructuredHeaderDl(this.spec, type, dl);
+    const { description, for: _for, effects } = parseStructuredHeaderDl(this.spec, type, dl);
 
     const paras = formatPreamble(
       this.spec,
@@ -158,6 +166,14 @@ export default class Clause extends Builder {
       this.node.setAttribute('aoid', name);
       this.aoid = name;
     }
+
+    this.effects = effects;
+    for (const effect of effects) {
+      if (!this.spec._effectWorklist.has(effect)) {
+        this.spec._effectWorklist.set(effect, []);
+      }
+      this.spec._effectWorklist.get(effect)!.push(this);
+    }
   }
 
   buildNotes() {
@@ -182,6 +198,16 @@ export default class Clause extends Builder {
         example.build(i + 1);
       });
     }
+  }
+
+  canHaveEffect(effectName: string) {
+    // The following effects are runtime only:
+    //
+    // user-code: Only runtime can call user code.
+    if (this.title !== null && this.title.startsWith('Static Semantics:')) {
+      if (effectName === 'user-code') return false;
+    }
+    return true;
   }
 
   static async enter({ spec, node, clauseStack, clauseNumberer }: Context) {
