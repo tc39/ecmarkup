@@ -964,8 +964,6 @@ function makeLinkToId(id) {
   return (targetSec === 'index' ? './' : targetSec + '.html') + hash;
 }
 
-let stylesheetWorkaroundForCanCallUserCodeAnnotation;
-
 function doShortcut(e) {
   if (!(e.target instanceof HTMLElement)) {
     return;
@@ -996,12 +994,7 @@ function doShortcut(e) {
       location = 'multipage/' + hash;
     }
   } else if (e.key === 'u') {
-    if (stylesheetWorkaroundForCanCallUserCodeAnnotation.innerText === '') {
-      stylesheetWorkaroundForCanCallUserCodeAnnotation.textContent =
-        'a.e-user-code::before { display: block !important; }';
-    } else {
-      stylesheetWorkaroundForCanCallUserCodeAnnotation.textContent = '';
-    }
+    document.documentElement.classList.toggle('show-ao-annotations');
   }
 }
 
@@ -1029,6 +1022,4 @@ document.addEventListener('keypress', doShortcut);
 document.addEventListener('DOMContentLoaded', () => {
   Toolbox.init();
   referencePane.init();
-  stylesheetWorkaroundForCanCallUserCodeAnnotation = document.createElement('style');
-  document.head.appendChild(stylesheetWorkaroundForCanCallUserCodeAnnotation);
 });
