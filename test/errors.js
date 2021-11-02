@@ -537,8 +537,8 @@ ${M}      </pre>
       await assertError(
         positioned`
           <emu-clause id="sec-test" type="abstract operation">
-          <h1>${M}
-          Some Example (
+          <h1>
+          Some ${M}Example (
           )
           </h1>
           <dl class='header'>
@@ -548,13 +548,13 @@ ${M}      </pre>
         {
           ruleId: 'header-format',
           nodeType: 'h1',
-          message: 'failed to parse header',
+          message: 'expected `(`',
         },
         { lintSpec: true }
       );
     });
 
-    it('parameter is unparseable', async () => {
+    it('parameter is not parseable', async () => {
       await assertError(
         positioned`
           <emu-clause id="sec-test" type="abstract operation">
@@ -562,7 +562,7 @@ ${M}      </pre>
           Example (
             x: a number,
             y: a number,
-            ${M}z,
+            z${M},
           )
           </h1>
           <dl class='header'>
@@ -572,7 +572,7 @@ ${M}      </pre>
         {
           ruleId: 'header-format',
           nodeType: 'h1',
-          message: 'failed to parse parameter 3',
+          message: 'expected `:`',
         },
         { lintSpec: true }
       );

@@ -5,7 +5,7 @@ import type { PartialBiblioEntry } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';
-import { formatPreamble, parseStructuredHeaderDl, parseStructuredHeaderH1 } from './header-parser';
+import { formatPreamble, parseStructuredHeaderDl, parseAndFormatH1 } from './header-parser';
 
 /*@internal*/
 export default class Clause extends Builder {
@@ -97,7 +97,7 @@ export default class Clause extends Builder {
 
     const type = this.type;
 
-    const { name, formattedHeader, formattedParams, formattedReturnType } = parseStructuredHeaderH1(
+    const { name, formattedHeader, formattedParams, formattedReturnType } = parseAndFormatH1(
       this.spec,
       header
     );
