@@ -1,7 +1,282 @@
 import type Spec from './Spec';
 import { offsetToLineAndColumn, validateEffects } from './utils';
 
-export function parseStructuredHeaderH1(
+type ParseError = {
+  message: string;
+  offset: number;
+};
+export type Param = {
+  name: string;
+  type: string | null;
+  wrappingTag: 'ins' | 'del' | 'mark' | null;
+};
+
+export type ParsedH1 =
+  | {
+      type: 'single-line' | 'multi-line';
+      wrappingTag: 'ins' | 'del' | 'mark' | null;
+      prefix: string | null;
+      name: string;
+      params: Param[];
+      optionalParams: Param[];
+      returnType: string | null;
+      errors: ParseError[];
+    }
+  | {
+      type: 'failure';
+      errors: ParseError[];
+    };
+
+export function parseH1(headerText: string): ParsedH1 {
+  let offset = 0;
+  const errors: ParseError[] = [];
+
+  let { match, text } = eat(headerText, /^\s*/);
+  if (match) {
+    offset += match[0].length;
+  }
+
+  let wrappingTag: 'ins' | 'del' | 'mark' | null = null;
+  ({ match, text } = eat(text, /^<(ins|del|mark) *>\s*/i));
+  if (match) {
+    wrappingTag = match[1].toLowerCase().trimRight() as 'ins' | 'del' | 'mark';
+    offset += match[0].length;
+  }
+
+  let prefix = null;
+  ({ match, text } = eat(text, /^(Static|Runtime) Semantics:\s*/i));
+  if (match) {
+    prefix = match[0].trimRight();
+    offset += match[0].length;
+  }
+
+  ({ match, text } = eat(text, /^[^(\s]+\s*/));
+  if (!match) {
+    errors.push({ message: 'could not find AO name', offset });
+    return { type: 'failure', errors };
+  }
+  offset += match[0].length;
+  const name = match[0].trimRight();
+
+  if (text === '') {
+    if (wrappingTag !== null) {
+      if (text.endsWith(`</${wrappingTag}>`)) {
+        text = text.slice(0, -(3 + wrappingTag.length));
+      } else {
+        errors.push({
+          message: `could not find matching ${wrappingTag} tag`,
+          offset,
+        });
+      }
+    }
+    return {
+      type: 'single-line',
+      prefix,
+      name,
+      wrappingTag,
+      params: [],
+      optionalParams: [],
+      returnType: null,
+      errors,
+    };
+  }
+
+  ({ match, text } = eat(text, /^\( */));
+  if (!match) {
+    errors.push({ message: 'expected `(`', offset });
+    return { type: 'failure', errors };
+  }
+  offset += match[0].length;
+
+  let type: 'single-line' | 'multi-line';
+  const params: Param[] = [];
+  const optionalParams: Param[] = [];
+  if (text[0] === '\n') {
+    // multiline: parse for parameter types
+    type = 'multi-line';
+    ({ match, text } = eat(text, /^\s*/));
+    offset += match![0].length;
+
+    while (true) {
+      ({ match, text } = eat(text, /^\)\s*/));
+      if (match) {
+        offset += match[0].length;
+        break;
+      }
+
+      let paramWrappingTag: 'ins' | 'del' | 'mark' | null = null;
+      ({ match, text } = eat(text, /^<(ins|del|mark) *>\s*/i));
+      if (match) {
+        paramWrappingTag = match[1].toLowerCase().trimRight() as 'ins' | 'del' | 'mark';
+        offset += match[0].length;
+      }
+
+      let optional = false;
+      ({ match, text } = eat(text, /^optional */i));
+      if (match) {
+        optional = true;
+        offset += match[0].length;
+      } else if (optionalParams.length > 0) {
+        errors.push({
+          message: 'required parameters should not follow optional parameters',
+          offset,
+        });
+      }
+
+      ({ match, text } = eat(text, /^[A-Za-z0-9_]+ */i));
+      if (!match) {
+        errors.push({ message: 'expected parameter name', offset });
+        return { type: 'failure', errors };
+      }
+      offset += match[0].length;
+      const paramName = match[0].trimRight();
+
+      ({ match, text } = eat(text, /^:+ */i));
+      if (!match) {
+        errors.push({ message: 'expected `:`', offset });
+        return { type: 'failure', errors };
+      }
+      offset += match[0].length;
+
+      // TODO handle absence of type, treat as unknown
+
+      ({ match, text } = eat(text, /^[^\n]+\n\s*/i));
+      if (!match) {
+        errors.push({ message: 'expected a type', offset });
+        return { type: 'failure', errors };
+      }
+      offset += match[0].length;
+      let paramType = match[0].trimRight();
+
+      if (paramWrappingTag !== null) {
+        if (paramType.endsWith(`</${paramWrappingTag}>`)) {
+          paramType = paramType.slice(0, -(3 + paramWrappingTag.length));
+        } else {
+          errors.push({
+            message: `could not find matching ${paramWrappingTag} tag`,
+            offset,
+          });
+        }
+      }
+
+      if (paramType.endsWith(',')) {
+        paramType = paramType.slice(0, -1);
+      }
+
+      (optional ? optionalParams : params).push({
+        name: paramName,
+        type: paramType === 'unknown' ? null : paramType,
+        wrappingTag: paramWrappingTag,
+      });
+    }
+  } else {
+    // single line: no types
+    type = 'single-line';
+
+    let optional = false;
+    while (true) {
+      ({ match, text } = eat(text, /^\)\s*/));
+      if (match) {
+        offset += match[0].length;
+        break;
+      }
+      ({ text, match } = eat(text, /^\[(\s*,)?\s*/));
+      if (match) {
+        optional = true;
+        offset += match[0].length;
+      }
+
+      ({ text, match } = eat(text, /^([A-Za-z0-9_]+)\s*/));
+      if (!match) {
+        errors.push({ message: 'expected parameter name', offset });
+        return { type: 'failure', errors };
+      }
+      offset += match[0].length;
+      const paramName = match[0].trimRight();
+
+      (optional ? optionalParams : params).push({
+        name: paramName,
+        type: null,
+        wrappingTag: null,
+      });
+      ({ match, text } = eat(text, /^((\s*\])+|,)\s*/));
+      if (match) {
+        offset += match[0].length;
+      }
+    }
+  }
+
+  let returnType = null;
+  ({ match, text } = eat(text, /^:(.*)(?!<\/(ins|del|mark)>)/i));
+  if (match) {
+    returnType = match[1].trim();
+    if (returnType === '') {
+      errors.push({ message: 'if a return type is given, it must not be empty', offset });
+    }
+    offset += match[0].length;
+  }
+  if (wrappingTag !== null) {
+    const trimmed = text.trimEnd();
+    if (trimmed.endsWith(`</${wrappingTag}>`)) {
+      text = trimmed.slice(0, -(3 + wrappingTag.length));
+    } else {
+      errors.push({
+        message: `could not find matching ${wrappingTag} tag`,
+        offset,
+      });
+    }
+  }
+
+  if (text.trim() !== '') {
+    errors.push({
+      message: 'unknown extra text in header',
+      offset,
+    });
+  }
+
+  return {
+    type,
+    wrappingTag,
+    prefix,
+    name,
+    params,
+    optionalParams,
+    returnType,
+    errors,
+  };
+}
+
+const printParamWithType = (p: Param) => {
+  let result = p.name;
+  if (p.type !== null) {
+    result += ` (${p.type})`;
+  }
+  if (p.wrappingTag !== null) {
+    result = `<${p.wrappingTag}>${result}</${p.wrappingTag}>`;
+  }
+  return result;
+};
+
+export function printParam(p: Param) {
+  if (p.wrappingTag !== null) {
+    return `<${p.wrappingTag}>${p.name}</${p.wrappingTag}>`;
+  }
+  return p.name;
+}
+
+export function printSimpleParamList(params: Param[], optionalParams: Param[]) {
+  let result = '(' + params.map(p => ' ' + printParam(p)).join(',');
+  if (optionalParams.length > 0) {
+    const formattedOptionalParams = optionalParams
+      .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + p.name)
+      .join('');
+    result += formattedOptionalParams + optionalParams.map(() => ' ]').join('');
+  }
+  result += ' )';
+  return result;
+}
+
+export function parseAndFormatH1(
   spec: Spec,
   header: Element
 ): {
@@ -10,187 +285,37 @@ export function parseStructuredHeaderH1(
   formattedParams: string | null;
   formattedReturnType: string | null;
 } {
-  // parsing is intentionally permissive; the linter can do stricter checks
-  // TODO have the linter do checks
+  const parseResult = parseH1(header.innerHTML);
 
-  let wrapper = null;
-  let headerText = header.innerHTML;
-  let beforeContents = 0;
-  const headerWrapperMatch = headerText.match(
-    /^(?<beforeContents>\s*<(?<tag>ins|del|mark)>)(?<contents>.*)<\/\k<tag>>\s*$/is
-  );
-  if (headerWrapperMatch != null) {
-    wrapper = headerWrapperMatch.groups!.tag;
-    headerText = headerWrapperMatch.groups!.contents;
-    beforeContents = headerWrapperMatch.groups!.beforeContents.length;
-  }
-
-  const prefix = headerText.match(/^\s*(Static|Runtime) Semantics:\s*/);
-  if (prefix != null) {
-    headerText = headerText.substring(prefix[0].length);
-  }
-
-  const parsed = headerText.match(
-    /^(?<beforeParams>\s*(?<name>[^(\s]+)\s*)(?:\((?<params>[^)]*)\)(?:\s*:(?<returnType>.*))?\s*)?$/s
-  );
-  if (parsed == null) {
-    spec.warn({
-      type: 'contents',
-      ruleId: 'header-format',
-      message: `failed to parse header`,
-      node: header,
-      nodeRelativeColumn: 1,
-      nodeRelativeLine: 1,
-    });
-    return { name: null, formattedHeader: null, formattedParams: null, formattedReturnType: null };
-  }
-
-  type Param = { name: string; type: string | null; wrapper: string | null };
-  const name = parsed.groups!.name;
-  let paramText = parsed.groups!.params ?? '';
-  const returnType = parsed.groups!.returnType?.trim() ?? null;
-
-  if (returnType === '') {
-    const { column, line } = offsetToLineAndColumn(
+  for (const { message, offset } of parseResult.errors) {
+    const { line: nodeRelativeLine, column: nodeRelativeColumn } = offsetToLineAndColumn(
       header.innerHTML,
-      beforeContents +
-        (prefix?.[0].length ?? 0) +
-        (headerText.length - headerText.match(/\s*$/)![0].length) -
-        1
+      offset
     );
     spec.warn({
       type: 'contents',
       ruleId: 'header-format',
-      message: `if a return type is given, it must not be empty`,
+      message,
       node: header,
-      nodeRelativeColumn: column,
-      nodeRelativeLine: line,
+      nodeRelativeColumn,
+      nodeRelativeLine,
     });
   }
-
-  const params: Array<Param> = [];
-  const optionalParams: Array<Param> = [];
-  let formattedHeader = null;
-
-  if (/\(\s*\n/.test(headerText)) {
-    // if it's multiline, parse it for types
-    const paramLines = paramText.split('\n');
-    let index = 0;
-    let offset = 0;
-    for (const line of paramLines) {
-      offset += line.length;
-      let chunk = line.trim();
-      if (chunk === '') {
-        continue;
-      }
-      const wrapperMatch = chunk.match(/^<(ins|del|mark)>(.*)<\/\1>$/i);
-      let paramWrapper = null;
-      if (wrapperMatch != null) {
-        paramWrapper = wrapperMatch[1];
-        chunk = wrapperMatch[2];
-      }
-      ++index;
-      function getParameterOffset() {
-        return (
-          beforeContents +
-          (prefix?.[0].length ?? 0) +
-          parsed!.groups!.beforeParams.length +
-          1 + // `beforeParams` does not include the leading `(`
-          (offset - line.length) + // we've already updated offset to include line.length at this point
-          index + // to account for the `\n`s eaten by the .split
-          line.match(/^\s*/)![0].length
-        );
-      }
-      const parsedChunk = chunk.match(/^(optional\s+)?([A-Za-z0-9_]+)\s*:\s*(\S.*\S)/);
-      if (parsedChunk == null) {
-        const { line: nodeRelativeLine, column: nodeRelativeColumn } = offsetToLineAndColumn(
-          header.innerHTML,
-          getParameterOffset()
-        );
-        spec.warn({
-          type: 'contents',
-          ruleId: 'header-format',
-          message: `failed to parse parameter ${index}`,
-          node: header,
-          nodeRelativeColumn,
-          nodeRelativeLine,
-        });
-        continue;
-      }
-      const optional = parsedChunk[1] != null;
-      const paramName = parsedChunk[2];
-      let paramType = parsedChunk[3];
-      if (paramType.endsWith(',')) {
-        paramType = paramType.slice(0, -1);
-      }
-      if (!optional && optionalParams.length > 0) {
-        const { line: nodeRelativeLine, column: nodeRelativeColumn } = offsetToLineAndColumn(
-          header.innerHTML,
-          getParameterOffset()
-        );
-        spec.warn({
-          type: 'contents',
-          ruleId: 'header-format',
-          message: `required parameters should not follow optional parameters`,
-          node: header,
-          nodeRelativeColumn,
-          nodeRelativeLine,
-        });
-      }
-      (optional ? optionalParams : params).push({
-        name: paramName,
-        type: paramType === 'unknown' ? null : paramType,
-        wrapper: paramWrapper,
-      });
-    }
-    const formattedPrefix = prefix == null ? '' : prefix[0].trim() + ' ';
-    // prettier-ignore
-    const printParam = (p: Param) => ` ${p.wrapper == null ? '' : `<${p.wrapper}>`}${p.name}${p.wrapper == null ? '' : `</${p.wrapper}>`}`;
-    formattedHeader = `${formattedPrefix}${name} (${params.map(printParam).join(',')}`;
-    if (optionalParams.length > 0) {
-      formattedHeader +=
-        optionalParams
-          .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + p.name)
-          .join('') + optionalParams.map(() => ' ]').join('');
-    }
-    formattedHeader += ' )';
-  } else {
-    let optional = false;
-    paramText = paramText.trim();
-    while (true) {
-      if (paramText.length == 0) {
-        break;
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      let { success, text, match } = eat(paramText, /^\s*\[(\s*,)?/);
-      if (success) {
-        optional = true;
-        paramText = text;
-      }
-      ({ success, text, match } = eat(paramText, /^\s*([A-Za-z0-9_]+)/));
-      if (!success) {
-        spec.warn({
-          type: 'contents',
-          ruleId: 'header-format',
-          message: `failed to parse header`,
-          node: header,
-          // we could be more precise, but it's probably not worth the effort
-          nodeRelativeLine: 1,
-          nodeRelativeColumn: 1,
-        });
-        break;
-      }
-      paramText = text;
-      (optional ? optionalParams : params).push({ name: match![1], type: null, wrapper: null });
-      ({ success, text } = eat(paramText, /^(\s*\])+|,/));
-      if (success) {
-        paramText = text;
-      }
-    }
+  if (parseResult.type === 'failure') {
+    return { name: null, formattedHeader: null, formattedParams: null, formattedReturnType: null };
   }
 
-  // prettier-ignore
-  const printParamWithType = (p: Param) => `${p.wrapper == null ? '' : `<${p.wrapper}>`}${p.name}${p.type == null ? '' : ` (${p.type})`}${p.wrapper == null ? '' : `</${p.wrapper}>`}`;
+  const {
+    type,
+    wrappingTag,
+    prefix,
+    name,
+    params,
+    optionalParams,
+    returnType,
+    // errors is already handled
+  } = parseResult;
+
   const paramsWithTypes = params.map(printParamWithType);
   const optionalParamsWithTypes = optionalParams.map(printParamWithType);
   let formattedParams = '';
@@ -213,8 +338,19 @@ export function parseStructuredHeaderH1(
     }
   }
 
-  if (formattedHeader != null && wrapper != null) {
-    formattedHeader = `<${wrapper}>${formattedHeader}</${wrapper}>`;
+  let formattedHeader;
+  if (type === 'single-line') {
+    formattedHeader = header.innerHTML;
+  } else {
+    formattedHeader =
+      (prefix == null ? '' : prefix + ' ') +
+      name +
+      ' ' +
+      printSimpleParamList(params, optionalParams);
+
+    if (wrappingTag !== null) {
+      formattedHeader = `<${wrappingTag}>${formattedHeader}</${wrappingTag}>`;
+    }
   }
 
   return { name, formattedHeader, formattedParams, formattedReturnType: returnType };
@@ -436,9 +572,9 @@ export function formatPreamble(
 function eat(text: string, regex: RegExp) {
   const match = text.match(regex);
   if (match == null) {
-    return { success: false, match, text };
+    return { match, text };
   }
-  return { success: true, match, text: text.substring(match[0].length) };
+  return { match, text: text.substring(match[0].length) };
 }
 
 function formatEnglishList(list: Array<string>) {

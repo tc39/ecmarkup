@@ -12,3 +12,13 @@ Requires node 8 or above.
 npm install ecmarkup
 ecmarkup in.html out.html
 ```
+
+### Formatter
+
+There is also an auto-formatter:
+
+```
+emu-format --write spec.html
+```
+
+See its `--help` for more details.

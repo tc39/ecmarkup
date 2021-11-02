@@ -20,7 +20,10 @@
 		"version": "auto-changelog && git add CHANGELOG.md",
 		"postversion": "auto-changelog && git add CHANGELOG.md && git commit --no-edit --amend && git tag -f \"v$(node -e \"console.log(require('./package.json').version)\")\""
 	},
-	"bin": "bin/ecmarkup.js",
+	"bin": {
+		"ecmarkup": "bin/ecmarkup.js",
+		"emu-format": "bin/emu-format.js"
+	},
 	"files": [
 		"/bin",
 		"/lib",
@@ -44,8 +47,10 @@
 	"license": "MIT",
 	"dependencies": {
 		"chalk": "^1.1.3",
-		"ecmarkdown": "^6.0.0",
+		"dedent-js": "^1.0.1",
+		"ecmarkdown": "^6.0.2",
 		"eslint": "^7.29.0",
+		"fast-glob": "^3.2.7",
 		"grammarkdown": "^3.1.1",
 		"highlight.js": "11.0.1",
 		"html-escape": "^1.0.2",
@@ -70,7 +75,7 @@
 		"parse5": "^4.0.0",
 		"prettier": "^2.0.4",
 		"safe-publish-latest": "^1.1.4",
-		"typescript": "^4.3.2"
+		"typescript": "4.3.2"
 	},
 	"auto-changelog": {
 		"output": "CHANGELOG.md",
