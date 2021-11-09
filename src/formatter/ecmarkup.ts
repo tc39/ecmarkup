@@ -174,7 +174,15 @@ export async function printElement(
     output.appendText(printStartTag(node));
     const body = await printChildNodes(src, childNodes, false, false, indent + 1);
     body.trim();
-    output.append(body);
+    if (body.lines.length > 1) {
+      output.linebreak();
+      ++output.indent;
+      output.append(body);
+      --output.indent;
+      output.linebreak();
+    } else {
+      output.append(body);
+    }
     output.appendText(`</${node.tagName}>`);
     output.linebreak();
     return output;
