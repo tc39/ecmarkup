@@ -277,19 +277,24 @@ describe('document formatting', () => {
     );
   });
 
-  it('<p> is inline', async () => {
+  it('<p> is inline unless multi-line', async () => {
     await assertDocFormatsAs(
       `
       <p>
         sometimes people write like this
       </p>
       <em><p>and they might theoretically write like this</p></em>
+      <p>sometimes they put explicit linebreaks:<br>inside of the paragraph</p>
       `,
       dedentKeepingTrailingNewline`
       <p>sometimes people write like this</p>
       <em>
         <p>and they might theoretically write like this</p>
       </em>
+      <p>
+        sometimes they put explicit linebreaks:<br>
+        inside of the paragraph
+      </p>
       `
     );
   });
