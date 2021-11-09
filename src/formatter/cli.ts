@@ -30,10 +30,16 @@ if (process.argv.includes('--help')) {
 
   const write = getFlag(toParseForFlags, '--write');
   const wouldWrite = getFlag(toParseForFlags, '--would-write');
+  const check = getFlag(toParseForFlags, '--check');
 
   const unknown = toParseForFlags.filter(f => f.startsWith('--'));
   if (unknown.length > 0) {
     console.error(`Unknown flag${unknown.length > 1 ? 's' : ''} ${unknown.join(', ')}`);
+    process.exit(1);
+  }
+
+  if (check && (write || wouldWrite)) {
+    console.error(`--check cannot be combined with --write or --would-write`);
     process.exit(1);
   }
 
@@ -51,10 +57,11 @@ if (process.argv.includes('--help')) {
   if (
     !write &&
     !wouldWrite &&
+    !check &&
     (patterns.length > 1 || files.length > 1 || files[0] !== patterns[0])
   ) {
     console.error(
-      `When processing multiple files or a glob pattern you must specify --write or --would-write`
+      `When processing multiple files or a glob pattern you must specify --write, --would-write, or --check`
     );
     process.exit(1);
   }
@@ -65,18 +72,38 @@ if (process.argv.includes('--help')) {
     process.exit(0);
   }
 
+  const touched = [];
   if (!write) {
     const input = await fs.readFile(files[0], 'utf8');
-    // printDocument includes a newline
-    process.stdout.write(await printDocument(input));
+    const printed = await printDocument(input);
+    if (check) {
+      if (printed !== input) {
+        touched.push(files[0]);
+      }
+    } else {
+      // printDocument includes a newline
+      process.stdout.write(printed);
+    }
   } else {
     for (const file of files) {
       console.log(`Processing ${file}`);
       const input = await fs.readFile(file, 'utf8');
       const printed = await printDocument(input);
-      await fs.writeFile(file, printed, 'utf8');
+      if (printed !== input) {
+        if (check) {
+          touched.push(file);
+        } else {
+          await fs.writeFile(file, printed, 'utf8');
+        }
+      }
     }
-    console.log('Done!');
+  }
+  if (touched.length > 0) {
+    console.log('Need formatting:');
+    for (const file of touched) {
+      console.log(file);
+    }
+    process.exit(1);
   }
 })().catch(e => {
   console.error(e);
@@ -129,13 +156,15 @@ async function stat(path: string) {
 }
 
 function usage(exitCode: 0 | 1): never {
-  console.log(`Usage: emu-format [--write|--would-write] src.emu
-
-Writes to standard out unless you pass --write, in which case the specified files are overwritten.
+  console.log(`Usage: emu-format [--write|--would-write|--check] src.emu
 
 You can also specify multiple files or a glob pattern, in which case you must also specify --write.
 
-You can substitute --would-write for --write to print a list of files matched by the pattern and exit without further processing.
+--write: Overwrite the specified files instead of print to standard out.
+
+--would-write: print a list of files matched by the pattern and exit without further processing.
+
+--check: exit with 1 if running with \`--write\` would cause at least some file to change (and print a list of such files); otherwise exit with 0.
 
 If using a glob, only files whose names end in \`.html\` or \`.emu\` are matched.
 `);
