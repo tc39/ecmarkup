@@ -446,7 +446,7 @@ Menu.prototype.addPinEntry = function (id) {
     // prettier-ignore
     this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${prefix}${entry.titleHTML}</a></li>`;
   } else {
-    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${entry.key}</a></li>`;
+    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${getKey(entry)}</a></li>`;
   }
 
   if (Object.keys(this._pinnedIds).length === 0) {
