@@ -1,6 +1,7 @@
 import type { default as Spec, Warning } from '../Spec';
 
 const knownEmuTags = new Set([
+  'emu-meta',
   'emu-import',
   'emu-example',
   'emu-intro',
