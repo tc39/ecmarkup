@@ -46,7 +46,6 @@ export default class Note extends Builder {
       this.spec.biblio.add({
         type: 'note',
         id: this.id,
-        node: this.node,
         number: number || 1,
         clauseId: this.clause.id,
       });

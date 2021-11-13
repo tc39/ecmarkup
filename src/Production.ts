@@ -82,7 +82,7 @@ export default class Production extends Builder {
         name: this.name,
       };
 
-      // non-enumerable to JSON-stringifying the biblio doesn't include this
+      // non-enumerable so JSON-stringifying the biblio doesn't include this
       Object.defineProperty(newEntry, '_instance', { value: this });
 
       this.spec.biblio.add(newEntry, this.namespace);
