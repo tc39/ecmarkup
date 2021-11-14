@@ -55,7 +55,7 @@ export default function makeMenu(spec: Spec) {
     </svg>`;
 
   const json = JSON.stringify(
-    { refsByClause: spec.refsByClause, entries: spec.biblio.toJSON() },
+    { refsByClause: spec.refsByClause, entries: spec.biblio.toWebJson() },
     biblioReplacer
   );
 

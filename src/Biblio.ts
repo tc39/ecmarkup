@@ -240,7 +240,8 @@ export default class Biblio {
     return this._nsToEnvRec[ns]!._keys;
   }
 
-  toJSON() {
+  // returns the entries from the local namespace
+  localEntries() {
     let root: BiblioEntry[] = [];
 
     function addEnv(env: EnvRec) {
