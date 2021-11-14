@@ -69,6 +69,10 @@ function biblioReplacer(this: BiblioEntry, k: string, v: unknown) {
   if (k === 'referencingIds' && (v as string[]).length === 0) {
     return undefined;
   }
+  if (k === 'aoid' && this.type !== 'op') {
+    // aoid is only used as a key for 'op's, nothing else
+    return undefined;
+  }
   if (!['title', 'namespace', 'location', 'variants'].includes(k)) {
     return v;
   }
