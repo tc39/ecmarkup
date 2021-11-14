@@ -191,6 +191,11 @@ export default class Biblio {
     // @ts-ignore
     entry.referencingIds = entry.referencingIds || [];
 
+    if (entry.id) {
+      // no reason to have both
+      delete entry.refId;
+    }
+
     env.push(entry as BiblioEntry);
     if (entry.id) {
       if ({}.hasOwnProperty.call(this, entry.id)) {
