@@ -723,7 +723,6 @@ let referencePane = {
     this.$headerRefId.style.display = 'inline';
     (entry.referencingIds || [])
       .map(id => {
-        id = `_ref_${id}`;
         let cid = menu.search.biblio.refParentClause[id];
         let clause = menu.search.biblio.byId[cid];
         if (clause == null) {

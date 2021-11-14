@@ -268,7 +268,7 @@ export interface BiblioEntryBase {
   id?: string;
   refId?: string; // the ID of a containing element; only used as a fallback when `id` is not present
   aoid?: string | null;
-  referencingIds: number[];
+  referencingIds: string[];
 }
 
 export interface AlgorithmBiblioEntry extends BiblioEntryBase {
