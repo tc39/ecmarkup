@@ -55,7 +55,7 @@ export default function makeMenu(spec: Spec) {
     </svg>`;
 
   const json = JSON.stringify(
-    { refsByClause: spec.refsByClause, entries: spec.biblio.toWebJson() },
+    { refsByClause: spec.refsByClause, entries: spec.biblio.localEntries() },
     biblioReplacer
   );
 
@@ -66,6 +66,9 @@ export default function makeMenu(spec: Spec) {
 }
 
 function biblioReplacer(this: BiblioEntry, k: string, v: unknown) {
+  if (k === 'referencingIds' && (v as string[]).length === 0) {
+    return undefined;
+  }
   if (!['title', 'namespace', 'location', 'variants'].includes(k)) {
     return v;
   }
