@@ -131,7 +131,7 @@ export default class Biblio {
         for (const entry of entries) {
           let keys;
           if (type === 'term') {
-            if (entry.term === 'type') {
+            if ((entry as TermBiblioEntry).term === 'type') {
               // this is a dumb kludge necessitated by ecma262 dfn'ing both "type" and "Type"
               // the latter originally masked the former, so that it didn't actually end up linking all usages of the word "type"
               // we've changed the logic a bit so that masking no longer happens, and consequently the autolinker adds a bunch of spurious links
@@ -265,26 +265,18 @@ export interface BiblioEntryBase {
   location: string;
   namespace?: string;
   id?: string;
+  refId?: string; // the ID of a containing element; only used as a fallback when `id` is not present
   aoid?: string | null;
-  refId?: string;
-  clauseId?: string;
-  name?: string;
-  title?: string;
-  number?: string | number;
-  caption?: string;
-  term?: string;
   referencingIds: string[];
 }
 
 export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   type: 'op';
   aoid: string;
-  refId?: string;
 }
 
 export interface ProductionBiblioEntry extends BiblioEntryBase {
   type: 'production';
-  id?: string;
   name: string;
   /*@internal*/ _instance?: Production;
 }
@@ -301,9 +293,7 @@ export interface ClauseBiblioEntry extends BiblioEntryBase {
 export interface TermBiblioEntry extends BiblioEntryBase {
   type: 'term';
   term: string;
-  refId: string;
   variants?: string[];
-  id?: string;
 }
 
 export interface FigureBiblioEntry extends BiblioEntryBase {
