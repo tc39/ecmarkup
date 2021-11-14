@@ -612,14 +612,23 @@ export default class Spec {
         entry = this.spec.biblio.byId(entry.refId);
       }
 
-      if (!xref.id) {
-        const id = `_ref_${counter++}`;
-        xref.node.setAttribute('id', id);
-        xref.id = id;
+      if (xref.node.hasAttribute('id')) {
+        this.warn({
+          type: 'attr',
+          attr: 'id',
+          node: xref.node,
+          ruleId: 'node-auto-id',
+          message: 'xrefs should not have ids; they are automatically assigned',
+        });
+        return;
       }
+      const id = counter;
+      ++counter;
+      xref.node.setAttribute('id', `_ref_${id}`);
+
       setParent(xref.node);
 
-      entry.referencingIds.push(xref.id);
+      entry.referencingIds.push(id);
     });
 
     this._ntRefs.forEach(prod => {
@@ -629,8 +638,21 @@ export default class Spec {
       // if this is the defining nt of an emu-production, don't create a ref
       if (prod.node.parentNode!.nodeName === 'EMU-PRODUCTION') return;
 
-      const id = `_ref_${counter++}`;
-      prod.node.setAttribute('id', id);
+      if (prod.node.hasAttribute('id')) {
+        this.warn({
+          type: 'attr',
+          attr: 'id',
+          node: prod.node,
+          ruleId: 'node-auto-id',
+          message: 'productions should not have ids; they are automatically assigned',
+        });
+        return;
+      }
+
+      const id = counter;
+      ++counter;
+      prod.node.setAttribute('id', `_ref_${id}`);
+
       setParent(prod.node);
 
       entry.referencingIds.push(id);

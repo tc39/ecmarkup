@@ -13,7 +13,6 @@ export default class Xref extends Builder {
   aoid: string;
   isInvocation: boolean;
   clause: Clause | null;
-  id: string;
   entry: Biblio.BiblioEntry | undefined;
   addEffects: string[] | null;
   suppressEffects: string[] | null;
@@ -33,7 +32,6 @@ export default class Xref extends Builder {
     this.href = href;
     this.aoid = aoid;
     this.clause = clause;
-    this.id = node.getAttribute('id')!;
     this.isInvocation = node.hasAttribute('is-invocation');
     node.removeAttribute('is-invocation');
 
