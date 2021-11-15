@@ -33,7 +33,6 @@ export default class Example extends Builder {
       this.spec.biblio.add({
         type: 'example',
         id: this.id,
-        node: this.node,
         number: number || 1,
         clauseId: this.clause.id,
       });

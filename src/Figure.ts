@@ -37,7 +37,6 @@ export default class Figure extends Builder {
       spec.biblio.add({
         type: this.type as 'table' | 'figure' | 'example' | 'note',
         id: this.id,
-        node: this.node,
         number: this.number,
         caption: this.caption,
       });

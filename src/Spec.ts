@@ -1080,7 +1080,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     }
 
     const biblio: BiblioData = {};
-    biblio[this.opts.location] = this.biblio.toJSON();
+    biblio[this.opts.location] = this.biblio.localEntries();
 
     return biblio;
   }

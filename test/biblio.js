@@ -35,7 +35,7 @@ describe('Biblio', () => {
     assert.equal(biblio.byAoid('aoid', location), opEntry);
   });
 
-  specify('stringifies with only the local scope', () => {
+  specify('localEntries includes only the local scope', () => {
     const opEntry1 = {
       type: 'op',
       aoid: 'aoid1',
@@ -51,7 +51,7 @@ describe('Biblio', () => {
     biblio.add(opEntry1, location);
     biblio.add(opEntry2, 'global');
 
-    const str = JSON.stringify(biblio);
+    const str = JSON.stringify(biblio.localEntries());
 
     assert(str.indexOf('aoid1') > -1);
     assert(str.indexOf('aoid2') === -1);

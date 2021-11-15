@@ -291,14 +291,10 @@ function buildFigureLink(
     if (entry.clauseId) {
       // first need to find the associated clause
       const clauseEntry = spec.biblio.byId(entry.clauseId);
-      if (clauseEntry.type !== 'clause') {
-        spec.warn({
-          type: 'node',
-          ruleId: 'invalid-xref',
-          message: `could not find parent clause for ${type} id ${entry.id}`,
-          node: entry.node,
-        });
-        return;
+      if (clauseEntry?.type !== 'clause') {
+        throw new Error(
+          `${type} with id ${entry.id} has a \`clauseId\` which does not correspond to a clause - this should be impossible; please file an issue on ecmarkup`
+        );
       }
 
       if (parentClause && parentClause.id === clauseEntry.id) {

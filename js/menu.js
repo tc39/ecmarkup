@@ -721,7 +721,7 @@ let referencePane = {
     this.$headerRefId.textContent = '#' + entry.id;
     this.$headerRefId.setAttribute('href', makeLinkToId(entry.id));
     this.$headerRefId.style.display = 'inline';
-    entry.referencingIds
+    (entry.referencingIds || [])
       .map(id => {
         let cid = menu.search.biblio.refParentClause[id];
         let clause = menu.search.biblio.byId[cid];
