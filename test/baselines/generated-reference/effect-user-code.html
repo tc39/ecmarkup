@@ -61,15 +61,27 @@
   <emu-alg><ol><li><emu-xref aoid="UserCode" id="_ref_7"><a href="#sec-user-code">UserCode</a></emu-xref> is an abstract operation.</li></ol></emu-alg>
 </emu-clause>
 
+<emu-clause id="sec-non-abrupt" type="abstract operation" aoid="NonAbrupt">
+  <h1><span class="secnum">11</span> NonAbrupt()</h1>
+  <p>The abstract operation NonAbrupt takes no arguments. Invocations that cannot result in abrupt completions suppress the user-code effect by default. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Let <var>res</var> be !&nbsp;<emu-xref aoid="UserCode" id="_ref_8"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-non-abrupt-override" type="abstract operation" aoid="NonAbruptOverride">
+  <h1><span class="secnum">12</span> NonAbruptOverride()</h1>
+  <p>The abstract operation NonAbruptOverride takes no arguments. Invocations that cannot result in abrupt completions suppress the user-code effect by default but can still be overridden. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Let <var>res</var> be ! <emu-xref aoid="UserCode" id="_ref_9"><a href="#sec-user-code" class="e-user-code e-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
+</emu-clause>
+
 <emu-clause id="sec-static-direct-call" type="sdo" aoid="StaticDirectCall">
-  <h1><span class="secnum">11</span> Static Semantics: StaticDirectCall</h1>
+  <h1><span class="secnum">13</span> Static Semantics: StaticDirectCall</h1>
   <p>The <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-syntax-directed-operations">syntax-directed operation</a></emu-xref> StaticDirectCall takes no arguments. <emu-xref href="#sec-static-semantic-rules"><a href="https://tc39.es/ecma262/#sec-static-semantic-rules">Static semantics</a></emu-xref> suppress user-code.</p>
-  <emu-alg><ol><li><emu-xref aoid="UserCode" id="_ref_8"><a href="#sec-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
+  <emu-alg><ol><li><emu-xref aoid="UserCode" id="_ref_10"><a href="#sec-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-static-transitive-call" type="sdo" aoid="StaticTransitiveCall">
-  <h1><span class="secnum">12</span> Static Semantics: StaticTransitiveCall</h1>
+  <h1><span class="secnum">14</span> Static Semantics: StaticTransitiveCall</h1>
   <p>The <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-syntax-directed-operations">syntax-directed operation</a></emu-xref> StaticTransitiveCall takes no arguments. <emu-xref href="#sec-static-semantic-rules"><a href="https://tc39.es/ecma262/#sec-static-semantic-rules">Static semantics</a></emu-xref> suppress user-code.</p>
-  <emu-alg><ol><li><emu-xref aoid="StaticDirectCall" id="_ref_9"><a href="#sec-static-direct-call">StaticDirectCall</a></emu-xref> of Baz.</li></ol></emu-alg>
+  <emu-alg><ol><li><emu-xref aoid="StaticDirectCall" id="_ref_11"><a href="#sec-static-direct-call">StaticDirectCall</a></emu-xref> of Baz.</li></ol></emu-alg>
 </emu-clause>
 </div></body>

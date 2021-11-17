@@ -112,6 +112,28 @@ assets: none
   </emu-alg>
 </emu-clause>
 
+<emu-clause id="sec-non-abrupt" type="abstract operation">
+  <h1>NonAbrupt()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Invocations that cannot result in abrupt completions suppress the user-code effect by default.</dd>
+  </dl>
+  <emu-alg>
+    1. Let _res_ be ! UserCode().
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-non-abrupt-override" type="abstract operation">
+  <h1>NonAbruptOverride()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Invocations that cannot result in abrupt completions suppress the user-code effect by default but can still be overridden.</dd>
+  </dl>
+  <emu-alg>
+    1. Let _res_ be ! <emu-meta effects="user-code">UserCode()</emu-meta>.
+  </emu-alg>
+</emu-clause>
+
 <emu-clause id="sec-static-direct-call" type="sdo">
   <h1>Static Semantics: StaticDirectCall</h1>
   <dl class="header">
