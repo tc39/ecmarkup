@@ -28,6 +28,7 @@ import Grammar from './Grammar';
 import Xref from './Xref';
 import Eqn from './Eqn';
 import Biblio from './Biblio';
+import Meta from './Meta';
 import {
   autolink,
   replacerForNamespace,
@@ -76,6 +77,7 @@ const builders: BuilderInterface[] = [
   NonTerminal,
   ProdRef,
   Note,
+  Meta,
 ];
 
 const visitorMap = builders.reduce((map, T) => {
@@ -303,6 +305,7 @@ export default class Spec {
   _textNodes: { [s: string]: [TextNodeContext] };
   _effectWorklist: Map<string, Clause[]>;
   _effectfulAOs: Map<string, Clause>;
+  _emuMetasToRender: Set<HTMLElement>;
   refsByClause: { [refId: string]: [string] };
 
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
@@ -347,6 +350,7 @@ export default class Spec {
     this._textNodes = {};
     this._effectWorklist = new Map();
     this._effectfulAOs = new Map();
+    this._emuMetasToRender = new Set();
     this.refsByClause = Object.create(null);
 
     this.processMetadata();
@@ -476,6 +480,7 @@ export default class Spec {
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');
     this._ntRefs.forEach(nt => nt.build());
+    this._emuMetasToRender.forEach(node => Meta.render(this, node));
 
     if (this.opts.lintSpec) {
       this._ntStringRefs.forEach(({ name, loc, node, namespace }) => {

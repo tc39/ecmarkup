@@ -155,3 +155,14 @@ assets: none
     1. StaticDirectCall of Baz.
   </emu-alg>
 </emu-clause>
+
+<emu-clause id="sec-rendered-meta" type="abstract operation">
+  <h1>RenderedMeta()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>emu-meta tags with the effects attribute that aren't surrounding what ecmarkup recognizes as invocations are changed into span tags to be rendered. The effects list is prefixed with e- and changed into class names.</dd>
+  </dl>
+  <emu-alg>
+    1. Perform ? <emu-meta effects="user-code">_O_.[[Call]]()</emu-meta>.
+  </emu-alg>
+</emu-clause>

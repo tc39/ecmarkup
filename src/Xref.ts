@@ -66,6 +66,8 @@ export default class Xref extends Builder {
         }
       }
 
+      spec._emuMetasToRender.delete(node.parentElement);
+
       // Strip an outer <emu-meta> if present
       const children = node.parentElement.childNodes;
       node.parentElement.replaceWith(...children);

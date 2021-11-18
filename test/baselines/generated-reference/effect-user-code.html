@@ -64,7 +64,7 @@
 <emu-clause id="sec-non-abrupt" type="abstract operation" aoid="NonAbrupt">
   <h1><span class="secnum">11</span> NonAbrupt()</h1>
   <p>The abstract operation NonAbrupt takes no arguments. Invocations that cannot result in abrupt completions suppress the user-code effect by default. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Let <var>res</var> be !&nbsp;<emu-xref aoid="UserCode" id="_ref_8"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
+  <emu-alg><ol><li>Let <var>res</var> be !&nbsp;<emu-xref aoid="UserCode" id="_ref_8"><a href="#sec-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-non-abrupt-override" type="abstract operation" aoid="NonAbruptOverride">
@@ -83,5 +83,11 @@
   <h1><span class="secnum">14</span> Static Semantics: StaticTransitiveCall</h1>
   <p>The <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-syntax-directed-operations">syntax-directed operation</a></emu-xref> StaticTransitiveCall takes no arguments. <emu-xref href="#sec-static-semantic-rules"><a href="https://tc39.es/ecma262/#sec-static-semantic-rules">Static semantics</a></emu-xref> suppress user-code.</p>
   <emu-alg><ol><li><emu-xref aoid="StaticDirectCall" id="_ref_11"><a href="#sec-static-direct-call">StaticDirectCall</a></emu-xref> of Baz.</li></ol></emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-rendered-meta" type="abstract operation" aoid="RenderedMeta">
+  <h1><span class="secnum">15</span> RenderedMeta()</h1>
+  <p>The abstract operation RenderedMeta takes no arguments. emu-meta tags with the effects attribute that aren't surrounding what ecmarkup recognizes as invocations are changed into span tags to be rendered. The effects list is prefixed with e- and changed into class names. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Perform ? <span class="e-user-code"><var>O</var>.[[Call]]()</span>.</li></ol></emu-alg>
 </emu-clause>
 </div></body>
