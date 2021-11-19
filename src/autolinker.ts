@@ -67,7 +67,17 @@ export function autolink(
       ) {
         isInvocationAttribute = ' is-invocation';
       }
-      return `<emu-xref aoid="${entry.aoid}"${isInvocationAttribute}>${match}</emu-xref>`;
+
+      let noAbruptCompletionAttribute = '';
+      // \xA0 is &nbsp;
+      if (
+        (content[offset - 1] === ' ' || content[offset - 1] === '\xA0') &&
+        content[offset - 2] === '!'
+      ) {
+        noAbruptCompletionAttribute = ' no-abrupt-completion';
+      }
+
+      return `<emu-xref aoid="${entry.aoid}"${isInvocationAttribute}${noAbruptCompletionAttribute}>${match}</emu-xref>`;
     } else {
       return `<emu-xref href="#${entry.id || entry.refId}">${match}</emu-xref>`;
     }

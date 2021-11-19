@@ -66,9 +66,24 @@ export default class Xref extends Builder {
         }
       }
 
+      spec._emuMetasToRender.delete(node.parentElement);
+
       // Strip an outer <emu-meta> if present
       const children = node.parentElement.childNodes;
       node.parentElement.replaceWith(...children);
+    }
+
+    // Invocations prefixed with ! supress the 'user-code' effect by
+    // default. There are exceptions, but they should manually add the effect back.
+    if (node.hasAttribute('no-abrupt-completion')) {
+      if (this.addEffects === null || !this.addEffects.includes('user-code')) {
+        if (this.suppressEffects === null) {
+          this.suppressEffects = ['user-code'];
+        } else {
+          this.suppressEffects.push('user-code');
+        }
+      }
+      node.removeAttribute('no-abrupt-completion');
     }
   }
 
