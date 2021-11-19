@@ -57,7 +57,7 @@ export default class Algorithm extends Builder {
     const rawHtml = emd.emit(emdTree);
 
     // replace spaces after !/? with &nbsp; to prevent bad line breaking
-    const html = rawHtml.replace(/((?:\s+|>)[!?])\s+(\w+\s*\()/g, '$1&nbsp;$2');
+    const html = rawHtml.replace(/((?:\s+|>)[!?])[ \t]+/g, '$1&nbsp;');
     node.innerHTML = html;
 
     const labeledStepEntries: StepBiblioEntry[] = [];
