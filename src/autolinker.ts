@@ -69,8 +69,11 @@ export function autolink(
       }
 
       let noAbruptCompletionAttribute = '';
-      // 160 is &nbsp;
-      if (content.charCodeAt(offset - 1) === 160 && content[offset - 2] === '!') {
+      // \xA0 is &nbsp;
+      if (
+        (content[offset - 1] === ' ' || content[offset - 1] === '\xA0') &&
+        content[offset - 2] === '!'
+      ) {
         noAbruptCompletionAttribute = ' no-abrupt-completion';
       }
 
