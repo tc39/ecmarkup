@@ -70,7 +70,7 @@
 <emu-clause id="sec-non-abrupt-override" type="abstract operation" aoid="NonAbruptOverride">
   <h1><span class="secnum">12</span> NonAbruptOverride()</h1>
   <p>The abstract operation NonAbruptOverride takes no arguments. Invocations that cannot result in abrupt completions suppress the user-code effect by default but can still be overridden. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Let <var>res</var> be ! <emu-xref aoid="UserCode" id="_ref_9"><a href="#sec-user-code" class="e-user-code e-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
+  <emu-alg><ol><li>Let <var>res</var> be !&nbsp;<emu-xref aoid="UserCode" id="_ref_9"><a href="#sec-user-code" class="e-user-code e-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-static-direct-call" type="sdo" aoid="StaticDirectCall">
@@ -88,6 +88,6 @@
 <emu-clause id="sec-rendered-meta" type="abstract operation" aoid="RenderedMeta">
   <h1><span class="secnum">15</span> RenderedMeta()</h1>
   <p>The abstract operation RenderedMeta takes no arguments. emu-meta tags with the effects attribute that aren't surrounding what ecmarkup recognizes as invocations are changed into span tags to be rendered. The effects list is prefixed with e- and changed into class names. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Perform ? <span class="e-user-code"><var>O</var>.[[Call]]()</span>.</li></ol></emu-alg>
+  <emu-alg><ol><li>Perform ?&nbsp;<span class="e-user-code"><var>O</var>.[[Call]]()</span>.</li></ol></emu-alg>
 </emu-clause>
 </div></body>
