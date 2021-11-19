@@ -47,6 +47,8 @@
 	"license": "MIT",
 	"dependencies": {
 		"chalk": "^1.1.3",
+		"command-line-args": "^5.2.0",
+		"command-line-usage": "^6.1.1",
 		"dedent-js": "^1.0.1",
 		"ecmarkdown": "^7.0.0",
 		"eslint": "^7.29.0",
@@ -56,16 +58,16 @@
 		"html-escape": "^1.0.2",
 		"js-yaml": "^3.13.1",
 		"jsdom": "11.10.0",
-		"nomnom": "^1.8.1",
 		"prex": "^0.4.7",
 		"promise-debounce": "^1.0.1"
 	},
 	"devDependencies": {
 		"@types/chalk": "^0.4.31",
+		"@types/command-line-args": "^5.2.0",
+		"@types/command-line-usage": "^5.0.2",
 		"@types/js-yaml": "^3.12.1",
 		"@types/jsdom": "^11.12.0",
 		"@types/node": "^13.1.8",
-		"@types/nomnom": "0.0.27",
 		"@typescript-eslint/eslint-plugin": "^4.27.0",
 		"@typescript-eslint/parser": "^4.27.0",
 		"auto-changelog": "^1.16.2",

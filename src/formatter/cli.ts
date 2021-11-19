@@ -3,47 +3,74 @@ import * as path from 'path';
 import * as fastGlob from 'fast-glob';
 
 import { printDocument } from './ecmarkup';
+import { parse as parseArguments } from '../arg-parser';
+import * as commandLineUsage from 'command-line-usage';
 
 const fs = fsSync.promises;
 
 const ignored = ['.git', '.svn', '.hg', 'node_modules'];
 
-if (process.argv.length < 3) {
-  usage(1);
-}
-if (process.argv.includes('--help')) {
-  usage(0);
+const options = [
+  {
+    name: 'help',
+    alias: 'h',
+    type: Boolean,
+    description: 'Display this help message',
+  },
+  {
+    name: 'check',
+    type: Boolean,
+    description:
+      'Exit with 1 if running with --write would cause at least some file to change (and print a list of such files); otherwise exit with 0.',
+  },
+  {
+    name: 'write',
+    type: Boolean,
+    description: 'Overwrite the specified files instead of printing to standard out.',
+  },
+  {
+    name: 'would-write',
+    type: Boolean,
+    description:
+      'Print a list of files matched by the pattern and exit without further processing.',
+  },
+  {
+    name: 'patterns',
+    type: String,
+    multiple: true,
+    defaultOption: true,
+  },
+] as const;
+
+function usage() {
+  console.log(
+    commandLineUsage([
+      {
+        content: ['Usage: emu-format [--write|--would-write|--check] src.emu'],
+      },
+      {
+        header: 'Options',
+        hide: ['patterns'],
+        optionList: options as unknown as commandLineUsage.OptionDefinition[],
+      },
+    ])
+  );
 }
 
 (async () => {
-  const args = process.argv.slice(2);
-  const dashDash = args.indexOf('--');
-  let toParseForFlags: string[];
-  let toNotParse: string[];
-  if (dashDash !== -1) {
-    toParseForFlags = args.slice(0, dashDash);
-    toNotParse = args.slice(dashDash + 1);
-  } else {
-    toParseForFlags = args;
-    toNotParse = [];
-  }
+  const args = parseArguments(options, usage);
 
-  const write = getFlag(toParseForFlags, '--write');
-  const wouldWrite = getFlag(toParseForFlags, '--would-write');
-  const check = getFlag(toParseForFlags, '--check');
-
-  const unknown = toParseForFlags.filter(f => f.startsWith('--'));
-  if (unknown.length > 0) {
-    console.error(`Unknown flag${unknown.length > 1 ? 's' : ''} ${unknown.join(', ')}`);
-    process.exit(1);
-  }
+  const { patterns, check, write, 'would-write': wouldWrite } = args;
 
   if (check && (write || wouldWrite)) {
     console.error(`--check cannot be combined with --write or --would-write`);
     process.exit(1);
   }
 
-  const patterns = toParseForFlags.concat(toNotParse);
+  if (patterns.length === 0) {
+    usage();
+    process.exit(1);
+  }
 
   // can't use flatmap when the mapper is async, sigh
   const files = (await Promise.all(patterns.map(expandGlob))).flat();
@@ -110,15 +137,6 @@ if (process.argv.includes('--help')) {
   process.exit(1);
 });
 
-function getFlag(args: string[], flag: string) {
-  const index = args.indexOf(flag);
-  if (index === -1) {
-    return false;
-  }
-  args.splice(index, 1);
-  return true;
-}
-
 async function expandGlob(pattern: string) {
   const cwd = process.cwd();
 
@@ -153,20 +171,4 @@ async function stat(path: string) {
     }
     return null;
   }
-}
-
-function usage(exitCode: 0 | 1): never {
-  console.log(`Usage: emu-format [--write|--would-write|--check] src.emu
-
-You can also specify multiple files or a glob pattern, in which case you must also specify --write.
-
---write: Overwrite the specified files instead of print to standard out.
-
---would-write: print a list of files matched by the pattern and exit without further processing.
-
---check: exit with 1 if running with \`--write\` would cause at least some file to change (and print a list of such files); otherwise exit with 0.
-
-If using a glob, only files whose names end in \`.html\` or \`.emu\` are matched.
-`);
-  process.exit(exitCode);
 }
