@@ -13,7 +13,6 @@ const ignored = ['.git', '.svn', '.hg', 'node_modules'];
 const options = [
   {
     name: 'help',
-    alias: 'h',
     type: Boolean,
     description: 'Display this help message',
   },

@@ -62,9 +62,9 @@ export const options = [
     name: 'lint-formatter',
     type: String,
     typeLabel: '{underline formatter}',
-    defaultValue: 'codeframe',
+    defaultValue: 'eslint-formatter-codeframe',
     description:
-      'The linting output formatter; either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter (default: codeframe)',
+      'The formatter for warnings and errors; either a path prefixed with "." or "./", or package name, of an installed eslint compatible formatter (default: eslint-formatter-codeframe)',
   },
   {
     name: 'multipage',

@@ -108,13 +108,16 @@ const build = debounce(async function build() {
     let warned = false;
 
     const lintFormatter = args['lint-formatter']!;
-    let descriptor = `eslint/lib/cli-engine/formatters/${lintFormatter}.js`;
-    try {
-      require.resolve(descriptor);
-    } catch {
-      descriptor = lintFormatter;
+    let toResolve = lintFormatter;
+    if (/^[./]/.test(lintFormatter)) {
+      toResolve = path.resolve(process.cwd(), lintFormatter);
     }
-    const formatter = require(descriptor);
+    let formatter;
+    try {
+      formatter = require(toResolve);
+    } catch (e) {
+      fail(`could not find formatter ${lintFormatter}`);
+    }
     const warnings: EcmarkupError[] = [];
     opts.warn = err => {
       warned = true;
