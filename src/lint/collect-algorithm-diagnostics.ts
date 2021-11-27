@@ -73,7 +73,7 @@ export function collectAlgorithmDiagnostics(
     let tree;
     try {
       tree = parseAlgorithm(algorithmSource);
-    } catch (e) {
+    } catch (e: any) {
       warnEmdFailure(report, element, e);
     }
     if (tree != null) {

@@ -36,7 +36,7 @@ export default class Algorithm extends Builder {
     let emdTree;
     try {
       emdTree = emd.parseAlgorithm(innerHTML);
-    } catch (e) {
+    } catch (e: any) {
       if (!('ecmarkdownTree' in node)) {
         // if it is present, we've already warned earlier
         warnEmdFailure(spec.warn, node, e);

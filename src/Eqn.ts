@@ -48,7 +48,7 @@ export default class Eqn extends Builder {
     let contents;
     try {
       contents = emd.fragment(node.innerHTML);
-    } catch (e) {
+    } catch (e: any) {
       utils.warnEmdFailure(spec.warn, node, e);
       node.innerHTML = utils.wrapEmdFailure(node.innerHTML);
       return;

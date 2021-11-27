@@ -4,38 +4,29 @@ import {
   CoreAsyncHost,
   Grammar,
   GrammarkdownEmitter,
-  skipTrivia,
   Node,
-  CommentTrivia,
   SyntaxKind,
   Prose,
-  ProseAssertion,
   RightHandSide,
   SourceFile,
   Production,
   OneOfList,
   RightHandSideList,
   ParameterList,
+  Trivia,
 } from 'grammarkdown';
 import { LineBuilder } from './line-builder';
 
 // this whole thing is perverse, but I don't see a better way of doing it
 // I also could not figure out how to get grammarkdown to do its own indenting at any higher level than this
 const RAW_STRING_MARKER = 'RAW_STRING_MARKER';
-type CommentWithSource = {
-  kind: CommentTrivia['kind'];
-  pos: number;
-  end: number;
-  source: string;
-  isIgnore: boolean;
-};
 class EmitterWithComments extends GrammarkdownEmitter {
   declare source: string;
   declare root: SourceFile;
   declare done: Set<number>;
   declare rawParts: Map<string, string>;
   declare forceExpandRhs: boolean;
-  declare commentsMap: Map<Node, CommentWithSource[]>;
+  declare commentsMap: Map<Node, Trivia[]>;
 
   constructor(options: CompilerOptions, sourceFile: SourceFile) {
     super(options);
@@ -92,7 +83,7 @@ class EmitterWithComments extends GrammarkdownEmitter {
         }
         if (prods[0] === element) {
           const allComments = prods.flatMap(p => this.getComments(p));
-          if (allComments.some(c => c.isIgnore)) {
+          if (allComments.some(c => this.isIgnoreComment(c))) {
             elements.push(...prods);
             continue;
           }
@@ -158,12 +149,22 @@ class EmitterWithComments extends GrammarkdownEmitter {
     return output;
   }
 
+  isIgnoreComment(trivia: Trivia): boolean {
+    if (
+      trivia.kind === SyntaxKind.SingleLineCommentTrivia ||
+      trivia.kind === SyntaxKind.MultiLineCommentTrivia ||
+      trivia.kind === SyntaxKind.HtmlCommentTrivia
+    ) {
+      const source = this.source.substring(trivia.pos, trivia.end);
+      return /(\/\/|\/\*)\s*emu-format ignore/.test(source);
+    }
+    return false;
+  }
+
   emitNode(node: Node | undefined) {
     if (node && node.kind !== SyntaxKind.SourceFile) {
-      const comments: CommentWithSource[] = this.getComments(node).filter(
-        c => !this.done.has(c.pos)
-      );
-      if (comments.some(c => c.isIgnore)) {
+      const comments = this.getComments(node).filter(c => !this.done.has(c.pos));
+      if (comments.some(c => this.isIgnoreComment(c))) {
         if (node.kind !== SyntaxKind.Production) {
           // TODO location information
           throw new Error(
@@ -172,60 +173,29 @@ class EmitterWithComments extends GrammarkdownEmitter {
         }
         // the source includes all comments and any leading HTML tags
         // it does not include trailing HTML tags, even though they are included in the AST
-        const end = Math.max(node.end, ...(node.trailingHtmlTrivia ?? []).map(h => h.end));
+        const end = Math.max(node.end, ...(node.trailingTrivia ?? []).map(h => h.end));
         const nodeSource = this.source.substring(node.pos, end);
         const marker = RAW_STRING_MARKER + '_' + this.rawParts.size;
         this.rawParts.set(marker, nodeSource);
         this.writer.writeln(marker);
         return;
       }
-      for (const comment of comments) {
-        this.done.add(comment.pos);
-
-        let hasTrailingNewline = false;
-        if (comment.kind == SyntaxKind.MultiLineCommentTrivia) {
-          for (let ind = comment.end + 1; ind < this.source.length; ++ind) {
-            const char = this.source[ind];
-            if (char === '\n' || char === '\r') {
-              hasTrailingNewline = true;
-            } else if (char !== ' ') {
-              break;
-            }
-          }
-        } else {
-          hasTrailingNewline = true;
-        }
-        if (hasTrailingNewline) {
-          this.writer.writeln(comment.source);
-        } else {
-          this.writer.write(comment.source + ' ');
-        }
-      }
     }
     super.emitNode(node);
-
-    if (node?.kind === SyntaxKind.Production && (node.trailingHtmlTrivia ?? []).length > 0) {
-      // partial workaround for https://github.com/rbuckton/grammarkdown/issues/80
-      this.writer.writeln();
-    }
   }
 
-  getComments(node: Node): CommentWithSource[] {
+  emitLeadingTriviaOfNode(node: Node) {
+    if (this.commentsMap.has(node)) {
+      return this.emitTriviaNodes(this.commentsMap.get(node));
+    }
+    return super.emitLeadingTriviaOfNode(node);
+  }
+
+  getComments(node: Node) {
     if (this.commentsMap.has(node)) {
       return this.commentsMap.get(node)!;
     }
-    const comments: CommentTrivia[] = [];
-    skipTrivia(this.source, node.pos, node.end, undefined, comments);
-    return comments.map(c => {
-      const source = this.source.substring(c.pos, c.end);
-      return {
-        kind: c.kind,
-        pos: c.pos,
-        end: c.end,
-        source,
-        isIgnore: /(\/\/|\/\*)\s*emu-format ignore/.test(source),
-      };
-    });
+    return ([] as Array<Trivia>).concat(node.detachedTrivia ?? [], node.leadingTrivia ?? []);
   }
 
   // for the collapsed case, keep it on one line
@@ -276,33 +246,6 @@ class EmitterWithComments extends GrammarkdownEmitter {
   emitProse(node: Prose) {
     this.writer.write('&gt; ');
     node.fragments && this.emitNodes(node.fragments);
-  }
-
-  // we want a space after the `[>`
-  emitProseAssertion(node: ProseAssertion) {
-    this.writer.write(`[> `);
-    if (node.fragments) {
-      for (const fragment of node.fragments) {
-        if (fragment.kind === SyntaxKind.Nonterminal) {
-          // workaround for https://github.com/rbuckton/grammarkdown/issues/80#issuecomment-950265326
-          this.writer.write(`|`);
-          this.emitNode(fragment);
-          this.writer.write(`|`);
-        } else {
-          this.emitNode(fragment);
-        }
-      }
-    }
-
-    this.writer.write(`]`);
-  }
-
-  // workaround for https://github.com/rbuckton/grammarkdown/issues/80#issuecomment-950265326
-  emitRightHandSide(node: RightHandSide) {
-    this.emitChildren(node);
-    if (node.reference) {
-      this.writer.write(` #${node.reference.text}`);
-    }
   }
 }
 

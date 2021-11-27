@@ -1,4 +1,4 @@
-import type { MarkupData } from 'parse5';
+import type { ElementLocation } from 'parse5';
 
 import type Spec from './Spec';
 
@@ -62,7 +62,7 @@ export function emdTextNode(spec: Spec, node: Text, namespace: string) {
       spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
     }
     processed = emd.emit(parts);
-  } catch (e) {
+  } catch (e: any) {
     warnEmdFailure(spec.warn, node, e);
     processed = wrapEmdFailure(c);
   }
@@ -75,7 +75,7 @@ export function emdTextNode(spec: Spec, node: Text, namespace: string) {
 
 /*@internal*/
 export function htmlToDom(html: string) {
-  return new (jsdom as any).JSDOM(html, { includeNodeLocations: true });
+  return new jsdom.JSDOM(html, { includeNodeLocations: true });
 }
 
 /*@internal*/
@@ -191,32 +191,27 @@ export function offsetToLineAndColumn(string: string, offset: number) {
   return { line: line + 1, column: column + 1 };
 }
 
-export function attrLocation(
-  source: string | undefined,
-  loc: MarkupData.ElementLocation,
-  attr: string
-) {
-  const attrLoc = loc.startTag.attrs[attr];
+export function attrLocation(source: string | undefined, loc: ElementLocation, attr: string) {
+  const attrLoc = loc.startTag.attrs?.[attr];
   if (attrLoc == null) {
-    return { line: loc.startTag.line, column: loc.startTag.col };
+    return { line: loc.startTag.startLine, column: loc.startTag.startCol };
   } else {
-    return { line: attrLoc.line, column: attrLoc.col };
+    return { line: attrLoc.startLine, column: attrLoc.startCol };
   }
 }
 
-export function attrValueLocation(
-  source: string | undefined,
-  loc: MarkupData.ElementLocation,
-  attr: string
-) {
-  const attrLoc = loc.startTag.attrs[attr];
+export function attrValueLocation(source: string | undefined, loc: ElementLocation, attr: string) {
+  const attrLoc = loc.startTag.attrs?.[attr];
   if (attrLoc == null || source == null) {
-    return { line: loc.startTag.line, column: loc.startTag.col };
+    return { line: loc.startTag.startLine, column: loc.startTag.startCol };
   } else {
     const tagText = source.slice(attrLoc.startOffset, attrLoc.endOffset);
     // RegExp.escape when
     const matcher = new RegExp(attr.replace(/[/\\^$*+?.()|[\]{}]/g, '\\$&') + '="?', 'i');
-    return { line: attrLoc.line, column: attrLoc.col + (tagText.match(matcher)?.[0].length ?? 0) };
+    return {
+      line: attrLoc.startLine,
+      column: attrLoc.startCol + (tagText.match(matcher)?.[0].length ?? 0),
+    };
   }
 }
 

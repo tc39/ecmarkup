@@ -661,7 +661,7 @@ async function assertDocFormatsAs(src, result) {
   assert.strictEqual(withDoctype.replace(/^<!DOCTYPE html>\n+/, ''), result);
 
   const doubleFormatted = await printDocument(result);
-  assert.strictEqual(withDoctype, doubleFormatted, 'result changed after formatting again');
+  assert.strictEqual(doubleFormatted, withDoctype, 'result changed after formatting again');
 }
 
 function dedentKeepingTrailingNewline(strings, ...exprs) {

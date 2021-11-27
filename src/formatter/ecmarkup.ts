@@ -1,4 +1,5 @@
-import { AST, parse } from 'parse5';
+import { parse } from 'parse5';
+import type { Attribute, TextNode, CommentNode, Node, Element } from 'parse5';
 import { parseAlgorithm, parseFragment } from 'ecmarkdown';
 import * as dedent from 'dedent-js';
 import { LineBuilder } from './line-builder';
@@ -7,12 +8,6 @@ import { printAlgorithm, printFragments } from './ecmarkdown';
 import { printGrammar } from './grammarkdown';
 import { parseH1 } from '../header-parser';
 import { printHeader } from './header';
-
-type Node = AST.Default.Node;
-type Element = AST.Default.Element;
-type TextNode = AST.Default.TextNode;
-type CommentNode = AST.Default.CommentNode;
-type Attribute = AST.Default.Attribute;
 
 // prettier-ignore
 const RAW_CONTENT_ELEMENTS = new Set([
@@ -63,7 +58,7 @@ const ALWAYS_BLOCK_ELEMENTS = new Set([
 const PARAGRAPH_LIKE_ELEMENTS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 
 export async function printDocument(src: string): Promise<string> {
-  const tree = parse(src, { locationInfo: true }) as AST.Default.Document;
+  const tree = parse(src, { sourceCodeLocationInfo: true });
 
   if (tree.childNodes.length === 0 || tree.childNodes.length > 2) {
     throw new Error('document has too many top-level nodes');
@@ -77,12 +72,12 @@ export async function printDocument(src: string): Promise<string> {
     if (tree.childNodes[0].nodeName !== 'html') {
       throw new Error('expected top-level node to be html');
     }
-    htmlEle = tree.childNodes[0] as Element;
+    htmlEle = tree.childNodes[0];
   } else {
     if (tree.childNodes[0].nodeName !== '#documentType' || tree.childNodes[1].nodeName !== 'html') {
       throw new Error('expected top-level node to be html');
     }
-    htmlEle = tree.childNodes[1] as Element;
+    htmlEle = tree.childNodes[1];
   }
   // TODO reconsider outputting doctype - maybe that should be in the rendering, not the source?
   const output: LineBuilder = new LineBuilder(0);
@@ -101,21 +96,21 @@ export async function printDocument(src: string): Promise<string> {
   if (contents.length !== 2 || contents[0].nodeName !== 'head' || contents[1].nodeName !== 'body') {
     throw new Error('expected html to have head and body');
   }
-  const head = contents[0] as Element;
-  const body = contents[1] as Element;
+  const head = contents[0];
+  const body = contents[1];
 
   // TODO strip, auto-gen meta-charset tag
 
-  // this old version of parse5 has a bug where the last text node in the body has location extending past the body close tag
+  // parse5 has a bug where the last text node in the body has location extending past the body close tag
   const lastBody = body.childNodes[body.childNodes.length - 1];
   if (lastBody?.nodeName === '#text') {
     const lastBodySource = src.substring(
-      (lastBody as TextNode).__location!.startOffset,
-      (lastBody as TextNode).__location!.endOffset
+      lastBody.sourceCodeLocation!.startOffset,
+      lastBody.sourceCodeLocation!.endOffset
     );
     const bugMatch = lastBodySource.match(/<\/body>\s*(<\/html>\s*)?$/i);
     if (bugMatch) {
-      (lastBody as TextNode).__location!.endOffset -= bugMatch[0].length;
+      lastBody.sourceCodeLocation!.endOffset -= bugMatch[0].length;
     }
   }
 
@@ -394,7 +389,7 @@ async function printChildNodes(
         output.appendText(`<!-- ${contents} -->`, true);
       }
     } else if (node.nodeName === '#text') {
-      const loc = (node as TextNode).__location!;
+      const loc = (node as TextNode).sourceCodeLocation!;
 
       let value = src.substring(loc.startOffset, loc.endOffset);
       if (dropLeadingLinebreaks && i === 0) {
@@ -407,12 +402,6 @@ async function printChildNodes(
         continue;
       }
 
-      // this old version of parse5 has an incredible bug where if the text starts with a surrogate pair,
-      // the `startOffset` will point to the second character in the pair rather than the first
-      // note that this regex cannot be u-mode
-      if (/[\uDC00-\uDFFF]/.test(value[0]) && /[\uD800-\uDBFF]/.test(src[loc.startOffset - 1])) {
-        value = src[loc.startOffset - 1] + value;
-      }
       let parsed;
       try {
         parsed = parseFragment(value);
@@ -429,12 +418,12 @@ async function printChildNodes(
       if (skipNextElement) {
         skipNextElement = false;
         output.appendText(
-          src.substring(ele.__location!.startOffset, ele.__location!.endOffset),
+          src.substring(ele.sourceCodeLocation!.startOffset, ele.sourceCodeLocation!.endOffset),
           true
         );
       } else if (ele.tagName === 'br') {
         if (ele.attrs.length > 0) {
-          bad(node, `br nodes are not expected to have attributes`);
+          bad(ele, `br nodes are not expected to have attributes`);
         }
         if (output.isEmpty()) {
           output.appendLine('<br>');
@@ -492,7 +481,7 @@ function isWhitespace(node: Node) {
 }
 
 function rawContent(src: string, node: Element) {
-  const loc = node.__location!;
+  const loc = node.sourceCodeLocation!;
   if (typeof loc.startTag?.endOffset !== 'number' || typeof loc.endTag?.startOffset !== 'number') {
     bad(node, `<${node.nodeName}> nodes must be explicitly opened and closed`);
   }
@@ -511,16 +500,16 @@ function rawContent(src: string, node: Element) {
 //   return false;
 // }
 
-function bad(node: any, msg: string): never {
+function bad(node: Element, msg: string): never {
   msg += ` at ${process.argv[2]}`;
   const loc =
-    typeof node.__location?.startTag?.line === 'number'
-      ? node.__location.startTag
-      : typeof node.__location?.line === 'number'
-      ? node.__location
+    typeof node.sourceCodeLocation?.startTag?.startLine === 'number'
+      ? node.sourceCodeLocation.startTag
+      : typeof node.sourceCodeLocation?.startLine === 'number'
+      ? node.sourceCodeLocation
       : null;
   if (loc != null) {
-    msg += `:${loc.line}:${loc.col}`;
+    msg += `:${loc.startLine}:${loc.startCol}`;
   }
   throw new Error(msg);
 }
