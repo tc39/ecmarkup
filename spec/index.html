@@ -162,18 +162,30 @@ toc: false
     <h2>Attributes</h2>
     <p><b>id:</b> Clause id. Must be unique.</p>
     <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
+    <p><b>example:</b> If present, the clause is an example.</p>
+    <p><b>legacy:</b> If present, the clause is Legacy.</p>
     <p><b>normative-optional:</b> If present, the clause is Normative Optional.</p>
+    <p><b>type:</b> Optional: Type of feature described by the clause.</p>
+    <ul>
+      <li>"abstract operation"</li>
+      <li>"concrete method"</li>
+      <li>"host-defined abstract operation"</li>
+      <li>"implementation-defined abstract operation"</li>
+      <li>"internal method"</li>
+      <li>"numeric method"</li>
+      <li>"sdo" or "syntax-directed operation"</li>
+    </ul>
 
     <h2>Example</h2>
     <h3>Element</h3>
     <pre><code class="language-html">
-      &lt;emu-clause id="example-normative-optional" normative-optional>
+      &lt;emu-clause id="example-normative-optional" example normative-optional>
         &lt;h1>Example Normative Optional Clause&lt;/h1>
         &lt;p>This clause is normative optional.&lt;/p>
       &lt;/emu-clause>
     </code></pre>
     <h3>Result</h3>
-    <emu-clause id="example-normative-optional" normative-optional>
+    <emu-clause id="example-normative-optional" example normative-optional>
       <h1>Example Normative Optional Clause</h1>
       <p>This clause is normative optional.</p>
     </emu-clause>
