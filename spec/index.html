@@ -161,20 +161,69 @@ toc: false
 
     <h2>Attributes</h2>
     <p><b>id:</b> Clause id. Must be unique.</p>
-    <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
+    <p><b>example:</b> If present, the clause is an example.</p>
+    <p><b>legacy:</b> If present, the clause is Legacy.</p>
     <p><b>normative-optional:</b> If present, the clause is Normative Optional.</p>
+    <p><b>type:</b> Optional: Type of feature described by the clause.</p>
+    <ul>
+      <li>"abstract operation"</li>
+      <li>"concrete method"</li>
+      <li>"host-defined abstract operation"</li>
+      <li>"implementation-defined abstract operation"</li>
+      <li>"internal method"</li>
+      <li>"numeric method"</li>
+      <li>"sdo" or "syntax-directed operation"</li>
+    </ul>
+
+    <emu-clause id="emu-clause-legacy-attributes" legacy>
+      <h1>Legacy Attributes</h1>
+      <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause. When a structured header is present the aoid will be inferred, but this attribute may be set explicitly when not using a structured header.</p>
+    </emu-clause>
+
+    <emu-clause id="emu-clause-structured-headers">
+      <h1>Structured Headers</h1>
+      <p>A clause describing an operation or method may have a <dfn>structured header</dfn> to document its signature and metadata. Such a structure consists of:</p>
+      <ol>
+        <li>an <code>&lt;h1&gt;</code> element containing the name of the operation followed by a parenthesized list of parameters, each appearing on a comma-terminated line of its own and consisting of a name and value constraints separated by a colon and optionally preceded with "optional"</li>
+        <li>
+          a <code>&lt;dl&gt;</code> element with class "header" and a collection of optional key-value pairs expressed using <code>&lt;dt&gt;</code> and <code>&lt;dd&gt;</code> elements:
+          <ul>
+            <li><b>description:</b> An explanation of the operation's behavior.</li>
+            <li><b>for:</b> The type of value to which a clause of type "concrete method" or "internal method" applies.</li>
+          </ul>
+        </li>
+      </ol>
+    </emu-clause>
 
     <h2>Example</h2>
     <h3>Element</h3>
     <pre><code class="language-html">
-      &lt;emu-clause id="example-normative-optional" normative-optional>
-        &lt;h1>Example Normative Optional Clause&lt;/h1>
+      &lt;emu-clause id="example-normative-optional" type="abstract operation" example normative-optional>
+        &lt;h1>
+          ExampleOperation (
+            _S_: a String,
+            optional _length_: a non-negative integer,
+          )
+        &lt;/h1>
+        &lt;dl class="header">
+          &lt;dt>description&lt;/dt>
+          &lt;dd>It returns a List of the code points of the first _length_ grapheme clusters of _S_ using the host environment's current locale, or all code points when _length_ is not present.&lt;/dd>
+        &lt;/dl>
         &lt;p>This clause is normative optional.&lt;/p>
       &lt;/emu-clause>
     </code></pre>
     <h3>Result</h3>
-    <emu-clause id="example-normative-optional" normative-optional>
-      <h1>Example Normative Optional Clause</h1>
+    <emu-clause id="example-normative-optional" type="abstract operation" example normative-optional>
+      <h1>
+        ExampleOperation (
+          _S_: a String,
+          optional _length_: a non-negative integer,
+        )
+      </h1>
+      <dl class="header">
+        <dt>description</dt>
+        <dd>It returns a List of the code points of the first _length_ grapheme clusters of _S_ using the host environment's current locale, or all code points when _length_ is not present.</dd>
+      </dl>
       <p>This clause is normative optional.</p>
     </emu-clause>
   </emu-clause>
