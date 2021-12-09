@@ -474,7 +474,7 @@ export default class Spec {
 
     this.autolink();
 
-    this.log('Propagating can-call-user-code annotations...');
+    this.log('Propagating effect annotations...');
     this.propagateEffects();
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
