@@ -89,8 +89,22 @@ export default class Xref extends Builder {
 
   canHaveEffect(effectName: string) {
     if (!this.isInvocation) return false;
-    if (this.clause && !this.clause.canHaveEffect(effectName)) {
-      return false;
+    if (this.clause) {
+      // Xrefs nested inside Abstract Closures should not propagate the
+      // user-code effect, since those are effectively nested functions.
+      //
+      // Calls to Abstract Closures that can call user code must be explicitly
+      // marked as such with <emu-meta effects="user-code">...</emu-meta>.
+      for (let node = this.node; node.parentElement; node = node.parentElement) {
+        const parent = node.parentElement;
+        // This is super hacky. It's checking the output of ecmarkdown.
+        if (parent.tagName === 'LI' && parent.textContent?.includes('be a new Abstract Closure')) {
+          return false;
+        }
+      }
+      if (!this.clause.canHaveEffect(effectName)) {
+        return false;
+      }
     }
     if (this.suppressEffects !== null) {
       return !this.suppressEffects.includes(effectName);
@@ -223,7 +237,7 @@ export default class Xref extends Builder {
         }
         if (this.addEffects !== null) {
           if (effects !== null) {
-            effects.push(...this.addEffects);
+            effects = effects.concat(...this.addEffects);
           } else {
             effects = this.addEffects;
           }

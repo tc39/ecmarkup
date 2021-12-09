@@ -166,3 +166,27 @@ assets: none
     1. Perform ? <emu-meta effects="user-code">_O_.[[Call]]()</emu-meta>.
   </emu-alg>
 </emu-clause>
+
+<emu-clause id="sec-make-abstract-closure" type="abstract operation">
+  <h1>MakeAbstractClosure()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>The user-code effect doesn't propagate through Abstract Closure boundaries by recognizing the "be a new Abstract Closure" substring.</dd>
+  </dl>
+  <emu-alg>
+    1. Let _closure_ be a new Abstract Closure that captures nothing and performs the following steps when called:
+      1. UserCode().
+    1. Return _closure_.
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-call-make-abstract-closure" type="abstract operation">
+  <h1>CallMakeAbstractClosure()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>The user-code effect doesn't propagate through Abstract Closure boundaries by recognizing the "be a new Abstract Closure" substring.</dd>
+  </dl>
+  <emu-alg>
+    1. MakeAbstractClosure().
+  </emu-alg>
+</emu-clause>

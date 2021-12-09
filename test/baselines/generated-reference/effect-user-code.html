@@ -90,4 +90,16 @@
   <p>The abstract operation RenderedMeta takes no arguments. emu-meta tags with the effects attribute that aren't surrounding what ecmarkup recognizes as invocations are changed into span tags to be rendered. The effects list is prefixed with e- and changed into class names. It performs the following steps when called:</p>
   <emu-alg><ol><li>Perform ?&nbsp;<span class="e-user-code"><var>O</var>.[[Call]]()</span>.</li></ol></emu-alg>
 </emu-clause>
+
+<emu-clause id="sec-make-abstract-closure" type="abstract operation" aoid="MakeAbstractClosure">
+  <h1><span class="secnum">16</span> MakeAbstractClosure()</h1>
+  <p>The abstract operation MakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through Abstract Closure boundaries by recognizing the "be a new Abstract Closure" substring. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Let <var>closure</var> be a new Abstract Closure that captures nothing and performs the following steps when called:<ol><li><emu-xref aoid="UserCode" id="_ref_12"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li>Return <var>closure</var>.</li></ol></emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-call-make-abstract-closure" type="abstract operation" aoid="CallMakeAbstractClosure">
+  <h1><span class="secnum">17</span> CallMakeAbstractClosure()</h1>
+  <p>The abstract operation CallMakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through Abstract Closure boundaries by recognizing the "be a new Abstract Closure" substring. It performs the following steps when called:</p>
+  <emu-alg><ol><li><emu-xref aoid="MakeAbstractClosure" id="_ref_13"><a href="#sec-make-abstract-closure">MakeAbstractClosure</a></emu-xref>().</li></ol></emu-alg>
+</emu-clause>
 </div></body>
