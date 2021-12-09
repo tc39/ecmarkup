@@ -190,3 +190,14 @@ assets: none
     1. MakeAbstractClosure().
   </emu-alg>
 </emu-clause>
+
+<emu-clause id="sec-xref-not-first-child-of-emu-meta" type="abstract operation">
+  <h1>XrefNotFirstChildOfEmuMeta()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Effect additions and suppressions via emu-meta only affect xrefs that are the first child of the emu-meta. Below, UserCode() gets autolinked and get an xref. Its parent element is an emu-meta, but since the xref is not the first child, it should not be interpreted to overried the effects of the UserCode() call.</dd>
+  </dl>
+  <emu-alg>
+    1. Perform <emu-meta effects="user-code">_map_.[[DefineOwnProperty]](! UserCode())</emu-meta>.
+  </emu-alg>
+</emu-clause>

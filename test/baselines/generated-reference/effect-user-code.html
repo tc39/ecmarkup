@@ -102,4 +102,10 @@
   <p>The abstract operation CallMakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through Abstract Closure boundaries by recognizing the "be a new Abstract Closure" substring. It performs the following steps when called:</p>
   <emu-alg><ol><li><emu-xref aoid="MakeAbstractClosure" id="_ref_13"><a href="#sec-make-abstract-closure">MakeAbstractClosure</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
+
+<emu-clause id="sec-xref-not-first-child-of-emu-meta" type="abstract operation" aoid="XrefNotFirstChildOfEmuMeta">
+  <h1><span class="secnum">18</span> XrefNotFirstChildOfEmuMeta()</h1>
+  <p>The abstract operation XrefNotFirstChildOfEmuMeta takes no arguments. Effect additions and suppressions via emu-meta only affect xrefs that are the first child of the emu-meta. Below, <emu-xref aoid="UserCode" id="_ref_14"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>() gets autolinked and get an xref. Its parent element is an emu-meta, but since the xref is not the first child, it should not be interpreted to overried the effects of the <emu-xref aoid="UserCode" id="_ref_15"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>() call. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Perform <span class="e-user-code"><var>map</var>.[[DefineOwnProperty]](! <emu-xref aoid="UserCode" id="_ref_16"><a href="#sec-user-code">UserCode</a></emu-xref>())</span>.</li></ol></emu-alg>
+</emu-clause>
 </div></body>
