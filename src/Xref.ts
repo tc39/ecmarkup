@@ -95,11 +95,16 @@ export default class Xref extends Builder {
       //
       // Calls to Abstract Closures that can call user code must be explicitly
       // marked as such with <emu-meta effects="user-code">...</emu-meta>.
-      for (let node = this.node; node.parentElement; node = node.parentElement) {
-        const parent = node.parentElement;
-        // This is super hacky. It's checking the output of ecmarkdown.
-        if (parent.tagName === 'LI' && parent.textContent?.includes('be a new Abstract Closure')) {
-          return false;
+      if (effectName === 'user-code') {
+        for (let node = this.node; node.parentElement; node = node.parentElement) {
+          const parent = node.parentElement;
+          // This is super hacky. It's checking the output of ecmarkdown.
+          if (
+            parent.tagName === 'LI' &&
+            parent.textContent?.includes('be a new Abstract Closure')
+          ) {
+            return false;
+          }
         }
       }
       if (!this.clause.canHaveEffect(effectName)) {
