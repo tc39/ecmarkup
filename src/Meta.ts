@@ -47,6 +47,9 @@ export default class Meta extends Builder {
         span.appendChild(node.firstChild);
       }
       node.replaceWith(span);
+    } else {
+      // Nothing to render, strip it.
+      node.replaceWith(...node.childNodes);
     }
   }
 }
