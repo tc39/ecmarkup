@@ -199,3 +199,14 @@ assets: none
     1. Perform <emu-meta effects="user-code">_map_.[[DefineOwnProperty]](! UserCode())</emu-meta>.
   </emu-alg>
 </emu-clause>
+
+<emu-clause id="sec-result-of-evaluating" type="abstract operation">
+  <h1>ResultOfEvaluating()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>The phrase "the result of evaluating Foo" is automatically considered as can call user code.</dd>
+  </dl>
+  <emu-alg>
+    1. Let _res_ be the result of evaluating |Foo|.
+  </emu-alg>
+</emu-clause>

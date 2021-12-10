@@ -25,7 +25,10 @@ export default class Algorithm extends Builder {
     context.inAlg = true;
     const { spec, node, clauseStack } = context;
 
-    const innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
+    // Mark all "the result of evaluation Foo" language as having the
+    // "user-code" effect. Do this before ecmarkdown, otherwise productions like
+    // |Foo| get turned into tags and the regexp gets complicated.
+    const innerHTML = node.innerHTML.replace(/the result of evaluating ([a-zA-Z_|0-9]+)/g, 'the result of <emu-meta effects="user-code">evaluating $1</emu-meta>'); // TODO use original slice, forward this from linter
 
     let emdTree;
     if ('ecmarkdownTree' in node) {
