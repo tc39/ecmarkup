@@ -812,4 +812,40 @@ ${M}      </pre>
       { lintSpec: true }
     );
   });
+
+  it('clause after annex', async () => {
+    await assertError(
+      positioned`
+       <emu-annex id="sec-a">
+        <h1>Annex</h1>
+        </emu-annex>
+        ${M}<emu-clause id="sec-c">
+          <h1>Clause</h1>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'clause-after-annex',
+        nodeType: 'emu-clause',
+        message: 'clauses cannot follow annexes',
+      }
+    );
+  });
+
+  it('nested annex', async () => {
+    await assertError(
+      positioned`
+        <emu-clause id="sec-c">
+          <h1>Clause</h1>
+          ${M}<emu-annex id="sec-a">
+            <h1>Annex</h1>
+          </emu-annex>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'annex-depth',
+        nodeType: 'emu-annex',
+        message: 'first annex must be at depth 0',
+      }
+    );
+  });
 });
