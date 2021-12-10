@@ -13,6 +13,16 @@ assets: none
   </emu-alg>
 </emu-clause>
 
+
+<emu-clause id="sec-user-code-2" type="abstract operation">
+  <h1>UserCode2 ( )</h1>
+  <dl class="header">
+    <dt>effects</dt>
+    <dd>user-code</dd>
+  </dl>
+  <p>This AO calls user code despite not being defined with an algorithm.</p>
+</emu-clause>
+
 <emu-clause id="sec-nop" type="abstract operation">
   <h1>Nop ( )</h1>
   <dl class="header">
@@ -30,6 +40,7 @@ assets: none
   </dl>
   <emu-alg>
     1. UserCode().
+    1. UserCode2().
   </emu-alg>
 </emu-clause>
 
