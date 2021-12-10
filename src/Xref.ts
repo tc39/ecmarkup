@@ -40,7 +40,11 @@ export default class Xref extends Builder {
     // Check if there's metadata adding or suppressing effects
     this.addEffects = null;
     this.suppressEffects = null;
-    if (node.parentElement && node.parentElement.tagName === 'EMU-META') {
+    if (
+      node.parentElement &&
+      node.parentElement.tagName === 'EMU-META' &&
+      node.parentElement.children[0] === node
+    ) {
       if (node.parentElement.hasAttribute('effects')) {
         const addEffects = node.parentElement.getAttribute('effects')!.split(',');
         if (addEffects.length !== 0) {
