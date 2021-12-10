@@ -1,39 +1,66 @@
+import type Clause from './Clause';
+import type { Spec } from './ecmarkup';
+
 /*@internal*/
 export interface ClauseNumberIterator {
-  next(level: number, annex: boolean): IteratorResult<string>;
+  next(clauseStack: Clause[], node: HTMLElement): string;
 }
 
 /*@internal*/
-export default function iterator(): ClauseNumberIterator {
+export default function iterator(spec: Spec): ClauseNumberIterator {
   const ids: (string | number)[] = [];
   let inAnnex = false;
   let currentLevel = 0;
 
   return {
-    next(level: number, annex: boolean) {
-      if (inAnnex && !annex) throw new Error('Clauses cannot follow annexes');
-      if (level - currentLevel > 1) throw new Error('Skipped clause');
+    next(clauseStack: Clause[], node: HTMLElement) {
+      const annex = node.nodeName === 'EMU-ANNEX';
+      const level = clauseStack.length;
+      if (inAnnex && !annex) {
+        spec.warn({
+          type: 'node',
+          node,
+          ruleId: 'clause-after-annex',
+          message: 'clauses cannot follow annexes',
+        });
+      }
+      if (level - currentLevel > 1) {
+        spec.warn({
+          type: 'node',
+          node,
+          ruleId: 'skipped-caluse',
+          message: 'clause is being numbered without numbering its parent clause',
+        });
+      }
 
       const nextNum = annex ? nextAnnexNum : nextClauseNum;
 
       if (level === currentLevel) {
-        ids[currentLevel] = nextNum(level);
+        ids[currentLevel] = nextNum(clauseStack, node);
       } else if (level > currentLevel) {
-        ids.push(nextNum(level));
+        ids.push(nextNum(clauseStack, node));
       } else {
         ids.length = level + 1;
-        ids[level] = nextNum(level);
+        ids[level] = nextNum(clauseStack, node);
       }
 
       currentLevel = level;
 
-      return { value: ids.join('.'), done: false };
+      return ids.join('.');
     },
   };
 
-  function nextAnnexNum(level: number): string | number {
+  function nextAnnexNum(clauseStack: Clause[], node: HTMLElement): string | number {
+    const level = clauseStack.length;
     if (!inAnnex) {
-      if (level > 0) throw new Error('First annex must be at depth 0');
+      if (level > 0) {
+        spec.warn({
+          type: 'node',
+          node,
+          ruleId: 'annex-depth',
+          message: 'first annex must be at depth 0',
+        });
+      }
       inAnnex = true;
 
       return 'A';
@@ -43,10 +70,10 @@ export default function iterator(): ClauseNumberIterator {
       return String.fromCharCode((<string>ids[0]).charCodeAt(0) + 1);
     }
 
-    return nextClauseNum(level);
+    return nextClauseNum(clauseStack);
   }
 
-  function nextClauseNum(level: number) {
+  function nextClauseNum({ length: level }: { length: number }) {
     if (ids[level] === undefined) return 1;
     return <number>ids[level] + 1;
   }

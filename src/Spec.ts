@@ -444,7 +444,7 @@ export default class Spec {
       importStack: [],
       clauseStack: [],
       tagStack: [],
-      clauseNumberer: ClauseNumbers(),
+      clauseNumberer: ClauseNumbers(this),
       inNoAutolink: false,
       inAlg: false,
       inNoEmd: false,

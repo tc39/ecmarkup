@@ -222,7 +222,7 @@ export default class Clause extends Builder {
 
     let nextNumber = '';
     if (node.nodeName !== 'EMU-INTRO') {
-      nextNumber = clauseNumberer.next(clauseStack.length, node.nodeName === 'EMU-ANNEX').value;
+      nextNumber = clauseNumberer.next(clauseStack, node);
     }
     const parent = clauseStack[clauseStack.length - 1] || null;
 
