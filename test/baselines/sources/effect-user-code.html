@@ -7,12 +7,20 @@ assets: none
 <emu-clause id="sec-user-code" type="abstract operation">
   <h1>UserCode ( )</h1>
   <dl class="header">
+  </dl>
+  <emu-alg>
+    1. <emu-meta effects="user-code">Call user code</emu-meta>.
+  </emu-alg>
+</emu-clause>
+
+
+<emu-clause id="sec-user-code-2" type="abstract operation">
+  <h1>UserCode2 ( )</h1>
+  <dl class="header">
     <dt>effects</dt>
     <dd>user-code</dd>
   </dl>
-  <emu-alg>
-    1. Call user code.
-  </emu-alg>
+  <p>This AO calls user code despite not being defined with an algorithm.</p>
 </emu-clause>
 
 <emu-clause id="sec-nop" type="abstract operation">
@@ -32,6 +40,7 @@ assets: none
   </dl>
   <emu-alg>
     1. UserCode().
+    1. UserCode2().
   </emu-alg>
 </emu-clause>
 
@@ -188,5 +197,27 @@ assets: none
   </dl>
   <emu-alg>
     1. MakeAbstractClosure().
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-xref-not-first-child-of-emu-meta" type="abstract operation">
+  <h1>XrefNotFirstChildOfEmuMeta()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Effect additions and suppressions via emu-meta only affect xrefs that are the first child of the emu-meta. Below, UserCode() gets autolinked and get an xref. Its parent element is an emu-meta, but since the xref is not the first child, it should not be interpreted to override the effects of the UserCode() call.</dd>
+  </dl>
+  <emu-alg>
+    1. Perform <emu-meta effects="user-code">_map_.[[DefineOwnProperty]](! UserCode())</emu-meta>.
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-result-of-evaluating" type="abstract operation">
+  <h1>ResultOfEvaluating()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>The phrase "the result of evaluating Foo" is automatically considered as can call user code.</dd>
+  </dl>
+  <emu-alg>
+    1. Let _res_ be the result of evaluating |Foo|.
   </emu-alg>
 </emu-clause>
