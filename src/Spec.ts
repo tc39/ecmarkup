@@ -306,6 +306,7 @@ export default class Spec {
   _effectWorklist: Map<string, Clause[]>;
   _effectfulAOs: Map<string, Clause>;
   _emuMetasToRender: Set<HTMLElement>;
+  _emuMetasToRemove: Set<HTMLElement>;
   refsByClause: { [refId: string]: [string] };
 
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
@@ -351,6 +352,7 @@ export default class Spec {
     this._effectWorklist = new Map();
     this._effectfulAOs = new Map();
     this._emuMetasToRender = new Set();
+    this._emuMetasToRemove = new Set();
     this.refsByClause = Object.create(null);
 
     this.processMetadata();
@@ -480,7 +482,12 @@ export default class Spec {
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');
     this._ntRefs.forEach(nt => nt.build());
-    this._emuMetasToRender.forEach(node => Meta.render(this, node));
+    this._emuMetasToRender.forEach(node => {
+      Meta.render(this, node);
+    });
+    this._emuMetasToRemove.forEach(node => {
+      node.replaceWith(...node.childNodes);
+    });
 
     if (this.opts.lintSpec) {
       this._ntStringRefs.forEach(({ name, loc, node, namespace }) => {
