@@ -11,7 +11,14 @@ export default class Meta extends Builder {
   static async enter({ spec, node, clauseStack }: Context) {
     const parent = clauseStack[clauseStack.length - 1] || null;
     if (node.hasAttribute('effects') && parent !== null) {
-      const effects = validateEffects(spec, node.getAttribute('effects')!.split(',').map(c => c.trim()), node);
+      const effects = validateEffects(
+        spec,
+        node
+          .getAttribute('effects')!
+          .split(',')
+          .map(c => c.trim()),
+        node
+      );
       for (const effect of effects) {
         if (!parent.effects.includes(effect)) {
           parent.effects.push(effect);
