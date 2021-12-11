@@ -88,7 +88,7 @@ export default class Xref extends Builder {
     }
   }
 
-  canHaveEffect(effectName: string) {
+  shouldPropagateEffect(effectName: string) {
     if (!this.isInvocation) return false;
     if (this.clause) {
       // Xrefs nested inside Abstract Closures should not propagate the
