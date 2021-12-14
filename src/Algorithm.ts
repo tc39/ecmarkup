@@ -11,7 +11,7 @@ function findLabeledSteps(root: EcmarkdownNode) {
   const steps: OrderedListItemNode[] = [];
   emd.visit(root, {
     enter(node: EcmarkdownNode) {
-      if (node.name === 'ordered-list-item' && node.id != null) {
+      if (node.name === 'ordered-list-item' && node.attrs.some(a => a.key === 'id')) {
         steps.push(node);
       }
     },
@@ -80,7 +80,7 @@ export default class Algorithm extends Builder {
       const labeledSteps = findLabeledSteps(emdTree);
       for (const step of labeledSteps) {
         const itemSource = innerHTML.slice(step.location.start.offset, step.location.end.offset);
-        const offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
+        const offset = itemSource.match(/^\s*\d+\. \[ *id *= *"/)![0].length;
         spec.warn({
           type: 'contents',
           ruleId: 'labeled-step-in-replacement',

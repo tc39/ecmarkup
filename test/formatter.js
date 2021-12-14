@@ -473,6 +473,7 @@ describe('algorithm formatting', () => {
       1.  Step.
       1. Another   step.
             1. A substep.
+            1. [ x =  "a",y="b"  ] A step with attributes.
       </emu-alg>
       `,
       dedentKeepingTrailingNewline`
@@ -480,6 +481,7 @@ describe('algorithm formatting', () => {
         1. Step.
         1. Another step.
           1. A substep.
+          1. [x="a", y="b"] A step with attributes.
       </emu-alg>
       `
     );

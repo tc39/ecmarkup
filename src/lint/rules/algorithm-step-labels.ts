@@ -9,12 +9,16 @@ Checks that step labels all start with `step-`.
 export default function (report: Reporter, node: Element, algorithmSource: string): Observer {
   return {
     enter(node: EcmarkdownNode) {
-      if (node.name === 'ordered-list-item' && node.id != null && !/^step-/.test(node.id)) {
+      if (node.name !== 'ordered-list-item') {
+        return;
+      }
+      const idAttr = node.attrs.find(({ key }) => key === 'id');
+      if (idAttr != null && !/^step-/.test(idAttr.value)) {
         const itemSource = algorithmSource.slice(
           node.location.start.offset,
           node.location.end.offset
         );
-        const offset = itemSource.match(/^\s*\d+\. \[id="/)![0].length;
+        const offset = itemSource.match(/^\s*\d+\. \[ *id *= *"/)![0].length;
         report({
           ruleId,
           line: node.location.start.line,
