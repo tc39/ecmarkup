@@ -80,7 +80,7 @@ export default class Algorithm extends Builder {
       const labeledSteps = findLabeledSteps(emdTree);
       for (const step of labeledSteps) {
         const itemSource = innerHTML.slice(step.location.start.offset, step.location.end.offset);
-        const offset = itemSource.match(/^\s*\d+\. \[ *id *= *"/)![0].length;
+        const offset = itemSource.match(/^.*?[ ,[]id *= *"/)![0].length;
         spec.warn({
           type: 'contents',
           ruleId: 'labeled-step-in-replacement',
