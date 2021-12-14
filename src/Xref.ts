@@ -111,14 +111,14 @@ export default class Xref extends Builder {
           return false;
         }
 
-        if (parent.children[0]) {
-          const child = parent.children[0];
-          if (
-            child.tagName === 'EMU-META' &&
-            child.getAttribute('fence-effects')?.includes(effectName)
-          ) {
-            return false;
-          }
+        if (
+          parent
+            .getAttribute('fence-effects')
+            ?.split(',')
+            .map(s => s.trim())
+            .includes(effectName)
+        ) {
+          return false;
         }
       }
       if (!this.clause.canHaveEffect(effectName)) {
