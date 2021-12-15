@@ -91,21 +91,34 @@ export default class Xref extends Builder {
   shouldPropagateEffect(effectName: string) {
     if (!this.isInvocation) return false;
     if (this.clause) {
-      // Xrefs nested inside Abstract Closures should not propagate the
-      // user-code effect, since those are effectively nested functions.
+      // Xrefs should not propagate past explicit fences in parent steps. Fences
+      // must be at the beginning of steps.
+      //
+      // Abstract Closures are considered automatic fences for the user-code
+      // effect, since those are effectively nested functions.
       //
       // Calls to Abstract Closures that can call user code must be explicitly
       // marked as such with <emu-meta effects="user-code">...</emu-meta>.
-      if (effectName === 'user-code') {
-        for (let node = this.node; node.parentElement; node = node.parentElement) {
-          const parent = node.parentElement;
-          // This is super hacky. It's checking the output of ecmarkdown.
-          if (
-            parent.tagName === 'LI' &&
-            parent.textContent?.includes('be a new Abstract Closure')
-          ) {
-            return false;
-          }
+      for (let node = this.node; node.parentElement; node = node.parentElement) {
+        const parent = node.parentElement;
+        // This is super hacky. It's checking the output of ecmarkdown.
+        if (parent.tagName !== 'LI') continue;
+
+        if (
+          effectName === 'user-code' &&
+          parent.textContent?.includes('be a new Abstract Closure')
+        ) {
+          return false;
+        }
+
+        if (
+          parent
+            .getAttribute('fence-effects')
+            ?.split(',')
+            .map(s => s.trim())
+            .includes(effectName)
+        ) {
+          return false;
         }
       }
       if (!this.clause.canHaveEffect(effectName)) {

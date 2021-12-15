@@ -221,3 +221,26 @@ assets: none
     1. Let _res_ be the result of evaluating |Foo|.
   </emu-alg>
 </emu-clause>
+
+<emu-clause id="sec-fenced-effects" type="abstract operation">
+  <h1>FencedEffects()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Effects don't propagate past fences in parent steps. A fence must be at the beginning of a step.</dd>
+  </dl>
+  <emu-alg>
+    1. [fence-effects="user-code"] Fence.
+      1. UserCode().
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-call-fenced-effects" type="abstract operation">
+  <h1>CallFencedEffects()</h1>
+  <dl class="header">
+    <dt>description</dt>
+    <dd>Effects don't propagate past fences in parent steps.</dd>
+  </dl>
+  <emu-alg>
+    1. FencedEffects().
+  </emu-alg>
+</emu-clause>
