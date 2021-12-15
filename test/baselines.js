@@ -13,24 +13,24 @@ const files = fs
   .readdirSync(SOURCES_DIR)
   .filter(f => f.endsWith('.html') && !f.endsWith('.bad.html'));
 
-function build(file) {
+function build(file, options) {
   return emu.build(
     file,
     file =>
       new Promise((resolve, reject) =>
         fs.readFile(file, 'utf-8', (err, data) => (err ? reject(err) : resolve(data)))
-      )
+      ),
+    options
   );
 }
 
-describe('baselines', () => {
+describe.only('baselines', () => {
   let rebaseline = !!process.env.npm_config_update_baselines;
   let dirToWriteOnFailure = rebaseline ? REFERENCE_DIR : LOCAL_DIR;
-  files.forEach(file => {
+  let optionsSets = [{ lintSpec: false }];
+  for (let file of files) {
     const reference = REFERENCE_DIR + file;
     it(SOURCES_DIR + file, async () => {
-      let spec = await build(SOURCES_DIR + file);
-
       let expectedFiles = new Map();
 
       (function walk(f) {
@@ -46,12 +46,9 @@ describe('baselines', () => {
         }
       })(reference);
 
-      let actualFiles = spec.generatedFiles;
-      if (actualFiles.size === 1 && actualFiles.has(null)) {
-        // i.e. single-file output
-        actualFiles.set('', actualFiles.get(null));
-        actualFiles.delete(null);
-      }
+      let spec = await build(SOURCES_DIR + file, {});
+
+      let actualFiles = handleSingleFileOutput(spec.generatedFiles);
 
       let threw = true;
       try {
@@ -75,6 +72,28 @@ describe('baselines', () => {
           }
         }
       }
+
+      if (rebaseline) {
+        return;
+      }
+      for (let options of optionsSets) {
+        let spec = await build(SOURCES_DIR + file, options);
+        let actualFiles = handleSingleFileOutput(spec.generatedFiles);
+        assert.deepStrictEqual(
+          actualFiles,
+          expectedFiles,
+          `output differed when using option ${JSON.stringify(options)}`
+        );
+      }
     });
-  });
+  }
 });
+
+function handleSingleFileOutput(files) {
+  if (files.size === 1 && files.has(null)) {
+    // i.e. single-file output
+    files.set('', files.get(null));
+    files.delete(null);
+  }
+  return files;
+}
