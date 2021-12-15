@@ -34,14 +34,10 @@ export default class Algorithm extends Builder {
     ); // TODO use original slice, forward this from linter
 
     let emdTree;
-    if ('ecmarkdownTree' in node) {
-      emdTree = (node as any).ecmarkdownTree;
-    } else {
-      try {
-        emdTree = emd.parseAlgorithm(innerHTML);
-      } catch (e) {
-        warnEmdFailure(spec.warn, node, e);
-      }
+    try {
+      emdTree = emd.parseAlgorithm(innerHTML);
+    } catch (e) {
+      warnEmdFailure(spec.warn, node, e);
     }
     if (emdTree == null) {
       node.innerHTML = wrapEmdFailure(innerHTML);
