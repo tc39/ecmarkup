@@ -29,6 +29,7 @@ import Xref from './Xref';
 import Eqn from './Eqn';
 import Biblio from './Biblio';
 import Meta from './Meta';
+import H1 from './H1';
 import {
   autolink,
   replacerForNamespace,
@@ -78,6 +79,7 @@ const builders: BuilderInterface[] = [
   ProdRef,
   Note,
   Meta,
+  H1,
 ];
 
 const visitorMap = builders.reduce((map, T) => {
