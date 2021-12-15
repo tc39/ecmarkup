@@ -691,7 +691,7 @@ export default class Spec {
     const usersOfAoid: Map<string, Set<Clause>> = new Map();
     for (const xref of this._xrefs) {
       if (xref.clause == null || xref.aoid == null) continue;
-      if (!xref.canHaveEffect(effectName)) continue;
+      if (!xref.shouldPropagateEffect(effectName)) continue;
 
       if (xref.hasAddedEffect(effectName)) {
         maybeAddClauseToEffectWorklist(effectName, xref.clause, worklist);
