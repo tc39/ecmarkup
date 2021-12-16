@@ -244,3 +244,33 @@ export function validateEffects(spec: Spec, effectsRaw: string[], node: Element)
 
   return effects;
 }
+
+export function doesEffectPropagateToParent(node: Element, effect: string) {
+  // Effects should not propagate past explicit fences in parent steps.
+  //
+  // Abstract Closures are considered automatic fences for the user-code
+  // effect, since those are effectively nested functions.
+  //
+  // Calls to Abstract Closures that can call user code must be explicitly
+  // marked as such with <emu-meta effects="user-code">...</emu-meta>.
+  for (; node.parentElement; node = node.parentElement) {
+    const parent = node.parentElement;
+    // This is super hacky. It's checking the output of ecmarkdown.
+    if (parent.tagName !== 'LI') continue;
+
+    if (effect === 'user-code' && parent.textContent?.includes('be a new Abstract Closure')) {
+      return false;
+    }
+
+    if (
+      parent
+        .getAttribute('fence-effects')
+        ?.split(',')
+        .map(s => s.trim())
+        .includes(effect)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}

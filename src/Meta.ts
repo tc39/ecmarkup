@@ -3,7 +3,8 @@ import type { Context } from './Context';
 
 import Builder from './Builder';
 
-import { validateEffects } from './utils';
+import { validateEffects, doesEffectPropagateToParent } from './utils';
+import { maybeAddClauseToEffectWorklist } from './Spec';
 
 export default class Meta extends Builder {
   static elements = ['EMU-META'];
@@ -20,13 +21,13 @@ export default class Meta extends Builder {
         node
       );
       for (const effect of effects) {
-        if (!parent.effects.includes(effect)) {
-          parent.effects.push(effect);
-          if (!spec._effectWorklist.has(effect)) {
-            spec._effectWorklist.set(effect, []);
-          }
-          spec._effectWorklist.get(effect)!.push(parent);
+        if (!doesEffectPropagateToParent(node, effect)) {
+          continue;
         }
+        if (!spec._effectWorklist.has(effect)) {
+          spec._effectWorklist.set(effect, []);
+        }
+        maybeAddClauseToEffectWorklist(effect, parent, spec._effectWorklist.get(effect)!);
       }
     }
     spec._emuMetasToRender.add(node);

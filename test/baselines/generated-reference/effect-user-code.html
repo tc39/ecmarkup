@@ -125,7 +125,7 @@
 <emu-clause id="sec-fenced-effects" type="abstract operation" aoid="FencedEffects">
   <h1><span class="secnum">21</span> FencedEffects()</h1>
   <p>The abstract operation FencedEffects takes no arguments. Effects don't propagate past fences in parent steps. A fence must be at the beginning of a step. It performs the following steps when called:</p>
-  <emu-alg><ol><li fence-effects="user-code">Fence.<ol><li><emu-xref aoid="UserCode" id="_ref_18"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li></ol></emu-alg>
+  <emu-alg><ol><li fence-effects="user-code">Fence.<ol><li><emu-xref aoid="UserCode" id="_ref_18"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li><li>Let <var>foo</var> be the result of <span class="e-user-code">evaluating <var>someUserCode</var></span>.</li></ol></li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-call-fenced-effects" type="abstract operation" aoid="CallFencedEffects">

@@ -86,6 +86,10 @@ export default class Clause extends Builder {
       this.buildStructuredHeader(header);
     }
     this.header = header;
+    if (header == null) {
+      this.title = 'UNKNOWN';
+      this.titleHTML = 'UNKNOWN';
+    }
   }
 
   buildStructuredHeader(header: Element) {
@@ -239,26 +243,6 @@ export default class Clause extends Builder {
 
   static exit({ node, spec, clauseStack, inAlg, currentId }: Context) {
     const clause = clauseStack[clauseStack.length - 1];
-
-    const header = clause.header;
-    if (header == null) {
-      clause.title = 'UNKNOWN';
-      clause.titleHTML = 'UNKNOWN';
-    } else {
-      const headerClone = header.cloneNode(true) as Element;
-      for (const a of headerClone.querySelectorAll('a')) {
-        a.replaceWith(...a.childNodes);
-      }
-      clause.titleHTML = headerClone.innerHTML;
-      clause.title = headerClone.textContent;
-      if (clause.number) {
-        const numElem = clause.spec.doc.createElement('span');
-        numElem.setAttribute('class', 'secnum');
-        numElem.textContent = clause.number;
-        header.insertBefore(clause.spec.doc.createTextNode(' '), header.firstChild);
-        header.insertBefore(numElem, header.firstChild);
-      }
-    }
 
     clause.buildExamples();
     clause.buildNotes();
