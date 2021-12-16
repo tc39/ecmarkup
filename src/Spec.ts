@@ -260,7 +260,11 @@ function isEmuImportElement(node: Node): node is EmuImportElement {
   return node.nodeType === 1 && node.nodeName === 'EMU-IMPORT';
 }
 
-function maybeAddClauseToEffectWorklist(effectName: string, clause: Clause, worklist: Clause[]) {
+export function maybeAddClauseToEffectWorklist(
+  effectName: string,
+  clause: Clause,
+  worklist: Clause[]
+) {
   if (
     !worklist.includes(clause) &&
     clause.canHaveEffect(effectName) &&
