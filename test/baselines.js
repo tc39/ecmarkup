@@ -24,7 +24,7 @@ function build(file, options) {
   );
 }
 
-describe.only('baselines', () => {
+describe('baselines', () => {
   let rebaseline = !!process.env.npm_config_update_baselines;
   let dirToWriteOnFailure = rebaseline ? REFERENCE_DIR : LOCAL_DIR;
   let optionsSets = [{ lintSpec: false }];
