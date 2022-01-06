@@ -1139,7 +1139,13 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
     const shortcutsHelp = this.doc.createElement('div');
     shortcutsHelp.setAttribute('id', 'shortcuts-help');
-    shortcutsHelp.innerHTML = getBoilerplate('shortcuts-help');
+    shortcutsHelp.innerHTML = `
+<ul>
+  <li><span>Toggle shortcuts help</span><code>?</code></li>
+  <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</code></li>` : ''}
+  <li><span>Jump to search box</span><code>/</code></li>
+</ul>`;
     this.doc.body.appendChild(shortcutsHelp);
 
     if (this.opts.copyright) {
