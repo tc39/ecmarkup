@@ -1137,6 +1137,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     const location = this.opts.location;
     const stage = this.opts.stage;
 
+    const shortcutsHelp = this.doc.createElement('div');
+    shortcutsHelp.setAttribute('id', 'shortcuts-help');
+    shortcutsHelp.innerHTML = getBoilerplate('shortcuts-help');
+    this.doc.body.appendChild(shortcutsHelp);
+
     if (this.opts.copyright) {
       if (status !== 'draft' && status !== 'standard' && !this.opts.contributors) {
         this.warn({
