@@ -47,7 +47,7 @@ Search.prototype.loadBiblio = function () {
 };
 
 Search.prototype.documentKeydown = function (e) {
-  if (e.keyCode === 191) {
+  if (e.key === '/') {
     e.preventDefault();
     e.stopPropagation();
     this.triggerSearch();
@@ -973,7 +973,7 @@ function doShortcut(e) {
   if (name === 'textarea' || name === 'input' || name === 'select' || target.isContentEditable) {
     return;
   }
-  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+  if (e.altKey || e.ctrlKey || e.metaKey) {
     return;
   }
   if (e.key === 'm' && usesMultipage) {
@@ -995,6 +995,8 @@ function doShortcut(e) {
     }
   } else if (e.key === 'u') {
     document.documentElement.classList.toggle('show-ao-annotations');
+  } else if (e.key === '?') {
+    document.getElementById('shortcuts-help').classList.toggle('active');
   }
 }
 
@@ -1010,8 +1012,11 @@ function init() {
   document.addEventListener(
     'keydown',
     debounce(e => {
-      if (e.code === 'Escape' && Toolbox.active) {
-        Toolbox.deactivate();
+      if (e.code === 'Escape') {
+        if (Toolbox.active) {
+          Toolbox.deactivate();
+        }
+        document.getElementById('shortcuts-help').classList.remove('active');
       }
     })
   );

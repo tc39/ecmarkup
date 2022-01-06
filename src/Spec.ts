@@ -519,7 +519,7 @@ export default class Spec {
     this.setCharset();
     const wrapper = this.buildSpecWrapper();
 
-    let tocEles: HTMLElement[] = [];
+    let commonEles: HTMLElement[] = [];
     let tocJs = '';
     if (this.opts.toc) {
       this.log('Building table of contents...');
@@ -527,10 +527,14 @@ export default class Spec {
       if (this.opts.oldToc) {
         new Toc(this).build();
       } else {
-        ({ js: tocJs, eles: tocEles } = makeMenu(this));
+        ({ js: tocJs, eles: commonEles } = makeMenu(this));
       }
     }
-    for (const ele of tocEles) {
+
+    this.log('Building shortcuts help dialog...');
+    commonEles.push(this.buildShortcutsHelp());
+
+    for (const ele of commonEles) {
       this.doc.body.insertBefore(ele, this.doc.body.firstChild);
     }
 
@@ -539,7 +543,7 @@ export default class Spec {
     const jsSha = sha(jsContents);
 
     if (this.opts.multipage) {
-      await this.buildMultipage(wrapper, tocEles, jsSha);
+      await this.buildMultipage(wrapper, commonEles, jsSha);
     }
 
     await this.buildAssets(jsContents, jsSha);
@@ -731,7 +735,7 @@ export default class Spec {
     return null;
   }
 
-  private async buildMultipage(wrapper: Element, tocEles: Element[], jsSha: string) {
+  private async buildMultipage(wrapper: Element, commonEles: Element[], jsSha: string) {
     let stillIntro = true;
     const introEles = [];
     const sections: { name: string; eles: Element[] }[] = [];
@@ -864,9 +868,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     for (const { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
       const headClone = head.cloneNode(true) as HTMLHeadElement;
-      const tocClone = tocEles.map(e => e.cloneNode(true));
+      const commonClone = commonEles.map(e => e.cloneNode(true));
       const clones = eles.map(e => e.cloneNode(true));
-      const allClones = [headClone, ...tocClone, ...clones];
+      const allClones = [headClone, ...commonClone, ...clones];
       // @ts-ignore
       const links = allClones.flatMap(e => [...e.querySelectorAll('a,link')]);
       for (const link of links) {
@@ -919,10 +923,10 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }
 
       // @ts-ignore
-      const tocHTML = tocClone.map(e => e.outerHTML).join('\n');
+      const commonHTML = commonClone.map(e => e.outerHTML).join('\n');
       // @ts-ignore
       const clonesHTML = clones.map(e => e.outerHTML).join('\n');
-      const content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${tocHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
+      const content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${commonHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
 
       this.generatedFiles.set(path.join(this.opts.outfile!, `multipage/${name}.html`), content);
     }
@@ -1025,6 +1029,19 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     this.doc.body.appendChild(wrapper);
 
     return wrapper;
+  }
+
+  private buildShortcutsHelp() {
+    const shortcutsHelp = this.doc.createElement('div');
+    shortcutsHelp.setAttribute('id', 'shortcuts-help');
+    shortcutsHelp.innerHTML = `
+<ul>
+  <li><span>Toggle shortcuts help</span><code>?</code></li>
+  <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</code></li>` : ''}
+  <li><span>Jump to search box</span><code>/</code></li>
+</ul>`;
+    return shortcutsHelp;
   }
 
   private processMetadata() {
