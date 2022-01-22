@@ -306,7 +306,6 @@ export function parseAndFormatH1(
   }
 
   const {
-    type,
     wrappingTag,
     prefix,
     name,
@@ -338,19 +337,14 @@ export function parseAndFormatH1(
     }
   }
 
-  let formattedHeader;
-  if (type === 'single-line') {
-    formattedHeader = header.innerHTML;
-  } else {
-    formattedHeader =
-      (prefix == null ? '' : prefix + ' ') +
-      name +
-      ' ' +
-      printSimpleParamList(params, optionalParams);
+  let formattedHeader =
+    (prefix == null ? '' : prefix + ' ') +
+    name +
+    ' ' +
+    printSimpleParamList(params, optionalParams);
 
-    if (wrappingTag !== null) {
-      formattedHeader = `<${wrappingTag}>${formattedHeader}</${wrappingTag}>`;
-    }
+  if (wrappingTag !== null) {
+    formattedHeader = `<${wrappingTag}>${formattedHeader}</${wrappingTag}>`;
   }
 
   return { name, formattedHeader, formattedParams, formattedReturnType: returnType };

@@ -7,6 +7,14 @@ import type { Context } from './Context';
 import Builder from './Builder';
 import { formatPreamble, parseStructuredHeaderDl, parseAndFormatH1 } from './header-parser';
 
+export function extractStructuredHeader(header: Element): Element | null {
+  const dl = header.nextElementSibling;
+  if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
+    return null;
+  }
+  return dl;
+}
+
 /*@internal*/
 export default class Clause extends Builder {
   id: string;
@@ -93,8 +101,8 @@ export default class Clause extends Builder {
   }
 
   buildStructuredHeader(header: Element) {
-    const dl = header.nextElementSibling;
-    if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
+    const dl = extractStructuredHeader(header);
+    if (dl === null) {
       return;
     }
     // if we find such a DL, treat this as a structured header

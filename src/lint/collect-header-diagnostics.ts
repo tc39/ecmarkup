@@ -1,3 +1,4 @@
+import { extractStructuredHeader } from '../Clause';
 import type { Warning } from '../Spec';
 
 import { offsetToLineAndColumn } from '../utils';
@@ -9,6 +10,10 @@ export function collectHeaderDiagnostics(
   headers: { element: Element; contents: string }[]
 ) {
   for (const { element, contents } of headers) {
+    if (extractStructuredHeader(element) !== null) {
+      // these will be handled by header-parser.ts
+      continue;
+    }
     if (!/\(.*\)$/.test(contents) || / Operator \( `[^`]+` \)$/.test(contents)) {
       continue;
     }
