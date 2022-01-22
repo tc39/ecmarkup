@@ -28,7 +28,6 @@ export type ParsedH1 =
     };
 
 export function parseH1(headerText: string): ParsedH1 {
-  eval('debugger');
   let offset = 0;
   const errors: ParseError[] = [];
 
