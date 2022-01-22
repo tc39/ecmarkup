@@ -253,6 +253,11 @@ describe('linting whole program', () => {
           <emu-clause id="i10">
             <h1>Example ( _a_ <del>[ , _b_ ] </del>)</h1>
           </emu-clause>
+          <emu-clause id="i11" type="abstract operation">
+            <h1>Example ( ): a thing (which has a parenthetical)</h1>
+            <dl class="header">
+            </dl>
+          </emu-clause>
       `);
     });
   });
