@@ -28,6 +28,7 @@ export type ParsedH1 =
     };
 
 export function parseH1(headerText: string): ParsedH1 {
+  eval('debugger');
   let offset = 0;
   const errors: ParseError[] = [];
 
@@ -338,19 +339,14 @@ export function parseAndFormatH1(
     }
   }
 
-  let formattedHeader;
-  if (type === 'single-line') {
-    formattedHeader = header.innerHTML;
-  } else {
-    formattedHeader =
-      (prefix == null ? '' : prefix + ' ') +
-      name +
-      ' ' +
-      printSimpleParamList(params, optionalParams);
+  let formattedHeader =
+    (prefix == null ? '' : prefix + ' ') +
+    name +
+    ' ' +
+    printSimpleParamList(params, optionalParams);
 
-    if (wrappingTag !== null) {
-      formattedHeader = `<${wrappingTag}>${formattedHeader}</${wrappingTag}>`;
-    }
+  if (wrappingTag !== null) {
+    formattedHeader = `<${wrappingTag}>${formattedHeader}</${wrappingTag}>`;
   }
 
   return { name, formattedHeader, formattedParams, formattedReturnType: returnType };
