@@ -306,7 +306,6 @@ export function parseAndFormatH1(
   }
 
   const {
-    type,
     wrappingTag,
     prefix,
     name,
