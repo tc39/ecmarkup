@@ -381,10 +381,6 @@ export default class Spec {
       this.opts.copyright = true;
     }
 
-    if (typeof this.opts.ecma262Biblio === 'undefined') {
-      this.opts.ecma262Biblio = true;
-    }
-
     if (!this.opts.date) {
       this.opts.date = new Date();
     }
@@ -425,9 +421,6 @@ export default class Spec {
     */
 
     this.log('Loading biblios...');
-    if (this.opts.ecma262Biblio) {
-      await this.loadECMA262Biblio();
-    }
     await this.loadBiblios();
 
     this.log('Loading imports...');
@@ -613,7 +606,7 @@ export default class Spec {
     let counter = 0;
     this._xrefs.forEach(xref => {
       let entry = xref.entry;
-      if (!entry || entry.namespace === 'global') return;
+      if (!entry || entry.namespace === 'external') return;
 
       if (!entry.id && entry.refId) {
         entry = this.spec.biblio.byId(entry.refId);
@@ -631,7 +624,7 @@ export default class Spec {
 
     this._ntRefs.forEach(prod => {
       const entry = prod.entry;
-      if (!entry || entry.namespace === 'global') return;
+      if (!entry || entry.namespace === 'external') return;
 
       // if this is the defining nt of an emu-production, don't create a ref
       if (prod.node.parentNode!.nodeName === 'EMU-PRODUCTION') return;
@@ -1065,11 +1058,6 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     Object.assign(this.opts, data);
   }
 
-  private async loadECMA262Biblio() {
-    this.cancellationToken.throwIfCancellationRequested();
-    await this.loadBiblio(path.join(__dirname, '../ecma262biblio.json'));
-  }
-
   private async loadBiblios() {
     this.cancellationToken.throwIfCancellationRequested();
     await Promise.all(
@@ -1077,6 +1065,9 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         this.loadBiblio(path.join(this.rootDir, biblio.getAttribute('href')!))
       )
     );
+    for (const biblio of this.opts.extraBiblios ?? []) {
+      this.biblio.addExternalBiblio(biblio);
+    }
   }
 
   private async loadBiblio(file: string) {
@@ -1100,7 +1091,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     }
 
     const biblio: BiblioData = {};
-    biblio[this.opts.location] = this.biblio.localEntries();
+    biblio[this.opts.location] = this.biblio.export();
 
     return biblio;
   }

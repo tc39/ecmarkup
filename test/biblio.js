@@ -12,14 +12,14 @@ describe('Biblio', () => {
     biblio = new Biblio(location);
   });
 
-  specify('is created with a root namespace named "global"', () => {
+  specify('is created with a root namespace named "external"', () => {
     const opEntry = {
       type: 'op',
       aoid: 'aoid',
       refId: 'clauseId',
     };
 
-    biblio.add(opEntry, 'global');
+    biblio.add(opEntry, 'external');
     assert.equal(biblio.byAoid('aoid'), opEntry);
   });
 
@@ -31,7 +31,7 @@ describe('Biblio', () => {
     };
 
     biblio.add(opEntry, location);
-    assert.equal(biblio.byAoid('aoid', 'global'), undefined);
+    assert.equal(biblio.byAoid('aoid', 'external'), undefined);
     assert.equal(biblio.byAoid('aoid', location), opEntry);
   });
 
@@ -49,7 +49,7 @@ describe('Biblio', () => {
     };
 
     biblio.add(opEntry1, location);
-    biblio.add(opEntry2, 'global');
+    biblio.add(opEntry2, 'external');
 
     const str = JSON.stringify(biblio.localEntries());
 
@@ -72,7 +72,7 @@ describe('Biblio', () => {
       };
 
       biblio.add(opEntry1, location);
-      biblio.add(opEntry2, 'global');
+      biblio.add(opEntry2, 'external');
 
       let results = biblio.getDefinedWords(location);
       assert.equal(results.aoid, opEntry1);

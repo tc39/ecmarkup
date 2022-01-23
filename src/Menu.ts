@@ -65,7 +65,24 @@ export default function makeMenu(spec: Spec) {
   };
 }
 
+const INCLUDED_KEYS = new Set([
+  'type',
+  'id',
+  'refId',
+  'aoid',
+  'title',
+  'titleHTML',
+  'number',
+  'name',
+  'term',
+  'caption',
+  'referencingIds',
+]);
 function biblioReplacer(this: BiblioEntry, k: string, v: unknown) {
+  if (!{}.hasOwnProperty.call(this, 'type')) {
+    // for non-BiblioEntry items
+    return v;
+  }
   if (k === 'referencingIds' && (v as string[]).length === 0) {
     return undefined;
   }
@@ -73,11 +90,11 @@ function biblioReplacer(this: BiblioEntry, k: string, v: unknown) {
     // aoid is only used as a key for 'op's, nothing else
     return undefined;
   }
-  if (!['title', 'namespace', 'location', 'variants'].includes(k)) {
-    return v;
+  if (k === 'title') {
+    if (this.type === 'clause' && this.title !== this.titleHTML) {
+      return v;
+    }
+    return undefined;
   }
-  if (k === 'title' && this.type === 'clause' && this.title !== this.titleHTML) {
-    return v;
-  }
-  return undefined;
+  return INCLUDED_KEYS.has(k) ? v : undefined;
 }

@@ -13,6 +13,8 @@ const files = fs
   .readdirSync(SOURCES_DIR)
   .filter(f => f.endsWith('.html') && !f.endsWith('.bad.html'));
 
+const ecma262biblio = require('./ecma262biblio.json');
+
 function build(file, options) {
   return emu.build(
     file,
@@ -20,7 +22,10 @@ function build(file, options) {
       new Promise((resolve, reject) =>
         fs.readFile(file, 'utf-8', (err, data) => (err ? reject(err) : resolve(data)))
       ),
-    options
+    {
+      extraBiblios: [ecma262biblio],
+      ...options,
+    }
   );
 }
 

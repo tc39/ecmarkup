@@ -88,6 +88,8 @@ if (args.multipage) {
   fs.mkdirSync(path.resolve(outfile, 'multipage'), { recursive: true });
 }
 
+const LOOKS_LIKE_FILE_REGEX = /^\.{0,2}\//;
+
 const watching = new Map<string, fs.FSWatcher>();
 const build = debounce(async function build() {
   try {
@@ -96,7 +98,7 @@ const build = debounce(async function build() {
       outfile,
       jsOut: args['js-out'],
       cssOut: args['css-out'],
-      ecma262Biblio: !args['no-ecma-262-biblio'],
+      extraBiblios: [],
       toc: !args['no-toc'],
       oldToc: !!args['old-toc'],
       lintSpec: !!args['lint-spec'],
@@ -107,9 +109,20 @@ const build = debounce(async function build() {
     }
     let warned = false;
 
+    for (let toResolve of args['load-biblio'] ?? []) {
+      if (LOOKS_LIKE_FILE_REGEX.test(toResolve)) {
+        toResolve = path.resolve(process.cwd(), toResolve);
+      }
+      try {
+        opts.extraBiblios!.push(require(toResolve));
+      } catch (e) {
+        fail(`could not find biblio ${toResolve}`);
+      }
+    }
+
     const lintFormatter = args['lint-formatter']!;
     let toResolve = lintFormatter;
-    if (/^[./]/.test(lintFormatter)) {
+    if (LOOKS_LIKE_FILE_REGEX.test(lintFormatter)) {
       toResolve = path.resolve(process.cwd(), lintFormatter);
     }
     let formatter;
@@ -135,11 +148,11 @@ const build = debounce(async function build() {
     }
 
     const pending: Promise<any>[] = [];
-    if (args.biblio) {
+    if (args['write-biblio']) {
       if (args.verbose) {
-        utils.logVerbose('Writing biblio file to ' + args.biblio);
+        utils.logVerbose('Writing biblio file to ' + args['write-biblio']);
       }
-      pending.push(utils.writeFile(args.biblio, JSON.stringify(spec.exportBiblio())));
+      pending.push(utils.writeFile(args['write-biblio'], JSON.stringify(spec.exportBiblio())));
     }
 
     if (args.verbose && warned) {

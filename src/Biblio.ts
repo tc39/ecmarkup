@@ -12,7 +12,8 @@ type Entries = {
   step?: StepBiblioEntry[];
 };
 
-class EnvRec extends Array<BiblioEntry> {
+class EnvRec {
+  entries: Array<BiblioEntry>;
   _parent: EnvRec | undefined;
   _namespace: string;
   _children: EnvRec[];
@@ -23,8 +24,7 @@ class EnvRec extends Array<BiblioEntry> {
   _keys: Set<String>;
 
   constructor(parent: EnvRec | undefined, namespace: string) {
-    super();
-
+    this.entries = [];
     this._parent = parent;
     this._children = [];
     if (this._parent) {
@@ -45,17 +45,6 @@ class EnvRec extends Array<BiblioEntry> {
       pushKey(this._byType, item.type, item);
       pushKey(this._byLocation, item.location, item);
 
-      if (item.type === 'clause' && item.aoid) {
-        const op: BiblioEntry = {
-          type: 'op',
-          aoid: item.aoid,
-          refId: item.id,
-          location: item.location,
-          referencingIds: [],
-        };
-        this.push(op);
-      }
-
       if (item.type === 'op') {
         this._byAoid[item.aoid] = item;
         this._keys.add(item.aoid);
@@ -72,12 +61,9 @@ class EnvRec extends Array<BiblioEntry> {
       }
     }
 
-    return super.push(...items);
+    return this.entries.push(...items);
   }
 }
-
-// Map, etc. returns array.
-Object.defineProperty(EnvRec, Symbol.species, { value: Array });
 
 /*@internal*/
 export default class Biblio {
@@ -89,10 +75,15 @@ export default class Biblio {
   constructor(location: string) {
     this._byId = {};
     this._location = location;
-    this._root = new EnvRec(undefined, 'global');
-    this._nsToEnvRec = { global: this._root };
+    // the root namespace holds names defined in external biblios
+    this._root = new EnvRec(undefined, 'external');
+    this._nsToEnvRec = {
+      // @ts-ignore https://github.com/microsoft/TypeScript/issues/38385
+      __proto__: null,
+      external: this._root,
+    };
 
-    this.createNamespace(location, 'global');
+    this.createNamespace(location, 'external');
   }
 
   byId(id: string) {
@@ -184,8 +175,8 @@ export default class Biblio {
   add(entry: PartialBiblioEntry, ns?: string | null) {
     ns = ns || this._location;
     const env = this._nsToEnvRec[ns]!;
+    // @ts-ignore
     entry.namespace = ns;
-
     // @ts-ignore
     entry.location = entry.location || '';
     // @ts-ignore
@@ -235,8 +226,8 @@ export default class Biblio {
   addExternalBiblio(biblio: BiblioData) {
     Object.keys(biblio).forEach(site => {
       biblio[site].forEach(entry => {
-        entry.location = site;
-        this.add(entry, 'global');
+        (entry as BiblioEntry).location = site;
+        this.add(entry, 'external');
       });
     });
   }
@@ -250,11 +241,24 @@ export default class Biblio {
     let root: BiblioEntry[] = [];
 
     function addEnv(env: EnvRec) {
-      root = root.concat(env);
+      root = root.concat(env.entries);
       env._children.forEach(addEnv);
     }
     addEnv(this.byNamespace(this._location));
     return root;
+  }
+
+  export(): PartialBiblioEntry[] {
+    return this.byNamespace(this._location).entries.map(e => {
+      const copy: PartialBiblioEntry = { ...e };
+      // @ts-ignore
+      delete copy.namespace;
+      // @ts-ignore
+      delete copy.location;
+      // @ts-ignore
+      delete copy.referencingIds;
+      return copy;
+    });
   }
 
   dump() {
@@ -263,7 +267,7 @@ export default class Biblio {
 }
 
 export interface BiblioData {
-  [namespace: string]: BiblioEntry[];
+  [namespace: string]: PartialBiblioEntry[];
 }
 
 export interface BiblioEntryBase {
@@ -326,13 +330,13 @@ export type BiblioEntry =
 
 // the generic is necessary for this trick to work
 // see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
-type Unkey<T> = T extends any ? Omit<T, 'key' | 'keys' | 'location' | 'referencingIds'> : never;
+type Unkey<T> = T extends any ? Omit<T, 'location' | 'referencingIds' | 'namespace'> : never;
 
 export type PartialBiblioEntry = Unkey<BiblioEntry>;
 
 function dumpEnv(env: EnvRec) {
   console.log('## ' + env._namespace);
-  console.log(env.map(entry => JSON.stringify(entry)).join(', '));
+  console.log(env.entries.map(entry => JSON.stringify(entry)).join(', '));
 
   env._children.forEach(child => {
     dumpEnv(child);
