@@ -51,7 +51,7 @@ export function parse<T extends readonly OptionDefinition[]>(
   return args;
 }
 
-// here follows some typescript shenangans for infering the type of of the parsed arguments from the argument specification
+// here follows some typescript shenanigans for inferring the type of of the parsed arguments from the argument specification
 
 type Multiples<T> = T extends unknown
   ? Extract<T, { multiple: true } | { lazyMultiple: true }>
