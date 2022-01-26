@@ -28,7 +28,7 @@ const options = [
     description: 'Overwrite the specified files instead of printing to standard out.',
   },
   {
-    name: 'would-write',
+    name: 'expand-glob',
     type: Boolean,
     description:
       'Print a list of files matched by the pattern and exit without further processing.',
@@ -45,7 +45,7 @@ function usage() {
   console.log(
     commandLineUsage([
       {
-        content: ['Usage: emu-format [--write|--would-write|--check] src.emu'],
+        content: ['Usage: emu-format [--write|--expand-glob|--check] src.emu'],
       },
       {
         header: 'Options',
@@ -59,10 +59,10 @@ function usage() {
 (async () => {
   const args = parseArguments(options, usage);
 
-  const { patterns, check, write, 'would-write': wouldWrite } = args;
+  const { patterns, check, write, 'expand-glob': expandGlob } = args;
 
-  if (check && (write || wouldWrite)) {
-    console.error(`--check cannot be combined with --write or --would-write`);
+  if (check && (write || expandGlob)) {
+    console.error(`--check cannot be combined with --write or --expand-glob`);
     process.exit(1);
   }
 
@@ -72,7 +72,7 @@ function usage() {
   }
 
   // can't use flatmap when the mapper is async, sigh
-  const files = (await Promise.all(patterns.map(expandGlob))).flat();
+  const files = (await Promise.all(patterns.map(expand))).flat();
 
   if (files.length === 0) {
     console.error(
@@ -82,17 +82,17 @@ function usage() {
   }
   if (
     !write &&
-    !wouldWrite &&
+    !expandGlob &&
     !check &&
     (patterns.length > 1 || files.length > 1 || files[0] !== patterns[0])
   ) {
     console.error(
-      `When processing multiple files or a glob pattern you must specify --write, --would-write, or --check`
+      `When processing multiple files or a glob pattern you must specify --write, --expand-glob, or --check`
     );
     process.exit(1);
   }
 
-  if (wouldWrite) {
+  if (expandGlob) {
     console.log('Files to be processed:');
     console.log(files.join('\n'));
     process.exit(0);
@@ -136,7 +136,7 @@ function usage() {
   process.exit(1);
 });
 
-async function expandGlob(pattern: string) {
+async function expand(pattern: string) {
   const cwd = process.cwd();
 
   const absolute = path.resolve(cwd, pattern);
