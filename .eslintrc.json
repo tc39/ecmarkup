@@ -1,23 +1,19 @@
 {
   "root": true,
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "sourceType": "module",
-    "ecmaVersion": 2020,
-    "project": "./tsconfig.json"
-  },
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
     "prettier"
   ],
   "plugins": [
-    "@typescript-eslint",
     "prettier"
   ],
   "env": {
     "node": true,
     "es6": true
+  },
+  "parserOptions": {
+    "sourceType": "script",
+    "ecmaVersion": 2020
   },
   "overrides": [
     {
@@ -27,15 +23,10 @@
         "browser": true,
         "es6": true
       },
-      "parserOptions": {
-        "sourceType": "script",
-        "ecmaVersion": 2020
-      },
       "rules": {
         "no-use-before-define": "off",
         "no-redeclare": "off",
-        "no-unused-vars": "error",
-        "@typescript-eslint/no-unused-vars": "off"
+        "no-unused-vars": "error"
       },
       "globals": {
         "multipageMap": "readonly",
@@ -54,17 +45,6 @@
       "files": ["test/**/*"],
       "env": {
         "mocha": true
-      },
-      "parserOptions": {
-        "sourceType": "script",
-        "ecmaVersion": 2020
-      }
-    },
-    {
-      "files": ["bin/**/*"],
-      "parserOptions": {
-        "sourceType": "script",
-        "ecmaVersion": 2020
       }
     }
   ],
@@ -83,13 +63,6 @@
       "error",
       "global"
     ],
-    "@typescript-eslint/no-use-before-define": [
-      "error",
-      {
-        "functions": false,
-        "typedefs": false
-      }
-    ],
     "no-underscore-dangle": "off",
     "no-constant-condition": "off",
     "camelcase": [
@@ -103,9 +76,6 @@
       "error",
       "multi-line"
     ],
-    "no-var": "error",
-    "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-unnecessary-type-assertion": "error"
+    "no-var": "error"
   }
 }

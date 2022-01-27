@@ -1,11 +1,19 @@
 import type Note from './Note';
 import type Example from './Example';
 import type Spec from './Spec';
-import type { PartialBiblioEntry } from './Biblio';
+import type { PartialBiblioEntry, Signature, Type } from './Biblio';
 import type { Context } from './Context';
 
+import { ParseError, TypeParser } from './type-parser';
 import Builder from './Builder';
-import { formatPreamble, parseStructuredHeaderDl, parseAndFormatH1 } from './header-parser';
+import {
+  formatPreamble,
+  parseStructuredHeaderDl,
+  formatHeader,
+  parseH1,
+  ParsedHeader,
+} from './header-parser';
+import { offsetToLineAndColumn } from './utils';
 
 export function extractStructuredHeader(header: Element): Element | null {
   const dl = header.nextElementSibling;
@@ -33,6 +41,7 @@ export default class Clause extends Builder {
   editorNotes: Note[];
   examples: Example[];
   effects: string[];
+  signature: Signature | null;
 
   constructor(spec: Spec, node: HTMLElement, parent: Clause, number: string) {
     super(spec, node);
@@ -69,6 +78,7 @@ export default class Clause extends Builder {
       this.type = null;
     }
 
+    this.signature = null;
     let header = this.node.firstElementChild;
     while (header != null && header.tagName === 'SPAN' && header.children.length === 0) {
       // skip oldids
@@ -109,9 +119,41 @@ export default class Clause extends Builder {
 
     const type = this.type;
 
-    const { name, formattedHeader, formattedParams, formattedReturnType } = parseAndFormatH1(
+    let headerSource;
+    const headerLocation = this.spec.locate(header);
+    if (headerLocation != null) {
+      headerSource = headerLocation.source.slice(
+        headerLocation.startTag.endOffset,
+        headerLocation.endTag.startOffset
+      );
+    } else {
+      headerSource = header.innerHTML;
+    }
+
+    const parseResult = parseH1(headerSource);
+    if (parseResult.type !== 'failure') {
+      try {
+        this.signature = parsedHeaderToSignature(parseResult);
+      } catch (e) {
+        if (e instanceof ParseError) {
+          const { line, column } = offsetToLineAndColumn(headerSource, e.offset);
+          this.spec.warn({
+            type: 'contents',
+            ruleId: 'type-parsing',
+            message: e.message,
+            node: header,
+            nodeRelativeLine: line,
+            nodeRelativeColumn: column,
+          });
+        } else {
+          throw e;
+        }
+      }
+    }
+    const { name, formattedHeader, formattedParams, formattedReturnType } = formatHeader(
       this.spec,
-      header
+      header,
+      parseResult
     );
     if (type === 'numeric method' && name != null && !name.includes('::')) {
       this.spec.warn({
@@ -300,11 +342,26 @@ export default class Clause extends Builder {
           message: `duplicate definition ${JSON.stringify(clause.aoid)}`,
         });
       } else {
+        const signature = clause.signature;
         const op: PartialBiblioEntry = {
           type: 'op',
           aoid: clause.aoid,
           refId: clause.id,
+          signature,
+          _node: clause.node,
         };
+        if (
+          signature?.return?.kind === 'union' &&
+          signature.return.types.some(e => e.kind === 'completion') &&
+          signature.return.types.some(e => e.kind !== 'completion')
+        ) {
+          spec.warn({
+            type: 'node',
+            node: clause.header!,
+            ruleId: 'completion-union',
+            message: `algorithms should return either completions or things which are not completions, never both`,
+          });
+        }
         spec.biblio.add(op, spec.namespace);
       }
     }
@@ -315,4 +372,34 @@ export default class Clause extends Builder {
 
   static elements = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];
   static linkElements = Clause.elements;
+}
+
+function parseType(type: string, offset: number): Type {
+  try {
+    return TypeParser.parse(type);
+  } catch (e) {
+    if (e instanceof ParseError) {
+      e.offset += offset;
+    }
+    throw e;
+  }
+}
+
+function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
+  const ret = {
+    parameters: parsedHeader.params.map(p => ({
+      name: p.name,
+      type: p.type == null ? null : parseType(p.type, p.typeOffset),
+    })),
+    optionalParameters: parsedHeader.optionalParams.map(p => ({
+      name: p.name,
+      type: p.type == null ? null : parseType(p.type, p.typeOffset),
+    })),
+    return:
+      parsedHeader.returnType == null
+        ? null
+        : parseType(parsedHeader.returnType, parsedHeader.returnOffset),
+  };
+
+  return ret;
 }

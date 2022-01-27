@@ -5,8 +5,8 @@
 	"main": "lib/ecmarkup.js",
 	"typings": "lib/ecmarkup.d.ts",
 	"scripts": {
-		"build": "tsc -p src -sourceMap",
-		"build-release": "tsc -p src",
+		"build": "tsc -sourceMap",
+		"build-release": "tsc",
 		"build-spec": "mkdir -p docs && node bin/ecmarkup.js spec/index.html docs/index.html --no-ecma-262-biblio --css-out docs/elements.css --js-out docs/ecmarkup.js",
 		"prepack": "safe-publish-latest && npm run build-release",
 		"test": "mocha",
@@ -69,16 +69,16 @@
 		"@types/jsdom": "^16.2.13",
 		"@types/node": "^13.1.8",
 		"@types/parse5": "^6.0.2",
-		"@typescript-eslint/eslint-plugin": "^5.4.0",
-		"@typescript-eslint/parser": "^5.4.0",
+		"@typescript-eslint/eslint-plugin": "^5.12.0",
+		"@typescript-eslint/parser": "^5.12.0",
 		"auto-changelog": "^1.16.2",
-		"eslint": "^7.29.0",
+		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^6.10.1",
 		"eslint-plugin-prettier": "^3.1.2",
 		"mocha": "^5.2.0",
 		"prettier": "^2.0.4",
 		"safe-publish-latest": "^1.1.4",
-		"typescript": "^4.5.2"
+		"typescript": "^4.5.5"
 	},
 	"auto-changelog": {
 		"output": "CHANGELOG.md",

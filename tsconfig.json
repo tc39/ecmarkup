@@ -1,13 +1,17 @@
 {
+    "include": ["src/**/*"],
     "compilerOptions": {
+        "target": "es2019",
         "module": "commonjs",
-        "target": "es6",
-        "noImplicitAny": true,
-        "sourceMap": false,
-        "strictNullChecks": true,
-        "lib": [
-          "es6",
-          "dom"
+        "moduleResolution": "node",
+        "strict": true,
+        "declaration": true,
+        "stripInternal": true,
+        "importsNotUsedAsValues": "error",
+        "outDir": "lib",
+        "lib": ["es5", "es2019", "dom", "dom.iterable"],
+        "typeRoots": [
+            "node_modules/@types"
         ]
     }
 }

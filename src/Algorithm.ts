@@ -47,6 +47,9 @@ export default class Algorithm extends Builder {
       return;
     }
 
+    // @ts-ignore
+    node.ecmarkdownTree = emdTree;
+
     if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
       const clause = clauseStack[clauseStack.length - 1];
       const namespace = clause ? clause.namespace : spec.namespace;
@@ -57,6 +60,73 @@ export default class Algorithm extends Builder {
         namespace,
       }));
       spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
+
+      const returnType = clause?.signature?.return;
+      let containsAnyCompletionyThings = false;
+      if (returnType?.kind != null) {
+        function checkForCompletionyStuff(list: emd.OrderedListNode) {
+          for (const step of list.contents) {
+            if (
+              step.contents[0].name === 'text' &&
+              /^(note|assert):/i.test(step.contents[0].contents)
+            ) {
+              continue;
+            }
+            if (
+              step.contents.some(
+                c => c.name === 'text' && /a new (\w+ )?Abstract Closure/i.test(c.contents)
+              )
+            ) {
+              continue;
+            }
+            for (const part of step.contents) {
+              if (part.name !== 'text') {
+                continue;
+              }
+              const completionyThing = part.contents.match(
+                /\b(ReturnIfAbrupt|throw|Return (Normal|Throw)?Completion|the result of evaluating)\b|(?<=[\s(])\?\s/i
+              );
+              if (completionyThing != null) {
+                if (returnType?.kind === 'completion') {
+                  containsAnyCompletionyThings = true;
+                } else if (clause.aoid !== 'GeneratorStart') {
+                  // TODO: remove above exception when the spec is more coherent (https://github.com/tc39/ecma262/pull/2429)
+                  spec.warn({
+                    type: 'contents',
+                    ruleId: 'completiony-thing-in-non-completion-algorithm',
+                    message:
+                      'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+                    node,
+                    nodeRelativeLine: part.location.start.line,
+                    nodeRelativeColumn: part.location.start.column + completionyThing.index!,
+                  });
+                }
+              }
+            }
+            if (step.sublist?.name === 'ol') {
+              checkForCompletionyStuff(step.sublist);
+            }
+          }
+        }
+        checkForCompletionyStuff(emdTree.contents);
+
+        // TODO: remove 'GeneratorYield' when the spec is more coherent (https://github.com/tc39/ecma262/pull/2429)
+        // TODO: remove SDOs after doing the work necessary to coordinate the `containsAnyCompletionyThings` bit across all the piecewise components of an SDO's definition
+        if (
+          !['Completion', 'GeneratorYield'].includes(clause.aoid!) &&
+          returnType?.kind === 'completion' &&
+          !containsAnyCompletionyThings &&
+          !['sdo', 'internal method', 'concrete method'].includes(clause.type!)
+        ) {
+          spec.warn({
+            type: 'node',
+            ruleId: 'completion-algorithm-lacks-completiony-thing',
+            message:
+              'this algorithm is declared as returning a Completion Record, but there is no step which might plausibly return an abrupt completion',
+            node,
+          });
+        }
+      }
     }
 
     const rawHtml = emd.emit(emdTree);
@@ -96,7 +166,7 @@ export default class Algorithm extends Builder {
       const entry: PartialBiblioEntry = {
         type: 'step',
         id: step.id,
-        stepNumbers: getStepNumbers(step as Element),
+        stepNumbers: getStepNumbers(step),
       };
       context.spec.biblio.add(entry);
       if (replaces) {
