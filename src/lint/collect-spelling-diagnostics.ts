@@ -137,7 +137,7 @@ const matchers = [
   },
   {
     pattern: /[Ee]cma[Ss]cript/gu,
-    message: 'it\'s spelled ECMAScript',
+    message: "it's spelled ECMAScript",
   },
 ];
 

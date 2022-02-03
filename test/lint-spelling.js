@@ -535,7 +535,6 @@ windows:${M}\r
     );
   });
 
-
   it('ECMAScript', async () => {
     await assertLint(
       positioned`
@@ -544,7 +543,7 @@ windows:${M}\r
       {
         ruleId: 'spelling',
         nodeType: 'html',
-        message: 'it\'s spelled ECMAScript',
+        message: "it's spelled ECMAScript",
       }
     );
 
@@ -555,7 +554,7 @@ windows:${M}\r
       {
         ruleId: 'spelling',
         nodeType: 'html',
-        message: 'it\'s spelled ECMAScript',
+        message: "it's spelled ECMAScript",
       }
     );
   });
