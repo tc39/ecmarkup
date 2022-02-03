@@ -535,6 +535,31 @@ windows:${M}\r
     );
   });
 
+
+  it('ECMAScript', async () => {
+    await assertLint(
+      positioned`
+        <p>${M}ecmascript</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'it\'s spelled ECMAScript',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>${M}EcmaScript</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'it\'s spelled ECMAScript',
+      }
+    );
+  });
+
   it('negative', async () => {
     await assertLintFree(`
       <p>
