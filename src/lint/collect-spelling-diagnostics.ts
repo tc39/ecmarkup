@@ -135,10 +135,6 @@ const matchers = [
     pattern: /(÷|&divide;)/gu,
     message: 'division should be written as "/", not "÷", per ISO 80000-2',
   },
-  {
-    pattern: /[Ee]cma[Ss]cript/gu,
-    message: "it's spelled ECMAScript",
-  },
 ];
 
 export function collectSpellingDiagnostics(
