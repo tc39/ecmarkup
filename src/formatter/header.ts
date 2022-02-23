@@ -1,4 +1,4 @@
-import { ParsedH1, printSimpleParamList } from '../header-parser';
+import { ParsedHeaderOrFailure, printSimpleParamList } from '../header-parser';
 import type { Param } from '../header-parser';
 import { LineBuilder } from './line-builder';
 
@@ -21,7 +21,7 @@ function ensureUnderscores(param: Param) {
 }
 
 export function printHeader(
-  parseResult: ParsedH1 & { type: 'single-line' | 'multi-line' },
+  parseResult: ParsedHeaderOrFailure & { type: 'single-line' | 'multi-line' },
   clauseType: string | null,
   indent: number
 ): LineBuilder {

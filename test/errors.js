@@ -799,7 +799,7 @@ ${M}      </pre>
     await assertError(
       positioned`
         <emu-clause id="sec-test" type="abstract operation">
-        <h1>Foo ( )${M}:</h1>
+        <h1>Foo ( ):${M}</h1>
         <dl class='header'>
         </dl>
         </emu-clause>

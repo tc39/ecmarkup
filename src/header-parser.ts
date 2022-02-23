@@ -5,29 +5,43 @@ type ParseError = {
   message: string;
   offset: number;
 };
-export type Param = {
+type BaseParam = {
   name: string;
-  type: string | null;
   wrappingTag: 'ins' | 'del' | 'mark' | null;
 };
+export type Param = BaseParam &
+  (
+    | {
+        type: null;
+      }
+    | {
+        type: string;
+        typeOffset: number;
+      }
+  );
 
-export type ParsedH1 =
-  | {
-      type: 'single-line' | 'multi-line';
-      wrappingTag: 'ins' | 'del' | 'mark' | null;
-      prefix: string | null;
-      name: string;
-      params: Param[];
-      optionalParams: Param[];
-      returnType: string | null;
-      errors: ParseError[];
-    }
+type ParsedHeaderWithoutReturn = {
+  type: 'single-line' | 'multi-line';
+  wrappingTag: 'ins' | 'del' | 'mark' | null;
+  prefix: string | null;
+  name: string;
+  params: Param[];
+  optionalParams: Param[];
+  returnType: string | null;
+  errors: ParseError[];
+};
+
+export type ParsedHeader = ParsedHeaderWithoutReturn &
+  ({ returnType: null } | { returnType: string; returnOffset: number });
+
+export type ParsedHeaderOrFailure =
+  | ParsedHeader
   | {
       type: 'failure';
       errors: ParseError[];
     };
 
-export function parseH1(headerText: string): ParsedH1 {
+export function parseH1(headerText: string): ParsedHeaderOrFailure {
   let offset = 0;
   const errors: ParseError[] = [];
 
@@ -140,6 +154,7 @@ export function parseH1(headerText: string): ParsedH1 {
 
       // TODO handle absence of type, treat as unknown
 
+      const typeOffset = offset;
       ({ match, text } = eat(text, /^[^\n]+\n\s*/i));
       if (!match) {
         errors.push({ message: 'expected a type', offset });
@@ -163,11 +178,21 @@ export function parseH1(headerText: string): ParsedH1 {
         paramType = paramType.slice(0, -1);
       }
 
-      (optional ? optionalParams : params).push({
-        name: paramName,
-        type: paramType === 'unknown' ? null : paramType,
-        wrappingTag: paramWrappingTag,
-      });
+      const base = optional ? optionalParams : params;
+      if (paramType === 'unknown') {
+        base.push({
+          name: paramName,
+          type: null,
+          wrappingTag: paramWrappingTag,
+        });
+      } else {
+        base.push({
+          name: paramName,
+          type: paramType,
+          typeOffset,
+          wrappingTag: paramWrappingTag,
+        });
+      }
     }
   } else {
     // single line: no types
@@ -206,14 +231,23 @@ export function parseH1(headerText: string): ParsedH1 {
     }
   }
 
+  let returnOffset = 0;
   let returnType = null;
-  ({ match, text } = eat(text, /^:(.*)(?!<\/(ins|del|mark)>)/i));
+  ({ match, text } = eat(text, /^: */));
   if (match) {
-    returnType = match[1].trim();
-    if (returnType === '') {
-      errors.push({ message: 'if a return type is given, it must not be empty', offset });
-    }
     offset += match[0].length;
+    returnOffset = offset;
+    ({ match, text } = eat(text, /^(.*)(?!<\/(ins|del|mark)>)/i));
+    if (match) {
+      returnType = match[1].trim();
+      if (returnType === '') {
+        errors.push({ message: 'if a return type is given, it must not be empty', offset });
+        returnType = null;
+      } else if (returnType === 'unknown') {
+        returnType = null;
+      }
+      offset += match[0].length;
+    }
   }
   if (wrappingTag !== null) {
     const trimmed = text.trimEnd();
@@ -234,16 +268,30 @@ export function parseH1(headerText: string): ParsedH1 {
     });
   }
 
-  return {
-    type,
-    wrappingTag,
-    prefix,
-    name,
-    params,
-    optionalParams,
-    returnType,
-    errors,
-  };
+  if (returnType == null) {
+    return {
+      type,
+      wrappingTag,
+      prefix,
+      name,
+      params,
+      optionalParams,
+      returnType,
+      errors,
+    };
+  } else {
+    return {
+      type,
+      wrappingTag,
+      prefix,
+      name,
+      params,
+      optionalParams,
+      returnType,
+      returnOffset,
+      errors,
+    };
+  }
 }
 
 const printParamWithType = (p: Param) => {
@@ -276,17 +324,16 @@ export function printSimpleParamList(params: Param[], optionalParams: Param[]) {
   return result;
 }
 
-export function parseAndFormatH1(
+export function formatHeader(
   spec: Spec,
-  header: Element
+  header: Element,
+  parseResult: ParsedHeaderOrFailure
 ): {
   name: string | null;
   formattedHeader: string | null;
   formattedParams: string | null;
   formattedReturnType: string | null;
 } {
-  const parseResult = parseH1(header.innerHTML);
-
   for (const { message, offset } of parseResult.errors) {
     const { line: nodeRelativeLine, column: nodeRelativeColumn } = offsetToLineAndColumn(
       header.innerHTML,
@@ -563,14 +610,6 @@ export function formatPreamble(
   return paras;
 }
 
-function eat(text: string, regex: RegExp) {
-  const match = text.match(regex);
-  if (match == null) {
-    return { match, text };
-  }
-  return { match, text: text.substring(match[0].length) };
-}
-
 function formatEnglishList(list: Array<string>) {
   if (list.length === 0) {
     throw new Error('formatEnglishList should not be called with an empty list');
@@ -582,4 +621,12 @@ function formatEnglishList(list: Array<string>) {
     return `${list[0]} and ${list[1]}`;
   }
   return `${list.slice(0, -1).join(', ')}, and ${list[list.length - 1]}`;
+}
+
+function eat(text: string, regex: RegExp) {
+  const match = text.match(regex);
+  if (match == null) {
+    return { match, text };
+  }
+  return { match, text: text.substring(match[0].length) };
 }

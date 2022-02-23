@@ -317,13 +317,13 @@ export async function printElement(
       if (c.nodeName !== 'tbody') {
         return [c];
       }
-      if ((c as Element).attrs.length > 0) {
+      if (c.attrs.length > 0) {
         return [c];
       }
-      for (let i = 0; i < (c as Element).childNodes.length; ++i) {
-        const child = (c as Element).childNodes[i];
+      for (let i = 0; i < c.childNodes.length; ++i) {
+        const child = c.childNodes[i];
         if (child.nodeName === 'tr') {
-          return (c as Element).childNodes;
+          return c.childNodes;
         }
         if (!isWhitespace(child)) {
           break;

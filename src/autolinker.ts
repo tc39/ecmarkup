@@ -42,6 +42,9 @@ export function autolink(
   const spec = clause.spec;
   const template = spec.doc.createElement('template');
   const content = escape(node.textContent!);
+
+  // null indicates we haven't done the analysis for this node yet
+  let isInAlg: boolean | null = null;
   const autolinked = content.replace(replacer, (match, offset) => {
     const entry = autolinkmap[narrowSpace(match)];
     if (!entry) {
@@ -58,14 +61,30 @@ export function autolink(
     if (entry.aoid) {
       let isInvocationAttribute = '';
       // Matches function-style invocation with parentheses and SDO-style 'of'
-      // invocation.
+      // invocation. Exclude nodes which are outside of algorithms.
       if (
-        content[offset + match.length] === '(' ||
-        (content[offset + match.length] === ' ' &&
-          content[offset + match.length + 1] === 'o' &&
-          content[offset + match.length + 2] === 'f')
+        (isInAlg === true || isInAlg === null) &&
+        (content[offset + match.length] === '(' ||
+          (content[offset + match.length] === ' ' &&
+            content[offset + match.length + 1] === 'o' &&
+            content[offset + match.length + 2] === 'f'))
       ) {
-        isInvocationAttribute = ' is-invocation';
+        if (isInAlg === null) {
+          let pointer: Node | null = node;
+          while (pointer != null) {
+            if (pointer.nodeName === 'EMU-ALG') {
+              isInAlg = true;
+              break;
+            }
+            pointer = pointer.parentNode;
+          }
+          if (isInAlg === null) {
+            isInAlg = false;
+          }
+        }
+        if (isInAlg) {
+          isInvocationAttribute = ' is-invocation';
+        }
       }
 
       let noAbruptCompletionAttribute = '';

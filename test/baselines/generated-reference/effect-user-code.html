@@ -118,7 +118,7 @@
 
 <emu-clause id="sec-xref-not-first-child-of-emu-meta" type="abstract operation" aoid="XrefNotFirstChildOfEmuMeta">
   <h1><span class="secnum">19</span> XrefNotFirstChildOfEmuMeta ( )</h1>
-  <p>The abstract operation XrefNotFirstChildOfEmuMeta takes no arguments. Effect additions and suppressions via emu-meta only affect xrefs that are the first child of the emu-meta. Below, <emu-xref aoid="UserCode" id="_ref_15"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>() gets autolinked and get an xref. Its parent element is an emu-meta, but since the xref is not the first child, it should not be interpreted to override the effects of the <emu-xref aoid="UserCode" id="_ref_16"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>() call. It performs the following steps when called:</p>
+  <p>The abstract operation XrefNotFirstChildOfEmuMeta takes no arguments. Effect additions and suppressions via emu-meta only affect xrefs that are the first child of the emu-meta. Below, <emu-xref aoid="UserCode" id="_ref_15"><a href="#sec-user-code">UserCode</a></emu-xref>() gets autolinked and get an xref. Its parent element is an emu-meta, but since the xref is not the first child, it should not be interpreted to override the effects of the <emu-xref aoid="UserCode" id="_ref_16"><a href="#sec-user-code">UserCode</a></emu-xref>() call. It performs the following steps when called:</p>
   <emu-alg><ol><li>Perform <span class="e-user-code"><var>map</var>.[[DefineOwnProperty]](! <emu-xref aoid="UserCode" id="_ref_17"><a href="#sec-user-code">UserCode</a></emu-xref>())</span>.</li></ol></emu-alg>
 </emu-clause>
 

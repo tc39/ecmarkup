@@ -257,6 +257,8 @@ export default class Biblio {
       delete copy.location;
       // @ts-ignore
       delete copy.referencingIds;
+      // @ts-ignore
+      delete copy._node;
       return copy;
     });
   }
@@ -280,9 +282,49 @@ export interface BiblioEntryBase {
   referencingIds: string[];
 }
 
+export type Type =
+  | {
+      kind: 'opaque';
+      type: string;
+    }
+  | {
+      kind: 'unused';
+    }
+  | {
+      kind: 'completion';
+      completionType: 'abrupt';
+    }
+  | {
+      kind: 'completion';
+      typeOfValueIfNormal: Type | null;
+      completionType: 'normal' | 'mixed';
+    }
+  | {
+      kind: 'list';
+      elements: Type | null;
+    }
+  | {
+      kind: 'union';
+      types: Exclude<Type, { kind: 'union' }>[];
+    }
+  | {
+      kind: 'record';
+      fields: Record<string, Type | null>;
+    };
+export type Parameter = {
+  name: string;
+  type: null | Type;
+};
+export type Signature = {
+  parameters: Parameter[];
+  optionalParameters: Parameter[];
+  return: null | Type;
+};
 export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   type: 'op';
   aoid: string;
+  signature: null | Signature;
+  /*@internal*/ _node?: Element;
 }
 
 export interface ProductionBiblioEntry extends BiblioEntryBase {

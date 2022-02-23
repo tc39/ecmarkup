@@ -1,7 +1,7 @@
 import type { ElementLocation } from 'parse5';
 import type { EcmarkupError, Options } from './ecmarkup';
 import type { Context } from './Context';
-import type { BiblioData, StepBiblioEntry } from './Biblio';
+import type { AlgorithmBiblioEntry, BiblioData, StepBiblioEntry, Type } from './Biblio';
 import type { BuilderInterface } from './Builder';
 
 import * as path from 'path';
@@ -39,6 +39,7 @@ import {
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
+import type { OrderedListItemNode, parseAlgorithm, UnorderedListItemNode } from 'ecmarkdown';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -465,6 +466,10 @@ export default class Spec {
 
     this.autolink();
 
+    if (this.opts.lintSpec) {
+      this.log('Checking types...');
+      this.typecheck();
+    }
     this.log('Propagating effect annotations...');
     this.propagateEffects();
     this.log('Linking xrefs...');
@@ -477,6 +482,10 @@ export default class Spec {
     this._emuMetasToRemove.forEach(node => {
       node.replaceWith(...node.childNodes);
     });
+
+    // TODO: make these look good
+    // this.log('Adding clause labels...');
+    // this.labelClauses();
 
     if (this.opts.lintSpec) {
       this._ntStringRefs.forEach(({ name, loc, node, namespace }) => {
@@ -537,6 +546,238 @@ export default class Spec {
     this.generatedFiles.set(file, this.toHTML());
 
     return this;
+  }
+
+  private labelClauses() {
+    const label = (clause: Clause) => {
+      if (clause.header != null) {
+        if (
+          clause.signature?.return?.kind === 'completion' &&
+          clause.signature.return.completionType !== 'normal'
+        ) {
+          // style="border: 1px #B50000; background-color: #FFE6E6; padding: .2rem;border-radius: 5px;/*! color: white; */font-size: small;vertical-align: middle;/*! line-height: 1em; */border-style: dotted;color: #B50000;cursor: default;user-select: none;"
+          // TODO: make this a different color
+          clause.header.innerHTML += `<span class="clause-tag abrupt-tag" title="this can return an abrupt completion">abrupt</span>`;
+        }
+        // TODO: make this look like the [UC] annotation
+        // TODO: hide this if [UC] is not enabled (maybe)
+        // the querySelector is gross; you are welcome to replace it with a better analysis which actually keeps track of stuff
+        if (clause.node.querySelector('.e-user-code')) {
+          clause.header.innerHTML += `<span class="clause-tag user-code-tag" title="this can invoke user code">user code</span>`;
+        }
+      }
+      for (const sub of clause.subclauses) {
+        label(sub);
+      }
+    };
+    for (const sub of this.subclauses) {
+      label(sub);
+    }
+  }
+
+  // right now this just checks that AOs which do/don't return completion records are invoked appropriately
+  // someday, more!
+  private typecheck() {
+    const isCall = (x: Xref) => x.isInvocation && x.clause != null && x.aoid != null;
+    const isUnused = (t: Type) =>
+      t.kind === 'unused' ||
+      (t.kind === 'completion' &&
+        (t.completionType === 'abrupt' || t.typeOfValueIfNormal?.kind === 'unused'));
+    const AOs = this.biblio
+      .localEntries()
+      .filter(e => e.type === 'op' && e.signature?.return != null) as AlgorithmBiblioEntry[];
+    const onlyPerformed: Map<string, null | 'only performed' | 'top'> = new Map(
+      AOs.filter(e => !isUnused(e.signature!.return!)).map(a => [a.aoid, null])
+    );
+
+    const alwaysAssertedToBeNormal: Map<string, null | 'always asserted normal' | 'top'> = new Map(
+      AOs.filter(e => e.signature!.return!.kind === 'completion').map(a => [a.aoid, null])
+    );
+
+    for (const xref of this._xrefs) {
+      if (!isCall(xref)) {
+        continue;
+      }
+      const biblioEntry = this.biblio.byAoid(xref.aoid);
+      if (biblioEntry == null) {
+        this.warn({
+          type: 'node',
+          node: xref.node,
+          ruleId: 'xref-biblio',
+          message: `could not find biblio entry for xref ${JSON.stringify(xref.aoid)}`,
+        });
+        continue;
+      }
+      const signature = biblioEntry.signature;
+      if (signature == null) {
+        continue;
+      }
+
+      const { return: returnType } = signature;
+      if (returnType == null) {
+        continue;
+      }
+
+      // this is really gross
+      // i am sorry
+      // the better approach is to make the xref-linkage logic happen on the level of the ecmarkdown tree
+      // so that we still have this information at that point
+      // rather than having to reconstruct it, approximately
+      // ... someday!
+      const warn = (message: string) => {
+        const ruleId = 'completion-invocation';
+
+        const path = [];
+        let pointer: HTMLElement | null = xref.node;
+        let alg;
+        while (pointer != null) {
+          if (pointer.tagName === 'LI') {
+            // @ts-ignore
+            path.unshift([].indexOf.call(pointer.parentElement!.children, pointer));
+          }
+          if (pointer.tagName === 'EMU-ALG') {
+            alg = pointer;
+            break;
+          }
+          pointer = pointer.parentElement;
+        }
+        if (alg == null || !{}.hasOwnProperty.call(alg, 'ecmarkdownTree')) {
+          let pointer: Element | null = xref.node;
+          while (this.locate(pointer) == null) {
+            pointer = pointer.parentElement;
+            if (pointer == null) {
+              break;
+            }
+          }
+          if (pointer == null) {
+            this.warn({
+              type: 'global',
+              ruleId,
+              message: message + ` but I wasn't able to find a source location to give you, sorry!`,
+            });
+          } else {
+            this.warn({
+              type: 'node',
+              node: pointer,
+              ruleId,
+              message,
+            });
+          }
+        } else {
+          // @ts-ignore
+          const tree = alg.ecmarkdownTree as ReturnType<typeof parseAlgorithm>;
+          let stepPointer: OrderedListItemNode | UnorderedListItemNode = {
+            sublist: tree.contents,
+          } as OrderedListItemNode;
+          for (const step of path) {
+            stepPointer = stepPointer.sublist!.contents[step];
+          }
+          this.warn({
+            type: 'contents',
+            node: alg,
+            ruleId: 'invocation-return-type',
+            message,
+            nodeRelativeLine: stepPointer.location.start.line,
+            nodeRelativeColumn: stepPointer.location.start.column,
+          });
+        }
+      };
+
+      const consumedAsCompletion = isConsumedAsCompletion(xref);
+      // checks elsewhere ensure that well-formed documents never have a union of completion and non-completion, so checking the first child suffices
+      // TODO: this is for 'a break completion or a throw completion', which is kind of a silly union; maybe address that in some other way?
+      const isCompletion =
+        returnType.kind === 'completion' ||
+        (returnType.kind === 'union' && returnType.types[0].kind === 'completion');
+      if (['Completion', 'ThrowCompletion', 'NormalCompletion'].includes(xref.aoid)) {
+        if (consumedAsCompletion) {
+          warn(
+            `${xref.aoid} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`
+          );
+        }
+      } else if (isCompletion && !consumedAsCompletion) {
+        warn(`${xref.aoid} returns a Completion Record, but is not consumed as if it does`);
+      } else if (!isCompletion && consumedAsCompletion) {
+        warn(`${xref.aoid} does not return a Completion Record, but is consumed as if it does`);
+      }
+      if (returnType.kind === 'unused' && !isCalledAsPerform(xref, false)) {
+        warn(
+          `${xref.aoid} does not return a meaningful value and should only be invoked as \`Perform ${xref.aoid}(...).\``
+        );
+      }
+
+      if (onlyPerformed.has(xref.aoid) && onlyPerformed.get(xref.aoid) !== 'top') {
+        const old = onlyPerformed.get(xref.aoid);
+        const performed = isCalledAsPerform(xref, true);
+        if (!performed) {
+          onlyPerformed.set(xref.aoid, 'top');
+        } else if (old === null) {
+          onlyPerformed.set(xref.aoid, 'only performed');
+        }
+      }
+      if (
+        alwaysAssertedToBeNormal.has(xref.aoid) &&
+        alwaysAssertedToBeNormal.get(xref.aoid) !== 'top'
+      ) {
+        const old = alwaysAssertedToBeNormal.get(xref.aoid);
+        const asserted = isAssertedToBeNormal(xref);
+        if (!asserted) {
+          alwaysAssertedToBeNormal.set(xref.aoid, 'top');
+        } else if (old === null) {
+          alwaysAssertedToBeNormal.set(xref.aoid, 'always asserted normal');
+        }
+      }
+    }
+
+    for (const [aoid, state] of onlyPerformed) {
+      if (state !== 'only performed') {
+        continue;
+      }
+      const message = `${aoid} is only ever invoked with Perform, so it should return ~unused~ or a Completion Record which, if normal, contains ~unused~`;
+      const ruleId = 'perform-not-unused';
+      const biblioEntry = this.biblio.byAoid(aoid)!;
+      if (biblioEntry._node) {
+        this.spec.warn({
+          type: 'node',
+          ruleId,
+          message,
+          node: biblioEntry._node,
+        });
+      } else {
+        this.spec.warn({
+          type: 'global',
+          ruleId,
+          message,
+        });
+      }
+    }
+
+    for (const [aoid, state] of alwaysAssertedToBeNormal) {
+      if (state !== 'always asserted normal') {
+        continue;
+      }
+      if (aoid === 'AsyncGeneratorAwaitReturn') {
+        // TODO remove this when https://github.com/tc39/ecma262/issues/2412 is fixed
+        continue;
+      }
+      const message = `every call site of ${aoid} asserts the return value is a normal completion; it should be refactored to not return a completion record at all`;
+      const ruleId = 'always-asserted-normal';
+      const biblioEntry = this.biblio.byAoid(aoid)!;
+      if (biblioEntry._node) {
+        this.spec.warn({
+          type: 'node',
+          ruleId,
+          message,
+          node: biblioEntry._node,
+        });
+      } else {
+        this.spec.warn({
+          type: 'global',
+          ruleId,
+          message,
+        });
+      }
+    }
   }
 
   private toHTML() {
@@ -1787,4 +2028,60 @@ function linkIsPathRelative(link: HTMLAnchorElement | HTMLLinkElement) {
 
 function pathFromRelativeLink(link: HTMLAnchorElement | HTMLLinkElement) {
   return link.href.startsWith('about:blank') ? link.href.substring(11) : link.href;
+}
+
+function isFirstChild(node: Node) {
+  const p = node.parentElement!;
+  return (
+    p.childNodes[0] === node || (p.childNodes[0].textContent === '' && p.childNodes[1] === node)
+  );
+}
+
+// TODO factor some of this stuff out
+function isCalledAsPerform(xref: Xref, allowQuestion: boolean) {
+  let node = xref.node;
+  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
+    node = node.parentElement;
+  }
+  const previousSibling = node.previousSibling;
+  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
+    return false;
+  }
+  return (allowQuestion ? /\bperform ([?!]\s)?$/i : /\bperform $/i).test(
+    previousSibling.textContent!
+  );
+}
+
+function isAssertedToBeNormal(xref: Xref) {
+  let node = xref.node;
+  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
+    node = node.parentElement;
+  }
+  const previousSibling = node.previousSibling;
+  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
+    return false;
+  }
+  return /\s!\s$/.test(previousSibling.textContent!);
+}
+
+function isConsumedAsCompletion(xref: Xref) {
+  let node = xref.node;
+  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
+    node = node.parentElement;
+  }
+  const previousSibling = node.previousSibling;
+  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
+    return false;
+  }
+  if (/[!?]\s$/.test(previousSibling.textContent!)) {
+    return true;
+  }
+  if (previousSibling.textContent! === '(') {
+    // check for Completion(
+    const previousPrevious = previousSibling.previousSibling;
+    if (previousPrevious?.textContent === 'Completion') {
+      return true;
+    }
+  }
+  return false;
 }
