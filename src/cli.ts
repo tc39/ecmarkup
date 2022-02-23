@@ -120,16 +120,16 @@ const build = debounce(async function build() {
       }
     }
 
-    const lintFormatter = args['lint-formatter']!;
-    let toResolve = lintFormatter;
-    if (LOOKS_LIKE_FILE_REGEX.test(lintFormatter)) {
-      toResolve = path.resolve(process.cwd(), lintFormatter);
+    const errorFormatter = args['error-formatter']!;
+    let toResolve = errorFormatter;
+    if (LOOKS_LIKE_FILE_REGEX.test(errorFormatter)) {
+      toResolve = path.resolve(process.cwd(), errorFormatter);
     }
     let formatter;
     try {
       formatter = require(toResolve);
     } catch (e) {
-      fail(`could not find formatter ${lintFormatter}`);
+      fail(`could not find formatter ${errorFormatter}`);
     }
     const warnings: EcmarkupError[] = [];
     opts.warn = err => {

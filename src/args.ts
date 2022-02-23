@@ -60,8 +60,7 @@ export const options = [
     description: 'Enforce some style and correctness checks',
   },
   {
-    // TODO this isn't just for lints, it's for all errors
-    name: 'lint-formatter',
+    name: 'error-formatter',
     type: String,
     typeLabel: '{underline formatter}',
     defaultValue: 'eslint-formatter-codeframe',
