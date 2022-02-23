@@ -29,8 +29,7 @@
 		"/lib",
 		"/js",
 		"/css",
-		"/boilerplate",
-		"/ecma262biblio.json"
+		"/boilerplate"
 	],
 	"repository": "tc39/ecmarkup",
 	"keywords": [

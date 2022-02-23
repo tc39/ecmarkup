@@ -39,7 +39,7 @@ ecmarkup spec.html out.html
       <tr><th>Option</th><th>Description</th></tr>
       <tr><td>watch</td><td>Rebuild when files change</td></tr>
       <tr><td>verbose</td><td>Print verbose logging info</td></tr>
-      <tr><td>biblio</td><td>Emit a biblio file to the specified location</td></tr>
+      <tr><td>write-biblio</td><td>Emit a biblio file to the specified location</td></tr>
       <tr><td>assets</td><td>"none" for no css/js, "inline" for inline css/js</td></tr>
       <tr><td>css-out</td><td>Emit the Ecmarkup CSS file to the specified location</td></tr>
       <tr><td>js-out</td><td>Emit the Ecmarkup JS file to the specified location</td></tr>
@@ -64,7 +64,7 @@ ecmarkup spec.html out.html
       <tr><td>contributors</td><td>Contributors to this specification, ie. those who own the copyright. If your proposal includes text from any Ecma specification, you should include "Ecma International" in this list.</td></tr>
       <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
       <tr><td>old-toc</td><td>Emit the old style of table of contents. Boolean, default false.</td></tr>
-      <tr><td>ecma-262-biblio</td><td>Load the ECMA-262 biblio file. Boolean, default true.</td></tr>
+      <tr><td>load-biblio</td><td>Load the specified biblio.json file.</td></tr>
     </table>
   </emu-table>
 </emu-clause>
@@ -334,7 +334,7 @@ toc: false
 <emu-clause id="emu-xref">
   <h1>emu-xref</h1>
   <p>Cross-reference another clause, production, note, example, abstract operation, or labeled step. If the text content of this element is empty, a suitable default is used. The `title` attribute controls this default - when present, clauses are referred to using their title rather than number. This also applies to examples which are indexed first by their containing clause and then their example number.</p>
-  <p>Cross-references to an id check for clauses, productions, examples, and steps in this order. For each type, the local document is consulted before looking for external sources including the default ES6 biblio.</p>
+  <p>Cross-references to an id check for clauses, productions, examples, and steps in this order. For each type, the local document is consulted before looking for external sources.</p>
 
   <h2>Attributes</h2>
   <p><b>href:</b> Optional: URL of the target clause, production, or example to cross-reference.</p>

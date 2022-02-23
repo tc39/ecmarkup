@@ -299,6 +299,13 @@ export default class Clause extends Builder {
           ruleId: 'duplicate-definition',
           message: `duplicate definition ${JSON.stringify(clause.aoid)}`,
         });
+      } else {
+        const op: PartialBiblioEntry = {
+          type: 'op',
+          aoid: clause.aoid,
+          refId: clause.id,
+        };
+        spec.biblio.add(op, spec.namespace);
       }
     }
     spec.biblio.add(entry, spec.namespace);

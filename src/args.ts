@@ -12,16 +12,18 @@ export const options = [
     description: 'Rebuild when files change',
   },
   {
-    name: 'biblio',
-    alias: 'b',
+    name: 'load-biblio',
+    type: String,
+    lazyMultiple: true,
+    typeLabel: '{underline path}',
+    description:
+      'An external biblio.json to load; either a path prefixed with "." or "./", or package name, of an installed eslint compatible formatter',
+  },
+  {
+    name: 'write-biblio',
     type: String,
     typeLabel: '{underline file}',
     description: 'Path to where the biblio.json should be written',
-  },
-  {
-    name: 'no-ecma-262-biblio',
-    type: Boolean,
-    description: 'Disable loading of built-in ECMA-262 biblio file',
   },
   {
     name: 'assets',

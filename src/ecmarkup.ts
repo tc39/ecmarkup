@@ -1,4 +1,4 @@
-import type { BiblioEntry } from './Biblio';
+import type { BiblioData, BiblioEntry } from './Biblio';
 
 import Spec from './Spec';
 import * as utils from './utils';
@@ -32,6 +32,7 @@ export interface Options {
   date?: Date;
   location?: string;
   multipage?: boolean;
+  extraBiblios?: BiblioData[];
   contributors?: string;
   toc?: boolean;
   oldToc?: boolean;
@@ -41,7 +42,6 @@ export interface Options {
   assets?: 'none' | 'inline' | 'external';
   outfile?: string;
   boilerplate?: Boilerplate;
-  ecma262Biblio?: boolean;
   log?: (msg: string) => void;
   warn?: (err: EcmarkupError) => void;
 }
