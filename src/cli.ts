@@ -1,80 +1,131 @@
 import type { EcmarkupError, Options } from './ecmarkup';
 
-import { argParser } from './args';
-const args = argParser.parse();
-
+import * as commandLineUsage from 'command-line-usage';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ecmarkup from './ecmarkup';
 import * as utils from './utils';
+import { options } from './args';
+import { parse } from './arg-parser';
 
 const debounce: (_: () => Promise<void>) => () => Promise<void> = require('promise-debounce');
 
-// back compat to old argument names
-if (args.css) {
-  args.cssOut = args.css;
+function usage() {
+  console.log(
+    commandLineUsage([
+      {
+        header: 'ecmarkup',
+        content: 'Compile ecmarkup documents to html.',
+      },
+      {
+        header: 'Usage',
+        content: ['ecmarkup in.emu out.html', 'ecmarkup --multipage in.emu out/'],
+      },
+      {
+        header: 'Options',
+        hide: ['files'],
+        optionList: options as unknown as commandLineUsage.OptionDefinition[],
+      },
+    ])
+  );
 }
 
-if (args.js) {
-  args.jsOut = args.js;
+function fail(msg: string): never {
+  console.error(msg);
+  process.exit(1);
 }
+
+const args = parse(options, usage);
+
+if (args.version) {
+  const p = require(path.resolve(__dirname, '..', 'package.json'));
+  console.log(`ecmarkup v${p.version}`);
+  process.exit(0);
+}
+
+for (const [key, value] of Object.entries(args)) {
+  if (value === null) {
+    fail(`--${key} requires an argument`);
+  }
+}
+
+if (args.files.length < 1) {
+  fail('You must specify an input file');
+}
+
+if (args.files.length > 2) {
+  fail('Found extra argument ' + args.files[2]);
+}
+const infile = args.files[0];
+const outfile = args.files[1];
 
 if (args.strict && args.watch) {
   fail('Cannot use --strict with --watch');
 }
 
-if (!args.outfile && (args.jsOut || args.cssOut)) {
+if (!['none', 'inline', 'external'].includes(args.assets)) {
+  fail('--assets requires "none", "inline", or "external"');
+}
+
+// TODO just drop these
+if (!outfile && (args['js-out'] || args['css-out'])) {
   fail('When using --js-out or --css-out you must specify an output file');
 }
 
 if (args.multipage) {
-  if (args.jsOut || args.cssOut) {
+  if (args['js-out'] || args['css-out']) {
     fail('Cannot use --multipage with --js-out or --css-out');
   }
 
-  if (!args.outfile) {
+  if (!outfile) {
     fail('When using --multipage you must specify an output directory');
   }
 
-  if (fs.existsSync(args.outfile) && !fs.lstatSync(args.outfile).isDirectory()) {
-    fail('When using --multipage, outfile (' + args.outfile + ') must be a directory');
+  if (fs.existsSync(outfile) && !fs.lstatSync(outfile).isDirectory()) {
+    fail('When using --multipage, outfile (' + outfile + ') must be a directory');
   }
 
-  fs.mkdirSync(path.resolve(args.outfile, 'multipage'), { recursive: true });
-}
-
-function fail(msg: string) {
-  console.error(msg);
-  process.exit(1);
+  fs.mkdirSync(path.resolve(outfile, 'multipage'), { recursive: true });
 }
 
 const watching = new Map<string, fs.FSWatcher>();
 const build = debounce(async function build() {
   try {
-    const opts: Options = { ...args };
+    const opts: Options = {
+      multipage: args.multipage,
+      outfile,
+      jsOut: args['js-out'],
+      cssOut: args['css-out'],
+      ecma262Biblio: !args['no-ecma-262-biblio'],
+      toc: !args['no-toc'],
+      oldToc: !!args['old-toc'],
+      lintSpec: !!args['lint-spec'],
+      assets: args.assets as 'none' | 'inline' | 'external',
+    };
     if (args.verbose) {
       opts.log = utils.logVerbose;
     }
     let warned = false;
 
-    let descriptor = `eslint/lib/cli-engine/formatters/${args.lintFormatter}.js`;
+    const lintFormatter = args['lint-formatter']!;
+    let descriptor = `eslint/lib/cli-engine/formatters/${lintFormatter}.js`;
     try {
       require.resolve(descriptor);
     } catch {
-      descriptor = args.lintFormatter;
+      descriptor = lintFormatter;
     }
     const formatter = require(descriptor);
     const warnings: EcmarkupError[] = [];
     opts.warn = err => {
       warned = true;
-      const file = normalizePath(err.file ?? args.infile);
+      const file = normalizePath(err.file ?? args.files[0]);
       // prettier-ignore
       const message = `${args.strict ? 'Error' : 'Warning'}: ${file}:${err.line == null ? '' : `${err.line}:${err.column}:`} ${err.message}`;
       utils.logWarning(message);
       warnings.push(err);
     };
 
-    const spec = await ecmarkup.build(args.infile, utils.readFile, opts);
+    const spec = await ecmarkup.build(args.files[0], utils.readFile, opts);
 
     if (args.verbose) {
       utils.logVerbose(warned ? 'Completed with errors.' : 'Done.');
@@ -90,8 +141,8 @@ const build = debounce(async function build() {
 
     if (args.verbose && warned) {
       warnings.sort((a, b) => {
-        const aPath = normalizePath(a.file ?? args.infile);
-        const bPath = normalizePath(a.file ?? args.infile);
+        const aPath = normalizePath(a.file ?? infile);
+        const bPath = normalizePath(a.file ?? infile);
         if (aPath !== bPath) {
           return aPath.localeCompare(bPath);
         }
@@ -116,7 +167,7 @@ const build = debounce(async function build() {
         return a.line - b.line;
       });
       const results = warnings.map(err => ({
-        filePath: normalizePath(err.file ?? args.infile),
+        filePath: normalizePath(err.file ?? infile),
         messages: [{ severity: args.strict ? 2 : 1, ...err }],
         errorCount: args.strict ? 1 : 0,
         warningCount: args.strict ? 0 : 1,
@@ -130,7 +181,7 @@ const build = debounce(async function build() {
     }
 
     if (!args.strict || !warned) {
-      if (args.outfile) {
+      if (outfile) {
         if (args.verbose) {
           utils.logVerbose('Writing output...');
         }
@@ -155,7 +206,7 @@ const build = debounce(async function build() {
     }
 
     if (args.watch) {
-      const toWatch = new Set<string>(spec.imports.map(i => i.importLocation).concat(args.infile));
+      const toWatch = new Set<string>(spec.imports.map(i => i.importLocation).concat(infile));
 
       // remove any files that we're no longer watching
       for (const [file, watcher] of watching) {

@@ -1109,7 +1109,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         type: 'global',
         ruleId: 'no-location',
         message:
-          "no spec location specified; biblio not generated. try --location or setting the location in the document's metadata block",
+          "no spec location specified; biblio not generated. try setting the location in the document's metadata block",
       });
       return {};
     }
