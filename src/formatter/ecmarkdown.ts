@@ -8,8 +8,8 @@ import type {
   UnorderedListItemNode,
 } from 'ecmarkdown';
 import type { FragmentNode } from 'ecmarkdown/dist/node-types';
-import type { AST } from 'parse5';
 import { parseFragment } from 'parse5';
+import type { Element } from 'parse5';
 import { LineBuilder } from './line-builder';
 import { printElement, VOID_ELEMENTS } from './ecmarkup';
 import { printText } from './text';
@@ -149,15 +149,14 @@ export async function printFragments(
         } else {
           htmlBits = htmlBits.trim(); // ecmarkdown includes whitespace sometimes???
           // TODO try/catch for better error reporting
-          const fragment = parseFragment(htmlBits, { locationInfo: true });
-          if ((fragment as AST.Default.DocumentFragment).childNodes.length !== 1) {
+          const fragment = parseFragment(htmlBits, { sourceCodeLocationInfo: true });
+          if (fragment.childNodes.length !== 1) {
             throw new Error(
               'confusing parse - this should not be possible; please report it to ecmarkup'
             );
           }
-          const element = (fragment as AST.Default.DocumentFragment)
-            .childNodes[0] as AST.Default.Element;
-          output.append(await printElement(htmlBits, element, indent));
+          const element = fragment.childNodes[0];
+          output.append(await printElement(htmlBits, element as Element, indent));
         }
         break;
       }

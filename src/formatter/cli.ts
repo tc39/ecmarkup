@@ -164,7 +164,7 @@ async function expandGlob(pattern: string) {
 async function stat(path: string) {
   try {
     return await fs.stat(path);
-  } catch (error) {
+  } catch (error: any) {
     if (error.code !== 'ENOENT') {
       throw error;
     }

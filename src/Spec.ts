@@ -1,4 +1,4 @@
-import type { MarkupData } from 'parse5';
+import type { ElementLocation } from 'parse5';
 import type { EcmarkupError, Options } from './ecmarkup';
 import type { Context } from './Context';
 import type { BiblioData, StepBiblioEntry } from './Biblio';
@@ -169,7 +169,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           if (loc) {
             file = loc.file;
             source = loc.source;
-            ({ line, col: column } = loc);
+            ({ startLine: line, startCol: column } = loc);
           }
           nodeType = 'text';
         } else {
@@ -177,7 +177,7 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           if (loc) {
             file = loc.file;
             source = loc.source;
-            ({ line, col: column } = loc.startTag);
+            ({ startLine: line, startCol: column } = loc.startTag);
           }
           nodeType = (e.node as Element).tagName.toLowerCase();
         }
@@ -210,8 +210,9 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           if (loc) {
             file = loc.file;
             source = loc.source;
-            line = loc.line + nodeRelativeLine - 1;
-            column = nodeRelativeLine === 1 ? loc.col + nodeRelativeColumn - 1 : nodeRelativeColumn;
+            line = loc.startLine + nodeRelativeLine - 1;
+            column =
+              nodeRelativeLine === 1 ? loc.startCol + nodeRelativeColumn - 1 : nodeRelativeColumn;
           }
           nodeType = 'text';
         } else {
@@ -219,20 +220,9 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
           if (loc) {
             file = loc.file;
             source = loc.source;
-            // We have to adjust both for start of tag -> end of tag and end of tag -> passed position
-            // TODO switch to using loc.startTag.end{Line,Col} once parse5 can be upgraded
-            const tagSrc = source.slice(loc.startTag.startOffset, loc.startTag.endOffset);
-            const tagEnd = utils.offsetToLineAndColumn(
-              tagSrc,
-              loc.startTag.endOffset - loc.startOffset
-            );
-            line = loc.startTag.line + tagEnd.line + nodeRelativeLine - 2;
+            line = loc.startTag.endLine + nodeRelativeLine - 1;
             if (nodeRelativeLine === 1) {
-              if (tagEnd.line === 1) {
-                column = loc.startTag.col + tagEnd.column + nodeRelativeColumn - 2;
-              } else {
-                column = tagEnd.column + nodeRelativeColumn - 1;
-              }
+              column = loc.startTag.endCol + nodeRelativeColumn - 1;
             } else {
               column = nodeRelativeColumn;
             }
@@ -284,7 +274,7 @@ export default class Spec {
   sourceText: string;
   namespace: string;
   biblio: Biblio;
-  dom: any; /* JSDOM types are not updated, this is the jsdom DOM object */
+  dom: JSDOM;
   doc: Document;
   imports: Import[];
   node: HTMLElement;
@@ -320,7 +310,7 @@ export default class Spec {
   constructor(
     rootPath: string,
     fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
-    dom: any,
+    dom: JSDOM,
     opts: Options,
     sourceText: string,
     token = CancellationToken.none
@@ -563,7 +553,7 @@ export default class Spec {
 
   public locate(
     node: Element | Node
-  ): ({ file?: string; source: string } & MarkupData.ElementLocation) | undefined {
+  ): ({ file?: string; source: string } & ElementLocation) | undefined {
     let pointer: Element | Node | null = node;
     while (pointer != null) {
       if (isEmuImportElement(pointer)) {
@@ -571,36 +561,31 @@ export default class Spec {
       }
       pointer = pointer.parentElement;
     }
-    if (pointer == null) {
-      const loc = (this.dom as JSDOM).nodeLocation(node);
-      if (loc) {
-        // we can't just spread `loc` because not all properties are own/enumerable
-        return {
-          source: this.sourceText,
-          startTag: loc.startTag,
-          endTag: loc.endTag,
-          startOffset: loc.startOffset,
-          endOffset: loc.endOffset,
-          attrs: loc.attrs,
-          line: loc.line,
-          col: loc.col,
-        };
+    const dom = pointer == null ? this.dom : pointer.dom;
+    if (!dom) {
+      return;
+    }
+    // the jsdom types are wrong
+    const loc = dom.nodeLocation(node) as unknown as ElementLocation;
+    if (loc) {
+      // we can't just spread `loc` because not all properties are own/enumerable
+      const out: ReturnType<Spec['locate']> = {
+        source: this.sourceText,
+        startTag: loc.startTag,
+        endTag: loc.endTag,
+        startOffset: loc.startOffset,
+        endOffset: loc.endOffset,
+        attrs: loc.attrs,
+        startLine: loc.startLine,
+        startCol: loc.startCol,
+        endLine: loc.endLine,
+        endCol: loc.endCol,
+      };
+      if (pointer != null) {
+        out.file = pointer.importPath!;
+        out.source = pointer.source!;
       }
-    } else if (pointer.dom) {
-      const loc = pointer.dom.nodeLocation(node);
-      if (loc) {
-        return {
-          file: pointer.importPath!,
-          source: pointer.source!,
-          startTag: loc.startTag,
-          endTag: loc.endTag,
-          startOffset: loc.startOffset,
-          endOffset: loc.endOffset,
-          attrs: loc.attrs,
-          line: loc.line,
-          col: loc.col,
-        };
-      }
+      return out;
     }
   }
 
@@ -1054,7 +1039,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     let data: any;
     try {
       data = yaml.safeLoad(block.textContent!);
-    } catch (e) {
+    } catch (e: any) {
       if (typeof e?.mark.line === 'number' && typeof e?.mark.column === 'number') {
         this.warn({
           type: 'contents',

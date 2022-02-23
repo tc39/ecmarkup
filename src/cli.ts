@@ -226,7 +226,7 @@ const build = debounce(async function build() {
         }
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     if (args.watch) {
       process.stderr.write(e.stack);
     } else {
