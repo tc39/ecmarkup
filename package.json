@@ -7,7 +7,7 @@
 	"scripts": {
 		"build": "tsc -sourceMap",
 		"build-release": "tsc",
-		"build-spec": "mkdir -p docs && node bin/ecmarkup.js spec/index.html docs/index.html --no-ecma-262-biblio --css-out docs/elements.css --js-out docs/ecmarkup.js",
+		"build-spec": "mkdir -p docs && node bin/ecmarkup.js spec/index.html docs/index.html --css-out docs/elements.css --js-out docs/ecmarkup.js",
 		"prepack": "safe-publish-latest && npm run build-release",
 		"test": "mocha",
 		"test-baselines": "mocha test/baselines.js",
