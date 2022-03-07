@@ -43,7 +43,7 @@ describe('tags', () => {
       {
         ruleId: 'missing-closing-tag',
         nodeType: 'p',
-        message: 'element is missing its closing tag',
+        message: 'element <p> is missing its closing tag',
       }
     );
   });

@@ -83,7 +83,7 @@ export function collectTagDiagnostics(
         report({
           type: 'node',
           ruleId: 'missing-closing-tag',
-          message: `element is missing its closing tag`,
+          message: `element <${name}> is missing its closing tag`,
           node,
         });
       }

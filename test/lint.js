@@ -273,7 +273,7 @@ describe('linting whole program', () => {
         {
           ruleId: 'missing-closing-tag',
           nodeType: 'emu-grammar',
-          message: 'element is missing its closing tag',
+          message: 'element <emu-grammar> is missing its closing tag',
         }
       );
     });
@@ -288,7 +288,7 @@ describe('linting whole program', () => {
         {
           ruleId: 'missing-closing-tag',
           nodeType: 'emu-alg',
-          message: 'element is missing its closing tag',
+          message: 'element <emu-alg> is missing its closing tag',
         }
       );
     });
