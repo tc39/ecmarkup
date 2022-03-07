@@ -107,7 +107,7 @@ ecmarkup spec.html out.html
         <td>`&lt;var>variable&lt;/var>`</td>
       </tr>
       <tr>
-        <td>ECMAScript Language Type Values, eg. *undefined*, *true*, *1*, *"string"*, *TypeError*, etc.</td>
+        <td>ECMAScript Language Type Values, eg. *undefined*, *true*, *1*<sub>𝔽</sub>, *"string"*, *TypeError*, etc.</td>
         <td>`*TypeError*`</td>
         <td>`&lt;emu-val>TypeError&lt;/emu-val>`</td>
       </tr>
@@ -188,7 +188,7 @@ toc: false
         <li>
           a <code>&lt;dl&gt;</code> element with class "header" and a collection of optional key-value pairs expressed using <code>&lt;dt&gt;</code> and <code>&lt;dd&gt;</code> elements:
           <ul>
-            <li><b>description:</b> An explanation of the operation's behavior.</li>
+            <li><b>description:</b> An explanation of the operation's behaviour.</li>
             <li><b>for:</b> The type of value to which a clause of type "concrete method" or "internal method" applies.</li>
           </ul>
         </li>
@@ -265,18 +265,18 @@ toc: false
   <h3>Element</h3>
   <pre><code class="language-html">
 &lt;emu-alg aoid="EmuAlgExample">
-  1. let _clauseAbstractOp_ be the result of calling EmuAlg()
-  2. Step 2
-    1. let _recurse_ be the result of calling EmuAlgExample(`true`)
-    2. Return the result of evaluating this |NonTerminalProduction|
+  1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
+  1. Step 2.
+    1. Let _recurse_ be the result of calling EmuAlgExample(*true*).
+    1. Return the result of evaluating this |NonTerminalProduction|.
 &lt;/emu-alg>
   </code></pre>
   <h3>Result</h3>
   <emu-alg aoid="EmuAlgExample">
-    1. let _clauseAbstractOp_ be the result of calling EmuAlg()
-    2. Step 2
-      1. let _recurse_ be the result of calling EmuAlgExample(`true`)
-      2. Return the result of evaluating this |NonTerminalProduction|
+    1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
+    1. Step 2.
+      1. Let _recurse_ be the result of calling EmuAlgExample(*true*).
+      1. Return the result of evaluating this |NonTerminalProduction|.
   </emu-alg>
 
   <h2>Replacement algorithms</h2>
@@ -491,14 +491,14 @@ toc: false
 &lt;emu-biblio href="./biblio.json">&lt;/emu-biblio>
 &lt;emu-alg>
 1. let _res_ be Get(_obj_, _key_).
-2. ReturnIfAbrupt(_res_)
+1. ReturnIfAbrupt(_res_).
 &lt;/emu-alg>
   </code></pre>
 
   <b>Result</b>
   <emu-alg>
     1. let _res_ be Get(_obj_, _key_).
-    2. ReturnIfAbrupt(_res_);
+    1. ReturnIfAbrupt(_res_).
   </emu-alg>
 </emu-clause>
 
