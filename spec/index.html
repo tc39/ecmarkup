@@ -140,7 +140,7 @@ ecmarkup spec.html out.html
 Title: Document 1
 toc: false
 &lt;/pre>
-</pre></code>
+</code></pre>
 </emu-clause>
 <emu-clause id="clauses">
   <h1>Clauses</h1>
@@ -401,7 +401,7 @@ toc: false
   &lt;/emu-figure>
   </code></pre>
   <emu-figure>
-    <emu-caption>Example figure<emu-caption>
+    <emu-caption>Example figure</emu-caption>
     [[insert some awesome graphic here, maybe something like figure 2]]
   </emu-figure>
 </emu-clause>
@@ -427,7 +427,7 @@ toc: false
   &lt;/emu-table>
   </code></pre>
   <emu-table>
-    <emu-caption>Example table<emu-caption>
+    <emu-caption>Example table</emu-caption>
     <table>
       <tr><th>Column 1</th><th>Column 2</th></tr>
       <tr><td>Value</td><td>Value 2</td></tr>
@@ -620,10 +620,10 @@ toc: false
 
   <emu-clause id="emu-rhs">
     <h1>emu-rhs</h1>
-    <p>Describes one right-hand-side alternative of a production. Text nodes inside of an rhs are split on each space and turned into terminals. For example, <pre>&lt;emu-rhs>a b c&lt;/emu-rhs></pre> is semantically equivalent to <pre>&lt;emu-rhs>&lt;emu-t>a&lt;/emu-t> &lt;emu-t>b&lt;/emu-t> &lt;emu-t>c&lt;/emu-t></pre></p>
+    <p>Describes one right-hand-side alternative of a production. Text nodes inside of an rhs are split on each space and turned into terminals. For example, <pre>&lt;emu-rhs>a b c&lt;/emu-rhs></pre> is semantically equivalent to <pre>&lt;emu-rhs>&lt;emu-t>a&lt;/emu-t> &lt;emu-t>b&lt;/emu-t> &lt;emu-t>c&lt;/emu-t>&lt;/emu-rhs></pre></p>
     <h2>Attributes</h2>
     <p><b>constraints:</b> any constraints for this RHS. Multiple constraints separated by commas. See StatementList example above.</p>
-    <p><b>a:</b> Optional alternative id used to reference a particular RHS via `emu-prodref`. Must be unique for all `emu-rhs` elements inside an emu-production. Example might be `<emu-rhs a='1'>`.</p>
+    <p><b>a:</b> Optional alternative id used to reference a particular RHS via `emu-prodref`. Must be unique for all `emu-rhs` elements inside an emu-production. Example might be <pre>&lt;emu-rhs a='1'></pre>.</p>
   </emu-clause>
 
   <emu-clause id="emu-nt">
