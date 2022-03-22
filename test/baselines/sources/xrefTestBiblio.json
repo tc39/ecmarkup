@@ -1,5 +1,6 @@
 {
-  "http://example.com/fooSite.html": [
+  "location": "http://example.com/fooSite.html",
+  "entries": [
     {
       "type": "clause",
       "title": "Foo Section",

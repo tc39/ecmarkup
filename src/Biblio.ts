@@ -172,7 +172,7 @@ export default class Biblio {
     return undefined;
   }
 
-  add(entry: PartialBiblioEntry, ns?: string | null) {
+  add(entry: PartialBiblioEntry & { location?: string }, ns?: string | null) {
     ns = ns || this._location;
     const env = this._nsToEnvRec[ns]!;
     // @ts-ignore
@@ -223,15 +223,6 @@ export default class Biblio {
     this._nsToEnvRec[ns] = env;
   }
 
-  addExternalBiblio(biblio: BiblioData) {
-    Object.keys(biblio).forEach(site => {
-      biblio[site].forEach(entry => {
-        (entry as BiblioEntry).location = site;
-        this.add(entry, 'external');
-      });
-    });
-  }
-
   keysForNamespace(ns: string) {
     return this._nsToEnvRec[ns]!._keys;
   }
@@ -248,28 +239,33 @@ export default class Biblio {
     return root;
   }
 
-  export(): PartialBiblioEntry[] {
-    return this.byNamespace(this._location).entries.map(e => {
-      const copy: PartialBiblioEntry = { ...e };
-      // @ts-ignore
-      delete copy.namespace;
-      // @ts-ignore
-      delete copy.location;
-      // @ts-ignore
-      delete copy.referencingIds;
-      // @ts-ignore
-      delete copy._node;
-      return copy;
-    });
+  addExternalBiblio(biblio: ExportedBiblio) {
+    for (const item of biblio.entries) {
+      this.add({ location: biblio.location, ...item }, 'external');
+    }
+  }
+
+  export(): ExportedBiblio {
+    return {
+      location: this._location,
+      entries: this.byNamespace(this._location).entries.map(e => {
+        const copy: PartialBiblioEntry = { ...e };
+        // @ts-ignore
+        delete copy.namespace;
+        // @ts-ignore
+        delete copy.location;
+        // @ts-ignore
+        delete copy.referencingIds;
+        // @ts-ignore
+        delete copy._node;
+        return copy;
+      }),
+    };
   }
 
   dump() {
     dumpEnv(this._root);
   }
-}
-
-export interface BiblioData {
-  [namespace: string]: PartialBiblioEntry[];
 }
 
 export interface BiblioEntryBase {
@@ -370,11 +366,16 @@ export type BiblioEntry =
   | FigureBiblioEntry
   | StepBiblioEntry;
 
-// the generic is necessary for this trick to work
 // see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
-type Unkey<T> = T extends any ? Omit<T, 'location' | 'referencingIds' | 'namespace'> : never;
+type Unkey<T, S extends string> = T extends any ? Omit<T, S> : never;
 
-export type PartialBiblioEntry = Unkey<BiblioEntry>;
+type NonExportedKeys = 'location' | 'referencingIds' | 'namespace';
+export type PartialBiblioEntry = Unkey<BiblioEntry, NonExportedKeys>;
+
+export type ExportedBiblio = {
+  location: string;
+  entries: PartialBiblioEntry[];
+};
 
 function dumpEnv(env: EnvRec) {
   console.log('## ' + env._namespace);

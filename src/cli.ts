@@ -152,7 +152,10 @@ const build = debounce(async function build() {
       if (args.verbose) {
         utils.logVerbose('Writing biblio file to ' + args['write-biblio']);
       }
-      pending.push(utils.writeFile(args['write-biblio'], JSON.stringify(spec.exportBiblio())));
+      const exported = spec.exportBiblio();
+      if (exported != null) {
+        pending.push(utils.writeFile(args['write-biblio'], JSON.stringify(exported)));
+      }
     }
 
     if (args.verbose && warned) {

@@ -76,13 +76,13 @@
 
 <emu-clause id="sec-non-abrupt" type="abstract operation" aoid="NonAbrupt">
   <h1><span class="secnum">12</span> NonAbrupt ( )</h1>
-  <p>The abstract operation NonAbrupt takes no arguments. Invocations that cannot result in abrupt completions suppress the user-code effect by default. It performs the following steps when called:</p>
+  <p>The abstract operation NonAbrupt takes no arguments. Invocations that cannot result in <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">abrupt completions</a></emu-xref> suppress the user-code effect by default. It performs the following steps when called:</p>
   <emu-alg><ol><li>Let <var>res</var> be !&nbsp;<emu-xref aoid="UserCode" id="_ref_9"><a href="#sec-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-non-abrupt-override" type="abstract operation" aoid="NonAbruptOverride">
   <h1><span class="secnum">13</span> NonAbruptOverride ( )</h1>
-  <p>The abstract operation NonAbruptOverride takes no arguments. Invocations that cannot result in abrupt completions suppress the user-code effect by default but can still be overridden. It performs the following steps when called:</p>
+  <p>The abstract operation NonAbruptOverride takes no arguments. Invocations that cannot result in <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">abrupt completions</a></emu-xref> suppress the user-code effect by default but can still be overridden. It performs the following steps when called:</p>
   <emu-alg><ol><li>Let <var>res</var> be !&nbsp;<emu-xref aoid="UserCode" id="_ref_10"><a href="#sec-user-code" class="e-user-code e-user-code">UserCode</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
 
@@ -106,13 +106,13 @@
 
 <emu-clause id="sec-make-abstract-closure" type="abstract operation" aoid="MakeAbstractClosure">
   <h1><span class="secnum">17</span> MakeAbstractClosure ( )</h1>
-  <p>The abstract operation MakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through Abstract Closure boundaries by recognizing the "be a new Abstract Closure" substring. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Let <var>closure</var> be a new Abstract Closure that captures nothing and performs the following steps when called:<ol><li><emu-xref aoid="UserCode" id="_ref_13"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li>Return <var>closure</var>.</li></ol></emu-alg>
+  <p>The abstract operation MakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> boundaries by recognizing the "be a new <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref>" <emu-xref href="#substring"><a href="https://tc39.es/ecma262/#substring">substring</a></emu-xref>. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Let <var>closure</var> be a new <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> that captures nothing and performs the following steps when called:<ol><li><emu-xref aoid="UserCode" id="_ref_13"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li>Return <var>closure</var>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-call-make-abstract-closure" type="abstract operation" aoid="CallMakeAbstractClosure">
   <h1><span class="secnum">18</span> CallMakeAbstractClosure ( )</h1>
-  <p>The abstract operation CallMakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through Abstract Closure boundaries by recognizing the "be a new Abstract Closure" substring. It performs the following steps when called:</p>
+  <p>The abstract operation CallMakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> boundaries by recognizing the "be a new <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref>" <emu-xref href="#substring"><a href="https://tc39.es/ecma262/#substring">substring</a></emu-xref>. It performs the following steps when called:</p>
   <emu-alg><ol><li><emu-xref aoid="MakeAbstractClosure" id="_ref_14"><a href="#sec-make-abstract-closure">MakeAbstractClosure</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
 

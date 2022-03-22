@@ -1,7 +1,7 @@
 import type { ElementLocation } from 'parse5';
 import type { EcmarkupError, Options } from './ecmarkup';
 import type { Context } from './Context';
-import type { AlgorithmBiblioEntry, BiblioData, StepBiblioEntry, Type } from './Biblio';
+import type { AlgorithmBiblioEntry, ExportedBiblio, StepBiblioEntry, Type } from './Biblio';
 import type { BuilderInterface } from './Builder';
 
 import * as path from 'path';
@@ -1301,26 +1301,34 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
   private async loadBiblios() {
     this.cancellationToken.throwIfCancellationRequested();
-    await Promise.all(
-      Array.from(this.doc.querySelectorAll('emu-biblio'), biblio =>
-        this.loadBiblio(path.join(this.rootDir, biblio.getAttribute('href')!))
-      )
+    const biblioPaths = [];
+    for (const biblioEle of this.doc.querySelectorAll('emu-biblio')) {
+      const href = biblioEle.getAttribute('href');
+      if (href == null) {
+        this.spec.warn({
+          type: 'node',
+          node: biblioEle,
+          ruleId: 'biblio-href',
+          message: 'emu-biblio elements must have an href attribute',
+        });
+      } else {
+        biblioPaths.push(href);
+      }
+    }
+    const biblioContents = await Promise.all(
+      biblioPaths.map(p => this.fetch(path.join(this.rootDir, p)))
     );
-    for (const biblio of this.opts.extraBiblios ?? []) {
+    const biblios = biblioContents.map(c => JSON.parse(c) as ExportedBiblio);
+    for (const biblio of biblios.concat(this.opts.extraBiblios ?? [])) {
       this.biblio.addExternalBiblio(biblio);
     }
-  }
-
-  private async loadBiblio(file: string) {
-    const contents = await this.fetch(file);
-    this.biblio.addExternalBiblio(JSON.parse(contents));
   }
 
   private async loadImports() {
     await loadImports(this, this.spec.doc.body, this.rootDir);
   }
 
-  public exportBiblio(): any {
+  public exportBiblio(): ExportedBiblio | null {
     if (!this.opts.location) {
       this.warn({
         type: 'global',
@@ -1328,13 +1336,10 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         message:
           "no spec location specified; biblio not generated. try setting the location in the document's metadata block",
       });
-      return {};
+      return null;
     }
 
-    const biblio: BiblioData = {};
-    biblio[this.opts.location] = this.biblio.export();
-
-    return biblio;
+    return this.biblio.export();
   }
 
   private highlightCode() {

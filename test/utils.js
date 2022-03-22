@@ -32,35 +32,37 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
   let warnings = [];
 
   let rootFile = 'test-example.emu';
-  await emu.build(rootFile, async () => html, {
-    ecma262Biblio: false,
-    copyright: false,
-    warn: e =>
-      warnings.push({
-        ruleId: e.ruleId,
-        nodeType: e.nodeType,
-        line: e.line,
-        column: e.column,
-        message: e.message,
-        file: e.file,
-        source: e.source,
-      }),
-    ...opts,
-  });
+  if (opts?.asImport !== 'only') {
+    await emu.build(rootFile, async () => html, {
+      ecma262Biblio: false,
+      copyright: false,
+      warn: e =>
+        warnings.push({
+          ruleId: e.ruleId,
+          nodeType: e.nodeType,
+          line: e.line,
+          column: e.column,
+          message: e.message,
+          file: e.file,
+          source: e.source,
+        }),
+      ...opts,
+    });
 
-  assert.deepStrictEqual(warnings, [
-    {
-      ruleId,
-      nodeType,
-      line,
-      column,
-      message,
-      file: undefined,
-      source: line == null ? undefined : html,
-    },
-  ]);
+    assert.deepStrictEqual(warnings, [
+      {
+        ruleId,
+        nodeType,
+        line,
+        column,
+        message,
+        file: undefined,
+        source: line == null ? undefined : html,
+      },
+    ]);
+  }
 
-  if (opts != null && opts.asImport === false) {
+  if (opts?.asImport === false) {
     return;
   }
 
@@ -85,17 +87,21 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
     ...opts,
   });
 
-  assert.deepStrictEqual(warnings, [
-    {
-      ruleId,
-      nodeType,
-      line,
-      column,
-      message,
-      file: line == null ? undefined : 'import.emu',
-      source: line == null ? undefined : html,
-    },
-  ]);
+  assert.deepStrictEqual(
+    warnings,
+    [
+      {
+        ruleId,
+        nodeType,
+        line,
+        column,
+        message,
+        file: line == null ? undefined : 'import.emu',
+        source: line == null ? undefined : html,
+      },
+    ],
+    'error information inside of import'
+  );
 }
 
 async function assertErrorFree(html, opts) {
