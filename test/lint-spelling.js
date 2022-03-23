@@ -465,26 +465,15 @@ windows:${M}\r
     );
   });
 
-  it('comparison with *-0*', async () => {
+  it('comparison with *+/-0*', async () => {
     await assertLint(
       positioned`
-        <p>If _x_ &lt; *${M}-0*<sub>𝔽</sub></p>
+        <p>If _x_ &lt; *${M}+0*<sub>𝔽</sub></p>
       `,
       {
         ruleId: 'spelling',
         nodeType: 'html',
-        message: 'comparisons against floating-point zero should use positive zero',
-      }
-    );
-
-    await assertLint(
-      positioned`
-        <p>If _x_ &le; *${M}-0*<sub>𝔽</sub></p>
-      `,
-      {
-        ruleId: 'spelling',
-        nodeType: 'html',
-        message: 'comparisons against floating-point zero should use positive zero',
+        message: '"less than" comparisons against floating-point zero should use negative zero',
       }
     );
 
@@ -495,18 +484,31 @@ windows:${M}\r
       {
         ruleId: 'spelling',
         nodeType: 'html',
-        message: 'comparisons against floating-point zero should use positive zero',
+        message: '"greater than" comparisons against floating-point zero should use positive zero',
       }
     );
 
     await assertLint(
       positioned`
-        <p>If _x_ &ge; *${M}-0*<sub>𝔽</sub></p>
+        <p>If _x_ &le; *${M}-0*<sub>𝔽</sub></p>
       `,
       {
         ruleId: 'spelling',
         nodeType: 'html',
-        message: 'comparisons against floating-point zero should use positive zero',
+        message:
+          'comparisons against floating-point zero should use strict comparisons (< or >); guard the equals case with "is"',
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <p>If _x_ &ge; *${M}+0*<sub>𝔽</sub></p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message:
+          'comparisons against floating-point zero should use strict comparisons (< or >); guard the equals case with "is"',
       }
     );
   });
@@ -586,7 +588,7 @@ windows:${M}\r
         Paragraphs with the open/close tags on their own line are OK.
       </p>
 
-      <p>Comparisons with positive zero are OK: _x_ &lt; *+0*<sub>𝔽</sub>, _x_ &le; *+0*<sub>𝔽</sub>, _x_ &gt; *+0*<sub>𝔽</sub>, _x_ &ge; *+0*<sub>𝔽</sub></p>
+      <p>Comparisons with appropriately-signed zero are OK: _x_ &lt; *-0*<sub>𝔽</sub>, _x_ &gt; *+0*<sub>𝔽</sub>.</p>
 
     `);
   });
