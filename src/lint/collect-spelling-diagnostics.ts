@@ -128,8 +128,17 @@ const matchers = [
     message: 'tags should not contain trailing whitespace',
   },
   {
-    pattern: /(?<=&[lg][et]; ?\*)-0\*/gu,
-    message: 'comparisons against floating-point zero should use positive zero',
+    pattern: /(?<=&lt; ?\*)\+0\*/gu,
+    message: '"less than" comparisons against floating-point zero should use negative zero',
+  },
+  {
+    pattern: /(?<=&gt; ?\*)-0\*/gu,
+    message: '"greater than" comparisons against floating-point zero should use positive zero',
+  },
+  {
+    pattern: /(?<=&[lg]e; ?\*)[+-]0\*/gu,
+    message:
+      'comparisons against floating-point zero should use strict comparisons (< or >); guard the equals case with "is"',
   },
   {
     pattern: /(÷|&divide;)/gu,
