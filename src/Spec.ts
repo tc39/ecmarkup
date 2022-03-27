@@ -1322,7 +1322,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     for (const biblio of biblios.concat(this.opts.extraBiblios ?? [])) {
       this.biblio.addExternalBiblio(biblio);
       for (const entry of biblio.entries) {
-        if (entry.type === 'op' && entry.effects.length > 0) {
+        if (entry.type === 'op' && entry.effects?.length > 0) {
           this._effectfulAOs.set(entry.aoid, entry.effects);
           for (const effect of entry.effects) {
             if (!this._effectWorklist.has(effect)) {

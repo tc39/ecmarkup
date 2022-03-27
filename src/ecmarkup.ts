@@ -36,6 +36,7 @@ export interface Options {
   contributors?: string;
   toc?: boolean;
   oldToc?: boolean;
+  markEffects?: boolean;
   lintSpec?: boolean;
   cssOut?: string;
   jsOut?: string;

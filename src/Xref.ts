@@ -225,26 +225,28 @@ export default class Xref extends Builder {
         let effects = null;
         let classNames = null;
 
-        if (this.isInvocation) {
-          effects = spec.getEffectsByAoid(aoid);
-        }
-        if (this.addEffects !== null) {
-          if (effects !== null) {
-            effects = effects.concat(...this.addEffects);
-          } else {
-            effects = this.addEffects;
+        if (this.spec.opts.markEffects) {
+          if (this.isInvocation) {
+            effects = spec.getEffectsByAoid(aoid);
           }
-        }
+          if (this.addEffects !== null) {
+            if (effects !== null) {
+              effects = effects.concat(...this.addEffects);
+            } else {
+              effects = this.addEffects;
+            }
+          }
 
-        if (effects) {
-          if (this.suppressEffects !== null) {
-            effects = effects.filter(e => !this.suppressEffects!.includes(e));
-          }
-          if (effects.length !== 0) {
-            const parentClause = this.clause;
-            effects = parentClause ? effects.filter(e => parentClause.canHaveEffect(e)) : effects;
+          if (effects) {
+            if (this.suppressEffects !== null) {
+              effects = effects.filter(e => !this.suppressEffects!.includes(e));
+            }
             if (effects.length !== 0) {
-              classNames = effects.map(e => `e-${e}`).join(' ');
+              const parentClause = this.clause;
+              effects = parentClause ? effects.filter(e => parentClause.canHaveEffect(e)) : effects;
+              if (effects.length !== 0) {
+                classNames = effects.map(e => `e-${e}`).join(' ');
+              }
             }
           }
         }

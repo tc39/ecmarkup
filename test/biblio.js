@@ -166,6 +166,7 @@ describe('Biblio', () => {
         assets: 'none',
         toc: false,
         extraBiblios: [spec1Biblio],
+        markEffects: true,
         location: 'https://example.com/spec2/',
         warn: e => {
           console.error('Error:', e);
@@ -179,5 +180,4 @@ describe('Biblio', () => {
       '<ol><li><emu-xref aoid="UserCode"><a href="https://example.com/spec/#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol>'
     );
   });
-
 });
