@@ -320,6 +320,7 @@ export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   type: 'op';
   aoid: string;
   signature: null | Signature;
+  effects: string[];
   /*@internal*/ _node?: Element;
 }
 
