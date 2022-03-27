@@ -251,13 +251,14 @@ function isEmuImportElement(node: Node): node is EmuImportElement {
   return node.nodeType === 1 && node.nodeName === 'EMU-IMPORT';
 }
 
+export type WorklistItem = { aoid: string | null; effects: string[] };
 export function maybeAddClauseToEffectWorklist(
   effectName: string,
   clause: Clause,
-  worklist: Clause[]
+  worklist: WorklistItem[]
 ) {
   if (
-    !worklist.includes(clause) &&
+    !worklist.some(i => i.aoid === clause.aoid) &&
     clause.canHaveEffect(effectName) &&
     !clause.effects.includes(effectName)
   ) {
@@ -300,7 +301,7 @@ export default class Spec {
   }[];
   _prodRefs: ProdRef[];
   _textNodes: { [s: string]: [TextNodeContext] };
-  _effectWorklist: Map<string, Clause[]>;
+  _effectWorklist: Map<string, WorklistItem[]>;
   _effectfulAOs: Map<string, string[]>;
   _emuMetasToRender: Set<HTMLElement>;
   _emuMetasToRemove: Set<HTMLElement>;
@@ -916,7 +917,7 @@ export default class Spec {
     }
   }
 
-  private propagateEffect(effectName: string, worklist: Clause[]) {
+  private propagateEffect(effectName: string, worklist: WorklistItem[]) {
     const usersOfAoid: Map<string, Set<Clause>> = new Map();
     for (const xref of this._xrefs) {
       if (xref.clause == null || xref.aoid == null) continue;
@@ -1328,6 +1329,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
             if (!this._effectWorklist.has(effect)) {
               this._effectWorklist.set(effect, []);
             }
+            this._effectWorklist.get(effect)!.push(entry);
           }
         }
       }

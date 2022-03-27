@@ -154,13 +154,21 @@ describe('Biblio', () => {
     let spec2 = await build(
       'root.html',
       () => `
-        <emu-clause id="d">
+        <emu-clause id="foo" aoid="Foo">
           <h1>Clause D</h1>
           <emu-alg>
             1. UserCode().
           </emu-alg>
         </emu-clause>
-      `,
+
+        <emu-clause id="r">
+          <h1>Clause R</h1>
+          <emu-alg id="calls-foo">
+            1. Foo().
+          </emu-alg>
+        </emu-clause>
+
+        `,
       {
         copyright: false,
         assets: 'none',
@@ -178,6 +186,10 @@ describe('Biblio', () => {
     assert.equal(
       renderedSpec2.document.querySelector('emu-alg').innerHTML,
       '<ol><li><emu-xref aoid="UserCode"><a href="https://example.com/spec/#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol>'
+    );
+    assert.equal(
+      renderedSpec2.document.querySelector('#calls-foo').innerHTML,
+      '<ol><li><emu-xref aoid="Foo" id="_ref_0"><a href="#foo" class="e-user-code">Foo</a></emu-xref>().</li></ol>'
     );
   });
 });
