@@ -126,4 +126,58 @@ describe('Biblio', () => {
       'Terms like <emu-xref href="#c"><a href="https://example.com/spec/#c">example</a></emu-xref> or <emu-xref href="#c"><a href="https://example.com/spec/#c">examples</a></emu-xref> are crosslinked.'
     );
   });
+
+  it('propagates effects from exported biblios', async () => {
+    let spec1 = await build(
+      'root.html',
+      () => `
+        <emu-clause id="sec-user-code" type="abstract operation">
+          <h1>UserCode ( )</h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. <emu-meta effects="user-code">Call user code</emu-meta>.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        copyright: false,
+        location: 'https://example.com/spec/',
+        warn: e => {
+          console.error('Error:', e);
+          throw new Error(e.message);
+        },
+      }
+    );
+    let spec1Biblio = spec1.exportBiblio();
+
+    let spec2 = await build(
+      'root.html',
+      () => `
+        <emu-clause id="d">
+          <h1>Clause D</h1>
+          <emu-alg>
+            1. UserCode().
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        copyright: false,
+        assets: 'none',
+        toc: false,
+        extraBiblios: [spec1Biblio],
+        location: 'https://example.com/spec2/',
+        warn: e => {
+          console.error('Error:', e);
+          throw new Error(e.message);
+        },
+      }
+    );
+    let renderedSpec2 = new JSDOM(spec2.toHTML()).window;
+    assert.equal(
+      renderedSpec2.document.querySelector('emu-alg').innerHTML,
+      '<ol><li><emu-xref aoid="UserCode"><a href="https://example.com/spec/#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol>'
+    );
+  });
+
 });
