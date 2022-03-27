@@ -1318,7 +1318,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     const biblioContents = await Promise.all(
       biblioPaths.map(p => this.fetch(path.join(this.rootDir, p)))
     );
-    const biblios = biblioContents.map(c => JSON.parse(c) as ExportedBiblio);
+    const biblios = biblioContents.flatMap(c => JSON.parse(c) as ExportedBiblio | ExportedBiblio[]);
     for (const biblio of biblios.concat(this.opts.extraBiblios ?? [])) {
       this.biblio.addExternalBiblio(biblio);
     }
