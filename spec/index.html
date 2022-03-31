@@ -52,6 +52,7 @@ ecmarkup spec.html out.html
       <tr><td>lint-spec</td><td>Enforce some style and correctness checks</td></tr>
       <tr><td>lint-formatter</td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using --verbose. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
       <tr><td>strict</td><td>Exit with an error if there are warnings. Cannot be used with --watch</td></tr>
+      <tr><td>mark-effects</td><td>Whether to render <a href="#effects">effects</a> like "user code".</td></tr>
     </table>
   </emu-table>
 
@@ -265,7 +266,7 @@ toc: false
 
 <emu-clause id="effects">
   <h1>Effects</h1>
-  <p>Abstract operations can be marked as having effects, which will propagate to callers. Calls to such operations are given the class <code>.e-effect-name</code>, subject to the following rules. The default CSS includes styling for one effect, "user-code", which is off by default but can be togged by pressing "u".</p>
+  <p>Abstract operations can be marked as having effects, which will propagate to callers. Calls to such operations are given the class <code>.e-effect-name</code>, subject to the following rules. When using `--mark-effects` the CSS includes styling for one effect, "user-code", which is off by default but can be togged by pressing "u".</p>
 
   <h2>Annotating effects</h2>
   <p>Effects can be added within an algorithm using an &lt;emu-meta> tag:</p>
