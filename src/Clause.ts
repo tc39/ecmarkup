@@ -40,7 +40,7 @@ export default class Clause extends Builder {
   notes: Note[];
   editorNotes: Note[];
   examples: Example[];
-  effects: string[];
+  readonly effects: string[]; // this is held by identity and mutated by Spec.ts
   signature: Signature | null;
 
   constructor(spec: Spec, node: HTMLElement, parent: Clause, number: string) {
@@ -228,7 +228,7 @@ export default class Clause extends Builder {
       }
     }
 
-    this.effects = effects;
+    this.effects.push(...effects);
     for (const effect of effects) {
       if (!this.spec._effectWorklist.has(effect)) {
         this.spec._effectWorklist.set(effect, []);
@@ -355,6 +355,7 @@ export default class Clause extends Builder {
           aoid: clause.aoid,
           refId: clause.id,
           signature,
+          effects: clause.effects,
           _node: clause.node,
         };
         if (

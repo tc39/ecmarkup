@@ -34,6 +34,7 @@ export default class Eqn extends Builder {
           aoid,
           id,
           signature: null,
+          effects: [],
         });
       } else {
         const clause = clauseStack[clauseStack.length - 1];
@@ -43,6 +44,7 @@ export default class Eqn extends Builder {
           aoid,
           refId: clauseId,
           signature: null,
+          effects: [],
         });
       }
     }

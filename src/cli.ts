@@ -7,6 +7,7 @@ import * as ecmarkup from './ecmarkup';
 import * as utils from './utils';
 import { options } from './args';
 import { parse } from './arg-parser';
+import type { ExportedBiblio } from './Biblio';
 
 const debounce: (_: () => Promise<void>) => () => Promise<void> = require('promise-debounce');
 
@@ -101,6 +102,7 @@ const build = debounce(async function build() {
       extraBiblios: [],
       toc: !args['no-toc'],
       oldToc: !!args['old-toc'],
+      markEffects: !!args['mark-effects'],
       lintSpec: !!args['lint-spec'],
       assets: args.assets as 'none' | 'inline' | 'external',
     };
@@ -114,7 +116,12 @@ const build = debounce(async function build() {
         toResolve = path.resolve(process.cwd(), toResolve);
       }
       try {
-        opts.extraBiblios!.push(require(toResolve));
+        const bib = require(toResolve) as ExportedBiblio | ExportedBiblio[];
+        if (Array.isArray(bib)) {
+          opts.extraBiblios!.push(...bib);
+        } else {
+          opts.extraBiblios!.push(bib);
+        }
       } catch (e) {
         fail(`could not find biblio ${toResolve}`);
       }
@@ -152,7 +159,10 @@ const build = debounce(async function build() {
       if (args.verbose) {
         utils.logVerbose('Writing biblio file to ' + args['write-biblio']);
       }
-      pending.push(utils.writeFile(args['write-biblio'], JSON.stringify(spec.exportBiblio())));
+      const exported = spec.exportBiblio();
+      if (exported != null) {
+        pending.push(utils.writeFile(args['write-biblio'], JSON.stringify(exported)));
+      }
     }
 
     if (args.verbose && warned) {

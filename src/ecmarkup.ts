@@ -1,4 +1,4 @@
-import type { BiblioData, BiblioEntry } from './Biblio';
+import type { BiblioEntry, ExportedBiblio } from './Biblio';
 
 import Spec from './Spec';
 import * as utils from './utils';
@@ -32,10 +32,11 @@ export interface Options {
   date?: Date;
   location?: string;
   multipage?: boolean;
-  extraBiblios?: BiblioData[];
+  extraBiblios?: ExportedBiblio[];
   contributors?: string;
   toc?: boolean;
   oldToc?: boolean;
+  markEffects?: boolean;
   lintSpec?: boolean;
   cssOut?: string;
   jsOut?: string;

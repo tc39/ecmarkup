@@ -889,4 +889,47 @@ ${M}      </pre>
       }
     );
   });
+
+  it('biblio missing href', async () => {
+    await assertError(
+      positioned`
+        ${M}<emu-biblio></emu-biblio>
+      `,
+      {
+        ruleId: 'biblio-href',
+        nodeType: 'emu-biblio',
+        message: 'emu-biblio elements must have an href attribute',
+      },
+      { asImport: false }
+    );
+  });
+
+  it('biblio in import', async () => {
+    await assertError(
+      positioned`
+        ${M}<emu-biblio></emu-biblio>
+      `,
+      {
+        ruleId: 'biblio-in-import',
+        nodeType: 'emu-biblio',
+        message: 'emu-biblio elements cannot be used within emu-imports',
+      },
+      { asImport: 'only' }
+    );
+
+    await assertError(
+      positioned`
+        <span></span>
+        <div>
+          ${M}<emu-biblio></emu-biblio>
+        </div>
+      `,
+      {
+        ruleId: 'biblio-in-import',
+        nodeType: 'emu-biblio',
+        message: 'emu-biblio elements cannot be used within emu-imports',
+      },
+      { asImport: 'only' }
+    );
+  });
 });

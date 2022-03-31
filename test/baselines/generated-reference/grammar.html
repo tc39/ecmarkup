@@ -34,11 +34,11 @@
         <emu-t>&amp;&amp;</emu-t>
         <emu-t>n</emu-t>
         <emu-gann>[lookahead ∉ { <emu-t>1</emu-t>, <emu-t>3</emu-t>, <emu-t>5</emu-t>, <emu-t>7</emu-t>, <emu-t>9</emu-t> }]</emu-gann>
-        <emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigits">DecimalDigits</a></emu-nt>
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalDigits">DecimalDigits</a></emu-nt>
     </emu-rhs>
     <emu-rhs a="gvy8bhnb">
-        <emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigit">DecimalDigit</a></emu-nt>
-        <emu-gann>[lookahead ∉ <emu-nt><a href="https://tc39.es/ecma262/#prod-grammar-notation-DecimalDigit">DecimalDigit</a></emu-nt>]</emu-gann>
+        <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalDigit">DecimalDigit</a></emu-nt>
+        <emu-gann>[lookahead ∉ <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalDigit">DecimalDigit</a></emu-nt>]</emu-gann>
     </emu-rhs>
 </emu-production>
 <emu-production name="HTMLEntitiesExample" type="lexical" id="prod-HTMLEntitiesExample">
@@ -49,7 +49,7 @@
 <emu-production name="ButOnlyExample" type="lexical" id="prod-ButOnlyExample">
     <emu-nt><a href="#prod-ButOnlyExample">ButOnlyExample</a></emu-nt> <emu-geq>::</emu-geq> <emu-rhs a="xg9h2kve">
         <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalEscape">DecimalEscape</a></emu-nt>
-        <emu-gmod>but only if the CapturingGroupNumber of <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalEscape">DecimalEscape</a></emu-nt> is &lt;= <var>NcapturingParens</var></emu-gmod>
+        <emu-gmod>but only if the <emu-xref aoid="CapturingGroupNumber"><a href="https://tc39.es/ecma262/#sec-patterns-static-semantics-capturing-group-number">CapturingGroupNumber</a></emu-xref> of <emu-nt><a href="https://tc39.es/ecma262/#prod-DecimalEscape">DecimalEscape</a></emu-nt> is &lt;= <var>NcapturingParens</var></emu-gmod>
     </emu-rhs>
 </emu-production>
 </emu-grammar>

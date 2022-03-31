@@ -55,6 +55,11 @@ export const options = [
     description: 'Use the old table of contents styling',
   },
   {
+    name: 'mark-effects',
+    type: Boolean,
+    description: 'Render markers for effects like "user code" [UC]',
+  },
+  {
     name: 'lint-spec',
     type: Boolean,
     description: 'Enforce some style and correctness checks',
