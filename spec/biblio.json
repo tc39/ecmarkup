@@ -1,5 +1,6 @@
 {
-  "https://tc39.es/ecma262/": [
+  "location": "https://tc39.es/ecma262/",
+  "entries": [
     {
       "type": "op",
       "id": "sec-returnifabrupt",
