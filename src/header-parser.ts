@@ -401,9 +401,10 @@ export function parseStructuredHeaderDl(
   spec: Spec,
   type: string | null,
   dl: Element
-): { description: Element | null; for: Element | null; effects: string[] } {
+): { description: Element | null; for: Element | null; effects: string[]; redefinition: boolean } {
   let description = null;
   let _for = null;
+  let redefinition: boolean | null = null;
   let effects: string[] = [];
   for (let i = 0; i < dl.children.length; ++i) {
     const dt = dl.children[i];
@@ -474,6 +475,34 @@ export function parseStructuredHeaderDl(
         }
         break;
       }
+      case 'redefinition': {
+        if (redefinition != null) {
+          spec.warn({
+            type: 'node',
+            ruleId: 'header-format',
+            message: `duplicate "redefinition" attribute`,
+            node: dt,
+          });
+        }
+        const contents = (dd.textContent ?? '').trim();
+        if (contents === 'true') {
+          redefinition = true;
+        } else if (contents === 'false') {
+          redefinition = false;
+        } else {
+          spec.warn({
+            type: 'contents',
+            ruleId: 'header-format',
+            message: `unknown value for "redefinition" attribute (expected "true" or "false", got ${JSON.stringify(
+              contents
+            )})`,
+            node: dd,
+            nodeRelativeLine: 1,
+            nodeRelativeColumn: 1,
+          });
+        }
+        break;
+      }
       case '': {
         spec.warn({
           type: 'node',
@@ -494,7 +523,7 @@ export function parseStructuredHeaderDl(
       }
     }
   }
-  return { description, for: _for, effects };
+  return { description, for: _for, effects, redefinition: redefinition ?? false };
 }
 
 export function formatPreamble(

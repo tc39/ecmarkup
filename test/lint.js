@@ -504,6 +504,7 @@ describe('linting whole program', () => {
         }
       );
     });
+
     it('for clauses', async () => {
       await assertLint(
         positioned`
@@ -561,6 +562,55 @@ describe('linting whole program', () => {
           message: 'duplicate definition "Foo"',
         }
       );
+    });
+
+    it('is present when using structured headers without explict AOIDs', async () => {
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-example" type="abstract operation">
+            <h1>Foo ( _param_ )</h1>
+            <dl class='header'>
+              <dt>description</dt>
+              <dd>It is an example.</dd>
+            </dl>
+          </emu-clause>
+
+          ${M}<emu-clause id="sec-example-redef" type="abstract operation">
+            <h1>Foo ( _param_ )</h1>
+            <dl class='header'>
+              <dt>description</dt>
+              <dd>It redefines an existing algorithm.</dd>
+            </dl>
+          </emu-clause>
+          `,
+        {
+          ruleId: 'duplicate-definition',
+          nodeType: 'emu-clause',
+          message: 'duplicate definition "Foo"',
+        }
+      );
+    });
+
+    it('is suppressed when using `redefinition: true`', async () => {
+      await assertLintFree(`
+        <emu-clause id="sec-example" type="abstract operation">
+          <h1>Foo ( _param_ )</h1>
+          <dl class='header'>
+            <dt>description</dt>
+            <dd>It is an example.</dd>
+          </dl>
+        </emu-clause>
+
+        <emu-clause id="sec-example-redef" type="abstract operation">
+          <h1>Foo ( _param_ )</h1>
+          <dl class='header'>
+            <dt>description</dt>
+            <dd>It redefines an existing algorithm.</dd>
+            <dt>redefinition</dt>
+            <dd>true</dd>
+          </dl>
+        </emu-clause>
+      `);
     });
   });
 });

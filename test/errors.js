@@ -660,6 +660,26 @@ ${M}      </pre>
         },
         { lintSpec: true }
       );
+
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+            <dt>redefinition</dt>
+            <dd>true</dd>
+            ${M}<dt>redefinition</dt>
+            <dd>false</dd>
+            </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'dt',
+          message: 'duplicate "redefinition" attribute',
+        },
+        { lintSpec: true }
+      );
     });
 
     it('"for" for AO', async () => {
@@ -695,6 +715,27 @@ ${M}      </pre>
           ruleId: 'header-format',
           nodeType: 'dl',
           message: 'expected concrete method to have a "for"',
+        },
+        { lintSpec: true }
+      );
+    });
+
+    it('unknown value for redefinition', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-test" type="abstract operation">
+          <h1>Example ( )</h1>
+          <dl class='header'>
+            <dt>redefinition</dt>
+            <dd>${M}not true</dd>
+          </dl>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'dd',
+          message:
+            'unknown value for "redefinition" attribute (expected "true" or "false", got "not true")',
         },
         { lintSpec: true }
       );

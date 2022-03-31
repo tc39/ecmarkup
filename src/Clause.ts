@@ -182,7 +182,12 @@ export default class Clause extends Builder {
       header.innerHTML = formattedHeader;
     }
 
-    const { description, for: _for, effects } = parseStructuredHeaderDl(this.spec, type, dl);
+    const {
+      description,
+      for: _for,
+      effects,
+      redefinition,
+    } = parseStructuredHeaderDl(this.spec, type, dl);
 
     const paras = formatPreamble(
       this.spec,
@@ -197,28 +202,30 @@ export default class Clause extends Builder {
     );
     dl.replaceWith(...paras);
 
-    if (this.node.hasAttribute('aoid')) {
-      this.spec.warn({
-        type: 'attr',
-        ruleId: 'header-format',
-        message: `nodes with structured headers should not include an AOID`,
-        node: this.node,
-        attr: 'aoid',
-      });
-    } else if (
-      name != null &&
-      type != null &&
-      [
-        'abstract operation',
-        'sdo',
-        'syntax-directed operation',
-        'host-defined abstract operation',
-        'implementation-defined abstract operation',
-        'numeric method',
-      ].includes(type)
-    ) {
-      this.node.setAttribute('aoid', name);
-      this.aoid = name;
+    if (!redefinition) {
+      if (this.node.hasAttribute('aoid')) {
+        this.spec.warn({
+          type: 'attr',
+          ruleId: 'header-format',
+          message: `nodes with structured headers should not include an AOID`,
+          node: this.node,
+          attr: 'aoid',
+        });
+      } else if (
+        name != null &&
+        type != null &&
+        [
+          'abstract operation',
+          'sdo',
+          'syntax-directed operation',
+          'host-defined abstract operation',
+          'implementation-defined abstract operation',
+          'numeric method',
+        ].includes(type)
+      ) {
+        this.node.setAttribute('aoid', name);
+        this.aoid = name;
+      }
     }
 
     this.effects.push(...effects);
