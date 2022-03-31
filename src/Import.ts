@@ -50,7 +50,28 @@ export default class Import extends Builder {
       frag.appendChild(importedNode);
     }
 
+    const children = frag.childElementCount;
     node.appendChild(frag);
+
+    // This is a bit gross.
+    // We want to do this check after adopting the elements into the main DOM, so the location-finding infrastructure works
+    // But `appendChild(documentFragment)` both empties out the original fragment and returns it.
+    // So we have to remember how many child elements we are adding and walk over each of them manually.
+    for (let i = node.children.length - children; i < node.children.length; ++i) {
+      const child = node.children[i];
+      const biblios = [
+        ...child.querySelectorAll('emu-biblio'),
+        ...(child.tagName === 'EMU-BIBLIO' ? [child] : []),
+      ];
+      for (const biblio of biblios) {
+        spec.warn({
+          type: 'node',
+          node: biblio,
+          ruleId: 'biblio-in-import',
+          message: 'emu-biblio elements cannot be used within emu-imports',
+        });
+      }
+    }
 
     return imp;
   }
