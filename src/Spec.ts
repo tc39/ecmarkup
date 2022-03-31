@@ -251,13 +251,14 @@ function isEmuImportElement(node: Node): node is EmuImportElement {
   return node.nodeType === 1 && node.nodeName === 'EMU-IMPORT';
 }
 
+export type WorklistItem = { aoid: string | null; effects: string[] };
 export function maybeAddClauseToEffectWorklist(
   effectName: string,
   clause: Clause,
-  worklist: Clause[]
+  worklist: WorklistItem[]
 ) {
   if (
-    !worklist.includes(clause) &&
+    !worklist.some(i => i.aoid === clause.aoid) &&
     clause.canHaveEffect(effectName) &&
     !clause.effects.includes(effectName)
   ) {
@@ -300,8 +301,8 @@ export default class Spec {
   }[];
   _prodRefs: ProdRef[];
   _textNodes: { [s: string]: [TextNodeContext] };
-  _effectWorklist: Map<string, Clause[]>;
-  _effectfulAOs: Map<string, Clause>;
+  _effectWorklist: Map<string, WorklistItem[]>;
+  _effectfulAOs: Map<string, string[]>;
   _emuMetasToRender: Set<HTMLElement>;
   _emuMetasToRemove: Set<HTMLElement>;
   refsByClause: { [refId: string]: [string] };
@@ -916,7 +917,7 @@ export default class Spec {
     }
   }
 
-  private propagateEffect(effectName: string, worklist: Clause[]) {
+  private propagateEffect(effectName: string, worklist: WorklistItem[]) {
     const usersOfAoid: Map<string, Set<Clause>> = new Map();
     for (const xref of this._xrefs) {
       if (xref.clause == null || xref.aoid == null) continue;
@@ -934,13 +935,13 @@ export default class Spec {
     }
 
     while (worklist.length !== 0) {
-      const clause = worklist.shift() as Clause;
+      const clause = worklist.shift()!;
       const aoid = clause.aoid;
       if (aoid == null || !usersOfAoid.has(aoid)) {
         continue;
       }
 
-      this._effectfulAOs.set(aoid, clause);
+      this._effectfulAOs.set(aoid, clause.effects);
       for (const userClause of usersOfAoid.get(aoid)!) {
         maybeAddClauseToEffectWorklist(effectName, userClause, worklist);
       }
@@ -949,7 +950,7 @@ export default class Spec {
 
   public getEffectsByAoid(aoid: string): string[] | null {
     if (this._effectfulAOs.has(aoid)) {
-      return this._effectfulAOs.get(aoid)!.effects;
+      return this._effectfulAOs.get(aoid)!;
     }
     return null;
   }
@@ -1321,6 +1322,17 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     const biblios = biblioContents.flatMap(c => JSON.parse(c) as ExportedBiblio | ExportedBiblio[]);
     for (const biblio of biblios.concat(this.opts.extraBiblios ?? [])) {
       this.biblio.addExternalBiblio(biblio);
+      for (const entry of biblio.entries) {
+        if (entry.type === 'op' && entry.effects?.length > 0) {
+          this._effectfulAOs.set(entry.aoid, entry.effects);
+          for (const effect of entry.effects) {
+            if (!this._effectWorklist.has(effect)) {
+              this._effectWorklist.set(effect, []);
+            }
+            this._effectWorklist.get(effect)!.push(entry);
+          }
+        }
+      }
     }
   }
 
