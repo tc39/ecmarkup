@@ -36,7 +36,7 @@ export default class Meta extends Builder {
   static render(spec: Spec, node: HTMLElement) {
     // This builder turns <emu-meta> tags that aren't removed during effect
     // propagation on invocations into <span>s so they are rendered.
-    if (node.hasAttribute('effects')) {
+    if (node.hasAttribute('effects') && spec.opts.markEffects) {
       const classNames = node
         .getAttribute('effects')!
         .split(',')
