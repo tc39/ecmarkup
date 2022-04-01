@@ -102,12 +102,14 @@ const build = debounce(async function build() {
       extraBiblios: [],
       toc: !args['no-toc'],
       oldToc: !!args['old-toc'],
-      markEffects: !!args['mark-effects'],
       lintSpec: !!args['lint-spec'],
       assets: args.assets as 'none' | 'inline' | 'external',
     };
     if (args.verbose) {
       opts.log = utils.logVerbose;
+    }
+    if (args['mark-effects']) {
+      opts.markEffects = true;
     }
     let warned = false;
 
