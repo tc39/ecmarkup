@@ -1624,6 +1624,12 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
           }
           const name = production.getAttribute('name')!;
           if (!productions.has(name)) {
+            if (this.biblio.byProductionName(name) != null) {
+              // in an ideal world we'd keep the full grammar in the biblio so we could check for a matching RHS, not just a matching LHS
+              // but, we're not in that world
+              // https://github.com/tc39/ecmarkup/issues/431
+              continue;
+            }
             this.warn({
               type: 'node',
               node: grammar,
