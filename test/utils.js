@@ -105,6 +105,11 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
 }
 
 async function assertErrorFree(html, opts) {
+  if (typeof html !== 'string') {
+    throw new Error(
+      "assertErrorFree expects a string; did you forget to remove the 'positioned' tag?"
+    );
+  }
   let warnings = [];
 
   await emu.build('test-example.emu', async () => html, {
@@ -121,8 +126,15 @@ async function assertLint(a, b) {
   await assertError(a, b, { lintSpec: true });
 }
 
-async function assertLintFree(html) {
-  await assertErrorFree(html, { lintSpec: true });
+async function assertLintFree(html, opts = {}) {
+  await assertErrorFree(html, { lintSpec: true, ...opts });
+}
+
+async function getBiblio(html) {
+  let upstream = await emu.build('root.html', () => html, {
+    location: 'https://example.com/spec/',
+  });
+  return upstream.exportBiblio();
 }
 
 module.exports = {
@@ -132,4 +144,5 @@ module.exports = {
   assertErrorFree,
   assertLint,
   assertLintFree,
+  getBiblio,
 };

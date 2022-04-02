@@ -1,6 +1,12 @@
 'use strict';
 
-let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
+let {
+  assertLint,
+  assertLintFree,
+  positioned,
+  lintLocationMarker: M,
+  getBiblio,
+} = require('./utils.js');
 
 describe('linting whole program', () => {
   describe('grammar validity', () => {
@@ -64,6 +70,40 @@ describe('linting whole program', () => {
           ruleId: 'grammarkdown:2008',
           nodeType: 'emu-grammar',
           message: "Parameter 'a' is unused.",
+        }
+      );
+    });
+
+    it('unknown nonterminal', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Foo: ${M}Bar
+          </emu-grammar>
+        `,
+        {
+          ruleId: 'grammarkdown:2000',
+          nodeType: 'emu-grammar',
+          message: "Cannot find name: 'Bar'.",
+        }
+      );
+    });
+
+    it('negative: nonterminal defined upstream', async () => {
+      let upstream = await getBiblio(`
+        <emu-grammar type="definition">
+          Bar: \`a\`
+        </emu-grammar>
+      `);
+
+      await assertLintFree(
+        `
+          <emu-grammar type="definition">
+            Foo: Bar
+          </emu-grammar>
+        `,
+        {
+          extraBiblios: [upstream],
         }
       );
     });
@@ -207,6 +247,28 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-grammar',
           message: 'Could not find a production matching RHS in syntax-directed operation',
+        }
+      );
+    });
+
+    it('negative: productions defined in biblio', async () => {
+      let upstream = await getBiblio(`
+        <emu-grammar type="definition">
+          Statement: EmptyStatement
+        </emu-grammar>
+      `);
+
+      await assertLintFree(
+        `
+          <emu-grammar>
+            Statement: EmptyStatement
+          </emu-grammar>
+          <emu-alg>
+            1. Return Foo.
+          </emu-alg>
+        `,
+        {
+          extraBiblios: [upstream],
         }
       );
     });
