@@ -73,9 +73,18 @@ export async function collectGrammarDiagnostics(
           }
           const paramToError = unusedParameterErrors.get(nodeName)!;
           paramToError.set(paramName, error);
-        } else {
-          report(error);
+          return;
         }
+        if (
+          m.code === Diagnostics.Cannot_find_name_0_.code &&
+          spec.biblio.byProductionName(m.messageArguments?.[0]) != null
+        ) {
+          // grammarkdown assumes it has the whole grammar in scope
+          // but some productions might be defined in an external biblio
+          // TODO: thread the actual grammar through to grammarkdown so it has appropriate context, instead of surpressing this error
+          return;
+        }
+        report(error);
       });
   }
 
@@ -118,6 +127,12 @@ export async function collectGrammarDiagnostics(
     for (const [name, { production, rhses }] of productions) {
       const originalRhses = actualGrammarProductions.get(name)?.rhses;
       if (originalRhses === undefined) {
+        if (spec.biblio.byProductionName(name) != null) {
+          // in an ideal world we'd keep the full grammar in the biblio so we could check for a matching RHS, not just a matching LHS
+          // but, we're not in that world
+          // https://github.com/tc39/ecmarkup/issues/431
+          continue;
+        }
         const { line, column } = getLocationInGrammar(grammar, production.pos);
         report({
           type: 'contents',

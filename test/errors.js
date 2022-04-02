@@ -3,7 +3,13 @@
 let assert = require('assert');
 let emu = require('../lib/ecmarkup');
 
-let { lintLocationMarker: M, positioned, assertError, assertErrorFree } = require('./utils.js');
+let {
+  lintLocationMarker: M,
+  positioned,
+  assertError,
+  assertErrorFree,
+  getBiblio,
+} = require('./utils.js');
 
 describe('errors', () => {
   it('no contributors', async () => {
@@ -1002,23 +1008,11 @@ ${M}      </pre>
     });
 
     it('negative: external biblio', async () => {
-      let upstream = await emu.build(
-        'root.html',
-        () => `
-          <emu-grammar type="definition">
-            Foo : \`a\`
-          </emu-grammar>
-        `,
-        {
-          copyright: false,
-          location: 'https://example.com/spec/',
-          warn: e => {
-            console.error('Error:', e);
-            throw new Error(e.message);
-          },
-        }
-      );
-      let upstreamBiblio = upstream.exportBiblio();
+      let upstream = await getBiblio(`
+        <emu-grammar type="definition">
+          Foo : \`a\`
+        </emu-grammar>
+      `);
 
       await assertErrorFree(
         `
@@ -1034,7 +1028,7 @@ ${M}      </pre>
           </emu-clause>
         `,
         {
-          extraBiblios: [upstreamBiblio],
+          extraBiblios: [upstream],
         }
       );
     });
