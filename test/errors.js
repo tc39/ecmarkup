@@ -1000,5 +1000,43 @@ ${M}      </pre>
         </emu-clause>
       `);
     });
+
+    it('negative: external biblio', async () => {
+      let upstream = await emu.build(
+        'root.html',
+        () => `
+          <emu-grammar type="definition">
+            Foo : \`a\`
+          </emu-grammar>
+        `,
+        {
+          copyright: false,
+          location: 'https://example.com/spec/',
+          warn: e => {
+            console.error('Error:', e);
+            throw new Error(e.message);
+          },
+        }
+      );
+      let upstreamBiblio = upstream.exportBiblio();
+
+      await assertErrorFree(
+        `
+          <emu-clause id="sec-example" type="sdo">
+            <h1>Static Semantics: Example</h1>
+            <dl class='header'></dl>
+            <emu-grammar>
+              Foo : \`a\`
+            </emu-grammar>
+            <emu-alg>
+              1. Return *true*.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          extraBiblios: [upstreamBiblio],
+        }
+      );
+    });
   });
 });
