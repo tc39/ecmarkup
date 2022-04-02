@@ -69,6 +69,90 @@ describe('linting whole program', () => {
     });
   });
 
+  describe('early error shape', () => {
+    it('missing grammar', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Foo : \`a\`
+          </emu-grammar>
+          <emu-clause id="example">
+            <h1>Static Semantics: Early Errors</h1>
+            ${M}<ul>
+              <li>It is an Early Error sometimes.</li>
+            </ul>
+          </emu-clause>
+          `,
+        {
+          ruleId: 'early-error-shape',
+          nodeType: 'ul',
+          message: 'unrecognized structure for early errors: <ul> without preceding <emu-grammar>',
+        }
+      );
+    });
+
+    it('missing UL', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Foo : \`a\`
+          </emu-grammar>
+          ${M}<emu-clause id="example">
+            <h1>Static Semantics: Early Errors</h1>
+            <emu-grammar>Foo : \`a\`</emu-grammar>
+            <emu-alg>
+              1. Some logic.
+            </emu-alg>
+          </emu-clause>
+          `,
+        {
+          ruleId: 'early-error-shape',
+          nodeType: 'emu-clause',
+          message: 'unrecognized structure for early errors: no <ul> of errors',
+        }
+      );
+    });
+
+    it('multiple grammars', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Foo : \`a\`
+          </emu-grammar>
+          <emu-clause id="example">
+            <h1>Static Semantics: Early Errors</h1>
+            ${M}<emu-grammar>Foo : \`a\`</emu-grammar>
+            <emu-grammar>Foo : \`a\`</emu-grammar>
+          </emu-clause>
+          `,
+        {
+          ruleId: 'early-error-shape',
+          nodeType: 'emu-grammar',
+          message:
+            'unrecognized structure for early errors: multiple consecutive <emu-grammar>s without intervening <ul> of errors',
+        }
+      );
+    });
+
+    it('missing everything', async () => {
+      await assertLint(
+        positioned`
+          <emu-grammar type="definition">
+            Foo : \`a\`
+          </emu-grammar>
+          ${M}<emu-clause id="example">
+            <h1>Static Semantics: Early Errors</h1>
+          </emu-clause>
+          `,
+        {
+          ruleId: 'early-error-shape',
+          nodeType: 'emu-clause',
+          message: 'unrecognized structure for early errors: no <emu-grammar>',
+        }
+      );
+    });
+  });
+
   describe('grammar+SDO validity', () => {
     it('undefined nonterminals in SDOs', async () => {
       await assertLint(

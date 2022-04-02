@@ -51,16 +51,22 @@ export function collectNodes(
           const title = textContentExcludingDeleted(first);
           headers.push({ element: first, contents: title });
           if (title.trim() === 'Static Semantics: Early Errors') {
-            let grammar = null;
+            let grammar: Element | null = null;
             let lists: HTMLUListElement[] = [];
+            let warned = false;
             for (const child of node.children) {
               if (child.nodeName === 'EMU-GRAMMAR') {
                 if (grammar !== null) {
                   if (lists.length === 0) {
-                    // TODO soft errors
-                    throw new Error(
-                      'unrecognized structure for early errors: grammar without errors'
-                    );
+                    spec.warn({
+                      type: 'node',
+                      node: grammar,
+                      ruleId: 'early-error-shape',
+                      message:
+                        'unrecognized structure for early errors: multiple consecutive <emu-grammar>s without intervening <ul> of errors',
+                    });
+                    warned = true;
+                    break;
                   }
                   earlyErrors.push({ grammar, lists });
                 }
@@ -68,20 +74,41 @@ export function collectNodes(
                 lists = [];
               } else if (child.nodeName === 'UL') {
                 if (grammar === null) {
-                  throw new Error(
-                    'unrecognized structure for early errors: errors without corresponding grammar'
-                  );
+                  spec.warn({
+                    type: 'node',
+                    node: child,
+                    ruleId: 'early-error-shape',
+                    message:
+                      'unrecognized structure for early errors: <ul> without preceding <emu-grammar>',
+                  });
+                  warned = true;
+                  break;
                 }
                 lists.push(child as HTMLUListElement);
               }
             }
+
             if (grammar === null) {
-              throw new Error('unrecognized structure for early errors: no grammars');
+              if (!warned) {
+                spec.warn({
+                  type: 'node',
+                  node,
+                  ruleId: 'early-error-shape',
+                  message: 'unrecognized structure for early errors: no <emu-grammar>',
+                });
+              }
+            } else if (lists.length === 0) {
+              if (!warned) {
+                spec.warn({
+                  type: 'node',
+                  node,
+                  ruleId: 'early-error-shape',
+                  message: 'unrecognized structure for early errors: no <ul> of errors',
+                });
+              }
+            } else {
+              earlyErrors.push({ grammar, lists });
             }
-            if (lists.length === 0) {
-              throw new Error('unrecognized structure for early errors: grammar without errors');
-            }
-            earlyErrors.push({ grammar, lists });
           }
         }
       } else if (node.nodeName === 'EMU-GRAMMAR' && !node.hasAttribute('example')) {
