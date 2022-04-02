@@ -3,7 +3,7 @@
 let assert = require('assert');
 let emu = require('../lib/ecmarkup');
 
-let { lintLocationMarker: M, positioned, assertError } = require('./utils.js');
+let { lintLocationMarker: M, positioned, assertError, assertErrorFree } = require('./utils.js');
 
 describe('errors', () => {
   it('no contributors', async () => {
@@ -931,5 +931,112 @@ ${M}      </pre>
       },
       { asImport: 'only' }
     );
+  });
+
+  describe('SDO defined over unknown production', () => {
+    it('unknown production', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-example" type="sdo">
+            <h1>Static Semantics: Example</h1>
+            <dl class='header'></dl>
+            ${M}<emu-grammar>
+              Foo : \`a\`
+            </emu-grammar>
+            <emu-alg>
+              1. Return *true*.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'grammar-shape',
+          nodeType: 'emu-grammar',
+          message: 'could not find definition corresponding to production Foo',
+        }
+      );
+    });
+
+    it('unknown rhs', async () => {
+      await assertError(
+        positioned`
+          <emu-grammar type="definition">
+            Foo : \`b\`
+          </emu-grammar>
+
+          <emu-clause id="sec-example" type="sdo">
+            <h1>Static Semantics: Example</h1>
+            <dl class='header'></dl>
+            ${M}<emu-grammar>
+              Foo : \`a\`
+            </emu-grammar>
+            <emu-alg>
+              1. Return *true*.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'grammar-shape',
+          nodeType: 'emu-grammar',
+          message: 'could not find definition for rhs a',
+        }
+      );
+    });
+
+    it('negative', async () => {
+      await assertErrorFree(`
+        <emu-grammar type="definition">
+          Foo : \`a\`
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+          <h1>Static Semantics: Example</h1>
+          <dl class='header'></dl>
+          <emu-grammar>
+            Foo : \`a\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+        </emu-clause>
+      `);
+    });
+
+    it('negative: external biblio', async () => {
+      let upstream = await emu.build(
+        'root.html',
+        () => `
+          <emu-grammar type="definition">
+            Foo : \`a\`
+          </emu-grammar>
+        `,
+        {
+          copyright: false,
+          location: 'https://example.com/spec/',
+          warn: e => {
+            console.error('Error:', e);
+            throw new Error(e.message);
+          },
+        }
+      );
+      let upstreamBiblio = upstream.exportBiblio();
+
+      await assertErrorFree(
+        `
+          <emu-clause id="sec-example" type="sdo">
+            <h1>Static Semantics: Example</h1>
+            <dl class='header'></dl>
+            <emu-grammar>
+              Foo : \`a\`
+            </emu-grammar>
+            <emu-alg>
+              1. Return *true*.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          extraBiblios: [upstreamBiblio],
+        }
+      );
+    });
   });
 });
