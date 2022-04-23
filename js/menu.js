@@ -1029,7 +1029,6 @@ document.addEventListener('DOMContentLoaded', () => {
   referencePane.init();
 });
 
-
 // preserve state during navigation
 
 function getTocPath(li) {
@@ -1113,7 +1112,7 @@ function loadStateFromSessionStorage() {
   if (sessionStorage.searchValue != null) {
     let value = JSON.parse(sessionStorage.searchValue);
     menu.search.$searchBox.value = value;
-    menu.search.search(value)
+    menu.search.search(value);
     delete sessionStorage.searchValue;
   }
 
@@ -1122,7 +1121,6 @@ function loadStateFromSessionStorage() {
     menu.$toc.scrollTop = tocScroll;
     delete sessionStorage.tocScroll;
   }
-
 }
 
 document.addEventListener('DOMContentLoaded', loadStateFromSessionStorage);
