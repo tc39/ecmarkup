@@ -80,6 +80,17 @@ ${M}      1. Return ExampleAlg().
           1. Return ? ExampleAlg().
         </emu-alg>
         </emu-clause>
+
+        <emu-clause id="example3" type="abstract operation" example>
+        <h1>
+          Example3 ()
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg example>
+          1. Return ExampleAlg().
+        </emu-alg>
+        </emu-clause>
       `);
     });
   });
