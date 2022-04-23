@@ -95,11 +95,21 @@ function loadStateFromSessionStorage() {
     delete sessionStorage.activeTocPaths;
   }
 
+  console.log({ sv: sessionStorage.searchValue });
+  if (sessionStorage.searchValue != null) {
+    let value = JSON.parse(sessionStorage.searchValue);
+    menu.search.$searchBox.value = value;
+    menu.search.search(value)
+    delete sessionStorage.searchValue;
+  }
+  console.log('clearing');
+
   if (sessionStorage.tocScroll != null) {
     let tocScroll = JSON.parse(sessionStorage.tocScroll);
     menu.$toc.scrollTop = tocScroll;
     delete sessionStorage.tocScroll;
   }
+
 }
 
 document.addEventListener('DOMContentLoaded', loadStateFromSessionStorage);
@@ -110,6 +120,7 @@ window.addEventListener('beforeunload', () => {
   if (window.sessionStorage) {
     sessionStorage.referencePaneState = JSON.stringify(referencePane.state || null);
     sessionStorage.activeTocPaths = JSON.stringify(getActiveTocPaths());
+    sessionStorage.searchValue = JSON.stringify(menu.search.$searchBox.value);
     sessionStorage.tocScroll = JSON.stringify(menu.$toc.scrollTop);
   }
 });
