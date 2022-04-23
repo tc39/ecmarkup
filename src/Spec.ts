@@ -1085,7 +1085,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     const multipageScript = this.doc.createElement('script');
     multipageScript.src = 'multipage.js?cache=' + sha(multipageJsContents);
     multipageScript.setAttribute('defer', '');
-    head.appendChild(multipageScript);
+    head.insertBefore(multipageScript, head.querySelector('script'));
 
     for (const { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
