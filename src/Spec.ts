@@ -626,11 +626,9 @@ export default class Spec {
       // rather than having to reconstruct it, approximately
       // ... someday!
       const warn = (message: string) => {
-        const ruleId = 'completion-invocation';
-
         const path = [];
         let pointer: HTMLElement | null = xref.node;
-        let alg;
+        let alg: HTMLElement | null = null;
         while (pointer != null) {
           if (pointer.tagName === 'LI') {
             // @ts-ignore
@@ -642,7 +640,11 @@ export default class Spec {
           }
           pointer = pointer.parentElement;
         }
+        if (alg?.hasAttribute('example')) {
+          return;
+        }
         if (alg == null || !{}.hasOwnProperty.call(alg, 'ecmarkdownTree')) {
+          const ruleId = 'completion-invocation';
           let pointer: Element | null = xref.node;
           while (this.locate(pointer) == null) {
             pointer = pointer.parentElement;
