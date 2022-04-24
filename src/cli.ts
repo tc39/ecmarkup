@@ -151,10 +151,11 @@ const build = debounce(async function build() {
     };
 
     if (process.env.SOURCE_DATE_EPOCH) {
-      const ts = +process.env.SOURCE_DATE_EPOCH;
-      if (ts !== Math.floor(ts)) {
-        fail(`SOURCE_DATE_EPOCH value ${process.env.SOURCE_DATE_EPOCH} is not valid`);
+      const sde = process.env.SOURCE_DATE_EPOCH.trim();
+      if (!/^[0-9]+/.test(sde)) {
+        fail(`SOURCE_DATE_EPOCH value ${sde} is not valid`);
       }
+      const ts = +sde;
       opts.date = new Date(ts * 1000);
     }
 
