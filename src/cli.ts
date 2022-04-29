@@ -150,6 +150,15 @@ const build = debounce(async function build() {
       warnings.push(err);
     };
 
+    if (process.env.SOURCE_DATE_EPOCH) {
+      const sde = process.env.SOURCE_DATE_EPOCH.trim();
+      if (!/^[0-9]+/.test(sde)) {
+        fail(`SOURCE_DATE_EPOCH value ${sde} is not valid`);
+      }
+      const ts = +sde;
+      opts.date = new Date(ts * 1000);
+    }
+
     const spec = await ecmarkup.build(args.files[0], utils.readFile, opts);
 
     if (args.verbose) {
