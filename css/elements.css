@@ -667,6 +667,12 @@ table.lightweight-table th {
   vertical-align: baseline;
 }
 
+/* anchor target highlighting */
+:target {
+  outline: thin dashed red;
+  background-color: #ffffe5;
+}
+
 /* diff styles */
 ins {
   background-color: #e0f8e0;
