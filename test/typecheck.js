@@ -1,8 +1,37 @@
 'use strict';
 
-let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
+let {
+  assertLint,
+  assertLintFree,
+  positioned,
+  lintLocationMarker: M,
+  getBiblio,
+} = require('./utils.js');
 
-describe('typechecking', () => {
+describe('typechecking completions', () => {
+  let biblio;
+  before(async () => {
+    biblio = await getBiblio(`
+      <emu-clause id="normal-completion" type="abstract operation">
+        <h1>NormalCompletion ( _x_ )</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      <emu-clause id="sec-completion-ao" type="abstract operation">
+        <h1>
+          Completion (
+            _completionRecord_: a Completion Record,
+          ): a Completion Record
+        </h1>
+        <dl class="header"></dl>
+        <emu-alg>
+          1. Assert: _completionRecord_ is a Completion Record.
+          1. Return _completionRecord_.
+        </emu-alg>
+      </emu-clause>
+    `);
+  });
+
   describe('completion-returning AO not consumed as completion', () => {
     it('positive', async () => {
       await assertLint(
@@ -33,65 +62,57 @@ ${M}      1. Return ExampleAlg().
           ruleId: 'invocation-return-type',
           nodeType: 'emu-alg',
           message: 'ExampleAlg returns a Completion Record, but is not consumed as if it does',
+        },
+        {
+          extraBiblios: [biblio],
         }
       );
     });
 
-    // UUUUGH the check for Completion() assumes it's happening after auto-linking
+    // the check for Completion() assumes it's happening after auto-linking
     // so it only works if the Completion AO is defined
     it('negative', async () => {
-      await assertLintFree(`
-        <emu-clause id="example" type="abstract operation">
-        <h1>
-          ExampleAlg (): a normal completion containing a Number
-        </h1>
-        <dl class="header">
-        </dl>
-        <emu-alg>
-          1. Return NormalCompletion(0).
-        </emu-alg>
-        </emu-clause>
+      await assertLintFree(
+        `
+          <emu-clause id="example" type="abstract operation">
+          <h1>
+            ExampleAlg (): a normal completion containing a Number
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Return NormalCompletion(0).
+          </emu-alg>
+          </emu-clause>
 
-        <emu-clause id="sec-completion-ao" type="abstract operation">
-        <h1>
-          Completion (
-            _completionRecord_: a Completion Record,
-          ): a Completion Record
-        </h1>
-        <dl class="header">
-          <dt>description</dt>
-          <dd>It is used to emphasize that a Completion Record is being returned.</dd>
-        </dl>
-        <emu-alg>
-          1. Assert: _completionRecord_ is a Completion Record.
-          1. Return _completionRecord_.
-        </emu-alg>
-        </emu-clause>
+          <emu-clause id="example2" type="abstract operation">
+          <h1>
+            Example2 ()
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Let _a_ be Completion(ExampleAlg()).
+            1. Set _a_ to ! ExampleAlg().
+            1. Return ? ExampleAlg().
+          </emu-alg>
+          </emu-clause>
 
-        <emu-clause id="example2" type="abstract operation">
-        <h1>
-          Example2 ()
-        </h1>
-        <dl class="header">
-        </dl>
-        <emu-alg>
-          1. Let _a_ be Completion(ExampleAlg()).
-          1. Set _a_ to ! ExampleAlg().
-          1. Return ? ExampleAlg().
-        </emu-alg>
-        </emu-clause>
-
-        <emu-clause id="example3" type="abstract operation" example>
-        <h1>
-          Example3 ()
-        </h1>
-        <dl class="header">
-        </dl>
-        <emu-alg example>
-          1. Return ExampleAlg().
-        </emu-alg>
-        </emu-clause>
-      `);
+          <emu-clause id="example3" type="abstract operation" example>
+          <h1>
+            Example3 ()
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg example>
+            1. Return ExampleAlg().
+          </emu-alg>
+          </emu-clause>
+        `,
+        {
+          extraBiblios: [biblio],
+        }
+      );
     });
   });
 
@@ -167,7 +188,7 @@ ${M}      1. Return ? ExampleAlg().
         <dl class="header">
         </dl>
         <emu-alg>
-          1. Return ${M}? Foo().
+          1. Return ${M}? _foo_.
         </emu-alg>
         </emu-clause>
         `,
@@ -218,25 +239,33 @@ ${M}      1. Return ? ExampleAlg().
           nodeType: 'emu-alg',
           message:
             'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+        },
+        {
+          extraBiblios: [biblio],
         }
       );
     });
 
     it('negative', async () => {
-      await assertLintFree(`
-        <emu-clause id="example" type="abstract operation">
-        <h1>
-          ExampleAlg (): either a normal completion containing a Number or an abrupt completion
-        </h1>
-        <dl class="header">
-        </dl>
-        <emu-alg>
-          1. Return ? Foo().
-          1. Return Completion(_x_).
-          1. Throw a new TypeError.
-        </emu-alg>
-        </emu-clause>
-      `);
+      await assertLintFree(
+        `
+          <emu-clause id="example" type="abstract operation">
+          <h1>
+            ExampleAlg (): either a normal completion containing a Number or an abrupt completion
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Return ? _foo_.
+            1. Return Completion(_x_).
+            1. Throw a new TypeError.
+          </emu-alg>
+          </emu-clause>
+        `,
+        {
+          extraBiblios: [biblio],
+        }
+      );
     });
   });
 
@@ -251,7 +280,7 @@ ${M}      1. Return ? ExampleAlg().
         <dl class="header">
         </dl>
         ${M}<emu-alg>
-          1. Return Foo().
+          1. Return _foo_.
         </emu-alg>
         </emu-clause>
         `,
@@ -273,7 +302,7 @@ ${M}      1. Return ? ExampleAlg().
         <dl class="header">
         </dl>
         <emu-alg>
-          1. Return ? Foo().
+          1. Return ? _foo_.
         </emu-alg>
         </emu-clause>
       `);
@@ -286,7 +315,7 @@ ${M}      1. Return ? ExampleAlg().
         <dl class="header">
         </dl>
         <emu-alg>
-          1. Return Foo().
+          1. Return _foo_.
         </emu-alg>
         </emu-clause>
       `);
@@ -304,7 +333,7 @@ ${M}      1. Return ? ExampleAlg().
           <dl class="header">
           </dl>
           <emu-alg>
-            1. Return Foo().
+            1. Return _foo_.
           </emu-alg>
           </emu-clause>
 
@@ -337,7 +366,7 @@ ${M}          1. Let _x_ be ExampleAlg().
         <dl class="header">
         </dl>
         <emu-alg>
-          1. Return Foo().
+          1. Return _foo_.
         </emu-alg>
         </emu-clause>
 
@@ -452,7 +481,7 @@ ${M}          1. Let _x_ be ExampleAlg().
           <dl class="header">
           </dl>
           <emu-alg>
-            1. Return ? Foo().
+            1. Return ? _foo_.
           </emu-alg>
           </emu-clause>
 
@@ -485,7 +514,7 @@ ${M}          1. Let _x_ be ExampleAlg().
           <dl class="header">
           </dl>
           <emu-alg>
-            1. Return ? Foo().
+            1. Return ? _foo_.
           </emu-alg>
           </emu-clause>
 
@@ -514,7 +543,7 @@ ${M}          1. Let _x_ be ExampleAlg().
           <dl class="header">
           </dl>
           <emu-alg>
-            1. Return Foo().
+            1. Return 0.
           </emu-alg>
           </emu-clause>
         `,
@@ -528,18 +557,146 @@ ${M}          1. Let _x_ be ExampleAlg().
     });
 
     it('negative', async () => {
-      await assertLintFree(`
-        <emu-clause id="example" type="abstract operation">
-        <h1>
-          ExampleAlg (): a normal completion containing either a Number or a boolean
-        </h1>
-        <dl class="header">
-        </dl>
-        <emu-alg>
-          1. Return NormalCompletion(Foo()).
-        </emu-alg>
-        </emu-clause>
-      `);
+      await assertLintFree(
+        `
+          <emu-clause id="example" type="abstract operation">
+          <h1>
+            ExampleAlg (): a normal completion containing either a Number or a boolean
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Return NormalCompletion(0).
+          </emu-alg>
+          </emu-clause>
+        `,
+        {
+          extraBiblios: [biblio],
+        }
+      );
     });
+  });
+});
+
+describe('signature agreement', async () => {
+  let biblio;
+  before(async () => {
+    biblio = await getBiblio(`
+      <emu-clause id="example" type="abstract operation">
+        <h1>TakesNoArgs ()</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      <emu-clause id="example" type="abstract operation">
+        <h1>TakesOneArg ( _x_ )</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      <emu-clause id="example" type="abstract operation">
+        <h1>TakesOneOrTwoArgs ( _x_, [_y_] )</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+    `);
+  });
+
+  it('extra args', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}TakesNoArgs(0).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'TakesNoArgs takes 0 arguments, but this invocation passes 1',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return <emu-meta suppress-effects="user-code">${M}TakesNoArgs(0)</emu-meta>.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'TakesNoArgs takes 0 arguments, but this invocation passes 1',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}TakesOneOrTwoArgs(0, 1, 2).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'TakesOneOrTwoArgs takes 1-2 arguments, but this invocation passes 3',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
+  it('too few args args', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}TakesOneArg().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'TakesOneArg takes 1 argument, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}TakesOneOrTwoArgs().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'TakesOneOrTwoArgs takes 1-2 arguments, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
+  it('negative', async () => {
+    await assertLintFree(
+      `
+        <emu-alg>
+          1. Perform TakesNoArgs().
+          1. Perform TakesOneArg(0).
+          1. Perform TakesOneOrTwoArgs(0).
+          1. Perform TakesOneOrTwoArgs(0, 1).
+          1. Perform <emu-meta suppress-effects="user-code">TakesNoArgs()</emu-meta>.
+        </emu-alg>
+      `,
+      {
+        extraBiblios: [biblio],
+      }
+    );
   });
 });

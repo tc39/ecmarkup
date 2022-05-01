@@ -250,7 +250,7 @@ describe('linting algorithms', () => {
             1. Substep.
           1. Let _constructorText_ be the source text
           <pre><code class="javascript">constructor() {}</code></pre>
-          1. Set _constructor_ to ParseText(_constructorText_, _methodDefinition_).
+          1. Set _constructor_ to _parse_(_constructorText_, _methodDefinition_).
           1. <mark>A highlighted line.</mark>
           1. <ins>Amend the spec with this.</ins>
           1. <del>Remove this from the spec.</del>

@@ -125,7 +125,7 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
 
       const hasSubsteps = node.sublist !== null;
 
-      // Special case: lines without substeps can end in `pre` tags.
+      // Special case: only lines without substeps can end in `pre` tags.
       if (last.name === 'opaqueTag' && /^\s*<pre>/.test(last.contents)) {
         if (hasSubsteps) {
           report({

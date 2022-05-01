@@ -45,9 +45,16 @@ import {
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
-import type { OrderedListItemNode, parseAlgorithm, UnorderedListItemNode } from 'ecmarkdown';
+import type {
+  OrderedListItemNode,
+  OrderedListNode,
+  parseAlgorithm,
+  UnorderedListItemNode,
+} from 'ecmarkdown';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
+import { offsetToLineAndColumn } from './utils';
+import { parse as parseExpr, walk as walkExpr, Expr } from './expr-parser';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -477,7 +484,8 @@ export default class Spec {
 
     if (this.opts.lintSpec) {
       this.log('Checking types...');
-      this.typecheck();
+      this.checkCompletionUsage();
+      this.checkCalls();
     }
     this.log('Propagating effect annotations...');
     this.propagateEffects();
@@ -584,9 +592,8 @@ export default class Spec {
     }
   }
 
-  // right now this just checks that AOs which do/don't return completion records are invoked appropriately
-  // someday, more!
-  private typecheck() {
+  // checks that AOs which do/don't return completion records are invoked appropriately
+  private checkCompletionUsage() {
     const isCall = (x: Xref) => x.isInvocation && x.clause != null && x.aoid != null;
     const isUnused = (t: Type) =>
       t.kind === 'unused' ||
@@ -788,6 +795,108 @@ export default class Spec {
           message,
         });
       }
+    }
+  }
+
+  private checkCalls() {
+    for (const node of this.doc.querySelectorAll('emu-alg')) {
+      if (node.hasAttribute('example') || !('ecmarkdownTree' in node)) {
+        continue;
+      }
+      // @ts-ignore
+      const tree = node.ecmarkdownTree as ReturnType<typeof parseAlgorithm>;
+      if (tree == null) {
+        continue;
+      }
+      // @ts-ignore
+      const originalHtml: string = node.originalHtml;
+
+      const expressionVisitor = (expr: Expr) => {
+        if (expr.type !== 'call') {
+          return;
+        }
+
+        const { callee, arguments: args } = expr;
+        if (!(callee.parts.length === 1 && callee.parts[0].name === 'text')) {
+          return;
+        }
+        const calleeName = callee.parts[0].contents;
+        if (
+          [
+            'thisTimeValue',
+            'thisStringValue',
+            'thisBigIntValue',
+            'thisNumberValue',
+            'thisSymbolValue',
+            'thisBooleanValue',
+            'toUppercase',
+            'toLowercase',
+            'ℝ',
+            '𝔽',
+            'ℤ',
+          ].includes(calleeName)
+        ) {
+          // TODO make the spec not do this
+          return;
+        }
+        const biblioEntry = this.biblio.byAoid(calleeName);
+        if (biblioEntry == null) {
+          const { line, column } = offsetToLineAndColumn(
+            originalHtml,
+            callee.parts[0].location.start.offset
+          );
+          this.warn({
+            type: 'contents',
+            ruleId: 'typecheck',
+            message: `could not find definition for ${calleeName}`,
+            node,
+            nodeRelativeLine: line,
+            nodeRelativeColumn: column,
+          });
+        } else if (biblioEntry.signature != null) {
+          const min = biblioEntry.signature.parameters.length;
+          const max = min + biblioEntry.signature.optionalParameters.length;
+          if (args.length < min || args.length > max) {
+            const { line, column } = offsetToLineAndColumn(
+              originalHtml,
+              callee.parts[0].location.start.offset
+            );
+            const count = `${min}${min === max ? '' : `-${max}`}`;
+            // prettier-ignore
+            const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
+            this.warn({
+              type: 'contents',
+              ruleId: 'typecheck',
+              message,
+              node,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
+            });
+          }
+        }
+      };
+      const walkLines = (list: OrderedListNode) => {
+        for (const line of list.contents) {
+          const item = parseExpr(line.contents);
+          if (item.type === 'failure') {
+            const { line, column } = offsetToLineAndColumn(originalHtml, item.offset);
+            this.warn({
+              type: 'contents',
+              ruleId: 'expression-parsing',
+              message: item.message,
+              node,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
+            });
+          } else {
+            walkExpr(expressionVisitor, item);
+          }
+          if (line.sublist?.name === 'ol') {
+            walkLines(line.sublist);
+          }
+        }
+      };
+      walkLines(tree.contents);
     }
   }
 
