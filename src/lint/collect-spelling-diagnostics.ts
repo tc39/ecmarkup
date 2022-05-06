@@ -66,8 +66,12 @@ const matchers = [
     message: '"Number value", not "number value"',
   },
   {
-    pattern: /[Bb]ehavior/gu,
-    message: 'ECMA-262 uses Oxford spelling ("behaviour")',
+    // it would be best to somehow literally check against en-GB-oxendict,
+    // but absent that we use the sample list from
+    // https://en.wikipedia.org/wiki/American_and_British_English_spelling_differences#-our%2C_-or
+    pattern:
+      /[Bb]ehavior|[Cc]olor|[Ff]lavor|[Hh]arbor|[Hh]onor|[Hh]umor|[Ll]abor(?!ator)|[Nn]eighbor|[Rr]umor|[Ss]plendor/gu,
+    message: 'ECMA-262 uses Oxford spelling ("behaviour", "colour", etc.)',
   },
   {
     pattern: /[Ii]ndexes/gu,
