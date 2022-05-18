@@ -614,13 +614,19 @@ export function formatPreamble(
   const lastSentence = isSdo
     ? 'It is defined piecewise over the following productions:'
     : 'It performs the following steps when called:';
+  const getRelevantElement = (el: Element): Element =>
+    el.tagName === 'INS' || el.tagName === 'DEL' ? el.firstElementChild ?? el : el;
   let next = dl.nextElementSibling;
-  while (next != null && next.tagName === 'EMU-NOTE') {
+  while (next != null && getRelevantElement(next)?.tagName === 'EMU-NOTE') {
     next = next.nextElementSibling;
   }
+  const relevant = next != null ? getRelevantElement(next) : null;
   if (
-    (isSdo && next?.tagName === 'EMU-GRAMMAR') ||
-    (!isSdo && next?.tagName === 'EMU-ALG' && !next.hasAttribute('replaces-step'))
+    (isSdo && next != null && relevant?.tagName === 'EMU-GRAMMAR') ||
+    (!isSdo &&
+      next != null &&
+      relevant?.tagName === 'EMU-ALG' &&
+      !relevant?.hasAttribute('replaces-step'))
   ) {
     if (paras.length > 1 || next !== dl.nextElementSibling) {
       const whitespace = next.previousSibling;
