@@ -252,7 +252,7 @@ describe('spelling', () => {
       {
         ruleId: 'spelling',
         nodeType: 'html',
-        message: 'ECMA-262 uses Oxford spelling ("behaviour")',
+        message: 'ECMA-262 uses Oxford spelling ("behaviour", "colour", etc.)',
       }
     );
   });
