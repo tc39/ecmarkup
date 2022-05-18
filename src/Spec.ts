@@ -1,5 +1,6 @@
 import type { ElementLocation } from 'parse5';
 import type { EcmarkupError, Options } from './ecmarkup';
+import type { OneOfList, RightHandSide, SourceFile } from 'grammarkdown';
 import type { Context } from './Context';
 import type { AlgorithmBiblioEntry, ExportedBiblio, StepBiblioEntry, Type } from './Biblio';
 import type { BuilderInterface } from './Builder';
@@ -40,6 +41,8 @@ import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
 import type { OrderedListItemNode, parseAlgorithm, UnorderedListItemNode } from 'ecmarkdown';
+import { getProductions, rhsMatches } from './lint/utils';
+import type { AugmentedGrammarEle } from './Grammar';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -1538,32 +1541,20 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       mainGrammar.delete(annexEle);
     }
 
-    const productions: Map<String, Array<Element>> = new Map();
-    for (const grammar of mainGrammar) {
-      for (const production of grammar.querySelectorAll('emu-production')) {
-        if (!production.hasAttribute('name')) {
-          // I don't think this is possible, but we can at least be graceful about it
-          this.warn({
-            type: 'node',
-            // All of these elements are synthetic, and hence lack locations, so we point error messages to the containing emu-grammar
-            node: grammar,
-            ruleId: 'grammar-shape',
-            message: 'expected emu-production node to have name',
-          });
-          continue;
+    const mainProductions: Map<string, { rhs: RightHandSide | OneOfList; rhsEle: Element }[]> =
+      new Map();
+
+    for (const grammarEle of mainGrammar) {
+      if (!('grammarSource' in grammarEle)) {
+        // this should only happen if it failed to parse/emit, which we'll have already warned for
+        continue;
+      }
+      for (const [name, pairs] of this.getProductions(grammarEle as AugmentedGrammarEle)) {
+        if (mainProductions.has(name)) {
+          mainProductions.set(name, mainProductions.get(name)!.concat(pairs));
+        } else {
+          mainProductions.set(name, pairs);
         }
-        const name = production.getAttribute('name')!;
-        if (productions.has(name)) {
-          this.warn({
-            type: 'node',
-            node: grammar,
-            ruleId: 'grammar-shape',
-            message: `found duplicate definition for production ${name}`,
-          });
-          continue;
-        }
-        const rhses: Array<Element> = [...production.querySelectorAll('emu-rhs')];
-        productions.set(name, rhses);
       }
     }
 
@@ -1609,23 +1600,17 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         continue;
       }
       const sdoName = nameMatch[1];
-      for (const grammar of sdo.children) {
-        if (grammar.tagName !== 'EMU-GRAMMAR') {
+      for (const grammarEle of sdo.children) {
+        if (grammarEle.tagName !== 'EMU-GRAMMAR') {
           continue;
         }
-        for (const production of grammar.querySelectorAll('emu-production')) {
-          if (!production.hasAttribute('name')) {
-            // I don't think this is possible, but we can at least be graceful about it
-            this.warn({
-              type: 'node',
-              node: grammar,
-              ruleId: 'grammar-shape',
-              message: 'expected emu-production node to have name',
-            });
-            continue;
-          }
-          const name = production.getAttribute('name')!;
-          if (!productions.has(name)) {
+        if (!('grammarSource' in grammarEle)) {
+          // this should only happen if it failed to parse/emit, which we'll have already warned for
+          continue;
+        }
+
+        for (const [name, rhses] of this.getProductions(grammarEle as AugmentedGrammarEle)) {
+          if (!mainProductions.has(name)) {
             if (this.biblio.byProductionName(name) != null) {
               // in an ideal world we'd keep the full grammar in the biblio so we could check for a matching RHS, not just a matching LHS
               // but, we're not in that world
@@ -1634,40 +1619,41 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
             }
             this.warn({
               type: 'node',
-              node: grammar,
+              node: grammarEle,
               ruleId: 'grammar-shape',
               message: `could not find definition corresponding to production ${name}`,
             });
             continue;
           }
-          const mainRhses = productions.get(name)!;
-          for (const rhs of production.querySelectorAll('emu-rhs')) {
-            const matches = mainRhses.filter(r => rhsMatches(rhs, r));
+
+          const mainRhses = mainProductions.get(name)!;
+          for (const { rhs, rhsEle } of rhses) {
+            const matches = mainRhses.filter(p => rhsMatches(rhs, p.rhs));
             if (matches.length === 0) {
               this.warn({
                 type: 'node',
-                node: grammar,
+                node: grammarEle,
                 ruleId: 'grammar-shape',
-                message: `could not find definition for rhs ${rhs.textContent}`,
+                message: `could not find definition for rhs ${rhsEle.textContent}`,
               });
               continue;
             }
             if (matches.length > 1) {
               this.warn({
                 type: 'node',
-                node: grammar,
+                node: grammarEle,
                 ruleId: 'grammar-shape',
-                message: `found multiple definitions for rhs ${rhs.textContent}`,
+                message: `found multiple definitions for rhs ${rhsEle.textContent}`,
               });
               continue;
             }
-            const match = matches[0];
-            if (match.id == '') {
+            const match = matches[0].rhsEle;
+            if (match.id === '') {
               match.id = 'prod-' + sha(`${name} : ${match.textContent}`);
             }
             const mainId = match.id;
-            if (rhs.id == '') {
-              rhs.id = 'prod-' + sha(`[${sdoName}] ${name} ${rhs.textContent}`);
+            if (rhsEle.id === '') {
+              rhsEle.id = 'prod-' + sha(`[${sdoName}] ${name} ${rhsEle.textContent}`);
             }
             if (!{}.hasOwnProperty.call(sdoMap, mainId)) {
               sdoMap[mainId] = Object.create(null);
@@ -1678,12 +1664,12 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
             } else if (sdosForThisId[sdoName].clause !== clause) {
               this.warn({
                 type: 'node',
-                node: grammar,
+                node: grammarEle,
                 ruleId: 'grammar-shape',
                 message: `SDO ${sdoName} found in multiple clauses`,
               });
             }
-            sdosForThisId[sdoName].ids.push(rhs.id);
+            sdosForThisId[sdoName].ids.push(rhsEle.id);
           }
         }
       }
@@ -1691,6 +1677,65 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
     const json = JSON.stringify(sdoMap);
     return `let sdoMap = JSON.parse(\`${json.replace(/[\\`$]/g, '\\$&')}\`);`;
+  }
+
+  private getProductions(grammarEle: AugmentedGrammarEle) {
+    // unfortunately we need both the element and the grammarkdown node
+    // there is no immediate association between them
+    // so we are going to reconstruct the association by hand
+    const productions: Map<string, { rhs: RightHandSide | OneOfList; rhsEle: Element }[]> =
+      new Map();
+
+    const productionEles: Map<string, Array<Element>> = new Map();
+    for (const productionEle of grammarEle.querySelectorAll('emu-production')) {
+      if (!productionEle.hasAttribute('name')) {
+        // I don't think this is possible, but we can at least be graceful about it
+        this.warn({
+          type: 'node',
+          // All of these elements are synthetic, and hence lack locations, so we point error messages to the containing emu-grammar
+          node: grammarEle,
+          ruleId: 'grammar-shape',
+          message: 'expected emu-production node to have name',
+        });
+        continue;
+      }
+      const name = productionEle.getAttribute('name')!;
+      const rhses = [...productionEle.querySelectorAll('emu-rhs')];
+      if (productionEles.has(name)) {
+        productionEles.set(name, productionEles.get(name)!.concat(rhses));
+      } else {
+        productionEles.set(name, rhses);
+      }
+    }
+
+    const sourceFile: SourceFile = grammarEle.grammarSource;
+
+    for (const [name, { rhses }] of getProductions([sourceFile])) {
+      if (!productionEles.has(name)) {
+        this.warn({
+          type: 'node',
+          node: grammarEle,
+          ruleId: 'rhs-consistency',
+          message: `failed to locate element for production ${name}. This is is a bug in ecmarkup; please report it.`,
+        });
+        continue;
+      }
+      const rhsEles = productionEles.get(name)!;
+      if (rhsEles.length !== rhses.length) {
+        this.warn({
+          type: 'node',
+          node: grammarEle,
+          ruleId: 'rhs-consistency',
+          message: `inconsistent RHS lengths for production ${name}. This is is a bug in ecmarkup; please report it.`,
+        });
+        continue;
+      }
+      productions.set(
+        name,
+        rhses.map((rhs, i) => ({ rhs, rhsEle: rhsEles[i] }))
+      );
+    }
+    return productions;
   }
 
   private setReplacementAlgorithmOffsets() {
@@ -1956,75 +2001,6 @@ async function concatJs(...extras: string[]) {
   );
   dependencies = dependencies.concat(extras);
   return dependencies.join('\n');
-}
-
-// todo move this to utils maybe
-// this is very similar to the identically-named method in lint/utils.ts, but operates on HTML elements rather than grammarkdown nodes
-function rhsMatches(aRhs: Element, bRhs: Element) {
-  const a = aRhs.firstElementChild;
-  const b = bRhs.firstElementChild;
-  if (a == null || b == null) {
-    throw new Error('RHS must have content');
-  }
-  return symbolSpanMatches(a, b);
-}
-
-function symbolSpanMatches(a: Element | null, b: Element | null): boolean {
-  if (a == null || a.textContent === '[empty]') {
-    return canBeEmpty(b);
-  }
-
-  if (b != null && symbolMatches(a, b)) {
-    return symbolSpanMatches(a.nextElementSibling, b.nextElementSibling);
-  }
-
-  // sometimes when there is an optional terminal or nonterminal we give distinct implementations for each case, rather than one implementation which represents both
-  // which means both `a b c` and `a c` must match `a b? c`
-  if (b != null && canSkipSymbol(b)) {
-    return symbolSpanMatches(a, b.nextElementSibling);
-  }
-
-  return false;
-}
-
-function canBeEmpty(b: Element | null): boolean {
-  return b == null || (canSkipSymbol(b) && canBeEmpty(b.nextElementSibling));
-}
-
-function canSkipSymbol(a: Element): boolean {
-  if (a.tagName === 'EMU-NT' && a.hasAttribute('optional')) {
-    return true;
-  }
-  // 'gmod' is prose assertions
-  // 'gann' is [empty], [nlth], and lookahead restrictions]
-  return ['EMU-CONSTRAINTS', 'EMU-GMOD', 'EMU-GANN'].includes(a.tagName);
-}
-
-function symbolMatches(a: Element, b: Element): boolean {
-  const aKind = a.tagName.toLowerCase();
-  const bKind = b.tagName.toLowerCase();
-  if (aKind !== bKind) {
-    return false;
-  }
-  switch (aKind) {
-    case 'emu-t': {
-      return a.textContent === b.textContent;
-    }
-    case 'emu-nt': {
-      if (a.childNodes.length > 1 || b.childNodes.length > 1) {
-        // NonTerminal.build() adds elements to represent parameters and "opt", but that happens after this phase
-        throw new Error('emu-nt nodes should not have other contents at this phase');
-      }
-      return a.textContent === b.textContent;
-    }
-    case 'emu-gmod':
-    case 'emu-gann': {
-      return a.textContent === b.textContent;
-    }
-    default: {
-      throw new Error('unimplemented: symbol matches ' + aKind);
-    }
-  }
 }
 
 function sha(str: string) {

@@ -1005,6 +1005,23 @@ ${M}      </pre>
           </emu-alg>
         </emu-clause>
       `);
+
+      await assertErrorFree(`
+        <emu-grammar type="definition">
+          Foo : \`a\` <ins>\`;\`</ins>
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+          <h1>Static Semantics: Example</h1>
+          <dl class='header'></dl>
+          <emu-grammar>
+            Foo : \`a\` <ins>\`;\`</ins>
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+        </emu-clause>
+      `);
     });
 
     it('negative: external biblio', async () => {

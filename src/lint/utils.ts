@@ -10,16 +10,17 @@ import type {
   ButNotSymbol,
   OneOfSymbol,
   ArgumentList,
+  SourceFile,
 } from 'grammarkdown';
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
 import { Grammar as GrammarFile, SyntaxKind, skipTrivia, NodeVisitor } from 'grammarkdown';
 import * as emd from 'ecmarkdown';
 
-export function getProductions(grammar: GrammarFile) {
+export function getProductions(sourceFiles: readonly SourceFile[]) {
   const productions: Map<string, { production: Production; rhses: (RightHandSide | OneOfList)[] }> =
     new Map();
-  grammar.rootFiles.forEach(f =>
+  sourceFiles.forEach(f =>
     f.elements.forEach(e => {
       if (e.kind !== SyntaxKind.Production) {
         // The alternatives supported by Grammarkdown are imports and defines, which ecma-262 does not use.

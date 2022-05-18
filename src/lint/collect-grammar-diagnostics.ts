@@ -93,7 +93,7 @@ export async function collectGrammarDiagnostics(
   // Also filter out any "unused parameter" warnings for grammar productions for which the parameter is used in an early error or SDO
 
   const oneOffGrammars: { grammarEle: Element; grammar: GrammarFile }[] = [];
-  const actualGrammarProductions = getProductions(grammar);
+  const actualGrammarProductions = getProductions(grammar.rootFiles);
   const grammarsAndRules = [
     ...sdos.map(s => ({ grammar: s.grammar, rules: [s.alg], type: 'syntax-directed operation' })),
     ...earlyErrors.map(e => ({ grammar: e.grammar, rules: e.lists, type: 'early error' })),
@@ -122,7 +122,7 @@ export async function collectGrammarDiagnostics(
     );
     await grammar.parse();
     oneOffGrammars.push({ grammarEle, grammar });
-    const productions = getProductions(grammar);
+    const productions = getProductions(grammar.sourceFiles);
 
     for (const [name, { production, rhses }] of productions) {
       const originalRhses = actualGrammarProductions.get(name)?.rhses;
