@@ -42,7 +42,8 @@ const matchers = [
   },
   {
     // this needs its own rule to catch +0 as a real number
-    pattern: /(?<= )\+[0-9]/gu,
+    // (but not similar text such as expanded-year dates like +000000-01-01)
+    pattern: /(?<= )\+[0-9](?![0-9]*[+-])/gu,
     message: 'positive real numbers should not have a leading plus sign (+)',
   },
   {

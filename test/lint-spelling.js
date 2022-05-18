@@ -553,6 +553,8 @@ windows:${M}\r
         *-0*<sub>𝔽</sub>
         *0*<sub>ℤ</sub>
         0
+        +000000-01-01T00:00:00Z
+        +275760-09-13T00:00:00Z
         behaviour
         array indices
         a non-negative integer
