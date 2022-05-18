@@ -70,7 +70,7 @@ const matchers = [
     // but absent that we use the sample list from
     // https://en.wikipedia.org/wiki/American_and_British_English_spelling_differences#-our%2C_-or
     pattern:
-      /[Bb]ehavior|[Cc]olor|[Ff]lavor|[Hh]arbor|[Hh]onor|[Hh]umor|[Ll]abor(?!ator)|[Nn]eighbor|[Rr]umor|[Ss]plendor/gu,
+      /\b(?:[Bb]ehaviors?|[Cc]olors?|[Ff]lavors?|[Hh]arbors?|[Hh]onors?|[Hh]umors?|[Ll]abors?|[Nn]eighbors?|[Rr]umors?|[Ss]plendors?)\b/gu,
     message: 'ECMA-262 uses Oxford spelling ("behaviour", "colour", etc.)',
   },
   {
