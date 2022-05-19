@@ -946,8 +946,8 @@ ${M}      </pre>
           <emu-clause id="sec-example" type="sdo">
             <h1>Static Semantics: Example</h1>
             <dl class='header'></dl>
-            ${M}<emu-grammar>
-              Foo : \`a\`
+            <emu-grammar>
+              ${M}Foo : \`a\`
             </emu-grammar>
             <emu-alg>
               1. Return *true*.
@@ -972,8 +972,8 @@ ${M}      </pre>
           <emu-clause id="sec-example" type="sdo">
             <h1>Static Semantics: Example</h1>
             <dl class='header'></dl>
-            ${M}<emu-grammar>
-              Foo : \`a\`
+            <emu-grammar>
+              Foo : ${M}\`a\`
             </emu-grammar>
             <emu-alg>
               1. Return *true*.
@@ -983,7 +983,7 @@ ${M}      </pre>
         {
           ruleId: 'grammar-shape',
           nodeType: 'emu-grammar',
-          message: 'could not find definition for rhs a',
+          message: 'could not find definition for rhs "a"',
         }
       );
     });
@@ -999,6 +999,23 @@ ${M}      </pre>
           <dl class='header'></dl>
           <emu-grammar>
             Foo : \`a\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+        </emu-clause>
+      `);
+
+      await assertErrorFree(`
+        <emu-grammar type="definition">
+          Foo : \`a\` <ins>\`;\`</ins>
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+          <h1>Static Semantics: Example</h1>
+          <dl class='header'></dl>
+          <emu-grammar>
+            Foo : \`a\` <ins>\`;\`</ins>
           </emu-grammar>
           <emu-alg>
             1. Return *true*.

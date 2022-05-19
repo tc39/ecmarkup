@@ -6,6 +6,7 @@ import { collectSpellingDiagnostics } from './collect-spelling-diagnostics';
 import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
 import { collectHeaderDiagnostics } from './collect-header-diagnostics';
 import { collectTagDiagnostics } from './collect-tag-diagnostics';
+import type { AugmentedGrammarEle } from '../Grammar';
 
 /*
 Currently this checks
@@ -57,16 +58,26 @@ export async function lint(
     if ('grammarkdownOut' in node) {
       throw new Error('unexpectedly regenerating grammarkdown output for node ' + name);
     }
-    // @ts-ignore we are intentionally adding a property here
-    node.grammarkdownOut = source;
+    if (name !== +grammar.sourceFiles[name].filename) {
+      throw new Error(
+        `grammarkdown file mismatch: ${name} vs ${grammar.sourceFiles[name].filename}. This is a bug in ecmarkup; please report it.`
+      );
+    }
+    (node as AugmentedGrammarEle).grammarkdownOut = source;
+    (node as AugmentedGrammarEle).grammarSource = grammar.sourceFiles[name];
   });
   for (const { grammarEle, grammar } of oneOffGrammars) {
     await grammar.emit(undefined, (file, source) => {
       if ('grammarkdownOut' in grammarEle) {
         throw new Error('unexpectedly regenerating grammarkdown output');
       }
-      // @ts-ignore we are intentionally adding a property here
-      grammarEle.grammarkdownOut = source;
+      if (grammar.rootFiles.length !== 1) {
+        throw new Error(
+          `grammarkdown file count mismatch: ${grammar.rootFiles.length}. This is a bug in ecmarkup; please report it.`
+        );
+      }
+      (grammarEle as AugmentedGrammarEle).grammarkdownOut = source;
+      (grammarEle as AugmentedGrammarEle).grammarSource = grammar.rootFiles[0];
     });
   }
 
