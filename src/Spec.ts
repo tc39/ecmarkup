@@ -1331,6 +1331,13 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     );
     const biblios = biblioContents.flatMap(c => JSON.parse(c) as ExportedBiblio | ExportedBiblio[]);
     for (const biblio of biblios.concat(this.opts.extraBiblios ?? [])) {
+      if (biblio?.entries == null) {
+        let message = Object.keys(biblio ?? {}).some(k => k.startsWith('http'))
+          ? 'This is an old-style biblio.'
+          : 'Biblio does not appear to be in the correct format, are you using an old-style biblio?';
+        message += ' You will need to update it to work with versions of ecmarkup >= 12.0.0.';
+        throw new Error(message);
+      }
       this.biblio.addExternalBiblio(biblio);
       for (const entry of biblio.entries) {
         if (entry.type === 'op' && entry.effects?.length > 0) {
