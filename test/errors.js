@@ -464,7 +464,6 @@ ${M}      </pre>
       }
     };
     await emu.build('foo/index.html', fetch, {
-      ecma262Biblio: false,
       copyright: false,
       warn: e =>
         warnings.push({
@@ -937,6 +936,16 @@ ${M}      </pre>
       },
       { asImport: 'only' }
     );
+  });
+
+  it('old-style biblio', async () => {
+    await assert.rejects(async () => {
+      const fetch = () => '';
+      await emu.build('index.html', fetch, {
+        copyright: false,
+        extraBiblios: [{ 'https://tc39.es/ecma262/': [] }],
+      });
+    }, /old-style biblio/);
   });
 
   describe('SDO defined over unknown production', () => {

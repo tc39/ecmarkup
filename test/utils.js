@@ -34,7 +34,6 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
   let rootFile = 'test-example.emu';
   if (opts?.asImport !== 'only') {
     await emu.build(rootFile, async () => html, {
-      ecma262Biblio: false,
       copyright: false,
       warn: e =>
         warnings.push({
@@ -72,7 +71,6 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
   let importWrapper = `<emu-import href="./import.emu"></emu-import>`;
   let fetch = name => (name === rootFile ? importWrapper : html);
   await emu.build(rootFile, fetch, {
-    ecma262Biblio: false,
     copyright: false,
     warn: e =>
       warnings.push({
@@ -113,7 +111,6 @@ async function assertErrorFree(html, opts) {
   let warnings = [];
 
   await emu.build('test-example.emu', async () => html, {
-    ecma262Biblio: false,
     copyright: false,
     warn: e => warnings.push(e),
     ...opts,
