@@ -11,7 +11,7 @@ import {
   Parameter,
 } from 'grammarkdown';
 
-import { getProductions, rhsMatches, getLocationInGrammar } from './utils';
+import { getProductions, rhsMatches, getLocationInGrammarFile } from './utils';
 
 export async function collectGrammarDiagnostics(
   report: (e: Warning) => void,
@@ -133,7 +133,7 @@ export async function collectGrammarDiagnostics(
           // https://github.com/tc39/ecmarkup/issues/431
           continue;
         }
-        const { line, column } = getLocationInGrammar(grammar, production.pos);
+        const { line, column } = getLocationInGrammarFile(grammar.sourceFiles[0], production.pos);
         report({
           type: 'contents',
           ruleId: 'undefined-nonterminal',
@@ -146,7 +146,7 @@ export async function collectGrammarDiagnostics(
       }
       for (const rhs of rhses) {
         if (!originalRhses.some(o => rhsMatches(rhs, o))) {
-          const { line, column } = getLocationInGrammar(grammar, rhs.pos);
+          const { line, column } = getLocationInGrammarFile(grammar.sourceFiles[0], rhs.pos);
           report({
             type: 'contents',
             ruleId: 'undefined-nonterminal',
@@ -163,7 +163,10 @@ export async function collectGrammarDiagnostics(
               return;
             }
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
-              const { line, column } = getLocationInGrammar(grammar, s.symbol.pos);
+              const { line, column } = getLocationInGrammarFile(
+                grammar.sourceFiles[0],
+                s.symbol.pos
+              );
               report({
                 type: 'contents',
                 ruleId: `NLTH-in-SDO`,
@@ -179,7 +182,10 @@ export async function collectGrammarDiagnostics(
           })(rhs.head);
 
           if (rhs.constraints !== undefined) {
-            const { line, column } = getLocationInGrammar(grammar, rhs.constraints.pos);
+            const { line, column } = getLocationInGrammarFile(
+              grammar.sourceFiles[0],
+              rhs.constraints.pos
+            );
             report({
               type: 'contents',
               ruleId: `guard-in-SDO`,

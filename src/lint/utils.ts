@@ -171,8 +171,7 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
 }
 
 // this is only for use with single-file grammars
-export function getLocationInGrammar(grammar: GrammarFile, pos: number) {
-  const file = grammar.sourceFiles[0];
+export function getLocationInGrammarFile(file: SourceFile, pos: number) {
   const posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
   const { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(posWithoutWhitespace);
   // grammarkdown use 0-based line and column, we want 1-based
@@ -190,7 +189,7 @@ class CollectNonterminalsFromGrammar extends NodeVisitor {
   visitProduction(node: Production): Production {
     this.results.push({
       name: node.name.text!,
-      loc: getLocationInGrammar(this.grammar, node.name.pos),
+      loc: getLocationInGrammarFile(this.grammar.sourceFiles[0], node.name.pos),
     });
     return super.visitProduction(node);
   }
@@ -198,7 +197,7 @@ class CollectNonterminalsFromGrammar extends NodeVisitor {
   visitNonterminal(node: Nonterminal): Nonterminal {
     this.results.push({
       name: node.name.text!,
-      loc: getLocationInGrammar(this.grammar, node.name.pos),
+      loc: getLocationInGrammarFile(this.grammar.sourceFiles[0], node.name.pos),
     });
     return super.visitNonterminal(node);
   }

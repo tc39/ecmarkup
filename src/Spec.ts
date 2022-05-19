@@ -1,6 +1,11 @@
 import type { ElementLocation } from 'parse5';
 import type { EcmarkupError, Options } from './ecmarkup';
-import type { OneOfList, RightHandSide, SourceFile } from 'grammarkdown';
+import type {
+  OneOfList,
+  RightHandSide,
+  SourceFile,
+  Production as GMDProduction,
+} from 'grammarkdown';
 import type { Context } from './Context';
 import type { AlgorithmBiblioEntry, ExportedBiblio, StepBiblioEntry, Type } from './Biblio';
 import type { BuilderInterface } from './Builder';
@@ -41,7 +46,7 @@ import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
 import type { OrderedListItemNode, parseAlgorithm, UnorderedListItemNode } from 'ecmarkdown';
-import { getProductions, rhsMatches } from './lint/utils';
+import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
@@ -1549,11 +1554,11 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         // this should only happen if it failed to parse/emit, which we'll have already warned for
         continue;
       }
-      for (const [name, pairs] of this.getProductions(grammarEle as AugmentedGrammarEle)) {
+      for (const [name, { rhses }] of this.getProductions(grammarEle as AugmentedGrammarEle)) {
         if (mainProductions.has(name)) {
-          mainProductions.set(name, mainProductions.get(name)!.concat(pairs));
+          mainProductions.set(name, mainProductions.get(name)!.concat(rhses));
         } else {
-          mainProductions.set(name, pairs);
+          mainProductions.set(name, rhses);
         }
       }
     }
@@ -1609,7 +1614,8 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
           continue;
         }
 
-        for (const [name, rhses] of this.getProductions(grammarEle as AugmentedGrammarEle)) {
+        // prettier-ignore
+        for (const [name, { production, rhses }] of this.getProductions(grammarEle as AugmentedGrammarEle)) {
           if (!mainProductions.has(name)) {
             if (this.biblio.byProductionName(name) != null) {
               // in an ideal world we'd keep the full grammar in the biblio so we could check for a matching RHS, not just a matching LHS
@@ -1617,9 +1623,15 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
               // https://github.com/tc39/ecmarkup/issues/431
               continue;
             }
+            const { line, column } = getLocationInGrammarFile(
+              (grammarEle as AugmentedGrammarEle).grammarSource,
+              production.pos
+            );
             this.warn({
-              type: 'node',
+              type: 'contents',
               node: grammarEle,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
               ruleId: 'grammar-shape',
               message: `could not find definition corresponding to production ${name}`,
             });
@@ -1630,20 +1642,32 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
           for (const { rhs, rhsEle } of rhses) {
             const matches = mainRhses.filter(p => rhsMatches(rhs, p.rhs));
             if (matches.length === 0) {
+              const { line, column } = getLocationInGrammarFile(
+                (grammarEle as AugmentedGrammarEle).grammarSource,
+                rhs.pos
+              );
               this.warn({
-                type: 'node',
+                type: 'contents',
                 node: grammarEle,
+                nodeRelativeLine: line,
+                nodeRelativeColumn: column,
                 ruleId: 'grammar-shape',
-                message: `could not find definition for rhs ${rhsEle.textContent}`,
+                message: `could not find definition for rhs ${JSON.stringify(rhsEle.textContent)}`,
               });
               continue;
             }
             if (matches.length > 1) {
+              const { line, column } = getLocationInGrammarFile(
+                (grammarEle as AugmentedGrammarEle).grammarSource,
+                rhs.pos
+              );
               this.warn({
-                type: 'node',
+                type: 'contents',
                 node: grammarEle,
+                nodeRelativeLine: line,
+                nodeRelativeColumn: column,
                 ruleId: 'grammar-shape',
-                message: `found multiple definitions for rhs ${rhsEle.textContent}`,
+                message: `found multiple definitions for rhs ${JSON.stringify(rhsEle.textContent)}`,
               });
               continue;
             }
@@ -1683,8 +1707,10 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     // unfortunately we need both the element and the grammarkdown node
     // there is no immediate association between them
     // so we are going to reconstruct the association by hand
-    const productions: Map<string, { rhs: RightHandSide | OneOfList; rhsEle: Element }[]> =
-      new Map();
+    const productions: Map<
+      string,
+      { production: GMDProduction; rhses: { rhs: RightHandSide | OneOfList; rhsEle: Element }[] }
+    > = new Map();
 
     const productionEles: Map<string, Array<Element>> = new Map();
     for (const productionEle of grammarEle.querySelectorAll('emu-production')) {
@@ -1710,7 +1736,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
     const sourceFile: SourceFile = grammarEle.grammarSource;
 
-    for (const [name, { rhses }] of getProductions([sourceFile])) {
+    for (const [name, { production, rhses }] of getProductions([sourceFile])) {
       if (!productionEles.has(name)) {
         this.warn({
           type: 'node',
@@ -1730,10 +1756,10 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         });
         continue;
       }
-      productions.set(
-        name,
-        rhses.map((rhs, i) => ({ rhs, rhsEle: rhsEles[i] }))
-      );
+      productions.set(name, {
+        production,
+        rhses: rhses.map((rhs, i) => ({ rhs, rhsEle: rhsEles[i] })),
+      });
     }
     return productions;
   }
