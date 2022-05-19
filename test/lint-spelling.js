@@ -252,7 +252,7 @@ describe('spelling', () => {
       {
         ruleId: 'spelling',
         nodeType: 'html',
-        message: 'ECMA-262 uses Oxford spelling ("behaviour", "colour", etc.)',
+        message: 'ECMA-262 uses Oxford spelling ("behaviour", etc.)',
       }
     );
   });
@@ -312,8 +312,7 @@ describe('spelling', () => {
   it('trailing whitespace', async () => {
     await assertLint(
       positioned`
-        <p>something</p>${M} 
-      `,
+        <p>something</p>${M} \n`, // escaped linebreak so editors do not try to remove this
       {
         ruleId: 'spelling',
         nodeType: 'html',
