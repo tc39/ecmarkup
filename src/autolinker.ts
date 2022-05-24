@@ -139,9 +139,7 @@ export interface AutoLinkMap {
 }
 
 function isCommonAbstractOp(op: string) {
-  return (
-    op === 'Call' || op === 'Set' || op === 'Type' || op === 'UTC' || op === 'min' || op === 'max'
-  );
+  return op === 'Call' || op === 'Set' || op === 'Type' || op === 'UTC';
 }
 
 function lookAheadBeyond(key: string, entry: BiblioEntry) {
