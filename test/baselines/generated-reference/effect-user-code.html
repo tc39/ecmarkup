@@ -110,33 +110,39 @@
   <emu-alg><ol><li>Let <var>closure</var> be a new <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> that captures nothing and performs the following steps when called:<ol><li><emu-xref aoid="UserCode" id="_ref_13"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li>Return <var>closure</var>.</li></ol></emu-alg>
 </emu-clause>
 
+<emu-clause id="sec-make-special-abstract-closure" type="abstract operation" aoid="MakeJobAbstractClosure">
+  <h1><span class="secnum">18</span> MakeJobAbstractClosure ( )</h1>
+  <p>The abstract operation MakeJobAbstractClosure takes no arguments. The user-code effect doesn't propagate through specialized <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> boundaries by recognizing the "be a new Something <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref>" <emu-xref href="#substring"><a href="https://tc39.es/ecma262/#substring">substring</a></emu-xref>. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Let <var>closure</var> be a new <emu-xref href="#job"><a href="https://tc39.es/ecma262/#job">Job</a></emu-xref> <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> that captures nothing and performs the following steps when called:<ol><li><emu-xref aoid="UserCode" id="_ref_14"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li>Return <var>closure</var>.</li></ol></emu-alg>
+</emu-clause>
+
 <emu-clause id="sec-call-make-abstract-closure" type="abstract operation" aoid="CallMakeAbstractClosure">
-  <h1><span class="secnum">18</span> CallMakeAbstractClosure ( )</h1>
+  <h1><span class="secnum">19</span> CallMakeAbstractClosure ( )</h1>
   <p>The abstract operation CallMakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> boundaries by recognizing the "be a new <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref>" <emu-xref href="#substring"><a href="https://tc39.es/ecma262/#substring">substring</a></emu-xref>. It performs the following steps when called:</p>
-  <emu-alg><ol><li><emu-xref aoid="MakeAbstractClosure" id="_ref_14"><a href="#sec-make-abstract-closure">MakeAbstractClosure</a></emu-xref>().</li></ol></emu-alg>
+  <emu-alg><ol><li><emu-xref aoid="MakeAbstractClosure" id="_ref_15"><a href="#sec-make-abstract-closure">MakeAbstractClosure</a></emu-xref>().</li><li><emu-xref aoid="MakeJobAbstractClosure" id="_ref_16"><a href="#sec-make-special-abstract-closure">MakeJobAbstractClosure</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-xref-not-first-child-of-emu-meta" type="abstract operation" aoid="XrefNotFirstChildOfEmuMeta">
-  <h1><span class="secnum">19</span> XrefNotFirstChildOfEmuMeta ( )</h1>
-  <p>The abstract operation XrefNotFirstChildOfEmuMeta takes no arguments. Effect additions and suppressions via emu-meta only affect xrefs that are the first child of the emu-meta. Below, <emu-xref aoid="UserCode" id="_ref_15"><a href="#sec-user-code">UserCode</a></emu-xref>() gets autolinked and get an xref. Its parent element is an emu-meta, but since the xref is not the first child, it should not be interpreted to override the effects of the <emu-xref aoid="UserCode" id="_ref_16"><a href="#sec-user-code">UserCode</a></emu-xref>() call. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Perform <span class="e-user-code"><var>map</var>.[[DefineOwnProperty]](! <emu-xref aoid="UserCode" id="_ref_17"><a href="#sec-user-code">UserCode</a></emu-xref>())</span>.</li></ol></emu-alg>
+  <h1><span class="secnum">20</span> XrefNotFirstChildOfEmuMeta ( )</h1>
+  <p>The abstract operation XrefNotFirstChildOfEmuMeta takes no arguments. Effect additions and suppressions via emu-meta only affect xrefs that are the first child of the emu-meta. Below, <emu-xref aoid="UserCode" id="_ref_17"><a href="#sec-user-code">UserCode</a></emu-xref>() gets autolinked and get an xref. Its parent element is an emu-meta, but since the xref is not the first child, it should not be interpreted to override the effects of the <emu-xref aoid="UserCode" id="_ref_18"><a href="#sec-user-code">UserCode</a></emu-xref>() call. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Perform <span class="e-user-code"><var>map</var>.[[DefineOwnProperty]](! <emu-xref aoid="UserCode" id="_ref_19"><a href="#sec-user-code">UserCode</a></emu-xref>())</span>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-result-of-evaluating" type="abstract operation" aoid="ResultOfEvaluating">
-  <h1><span class="secnum">20</span> ResultOfEvaluating ( )</h1>
+  <h1><span class="secnum">21</span> ResultOfEvaluating ( )</h1>
   <p>The abstract operation ResultOfEvaluating takes no arguments. The phrase "the result of evaluating Foo" is automatically considered as can call user code. It performs the following steps when called:</p>
   <emu-alg><ol><li>Let <var>res</var> be the result of <span class="e-user-code">evaluating <emu-nt>Foo</emu-nt></span>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-fenced-effects" type="abstract operation" aoid="FencedEffects">
-  <h1><span class="secnum">21</span> FencedEffects ( )</h1>
+  <h1><span class="secnum">22</span> FencedEffects ( )</h1>
   <p>The abstract operation FencedEffects takes no arguments. Effects don't propagate past fences in parent steps. A fence must be at the beginning of a step. It performs the following steps when called:</p>
-  <emu-alg><ol><li fence-effects="user-code">Fence.<ol><li><emu-xref aoid="UserCode" id="_ref_18"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li><li>Let <var>foo</var> be the result of <span class="e-user-code">evaluating <var>someUserCode</var></span>.</li></ol></li></ol></emu-alg>
+  <emu-alg><ol><li fence-effects="user-code">Fence.<ol><li><emu-xref aoid="UserCode" id="_ref_20"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li><li>Let <var>foo</var> be the result of <span class="e-user-code">evaluating <var>someUserCode</var></span>.</li></ol></li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-call-fenced-effects" type="abstract operation" aoid="CallFencedEffects">
-  <h1><span class="secnum">22</span> CallFencedEffects ( )</h1>
+  <h1><span class="secnum">23</span> CallFencedEffects ( )</h1>
   <p>The abstract operation CallFencedEffects takes no arguments. Effects don't propagate past fences in parent steps. It performs the following steps when called:</p>
-  <emu-alg><ol><li><emu-xref aoid="FencedEffects" id="_ref_19"><a href="#sec-fenced-effects">FencedEffects</a></emu-xref>().</li></ol></emu-alg>
+  <emu-alg><ol><li><emu-xref aoid="FencedEffects" id="_ref_21"><a href="#sec-fenced-effects">FencedEffects</a></emu-xref>().</li></ol></emu-alg>
 </emu-clause>
 </div></body>

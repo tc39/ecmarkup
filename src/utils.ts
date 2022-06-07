@@ -253,7 +253,10 @@ export function doesEffectPropagateToParent(node: Element, effect: string) {
     // This is super hacky. It's checking the output of ecmarkdown.
     if (parent.tagName !== 'LI') continue;
 
-    if (effect === 'user-code' && parent.textContent?.includes('be a new Abstract Closure')) {
+    if (
+      effect === 'user-code' &&
+      /be a new (\w+ )*Abstract Closure/.test(parent.textContent ?? '')
+    ) {
       return false;
     }
 
