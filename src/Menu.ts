@@ -41,6 +41,7 @@ export default function makeMenu(spec: Spec) {
 
   const menuSpacer = spec.doc.createElement('div');
   menuSpacer.setAttribute('id', 'menu-spacer');
+  menuSpacer.classList.add('menu-spacer');
 
   const menuToggle = spec.doc.createElement('div');
   menuToggle.setAttribute('id', 'menu-toggle');

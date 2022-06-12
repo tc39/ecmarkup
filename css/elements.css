@@ -748,7 +748,7 @@ tr.del > td {
   z-index: 2;
 }
 
-#menu-spacer {
+.menu-spacer {
   flex-basis: 33%;
   max-width: 500px;
   flex-grow: 0;
@@ -1161,11 +1161,6 @@ li.menu-search-result-term:before {
 #references-pane-table-container {
   overflow-x: hidden;
   overflow-y: auto;
-}
-
-#references-pane-spacer {
-  flex-basis: 33%;
-  max-width: 500px;
 }
 
 #references-pane {
