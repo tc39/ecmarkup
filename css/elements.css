@@ -1180,6 +1180,10 @@ li.menu-search-result-term:before {
   cursor: pointer;
 }
 
+#references-pane table tbody {
+  vertical-align: baseline;
+}
+
 #references-pane table tr td:first-child {
   text-align: right;
   padding-right: 5px;
