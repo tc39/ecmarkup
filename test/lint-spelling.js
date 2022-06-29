@@ -554,6 +554,7 @@ windows:${M}\r
         0
         +000000-01-01T00:00:00Z
         +275760-09-13T00:00:00Z
+        +00:00
         behaviour
         array indices
         a non-negative integer
