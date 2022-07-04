@@ -54,12 +54,12 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
-${M}      1. Return ExampleAlg().
+          1. Return ${M}ExampleAlg().
         </emu-alg>
         </emu-clause>
         `,
         {
-          ruleId: 'invocation-return-type',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message: 'ExampleAlg returns a Completion Record, but is not consumed as if it does',
         },
@@ -93,6 +93,7 @@ ${M}      1. Return ExampleAlg().
           </dl>
           <emu-alg>
             1. Let _a_ be Completion(ExampleAlg()).
+            1. Let _a_ be Completion(<emu-meta suppress-effects="user-code">ExampleAlg()</emu-meta>).
             1. Set _a_ to ! ExampleAlg().
             1. Return ? ExampleAlg().
           </emu-alg>
@@ -138,12 +139,12 @@ ${M}      1. Return ExampleAlg().
         <dl class="header">
         </dl>
         <emu-alg>
-${M}      1. Return ? ExampleAlg().
+          1. Return ? ${M}ExampleAlg().
         </emu-alg>
         </emu-clause>
         `,
         {
-          ruleId: 'invocation-return-type',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message: 'ExampleAlg does not return a Completion Record, but is consumed as if it does',
         }
@@ -344,12 +345,12 @@ ${M}      1. Return ? ExampleAlg().
           <dl class="header">
           </dl>
           <emu-alg>
-${M}          1. Let _x_ be ExampleAlg().
+            1. Let _x_ be ${M}ExampleAlg().
           </emu-alg>
           </emu-clause>
         `,
         {
-          ruleId: 'invocation-return-type',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message:
             'ExampleAlg does not return a meaningful value and should only be invoked as `Perform ExampleAlg(...).`',

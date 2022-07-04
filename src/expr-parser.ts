@@ -71,10 +71,12 @@ function formatClose(close: ('clist' | 'crec' | 'cparen' | 'comma' | 'eof')[]) {
   return formatEnglishList(mapped, 'or');
 }
 
+function isWhitespace(x: Prose) {
+  return x.parts.every(p => p.name === 'text' && /^\s*$/.test(p.contents));
+}
+
 function isEmpty(s: Seq) {
-  return s.items.every(
-    i => i.type === 'prose' && i.parts.every(p => p.name === 'text' && /^\s*$/.test(p.contents))
-  );
+  return s.items.every(i => i.type === 'prose' && isWhitespace(i));
 }
 
 function emptyThingHasNewline(s: Seq) {
@@ -425,27 +427,33 @@ export function parse(src: FragmentNode[]): Seq | Failure {
   }
 }
 
-type Index = number | 'callee' | null;
+export type PathItem =
+  | { parent: List | Record | Seq | Paren; index: number }
+  | { parent: Call; index: 'callee' | number };
 export function walk(
-  f: (expr: Expr, index: Index, parent: Expr | null) => void,
+  f: (expr: Expr, path: PathItem[]) => void,
   current: Expr,
-  index: Index = null,
-  parent: Expr | null = null
+  path: PathItem[] = []
 ) {
-  f(current, index, parent);
+  // console.log('path', path, current.type);
+  f(current, path);
   switch (current.type) {
     case 'prose': {
       break;
     }
     case 'list': {
       for (let i = 0; i < current.elements.length; ++i) {
-        walk(f, current.elements[i], i, current);
+        path.push({ parent: current, index: i });
+        walk(f, current.elements[i], path);
+        path.pop();
       }
       break;
     }
     case 'record': {
       for (let i = 0; i < current.members.length; ++i) {
-        walk(f, current.members[i].value, i, current);
+        path.push({ parent: current, index: i });
+        walk(f, current.members[i].value, path);
+        path.pop();
       }
       break;
     }
@@ -453,16 +461,22 @@ export function walk(
       break;
     }
     case 'call': {
-      walk(f, current.callee, 'callee', current);
+      path.push({ parent: current, index: 'callee' });
+      walk(f, current.callee, path);
+      path.pop();
       for (let i = 0; i < current.arguments.length; ++i) {
-        walk(f, current.arguments[i], i, current);
+        path.push({ parent: current, index: i });
+        walk(f, current.arguments[i], path);
+        path.pop();
       }
       break;
     }
     case 'paren':
     case 'seq': {
       for (let i = 0; i < current.items.length; ++i) {
-        walk(f, current.items[i], i, current);
+        path.push({ parent: current, index: i });
+        walk(f, current.items[i], path);
+        path.pop();
       }
       break;
     }

@@ -45,16 +45,11 @@ import {
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
-import type {
-  OrderedListItemNode,
-  OrderedListNode,
-  parseAlgorithm,
-  UnorderedListItemNode,
-} from 'ecmarkdown';
+import type { OrderedListNode, parseAlgorithm } from 'ecmarkdown';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
 import { offsetToLineAndColumn } from './utils';
-import { parse as parseExpr, walk as walkExpr, Expr } from './expr-parser';
+import { parse as parseExpr, walk as walkExpr, Expr, PathItem } from './expr-parser';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -484,8 +479,7 @@ export default class Spec {
 
     if (this.opts.lintSpec) {
       this.log('Checking types...');
-      this.checkCompletionUsage();
-      this.checkCalls();
+      this.typecheck();
     }
     this.log('Propagating effect annotations...');
     this.propagateEffects();
@@ -593,8 +587,8 @@ export default class Spec {
   }
 
   // checks that AOs which do/don't return completion records are invoked appropriately
-  private checkCompletionUsage() {
-    const isCall = (x: Xref) => x.isInvocation && x.clause != null && x.aoid != null;
+  // also checks that the appropriate number of arguments are passed
+  private typecheck() {
     const isUnused = (t: Type) =>
       t.kind === 'unused' ||
       (t.kind === 'completion' &&
@@ -605,146 +599,154 @@ export default class Spec {
     const onlyPerformed: Map<string, null | 'only performed' | 'top'> = new Map(
       AOs.filter(e => !isUnused(e.signature!.return!)).map(a => [a.aoid, null])
     );
-
     const alwaysAssertedToBeNormal: Map<string, null | 'always asserted normal' | 'top'> = new Map(
       AOs.filter(e => e.signature!.return!.kind === 'completion').map(a => [a.aoid, null])
     );
 
-    for (const xref of this._xrefs) {
-      if (!isCall(xref)) {
+    for (const node of this.doc.querySelectorAll('emu-alg')) {
+      if (node.hasAttribute('example') || !('ecmarkdownTree' in node)) {
         continue;
       }
-      const biblioEntry = this.biblio.byAoid(xref.aoid);
-      if (biblioEntry == null) {
-        this.warn({
-          type: 'node',
-          node: xref.node,
-          ruleId: 'xref-biblio',
-          message: `could not find biblio entry for xref ${JSON.stringify(xref.aoid)}`,
-        });
+      // @ts-ignore
+      const tree = node.ecmarkdownTree as ReturnType<typeof parseAlgorithm>;
+      if (tree == null) {
         continue;
       }
-      const signature = biblioEntry.signature;
-      if (signature == null) {
-        continue;
-      }
+      // @ts-ignore
+      const originalHtml: string = node.originalHtml;
 
-      const { return: returnType } = signature;
-      if (returnType == null) {
-        continue;
-      }
-
-      // this is really gross
-      // i am sorry
-      // the better approach is to make the xref-linkage logic happen on the level of the ecmarkdown tree
-      // so that we still have this information at that point
-      // rather than having to reconstruct it, approximately
-      // ... someday!
-      const warn = (message: string) => {
-        const path = [];
-        let pointer: HTMLElement | null = xref.node;
-        let alg: HTMLElement | null = null;
-        while (pointer != null) {
-          if (pointer.tagName === 'LI') {
-            // @ts-ignore
-            path.unshift([].indexOf.call(pointer.parentElement!.children, pointer));
-          }
-          if (pointer.tagName === 'EMU-ALG') {
-            alg = pointer;
-            break;
-          }
-          pointer = pointer.parentElement;
-        }
-        if (alg?.hasAttribute('example')) {
+      const expressionVisitor = (expr: Expr, path: PathItem[]) => {
+        if (expr.type !== 'call') {
           return;
         }
-        if (alg == null || !{}.hasOwnProperty.call(alg, 'ecmarkdownTree')) {
-          const ruleId = 'completion-invocation';
-          let pointer: Element | null = xref.node;
-          while (this.locate(pointer) == null) {
-            pointer = pointer.parentElement;
-            if (pointer == null) {
-              break;
-            }
-          }
-          if (pointer == null) {
-            this.warn({
-              type: 'global',
-              ruleId,
-              message: message + ` but I wasn't able to find a source location to give you, sorry!`,
-            });
-          } else {
-            this.warn({
-              type: 'node',
-              node: pointer,
-              ruleId,
-              message,
-            });
-          }
-        } else {
-          // @ts-ignore
-          const tree = alg.ecmarkdownTree as ReturnType<typeof parseAlgorithm>;
-          let stepPointer: OrderedListItemNode | UnorderedListItemNode = {
-            sublist: tree.contents,
-          } as OrderedListItemNode;
-          for (const step of path) {
-            stepPointer = stepPointer.sublist!.contents[step];
-          }
+
+        const { callee, arguments: args } = expr;
+        if (!(callee.parts.length === 1 && callee.parts[0].name === 'text')) {
+          return;
+        }
+        const calleeName = callee.parts[0].contents;
+
+        const warn = (message: string) => {
+          const { line, column } = offsetToLineAndColumn(
+            originalHtml,
+            callee.parts[0].location.start.offset
+          );
           this.warn({
             type: 'contents',
-            node: alg,
-            ruleId: 'invocation-return-type',
+            ruleId: 'typecheck',
             message,
-            nodeRelativeLine: stepPointer.location.start.line,
-            nodeRelativeColumn: stepPointer.location.start.column,
+            node,
+            nodeRelativeLine: line,
+            nodeRelativeColumn: column,
           });
-        }
-      };
+        };
 
-      const consumedAsCompletion = isConsumedAsCompletion(xref);
-      // checks elsewhere ensure that well-formed documents never have a union of completion and non-completion, so checking the first child suffices
-      // TODO: this is for 'a break completion or a throw completion', which is kind of a silly union; maybe address that in some other way?
-      const isCompletion =
-        returnType.kind === 'completion' ||
-        (returnType.kind === 'union' && returnType.types[0].kind === 'completion');
-      if (['Completion', 'ThrowCompletion', 'NormalCompletion'].includes(xref.aoid)) {
-        if (consumedAsCompletion) {
+        const biblioEntry = this.biblio.byAoid(calleeName);
+        if (biblioEntry == null) {
+          if (
+            ![
+              'thisTimeValue',
+              'thisStringValue',
+              'thisBigIntValue',
+              'thisNumberValue',
+              'thisSymbolValue',
+              'thisBooleanValue',
+              'toUppercase',
+              'toLowercase',
+              'ℝ',
+              '𝔽',
+              'ℤ',
+            ].includes(calleeName)
+          ) {
+            // TODO make the spec not do this
+            warn(`could not find definition for ${calleeName}`);
+          }
+          return;
+        } else if (biblioEntry.signature == null) {
+          return;
+        }
+        const min = biblioEntry.signature.parameters.length;
+        const max = min + biblioEntry.signature.optionalParameters.length;
+        if (args.length < min || args.length > max) {
+          const count = `${min}${min === max ? '' : `-${max}`}`;
+          // prettier-ignore
+          const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
+          warn(message);
+        }
+
+        const { return: returnType } = biblioEntry.signature;
+        if (returnType == null) {
+          return;
+        }
+
+        const consumedAsCompletion = isConsumedAsCompletion(expr, path);
+
+        // checks elsewhere ensure that well-formed documents never have a union of completion and non-completion, so checking the first child suffices
+        // TODO: this is for 'a break completion or a throw completion', which is kind of a silly union; maybe address that in some other way?
+        const isCompletion =
+          returnType.kind === 'completion' ||
+          (returnType.kind === 'union' && returnType.types[0].kind === 'completion');
+        if (['Completion', 'ThrowCompletion', 'NormalCompletion'].includes(calleeName)) {
+          if (consumedAsCompletion) {
+            warn(
+              `${calleeName} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`
+            );
+          }
+        } else if (isCompletion && !consumedAsCompletion) {
+          warn(`${calleeName} returns a Completion Record, but is not consumed as if it does`);
+        } else if (!isCompletion && consumedAsCompletion) {
+          warn(`${calleeName} does not return a Completion Record, but is consumed as if it does`);
+        }
+        if (returnType.kind === 'unused' && !isCalledAsPerform(expr, path, false)) {
           warn(
-            `${xref.aoid} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`
+            `${calleeName} does not return a meaningful value and should only be invoked as \`Perform ${calleeName}(...).\``
           );
         }
-      } else if (isCompletion && !consumedAsCompletion) {
-        warn(`${xref.aoid} returns a Completion Record, but is not consumed as if it does`);
-      } else if (!isCompletion && consumedAsCompletion) {
-        warn(`${xref.aoid} does not return a Completion Record, but is consumed as if it does`);
-      }
-      if (returnType.kind === 'unused' && !isCalledAsPerform(xref, false)) {
-        warn(
-          `${xref.aoid} does not return a meaningful value and should only be invoked as \`Perform ${xref.aoid}(...).\``
-        );
-      }
 
-      if (onlyPerformed.has(xref.aoid) && onlyPerformed.get(xref.aoid) !== 'top') {
-        const old = onlyPerformed.get(xref.aoid);
-        const performed = isCalledAsPerform(xref, true);
-        if (!performed) {
-          onlyPerformed.set(xref.aoid, 'top');
-        } else if (old === null) {
-          onlyPerformed.set(xref.aoid, 'only performed');
+        if (onlyPerformed.has(calleeName) && onlyPerformed.get(calleeName) !== 'top') {
+          const old = onlyPerformed.get(calleeName);
+          const performed = isCalledAsPerform(expr, path, true);
+          if (!performed) {
+            onlyPerformed.set(calleeName, 'top');
+          } else if (old === null) {
+            onlyPerformed.set(calleeName, 'only performed');
+          }
         }
-      }
-      if (
-        alwaysAssertedToBeNormal.has(xref.aoid) &&
-        alwaysAssertedToBeNormal.get(xref.aoid) !== 'top'
-      ) {
-        const old = alwaysAssertedToBeNormal.get(xref.aoid);
-        const asserted = isAssertedToBeNormal(xref);
-        if (!asserted) {
-          alwaysAssertedToBeNormal.set(xref.aoid, 'top');
-        } else if (old === null) {
-          alwaysAssertedToBeNormal.set(xref.aoid, 'always asserted normal');
+        if (
+          alwaysAssertedToBeNormal.has(calleeName) &&
+          alwaysAssertedToBeNormal.get(calleeName) !== 'top'
+        ) {
+          const old = alwaysAssertedToBeNormal.get(calleeName);
+          const asserted = isAssertedToBeNormal(expr, path);
+          if (!asserted) {
+            alwaysAssertedToBeNormal.set(calleeName, 'top');
+          } else if (old === null) {
+            alwaysAssertedToBeNormal.set(calleeName, 'always asserted normal');
+          }
         }
-      }
+      };
+      const walkLines = (list: OrderedListNode) => {
+        for (const line of list.contents) {
+          const item = parseExpr(line.contents);
+          if (item.type === 'failure') {
+            const { line, column } = offsetToLineAndColumn(originalHtml, item.offset);
+            this.warn({
+              type: 'contents',
+              ruleId: 'expression-parsing',
+              message: item.message,
+              node,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
+            });
+          } else {
+            walkExpr(expressionVisitor, item);
+          }
+          if (line.sublist?.name === 'ol') {
+            walkLines(line.sublist);
+          }
+        }
+      };
+      walkLines(tree.contents);
     }
 
     for (const [aoid, state] of onlyPerformed) {
@@ -795,108 +797,6 @@ export default class Spec {
           message,
         });
       }
-    }
-  }
-
-  private checkCalls() {
-    for (const node of this.doc.querySelectorAll('emu-alg')) {
-      if (node.hasAttribute('example') || !('ecmarkdownTree' in node)) {
-        continue;
-      }
-      // @ts-ignore
-      const tree = node.ecmarkdownTree as ReturnType<typeof parseAlgorithm>;
-      if (tree == null) {
-        continue;
-      }
-      // @ts-ignore
-      const originalHtml: string = node.originalHtml;
-
-      const expressionVisitor = (expr: Expr) => {
-        if (expr.type !== 'call') {
-          return;
-        }
-
-        const { callee, arguments: args } = expr;
-        if (!(callee.parts.length === 1 && callee.parts[0].name === 'text')) {
-          return;
-        }
-        const calleeName = callee.parts[0].contents;
-        if (
-          [
-            'thisTimeValue',
-            'thisStringValue',
-            'thisBigIntValue',
-            'thisNumberValue',
-            'thisSymbolValue',
-            'thisBooleanValue',
-            'toUppercase',
-            'toLowercase',
-            'ℝ',
-            '𝔽',
-            'ℤ',
-          ].includes(calleeName)
-        ) {
-          // TODO make the spec not do this
-          return;
-        }
-        const biblioEntry = this.biblio.byAoid(calleeName);
-        if (biblioEntry == null) {
-          const { line, column } = offsetToLineAndColumn(
-            originalHtml,
-            callee.parts[0].location.start.offset
-          );
-          this.warn({
-            type: 'contents',
-            ruleId: 'typecheck',
-            message: `could not find definition for ${calleeName}`,
-            node,
-            nodeRelativeLine: line,
-            nodeRelativeColumn: column,
-          });
-        } else if (biblioEntry.signature != null) {
-          const min = biblioEntry.signature.parameters.length;
-          const max = min + biblioEntry.signature.optionalParameters.length;
-          if (args.length < min || args.length > max) {
-            const { line, column } = offsetToLineAndColumn(
-              originalHtml,
-              callee.parts[0].location.start.offset
-            );
-            const count = `${min}${min === max ? '' : `-${max}`}`;
-            // prettier-ignore
-            const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
-            this.warn({
-              type: 'contents',
-              ruleId: 'typecheck',
-              message,
-              node,
-              nodeRelativeLine: line,
-              nodeRelativeColumn: column,
-            });
-          }
-        }
-      };
-      const walkLines = (list: OrderedListNode) => {
-        for (const line of list.contents) {
-          const item = parseExpr(line.contents);
-          if (item.type === 'failure') {
-            const { line, column } = offsetToLineAndColumn(originalHtml, item.offset);
-            this.warn({
-              type: 'contents',
-              ruleId: 'expression-parsing',
-              message: item.message,
-              node,
-              nodeRelativeLine: line,
-              nodeRelativeColumn: column,
-            });
-          } else {
-            walkExpr(expressionVisitor, item);
-          }
-          if (line.sublist?.name === 'ol') {
-            walkLines(line.sublist);
-          }
-        }
-      };
-      walkLines(tree.contents);
     }
   }
 
@@ -2173,56 +2073,75 @@ function pathFromRelativeLink(link: HTMLAnchorElement | HTMLLinkElement) {
   return link.href.startsWith('about:blank') ? link.href.substring(11) : link.href;
 }
 
-function isFirstChild(node: Node) {
-  const p = node.parentElement!;
-  return (
-    p.childNodes[0] === node || (p.childNodes[0].textContent === '' && p.childNodes[1] === node)
-  );
+function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null {
+  for (let pointer: Expr = expr, i = path.length - 1; i >= 0; pointer = path[i].parent, --i) {
+    const { parent } = path[i];
+    if (
+      parent.type === 'seq' &&
+      parent.items.every(
+        i =>
+          (i.type === 'prose' &&
+            i.parts.every(
+              p => p.name === 'tag' || (p.name === 'text' && /^\s*$/.test(p.contents))
+            )) ||
+          i === pointer
+      )
+    ) {
+      // if parent is just whitespace/tags around the call, walk up the tree further
+      continue;
+    }
+    return path[i];
+  }
+  return null;
 }
 
-// TODO factor some of this stuff out
-function isCalledAsPerform(xref: Xref, allowQuestion: boolean) {
-  let node = xref.node;
-  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
-    node = node.parentElement;
+function previousText(expr: Expr, path: PathItem[]): string | null {
+  const part = parentSkippingBlankSpace(expr, path);
+  if (part == null) {
+    return null;
   }
-  const previousSibling = node.previousSibling;
-  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
-    return false;
+  const { parent, index } = part;
+  if (parent.type === 'seq' && index > 0) {
+    const prev = parent.items[(index as number) - 1];
+    if (prev.type === 'prose' && prev.parts.length > 0) {
+      const prevProse = prev.parts[prev.parts.length - 1];
+      if (prevProse.name === 'text') {
+        return prevProse.contents;
+      }
+    }
   }
-  return (allowQuestion ? /\bperform ([?!]\s)?$/i : /\bperform $/i).test(
-    previousSibling.textContent!
-  );
+  return null;
 }
 
-function isAssertedToBeNormal(xref: Xref) {
-  let node = xref.node;
-  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
-    node = node.parentElement;
-  }
-  const previousSibling = node.previousSibling;
-  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
-    return false;
-  }
-  return /\s!\s$/.test(previousSibling.textContent!);
+function isCalledAsPerform(expr: Expr, path: PathItem[], allowQuestion: boolean) {
+  const prev = previousText(expr, path);
+  return prev != null && (allowQuestion ? /\bperform ([?!]\s)?$/i : /\bperform $/i).test(prev);
 }
 
-function isConsumedAsCompletion(xref: Xref) {
-  let node = xref.node;
-  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
-    node = node.parentElement;
-  }
-  const previousSibling = node.previousSibling;
-  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
+function isAssertedToBeNormal(expr: Expr, path: PathItem[]) {
+  const prev = previousText(expr, path);
+  return prev != null && /\s!\s$/.test(prev);
+}
+
+function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
+  const part = parentSkippingBlankSpace(expr, path);
+  if (part == null) {
     return false;
   }
-  if (/[!?]\s$/.test(previousSibling.textContent!)) {
-    return true;
-  }
-  if (previousSibling.textContent! === '(') {
-    // check for Completion(
-    const previousPrevious = previousSibling.previousSibling;
-    if (previousPrevious?.textContent === 'Completion') {
+  const { parent, index } = part;
+  if (parent.type === 'seq' && index > 0) {
+    // if the previous text ends in `! ` or `? `, this is a completion
+    const prev = parent.items[(index as number) - 1]; // typescript isn't quite smart enough to infer this, alas
+    if (prev.type === 'prose' && prev.parts.length > 0) {
+      const prevProse = prev.parts[prev.parts.length - 1];
+      if (prevProse.name === 'text' && /[!?]\s$/.test(prevProse.contents)) {
+        return true;
+      }
+    }
+  } else if (parent.type === 'call' && index === 0 && parent.arguments.length === 1) {
+    // if this is `Completion(Expr())`, this is a completion
+    const { parts } = parent.callee;
+    if (parts.length === 1 && parts[0].name === 'text' && parts[0].contents === 'Completion') {
       return true;
     }
   }
