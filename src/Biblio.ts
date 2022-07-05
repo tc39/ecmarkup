@@ -316,9 +316,16 @@ export type Signature = {
   optionalParameters: Parameter[];
   return: null | Type;
 };
+export type AlgorithmType =
+  | 'abstract operation'
+  | 'host-defined abstract operation'
+  | 'implementation-defined abstract operation'
+  | 'syntax-directed operation'
+  | 'numeric method';
 export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   type: 'op';
   aoid: string;
+  kind?: AlgorithmType;
   signature: null | Signature;
   effects: string[];
   /*@internal*/ _node?: Element;

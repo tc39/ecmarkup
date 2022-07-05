@@ -1,7 +1,7 @@
 import type Note from './Note';
 import type Example from './Example';
 import type Spec from './Spec';
-import type { PartialBiblioEntry, Signature, Type } from './Biblio';
+import type { AlgorithmType, PartialBiblioEntry, Signature, Type } from './Biblio';
 import type { Context } from './Context';
 
 import { ParseError, TypeParser } from './type-parser';
@@ -14,6 +14,15 @@ import {
   ParsedHeader,
 } from './header-parser';
 import { offsetToLineAndColumn } from './utils';
+
+const aoidTypes = [
+  'abstract operation',
+  'sdo',
+  'syntax-directed operation',
+  'host-defined abstract operation',
+  'implementation-defined abstract operation',
+  'numeric method',
+];
 
 export function extractStructuredHeader(header: Element): Element | null {
   const dl = header.nextElementSibling;
@@ -211,18 +220,7 @@ export default class Clause extends Builder {
           node: this.node,
           attr: 'aoid',
         });
-      } else if (
-        name != null &&
-        type != null &&
-        [
-          'abstract operation',
-          'sdo',
-          'syntax-directed operation',
-          'host-defined abstract operation',
-          'implementation-defined abstract operation',
-          'numeric method',
-        ].includes(type)
-      ) {
+      } else if (name != null && type != null && aoidTypes.includes(type)) {
         this.node.setAttribute('aoid', name);
         this.aoid = name;
       }
@@ -350,10 +348,17 @@ export default class Clause extends Builder {
         });
       } else {
         const signature = clause.signature;
+        let kind: AlgorithmType | undefined =
+          clause.type != null && aoidTypes.includes(clause.type) ? clause.type as AlgorithmType : undefined;
+        // @ts-ignore
+        if (kind === 'sdo') {
+          kind = 'syntax-directed operation';
+        }
         const op: PartialBiblioEntry = {
           type: 'op',
           aoid: clause.aoid,
           refId: clause.id,
+          kind,
           signature,
           effects: clause.effects,
           _node: clause.node,
