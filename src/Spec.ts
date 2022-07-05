@@ -604,7 +604,7 @@ export default class Spec {
     );
 
     // TODO strictly speaking this needs to be done in the namespace of the current algorithm
-    const sdoNames = this.biblio.getSDONames(this.namespace);
+    const opNames = this.biblio.getOpNames(this.namespace);
 
     // TODO move declarations out of loop
     for (const node of this.doc.querySelectorAll('emu-alg')) {
@@ -667,7 +667,15 @@ export default class Spec {
             warn(`could not find definition for ${calleeName}`);
           }
           return;
-        } else if (biblioEntry.signature == null) {
+        }
+
+        if (biblioEntry.kind === 'syntax-directed operation' && expr.type === 'call') {
+          warn(`${calleeName} is a syntax-directed operation and should not be invoked like a regular call`);
+        } else if (biblioEntry.kind != null && biblioEntry.kind !== 'syntax-directed operation' && expr.type === 'sdo-call') {
+          warn(`${calleeName} is not a syntax-directed operation but here is being invoked as one`);
+        }
+
+        if (biblioEntry.signature == null) {
           return;
         }
         const min = biblioEntry.signature.parameters.length;
@@ -732,7 +740,7 @@ export default class Spec {
       };
       const walkLines = (list: OrderedListNode) => {
         for (const line of list.contents) {
-          const item = parseExpr(line.contents, sdoNames);
+          const item = parseExpr(line.contents, opNames);
           if (item.type === 'failure') {
             const { line, column } = offsetToLineAndColumn(originalHtml, item.offset);
             this.warn({

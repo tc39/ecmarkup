@@ -810,7 +810,7 @@ describe('signature agreement', async () => {
     await assertLint(
       positioned`
         <emu-alg>
-          1. Return ${M}SDOTakesOneOrTwoArgs().
+          1. Return ${M}SDOTakesOneOrTwoArgs of _foo_.
         </emu-alg>
       `,
       {
@@ -839,6 +839,80 @@ describe('signature agreement', async () => {
           1. Perform SDOTakesOneOrTwoArgs of _foo_ with arguments 0 and 1.
           1. Perform <emu-meta suppress-effects="user-code">SDOTakesNoArgs of _foo_</emu-meta>.
         </emu-alg>
+      `,
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+});
+
+describe('invocation kind', async () => {
+  let biblio;
+  before(async () => {
+    biblio = await getBiblio(`
+      <emu-clause id="example" type="abstract operation">
+        <h1>AO ()</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      <emu-clause id="example-sdo" type="syntax-directed operation">
+        <h1>SDO ()</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+    `);
+  });
+
+  it('SDO invoked as AO', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}SDO().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SDO is a syntax-directed operation and should not be invoked like a regular call',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
+  it('AO invoked as SDO', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}AO of _foo_.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'AO is not a syntax-directed operation but here is being invoked as one',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
+  it('negative', async () => {
+    await assertLintFree(
+      `
+        <emu-clause id="example" type="abstract operation">
+        <h1>
+          Example ()
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg example>
+          1. Perform AO().
+          1. Perform SDO of _foo_.
+        </emu-alg>
+        </emu-clause>
       `,
       {
         extraBiblios: [biblio],

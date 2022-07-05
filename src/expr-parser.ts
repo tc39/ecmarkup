@@ -173,13 +173,13 @@ function emptyThingHasNewline(s: Seq) {
 
 class ExprParser {
   declare src: FragmentNode[];
-  declare sdoNames: Set<String>;
+  declare opNames: Set<String>;
   srcIndex = 0;
   textTokOffset: number | null = null; // offset into current text node; only meaningful if srcOffset points to a text node
   next: Token[] = [];
-  constructor(src: FragmentNode[], sdoNames: Set<String>) {
+  constructor(src: FragmentNode[], opNames: Set<String>) {
     this.src = src;
-    this.sdoNames = sdoNames;
+    this.opNames = opNames;
   }
 
   private peek(): Token {
@@ -501,7 +501,7 @@ class ExprParser {
         case 'x_of': {
           this.next.shift();
           let callee = next.source.split(' ')[0];
-          if (!this.sdoNames.has(callee)) {
+          if (!this.opNames.has(callee)) {
             addProse(items, next);
             break;
           }
@@ -560,8 +560,8 @@ class ExprParser {
   }
 }
 
-export function parse(src: FragmentNode[], sdoNames: Set<String>): Seq | Failure {
-  const parser = new ExprParser(src, sdoNames);
+export function parse(src: FragmentNode[], opNames: Set<String>): Seq | Failure {
+  const parser = new ExprParser(src, opNames);
   try {
     return parser.parseSeq(['eof']);
   } catch (e) {
