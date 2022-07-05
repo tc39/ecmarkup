@@ -115,13 +115,13 @@ function formatClose(close: CloseTokenType[]) {
 function addProse(items: NonSeq[], token: Token) {
   // sometimes we determine after seeing a token that it should not have been treated as a token
   // in that case we want to join it with the preceding prose, if any
-  let prev = items[items.length - 1];
+  const prev = items[items.length - 1];
   if (token.type === 'prose') {
     if (prev == null || prev.type !== 'prose') {
       items.push(token);
     } else {
-      let lastPartOfPrev = prev.parts[prev.parts.length - 1];
-      let firstPartOfThis = token.parts[0];
+      const lastPartOfPrev = prev.parts[prev.parts.length - 1];
+      const firstPartOfThis = token.parts[0];
       if (lastPartOfPrev?.name === 'text' && firstPartOfThis?.name === 'text') {
         items[items.length - 1] = {
           type: 'prose',
@@ -500,12 +500,12 @@ class ExprParser {
         }
         case 'x_of': {
           this.next.shift();
-          let callee = next.source.split(' ')[0];
+          const callee = next.source.split(' ')[0];
           if (!this.opNames.has(callee)) {
             addProse(items, next);
             break;
           }
-          let parseNode = this.parseSeq([
+          const parseNode = this.parseSeq([
             'eof',
             'period',
             'comma',
@@ -514,7 +514,7 @@ class ExprParser {
             'crec',
             'with_args',
           ]);
-          let args: Seq[] = [];
+          const args: Seq[] = [];
           if (this.peek().type === 'with_args') {
             this.next.shift();
             while (true) {

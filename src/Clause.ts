@@ -349,7 +349,9 @@ export default class Clause extends Builder {
       } else {
         const signature = clause.signature;
         let kind: AlgorithmType | undefined =
-          clause.type != null && aoidTypes.includes(clause.type) ? clause.type as AlgorithmType : undefined;
+          clause.type != null && aoidTypes.includes(clause.type)
+            ? (clause.type as AlgorithmType)
+            : undefined;
         // @ts-ignore
         if (kind === 'sdo') {
           kind = 'syntax-directed operation';

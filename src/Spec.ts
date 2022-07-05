@@ -670,8 +670,14 @@ export default class Spec {
         }
 
         if (biblioEntry.kind === 'syntax-directed operation' && expr.type === 'call') {
-          warn(`${calleeName} is a syntax-directed operation and should not be invoked like a regular call`);
-        } else if (biblioEntry.kind != null && biblioEntry.kind !== 'syntax-directed operation' && expr.type === 'sdo-call') {
+          warn(
+            `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`
+          );
+        } else if (
+          biblioEntry.kind != null &&
+          biblioEntry.kind !== 'syntax-directed operation' &&
+          expr.type === 'sdo-call'
+        ) {
           warn(`${calleeName} is not a syntax-directed operation but here is being invoked as one`);
         }
 
@@ -2154,7 +2160,7 @@ function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
   const { parent, index } = part;
   if (parent.type === 'seq') {
     // if the previous text ends in `! ` or `? `, this is a completion
-    let text = textFromPreviousPart(parent, index as number);
+    const text = textFromPreviousPart(parent, index as number);
     if (text != null && /[!?]\s$/.test(text)) {
       return true;
     }
