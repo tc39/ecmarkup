@@ -67,10 +67,38 @@ describe('typechecking completions', () => {
           extraBiblios: [biblio],
         }
       );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="example" type="syntax-directed operation">
+          <h1>
+            ExampleAlg (): a normal completion containing a Number
+          </h1>
+          <dl class="header"></dl>
+          </emu-clause>
+
+          <emu-clause id="example2" type="abstract operation">
+          <h1>
+            Example2 ()
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Return ${M}ExampleAlg of _foo_.
+          </emu-alg>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'typecheck',
+          nodeType: 'emu-alg',
+          message: 'ExampleAlg returns a Completion Record, but is not consumed as if it does',
+        },
+        {
+          extraBiblios: [biblio],
+        }
+      );
     });
 
-    // the check for Completion() assumes it's happening after auto-linking
-    // so it only works if the Completion AO is defined
     it('negative', async () => {
       await assertLintFree(
         `
@@ -85,6 +113,15 @@ describe('typechecking completions', () => {
           </emu-alg>
           </emu-clause>
 
+          <emu-clause id="example-sdo" type="syntax-directed operation">
+          <h1>
+            ExampleSDO (
+              optional _x_: a number,
+            ): a normal completion containing a Number
+          </h1>
+          <dl class="header"></dl>
+          </emu-clause>
+
           <emu-clause id="example2" type="abstract operation">
           <h1>
             Example2 ()
@@ -96,6 +133,10 @@ describe('typechecking completions', () => {
             1. Let _a_ be Completion(<emu-meta suppress-effects="user-code">ExampleAlg()</emu-meta>).
             1. Set _a_ to ! ExampleAlg().
             1. Return ? ExampleAlg().
+            1. Let _a_ be Completion(ExampleSDO of _foo_).
+            1. Let _a_ be Completion(ExampleSDO of _foo_ with argument 0).
+            1. If ? ExampleSDO of _foo_ is *true*, then
+              1. Something.
           </emu-alg>
           </emu-clause>
 
@@ -597,6 +638,21 @@ describe('signature agreement', async () => {
         <h1>TakesOneOrTwoArgs ( _x_, [_y_] )</h1>
         <dl class="header"></dl>
       </emu-clause>
+
+      <emu-clause id="example-sdo-1" type="syntax-directed operation">
+        <h1>SDOTakesNoArgs ()</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      <emu-clause id="example-sdo-2" type="syntax-directed operation">
+        <h1>SDOTakesOneArg ( _x_ )</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      <emu-clause id="example-sdo-3" type="syntax-directed operation">
+        <h1>SDOTakesOneOrTwoArgs ( _x_, [_y_] )</h1>
+        <dl class="header"></dl>
+      </emu-clause>
     `);
   });
 
@@ -650,7 +706,57 @@ describe('signature agreement', async () => {
     );
   });
 
-  it('too few args args', async () => {
+  it('extra args for sdo', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}SDOTakesNoArgs of _foo_ with argument 1.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SDOTakesNoArgs takes 0 arguments, but this invocation passes 1',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return <emu-meta suppress-effects="user-code">${M}SDOTakesNoArgs of _foo_ with argument 0</emu-meta>.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SDOTakesNoArgs takes 0 arguments, but this invocation passes 1',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}SDOTakesOneOrTwoArgs of _foo_ with arguments 0, 1, and 2.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SDOTakesOneOrTwoArgs takes 1-2 arguments, but this invocation passes 3',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
+  it('too few args', async () => {
     await assertLint(
       positioned`
         <emu-alg>
@@ -684,6 +790,40 @@ describe('signature agreement', async () => {
     );
   });
 
+  it('too few args for sdo', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}SDOTakesOneArg of _foo_.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SDOTakesOneArg takes 1 argument, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}SDOTakesOneOrTwoArgs().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SDOTakesOneOrTwoArgs takes 1-2 arguments, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
   it('negative', async () => {
     await assertLintFree(
       `
@@ -693,6 +833,11 @@ describe('signature agreement', async () => {
           1. Perform TakesOneOrTwoArgs(0).
           1. Perform TakesOneOrTwoArgs(0, 1).
           1. Perform <emu-meta suppress-effects="user-code">TakesNoArgs()</emu-meta>.
+          1. Perform SDOTakesNoArgs of _foo_.
+          1. Perform SDOTakesOneArg of _foo_ with argument 0.
+          1. Perform SDOTakesOneOrTwoArgs of _foo_ with argument 0.
+          1. Perform SDOTakesOneOrTwoArgs of _foo_ with arguments 0 and 1.
+          1. Perform <emu-meta suppress-effects="user-code">SDOTakesNoArgs of _foo_</emu-meta>.
         </emu-alg>
       `,
       {

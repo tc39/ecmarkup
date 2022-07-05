@@ -109,6 +109,21 @@ export default class Biblio {
     return this.lookup(ns, env => env._byAoid[aoid]);
   }
 
+  getSDONames(ns: string): Set<string> {
+    const out = new Set<string>();
+    let current = this._nsToEnvRec[ns];
+    while (current) {
+      const entries = current._byType['op'] || [];
+      for (const entry of entries) {
+        if (entry.kind === 'syntax-directed operation') {
+          out.add(entry.aoid);
+        }
+      }
+      current = current._parent;
+    }
+    return out;
+  }
+
   getDefinedWords(ns: string): Record<string, AlgorithmBiblioEntry | TermBiblioEntry> {
     const result = Object.create(null);
 

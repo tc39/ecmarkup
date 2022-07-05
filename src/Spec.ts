@@ -49,7 +49,7 @@ import type { OrderedListNode, parseAlgorithm } from 'ecmarkdown';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
 import { offsetToLineAndColumn } from './utils';
-import { parse as parseExpr, walk as walkExpr, Expr, PathItem } from './expr-parser';
+import { parse as parseExpr, walk as walkExpr, Expr, PathItem, Seq } from './expr-parser';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -603,6 +603,10 @@ export default class Spec {
       AOs.filter(e => e.signature!.return!.kind === 'completion').map(a => [a.aoid, null])
     );
 
+    // TODO strictly speaking this needs to be done in the namespace of the current algorithm
+    const sdoNames = this.biblio.getSDONames(this.namespace);
+
+    // TODO move declarations out of loop
     for (const node of this.doc.querySelectorAll('emu-alg')) {
       if (node.hasAttribute('example') || !('ecmarkdownTree' in node)) {
         continue;
@@ -616,7 +620,8 @@ export default class Spec {
       const originalHtml: string = node.originalHtml;
 
       const expressionVisitor = (expr: Expr, path: PathItem[]) => {
-        if (expr.type !== 'call') {
+        // console.log(require('util').inspect(expr, { depth: Infinity }));
+        if (expr.type !== 'call' && expr.type !== 'sdo-call') {
           return;
         }
 
@@ -727,7 +732,7 @@ export default class Spec {
       };
       const walkLines = (list: OrderedListNode) => {
         for (const line of list.contents) {
-          const item = parseExpr(line.contents);
+          const item = parseExpr(line.contents, sdoNames);
           if (item.type === 'failure') {
             const { line, column } = offsetToLineAndColumn(originalHtml, item.offset);
             this.warn({
@@ -739,6 +744,7 @@ export default class Spec {
               nodeRelativeColumn: column,
             });
           } else {
+            // console.log(require('util').inspect(item, { depth: Infinity}));
             walkExpr(expressionVisitor, item);
           }
           if (line.sublist?.name === 'ol') {
@@ -2101,13 +2107,22 @@ function previousText(expr: Expr, path: PathItem[]): string | null {
     return null;
   }
   const { parent, index } = part;
-  if (parent.type === 'seq' && index > 0) {
-    const prev = parent.items[(index as number) - 1];
-    if (prev.type === 'prose' && prev.parts.length > 0) {
-      const prevProse = prev.parts[prev.parts.length - 1];
-      if (prevProse.name === 'text') {
-        return prevProse.contents;
-      }
+  if (parent.type === 'seq') {
+    return textFromPreviousPart(parent, index as number);
+  }
+  return null;
+}
+
+function textFromPreviousPart(seq: Seq, index: number): string | null {
+  const prev = seq.items[index - 1];
+  if (prev?.type === 'prose' && prev.parts.length > 0) {
+    let prevIndex = prev.parts.length - 1;
+    while (prevIndex > 0 && prev.parts[prevIndex].name === 'tag') {
+      --prevIndex;
+    }
+    const prevProse = prev.parts[prevIndex];
+    if (prevProse.name === 'text') {
+      return prevProse.contents;
     }
   }
   return null;
@@ -2129,14 +2144,11 @@ function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
     return false;
   }
   const { parent, index } = part;
-  if (parent.type === 'seq' && index > 0) {
+  if (parent.type === 'seq') {
     // if the previous text ends in `! ` or `? `, this is a completion
-    const prev = parent.items[(index as number) - 1]; // typescript isn't quite smart enough to infer this, alas
-    if (prev.type === 'prose' && prev.parts.length > 0) {
-      const prevProse = prev.parts[prev.parts.length - 1];
-      if (prevProse.name === 'text' && /[!?]\s$/.test(prevProse.contents)) {
-        return true;
-      }
+    let text = textFromPreviousPart(parent, index as number);
+    if (text != null && /[!?]\s$/.test(text)) {
+      return true;
     }
   } else if (parent.type === 'call' && index === 0 && parent.arguments.length === 1) {
     // if this is `Completion(Expr())`, this is a completion

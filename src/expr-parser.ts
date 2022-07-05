@@ -6,8 +6,7 @@ type Unarray<T> = T extends Array<infer U> ? U : T;
 type FragmentNode = Unarray<ReturnType<typeof parseFragment>>;
 
 const tokMatcher =
-  /(?<olist>&laquo;|«)|(?<clist>&raquo;|»)|(?<orec>\{)|(?<crec>\})|(?<oparen>\()|(?<cparen>\))/u;
-const tokOrCommaMatcher = new RegExp(tokMatcher.source + '|(?<comma>,)', 'u'); // gross
+  /(?<olist>&laquo;|«)|(?<clist>&raquo;|»)|(?<orec>\{)|(?<crec>\})|(?<oparen>\()|(?<cparen>\))|(?<and>(?:, )?and )|(?<is> is )|(?<comma>,)|(?<period>\.(?= |$))|(?<x_of>\b\w+ of )|(?<with_args> with arguments? )/u;
 
 type ProsePart =
   | FragmentNode
@@ -33,17 +32,49 @@ type Call = {
   callee: Prose;
   arguments: Seq[];
 };
+type SDOCall = {
+  type: 'sdo-call';
+  callee: Prose; // could just be string, but this way we get location and symmetry with Call
+  parseNode: Seq;
+  arguments: Seq[];
+};
 type Paren = {
   type: 'paren';
   items: NonSeq[];
 };
-type Seq = {
+export type Seq = {
   type: 'seq';
   items: NonSeq[];
 };
-type NonSeq = Prose | List | Record | RecordSpec | Call | Paren;
+type NonSeq = Prose | List | Record | RecordSpec | Call | SDOCall | Paren;
 export type Expr = NonSeq | Seq;
 type Failure = { type: 'failure'; message: string; offset: number };
+
+type TokenType =
+  | 'eof'
+  | 'olist'
+  | 'clist'
+  | 'orec'
+  | 'crec'
+  | 'oparen'
+  | 'cparen'
+  | 'and'
+  | 'is'
+  | 'comma'
+  | 'period'
+  | 'x_of'
+  | 'with_args';
+type CloseTokenType =
+  | 'clist'
+  | 'crec'
+  | 'cparen'
+  | 'and'
+  | 'is'
+  | 'comma'
+  | 'period'
+  | 'eof'
+  | 'with_args';
+type Token = Prose | { type: TokenType; offset: number; source: string };
 
 class ParseFailure extends Error {
   declare offset: number;
@@ -53,7 +84,7 @@ class ParseFailure extends Error {
   }
 }
 
-function formatClose(close: ('clist' | 'crec' | 'cparen' | 'comma' | 'eof')[]) {
+function formatClose(close: CloseTokenType[]) {
   const mapped = close.map(c => {
     switch (c) {
       case 'clist':
@@ -64,11 +95,65 @@ function formatClose(close: ('clist' | 'crec' | 'cparen' | 'comma' | 'eof')[]) {
         return 'close parenthesis';
       case 'eof':
         return 'end of line';
+      case 'with_args':
+        return '"with argument(s)"';
+      case 'comma':
+        return 'comma';
+      case 'period':
+        return 'period';
+      case 'and':
+        return '"and"';
+      case 'is':
+        return '"is"';
       default:
         return c;
     }
   });
   return formatEnglishList(mapped, 'or');
+}
+
+function addProse(items: NonSeq[], token: Token) {
+  // sometimes we determine after seeing a token that it should not have been treated as a token
+  // in that case we want to join it with the preceding prose, if any
+  let prev = items[items.length - 1];
+  if (token.type === 'prose') {
+    if (prev == null || prev.type !== 'prose') {
+      items.push(token);
+    } else {
+      let lastPartOfPrev = prev.parts[prev.parts.length - 1];
+      let firstPartOfThis = token.parts[0];
+      if (lastPartOfPrev?.name === 'text' && firstPartOfThis?.name === 'text') {
+        items[items.length - 1] = {
+          type: 'prose',
+          parts: [
+            ...prev.parts.slice(0, -1),
+            {
+              name: 'text',
+              contents: lastPartOfPrev.contents + firstPartOfThis.contents,
+              location: { start: { offset: lastPartOfPrev.location.start.offset } },
+            },
+            ...token.parts.slice(1),
+          ],
+        };
+      } else {
+        items[items.length - 1] = {
+          type: 'prose',
+          parts: [...prev.parts, ...token.parts],
+        };
+      }
+    }
+  } else {
+    addProse(items, {
+      type: 'prose',
+      parts: [
+        {
+          name: 'text',
+          contents: token.source,
+          location: { start: { offset: token.offset } },
+        },
+      ],
+    });
+  }
 }
 
 function isWhitespace(x: Prose) {
@@ -86,26 +171,26 @@ function emptyThingHasNewline(s: Seq) {
   );
 }
 
-type TokenType = 'eof' | 'olist' | 'clist' | 'orec' | 'crec' | 'oparen' | 'cparen' | 'comma';
-type Token = Prose | { type: TokenType; offset: number };
 class ExprParser {
   declare src: FragmentNode[];
+  declare sdoNames: Set<String>;
   srcIndex = 0;
   textTokOffset: number | null = null; // offset into current text node; only meaningful if srcOffset points to a text node
   next: Token[] = [];
-  constructor(src: FragmentNode[]) {
+  constructor(src: FragmentNode[], sdoNames: Set<String>) {
     this.src = src;
+    this.sdoNames = sdoNames;
   }
 
-  private peek(matcher: RegExp): Token {
+  private peek(): Token {
     if (this.next.length === 0) {
-      this.advance(matcher);
+      this.advance();
     }
     return this.next[0];
   }
 
   // this method is complicated because the underlying data is a sequence of ecmarkdown fragments, not a string
-  private advance(matcher: RegExp) {
+  private advance() {
     const currentProse: ProsePart[] = [];
     while (this.srcIndex < this.src.length) {
       const tok: ProsePart =
@@ -120,7 +205,7 @@ class ExprParser {
                 },
               },
             };
-      const match = tok.name === 'text' ? tok.contents.match(matcher) : null;
+      const match = tok.name === 'text' ? tok.contents.match(tokMatcher) : null;
       if (tok.name !== 'text' || match == null) {
         if (!(tok.name === 'text' && tok.contents.length === 0)) {
           currentProse.push(tok);
@@ -142,6 +227,7 @@ class ExprParser {
       this.next.push({
         type: matchKind as TokenType,
         offset: tok.location.start.offset + match.index!,
+        source: groups![matchKind],
       });
       return;
     }
@@ -151,23 +237,29 @@ class ExprParser {
     this.next.push({
       type: 'eof',
       offset: this.src.length === 0 ? 0 : this.src[this.src.length - 1].location.end.offset,
+      source: '',
     });
   }
 
   // guarantees the next token is an element of close
-  parseSeq(close: ('clist' | 'crec' | 'cparen' | 'comma' | 'eof')[]): Seq {
+  parseSeq(close: CloseTokenType[]): Seq {
     const items: NonSeq[] = [];
-    const matcher = close.includes('comma') ? tokOrCommaMatcher : tokMatcher;
     while (true) {
-      const next = this.peek(matcher);
+      const next = this.peek();
       switch (next.type) {
+        case 'and':
+        case 'is':
+        case 'period':
+        case 'with_args':
         case 'comma': {
-          if (!close.includes('comma')) {
-            throw new Error('unreachable: comma while not scanning for commas');
+          if (!close.includes(next.type)) {
+            addProse(items, next);
+            this.next.shift();
+            break;
           }
           if (items.length === 0) {
             throw new ParseFailure(
-              `unexpected comma (expected some content for element/argument)`,
+              `unexpected ${next.type} (expected some content for element/argument)`,
               next.offset
             );
           }
@@ -180,17 +272,17 @@ class ExprParser {
           return { type: 'seq', items };
         }
         case 'prose': {
+          addProse(items, next);
           this.next.shift();
-          items.push(next);
           break;
         }
         case 'olist': {
           this.next.shift();
           const elements: Seq[] = [];
-          if (this.peek(tokOrCommaMatcher).type !== 'clist') {
+          if (this.peek().type !== 'clist') {
             while (true) {
               elements.push(this.parseSeq(['clist', 'comma']));
-              if (this.peek(tokOrCommaMatcher).type === 'clist') {
+              if (this.peek().type === 'clist') {
                 break;
               }
               this.next.shift();
@@ -203,7 +295,7 @@ class ExprParser {
             } else {
               throw new ParseFailure(
                 `unexpected list close (expected some content for element)`,
-                (this.peek(tokOrCommaMatcher) as { offset: number }).offset
+                (this.peek() as { offset: number }).offset
               );
             }
           }
@@ -259,10 +351,10 @@ class ExprParser {
             if (callee.length > 0) {
               this.next.shift();
               const args: Seq[] = [];
-              if (this.peek(tokOrCommaMatcher).type !== 'cparen') {
+              if (this.peek().type !== 'cparen') {
                 while (true) {
                   args.push(this.parseSeq(['cparen', 'comma']));
-                  if (this.peek(tokOrCommaMatcher).type === 'cparen') {
+                  if (this.peek().type === 'cparen') {
                     break;
                   }
                   this.next.shift();
@@ -275,7 +367,7 @@ class ExprParser {
                 } else {
                   throw new ParseFailure(
                     `unexpected close parenthesis (expected some content for argument)`,
-                    (this.peek(tokOrCommaMatcher) as { offset: number }).offset
+                    (this.peek() as { offset: number }).offset
                   );
                 }
               }
@@ -307,7 +399,7 @@ class ExprParser {
           let type: 'record' | 'record-spec' | null = null;
           const members: ({ name: string; value: Seq } | { name: string })[] = [];
           while (true) {
-            const nextTok = this.peek(tokOrCommaMatcher);
+            const nextTok = this.peek();
             if (nextTok.type !== 'prose') {
               throw new ParseFailure('expected to find record field name', nextTok.offset);
             }
@@ -323,7 +415,7 @@ class ExprParser {
               if (members.length > 0 && /^\s*$/.test(contents) && contents.includes('\n')) {
                 // allow trailing commas when followed by a newline
                 this.next.shift(); // eat the whitespace
-                if (this.peek(tokOrCommaMatcher).type === 'crec') {
+                if (this.peek().type === 'crec') {
                   this.next.shift();
                   break;
                 }
@@ -383,11 +475,11 @@ class ExprParser {
                 throw new ParseFailure('expected record field to have value', offset - 1);
               }
               members.push({ name });
-              if (!['crec', 'comma'].includes(this.peek(tokOrCommaMatcher).type)) {
+              if (!['crec', 'comma'].includes(this.peek().type)) {
                 throw new ParseFailure(`expected ${formatClose(['crec', 'comma'])}`, offset);
               }
             }
-            if (this.peek(tokOrCommaMatcher).type === 'crec') {
+            if (this.peek().type === 'crec') {
               break;
             }
             this.next.shift(); // eat the comma
@@ -406,6 +498,59 @@ class ExprParser {
           }
           return { type: 'seq', items };
         }
+        case 'x_of': {
+          this.next.shift();
+          let callee = next.source.split(' ')[0];
+          if (!this.sdoNames.has(callee)) {
+            addProse(items, next);
+            break;
+          }
+          let parseNode = this.parseSeq([
+            'eof',
+            'period',
+            'comma',
+            'cparen',
+            'clist',
+            'crec',
+            'with_args',
+          ]);
+          let args: Seq[] = [];
+          if (this.peek().type === 'with_args') {
+            this.next.shift();
+            while (true) {
+              args.push(
+                this.parseSeq([
+                  'eof',
+                  'period',
+                  'and',
+                  'is',
+                  'comma',
+                  'cparen',
+                  'clist',
+                  'crec',
+                  'with_args',
+                ])
+              );
+              if (!['and', 'comma'].includes(this.peek().type)) {
+                break;
+              }
+              this.next.shift();
+            }
+          }
+          items.push({
+            type: 'sdo-call',
+            callee: {
+              type: 'prose',
+              parts: [
+                { name: 'text', contents: callee, location: { start: { offset: next.offset } } },
+              ],
+            },
+            parseNode,
+            arguments: args,
+          });
+          // console.log(require('util').inspect(items[items.length - 1], { depth: Infinity }));
+          break;
+        }
         default: {
           // @ts-ignore
           throw new Error(`unreachable: unknown token type ${next.type}`);
@@ -415,8 +560,8 @@ class ExprParser {
   }
 }
 
-export function parse(src: FragmentNode[]): Seq | Failure {
-  const parser = new ExprParser(src);
+export function parse(src: FragmentNode[], sdoNames: Set<String>): Seq | Failure {
+  const parser = new ExprParser(src, sdoNames);
   try {
     return parser.parseSeq(['eof']);
   } catch (e) {
@@ -429,7 +574,8 @@ export function parse(src: FragmentNode[]): Seq | Failure {
 
 export type PathItem =
   | { parent: List | Record | Seq | Paren; index: number }
-  | { parent: Call; index: 'callee' | number };
+  | { parent: Call; index: 'callee' | number }
+  | { parent: SDOCall; index: 'callee' | number };
 export function walk(
   f: (expr: Expr, path: PathItem[]) => void,
   current: Expr,
@@ -458,6 +604,14 @@ export function walk(
       break;
     }
     case 'record-spec': {
+      break;
+    }
+    case 'sdo-call': {
+      for (let i = 0; i < current.arguments.length; ++i) {
+        path.push({ parent: current, index: i });
+        walk(f, current.arguments[i], path);
+        path.pop();
+      }
       break;
     }
     case 'call': {
