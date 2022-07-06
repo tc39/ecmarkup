@@ -64,7 +64,7 @@ if (args.strict && args.watch) {
   fail('Cannot use --strict with --watch');
 }
 
-if (!['none', 'inline', 'external'].includes(args.assets)) {
+if (args.assets != null && !['none', 'inline', 'external'].includes(args.assets)) {
   fail('--assets requires "none", "inline", or "external"');
 }
 
@@ -100,16 +100,22 @@ const build = debounce(async function build() {
       jsOut: args['js-out'],
       cssOut: args['css-out'],
       extraBiblios: [],
-      toc: !args['no-toc'],
-      oldToc: !!args['old-toc'],
       lintSpec: !!args['lint-spec'],
-      assets: args.assets as 'none' | 'inline' | 'external',
     };
     if (args.verbose) {
       opts.log = utils.logVerbose;
     }
     if (args['mark-effects']) {
       opts.markEffects = true;
+    }
+    if (args['no-toc'] != null) {
+      opts.toc = !args['no-toc'];
+    }
+    if (args['old-toc'] != null) {
+      opts.oldToc = args['old-toc'];
+    }
+    if (args.assets != null) {
+      opts.assets = args.assets as 'none' | 'inline' | 'external';
     }
     let warned = false;
 
