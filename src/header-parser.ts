@@ -316,7 +316,7 @@ export function printSimpleParamList(params: Param[], optionalParams: Param[]) {
   let result = '(' + params.map(p => ' ' + printParam(p)).join(',');
   if (optionalParams.length > 0) {
     const formattedOptionalParams = optionalParams
-      .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + p.name)
+      .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + printParam(p))
       .join('');
     result += formattedOptionalParams + optionalParams.map(() => ' ]').join('');
   }
