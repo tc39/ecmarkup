@@ -548,7 +548,6 @@ class ExprParser {
             parseNode,
             arguments: args,
           });
-          // console.log(require('util').inspect(items[items.length - 1], { depth: Infinity }));
           break;
         }
         default: {
@@ -581,7 +580,6 @@ export function walk(
   current: Expr,
   path: PathItem[] = []
 ) {
-  // console.log('path', path, current.type);
   f(current, path);
   switch (current.type) {
     case 'prose': {

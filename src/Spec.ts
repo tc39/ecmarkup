@@ -620,7 +620,6 @@ export default class Spec {
       const originalHtml: string = node.originalHtml;
 
       const expressionVisitor = (expr: Expr, path: PathItem[]) => {
-        // console.log(require('util').inspect(expr, { depth: Infinity }));
         if (expr.type !== 'call' && expr.type !== 'sdo-call') {
           return;
         }
@@ -758,7 +757,6 @@ export default class Spec {
               nodeRelativeColumn: column,
             });
           } else {
-            // console.log(require('util').inspect(item, { depth: Infinity}));
             walkExpr(expressionVisitor, item);
           }
           if (line.sublist?.name === 'ol') {
