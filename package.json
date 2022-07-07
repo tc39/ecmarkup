@@ -47,7 +47,7 @@
 		"command-line-args": "^5.2.0",
 		"command-line-usage": "^6.1.1",
 		"dedent-js": "^1.0.1",
-		"ecmarkdown": "^7.0.0",
+		"ecmarkdown": "^7.1.0",
 		"eslint-formatter-codeframe": "^7.32.1",
 		"fast-glob": "^3.2.7",
 		"grammarkdown": "^3.2.0",
