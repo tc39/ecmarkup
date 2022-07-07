@@ -657,9 +657,6 @@ export default class Spec {
               'thisBooleanValue',
               'toUppercase',
               'toLowercase',
-              'ℝ',
-              '𝔽',
-              'ℤ',
             ].includes(calleeName)
           ) {
             // TODO make the spec not do this
