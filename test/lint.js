@@ -364,6 +364,9 @@ describe('linting whole program', () => {
           <emu-clause id="i9">
             <h1>Object.prototype.__defineGetter__ ( )</h1>
           </emu-clause>
+          <emu-clause id="i10">
+            <h1>_NativeError_ [ @@baz ] ( )</h1>
+          </emu-clause>
       `);
     });
 

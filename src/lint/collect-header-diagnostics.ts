@@ -44,19 +44,16 @@ export function collectHeaderDiagnostics(
       // [[GetOwnProperty]]
       /^\[\[[A-Z][A-Za-z0-9]*\]\]\s*$/,
 
-      // _NativeError_
-      /^_[A-Z][A-Za-z0-9]*_\s*$/,
+      // ForIn/OfHeadEvaluation
+      /^[A-Za-z][A-Za-z0-9/]*\s*$/,
 
       // CreateForInIterator
       // Object.fromEntries
-      // ForIn/OfHeadEvaluation
+      // _NativeError_ [ @@whatever ]
       // Array.prototype [ @@iterator ]
-      // Object.prototype.__defineGetter__
-      /^[A-Za-z][A-Za-z0-9/]*(\.[A-Za-z][A-Za-z0-9]*)*(\.__[a-z][A-Za-z0-9]*__| \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
-
       // %ForInIteratorPrototype%.next
-      // %TypedArray%.prototype [ @@iterator ]
-      /^%[A-Z][A-Za-z0-9]*%(\.[A-Za-z][A-Za-z0-9]*)*( \[ @@[a-z][a-zA-Z]+ \])?\s*$/,
+      // Object.prototype.__defineGetter__
+      /^([%_]?)[A-Za-z][A-Za-z0-9/]*\1(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ @@[a-z][a-zA-Z]+ \])*\s*$/,
     ].some(r => r.test(name));
 
     if (!nameMatches) {
