@@ -30,7 +30,6 @@ export const options = [
     type: String,
     typeLabel: 'none|inline|external', // TODO I don't think we actually distinguish between inline and external
     description: 'Link to css and js assets (default: inline, unless --multipage)',
-    defaultValue: 'inline',
   },
   {
     name: 'css-out',
