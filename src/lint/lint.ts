@@ -85,6 +85,8 @@ export async function lint(
     if ('tree' in pair) {
       // @ts-ignore we are intentionally adding a property here
       pair.element.ecmarkdownTree = pair.tree;
+      // @ts-ignore we are intentionally adding a property here
+      pair.element.originalHtml = pair.element.innerHTML;
     }
   }
 }

@@ -49,6 +49,8 @@ export default class Algorithm extends Builder {
 
     // @ts-ignore
     node.ecmarkdownTree = emdTree;
+    // @ts-ignore
+    node.originalHtml = innerHTML;
 
     if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
       const clause = clauseStack[clauseStack.length - 1];

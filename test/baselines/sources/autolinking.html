@@ -14,6 +14,7 @@ assets: none
   <p><dfn>extra      spaces</dfn></p>
   <p><dfn>Await</dfn></p>
   <p><dfn id="variants" variants="vOne, vTwo">Variants</dfn></p>
+  <p><emu-eqn id="𝔽" aoid="𝔽">𝔽(_x_)</emu-eqn></p>
 </emu-clause>
 <emu-clause id="sec-bar">
   <h1>Autolinking 2</h1>
@@ -26,5 +27,8 @@ assets: none
   <p>Also, no autolinks in <a href="#">anchors: Lowercase</a>.</p>
   <p>Similarly, no autolinks for <sub>[Await]</sub>.</p>
   <p>Variants like vOne and vTwo should autolink, including when capitalized as in VOne.</p>
+  <emu-alg>
+    1. Non-word-chars AOs still link when invoked, like 𝔽(_x_).
+  </emu-alg>
 </emu-clause>
 <p>%Array% and %ArrayPrototype% outside of clauses is ok.</p>

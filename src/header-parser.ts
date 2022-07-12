@@ -316,7 +316,7 @@ export function printSimpleParamList(params: Param[], optionalParams: Param[]) {
   let result = '(' + params.map(p => ' ' + printParam(p)).join(',');
   if (optionalParams.length > 0) {
     const formattedOptionalParams = optionalParams
-      .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + p.name)
+      .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + printParam(p))
       .join('');
     result += formattedOptionalParams + optionalParams.map(() => ' ]').join('');
   }
@@ -645,7 +645,7 @@ export function formatPreamble(
   return paras;
 }
 
-function formatEnglishList(list: Array<string>) {
+export function formatEnglishList(list: Array<string>, conjuction = 'and') {
   if (list.length === 0) {
     throw new Error('formatEnglishList should not be called with an empty list');
   }
@@ -653,9 +653,9 @@ function formatEnglishList(list: Array<string>) {
     return list[0];
   }
   if (list.length === 2) {
-    return `${list[0]} and ${list[1]}`;
+    return `${list[0]} ${conjuction} ${list[1]}`;
   }
-  return `${list.slice(0, -1).join(', ')}, and ${list[list.length - 1]}`;
+  return `${list.slice(0, -1).join(', ')}, ${conjuction} ${list[list.length - 1]}`;
 }
 
 function eat(text: string, regex: RegExp) {

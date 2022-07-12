@@ -119,8 +119,8 @@ async function assertErrorFree(html, opts) {
   assert.deepStrictEqual(warnings, []);
 }
 
-async function assertLint(a, b) {
-  await assertError(a, b, { lintSpec: true });
+async function assertLint(a, b, opts = {}) {
+  await assertError(a, b, { lintSpec: true, ...opts });
 }
 
 async function assertLintFree(html, opts = {}) {
