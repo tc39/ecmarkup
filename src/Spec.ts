@@ -1931,7 +1931,7 @@ function getBoilerplate(file: string) {
 }
 
 async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: string) {
-  const imports = rootElement.querySelectorAll('EMU-IMPORT');
+  const imports = rootElement.querySelectorAll('emu-import');
   for (let i = 0; i < imports.length; i++) {
     const node = imports[i];
     const imp = await Import.build(spec, node as EmuImportElement, rootPath);
