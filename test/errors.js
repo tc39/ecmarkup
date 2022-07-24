@@ -895,6 +895,60 @@ ${M}      </pre>
     );
   });
 
+  it('invalid clause number', async () => {
+    await assertError(
+      positioned`
+        ${M}<emu-clause id="sec-c" number="-1">
+          <h1>Clause</h1>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'invalid-clause-number',
+        nodeType: 'emu-clause',
+        message: 'clause numbers must be positive integers',
+      }
+    );
+
+    await assertError(
+      positioned`
+        ${M}<emu-clause id="sec-c" number="0">
+          <h1>Clause</h1>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'invalid-clause-number',
+        nodeType: 'emu-clause',
+        message: 'clause numbers must be positive integers',
+      }
+    );
+
+    await assertError(
+      positioned`
+        ${M}<emu-clause id="sec-c" number="3.14">
+          <h1>Clause</h1>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'invalid-clause-number',
+        nodeType: 'emu-clause',
+        message: 'clause numbers must be positive integers',
+      }
+    );
+
+    await assertError(
+      positioned`
+        ${M}<emu-clause id="sec-c" number="foo">
+          <h1>Clause</h1>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'invalid-clause-number',
+        nodeType: 'emu-clause',
+        message: 'clause numbers must be positive integers',
+      }
+    );
+  });
+
   it('biblio missing href', async () => {
     await assertError(
       positioned`

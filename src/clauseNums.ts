@@ -70,10 +70,22 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
       return String.fromCharCode((<string>ids[0]).charCodeAt(0) + 1);
     }
 
-    return nextClauseNum(clauseStack);
+    return nextClauseNum(clauseStack, node);
   }
 
-  function nextClauseNum({ length: level }: { length: number }) {
+  function nextClauseNum({ length: level }: { length: number }, node: HTMLElement) {
+    if (node.hasAttribute('number')) {
+      const num = Number(node.getAttribute('number'));
+      if (Number.isSafeInteger(num) && num > 0) return num;
+
+      spec.warn({
+        type: 'node',
+        node,
+        ruleId: 'invalid-clause-number',
+        message: 'clause numbers must be positive integers',
+      });
+    }
+
     if (ids[level] === undefined) return 1;
     return <number>ids[level] + 1;
   }
