@@ -898,53 +898,106 @@ ${M}      </pre>
   it('invalid clause number', async () => {
     await assertError(
       positioned`
-        ${M}<emu-clause id="sec-c" number="-1">
+        <emu-clause id="sec-c" number="${M}-1">
           <h1>Clause</h1>
         </emu-clause>
       `,
       {
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
-        message: 'clause numbers must be positive integers',
+        message: 'clause numbers must be positive integers or dotted lists of positive integers',
       }
     );
 
     await assertError(
       positioned`
-        ${M}<emu-clause id="sec-c" number="0">
+        <emu-clause id="sec-c" number="${M}0">
           <h1>Clause</h1>
         </emu-clause>
       `,
       {
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
-        message: 'clause numbers must be positive integers',
+        message: 'clause numbers must be positive integers or dotted lists of positive integers',
       }
     );
 
     await assertError(
       positioned`
-        ${M}<emu-clause id="sec-c" number="3.14">
+        <emu-clause id="sec-c" number="${M}foo">
           <h1>Clause</h1>
         </emu-clause>
       `,
       {
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
-        message: 'clause numbers must be positive integers',
+        message: 'clause numbers must be positive integers or dotted lists of positive integers',
       }
     );
 
     await assertError(
       positioned`
-        ${M}<emu-clause id="sec-c" number="foo">
+        <emu-clause id="sec-b">
           <h1>Clause</h1>
         </emu-clause>
-      `,
+
+        <emu-clause id="sec-c" number="${M}1">
+          <h1>Clause</h1>
+        </emu-clause>
+        `,
       {
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
-        message: 'clause numbers must be positive integers',
+        message: 'clause numbers should be strictly increasing',
+      }
+    );
+
+    await assertError(
+      positioned`
+        <emu-clause id="sec-b" number="1.2.3">
+          <h1>Clause</h1>
+        </emu-clause>
+
+        <emu-clause id="sec-c" number="${M}1.1.4">
+          <h1>Clause</h1>
+        </emu-clause>
+        `,
+      {
+        ruleId: 'invalid-clause-number',
+        nodeType: 'emu-clause',
+        message: 'clause numbers should be strictly increasing',
+      }
+    );
+
+    await assertError(
+      positioned`
+        <emu-clause id="sec-b">
+          <h1>Clause</h1>
+        </emu-clause>
+
+        <emu-clause id="sec-c" number="${M}1.1">
+          <h1>Clause</h1>
+        </emu-clause>
+        `,
+      {
+        ruleId: 'invalid-clause-number',
+        nodeType: 'emu-clause',
+        message:
+          'multi-step explicit clause numbers should not be mixed with single-step clause numbers in the same parent clause',
+      }
+    );
+
+    await assertError(
+      positioned`
+        <emu-annex id="sec-c" ${M}number="1">
+          <h1>Clause</h1>
+        </emu-annex>
+      `,
+      {
+        ruleId: 'annex-clause-number',
+        nodeType: 'emu-annex',
+        message:
+          'top-level annexes do not support explicit numbers; if you need this, open a bug on ecmarkup',
       }
     );
   });
