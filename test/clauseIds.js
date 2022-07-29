@@ -11,8 +11,8 @@ describe('clause id generation', () => {
   });
 
   specify('generating clause ids', () => {
-    const CLAUSE = { nodeName: 'EMU-CLAUSE' };
-    const ANNEX = { nodeName: 'EMU-ANNEX' };
+    const CLAUSE = { nodeName: 'EMU-CLAUSE', hasAttribute: () => false };
+    const ANNEX = { nodeName: 'EMU-ANNEX', hasAttribute: () => false };
     assert.strictEqual(iter.next([], CLAUSE), '1');
     assert.strictEqual(iter.next([{}], CLAUSE), '1.1');
     assert.strictEqual(iter.next([{}], CLAUSE), '1.2');

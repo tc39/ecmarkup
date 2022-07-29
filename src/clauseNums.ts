@@ -8,7 +8,7 @@ export interface ClauseNumberIterator {
 
 /*@internal*/
 export default function iterator(spec: Spec): ClauseNumberIterator {
-  const ids: (string | number)[] = [];
+  const ids: (string | number[])[] = [];
   let inAnnex = false;
   let currentLevel = 0;
 
@@ -46,12 +46,22 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
 
       currentLevel = level;
 
-      return ids.join('.');
+      return ids.flat().join('.');
     },
   };
 
-  function nextAnnexNum(clauseStack: Clause[], node: HTMLElement): string | number {
+  function nextAnnexNum(clauseStack: Clause[], node: HTMLElement): string | number[] {
     const level = clauseStack.length;
+    if (level === 0 && node.hasAttribute('number')) {
+      spec.warn({
+        type: 'attr',
+        node,
+        attr: 'number',
+        ruleId: 'annex-clause-number',
+        message:
+          'top-level annexes do not support explicit numbers; if you need this, open a bug on ecmarkup',
+      });
+    }
     if (!inAnnex) {
       if (level > 0) {
         spec.warn({
@@ -67,14 +77,56 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
     }
 
     if (level === 0) {
-      return String.fromCharCode((<string>ids[0]).charCodeAt(0) + 1);
+      return String.fromCharCode((ids[0] as string).charCodeAt(0) + 1);
     }
 
-    return nextClauseNum(clauseStack);
+    return nextClauseNum(clauseStack, node);
   }
 
-  function nextClauseNum({ length: level }: { length: number }) {
-    if (ids[level] === undefined) return 1;
-    return <number>ids[level] + 1;
+  function nextClauseNum({ length: level }: { length: number }, node: HTMLElement) {
+    if (node.hasAttribute('number')) {
+      const nums = node
+        .getAttribute('number')!
+        .split('.')
+        .map(n => Number(n));
+      if (nums.length === 0 || nums.some(num => !Number.isSafeInteger(num) || num <= 0)) {
+        spec.warn({
+          type: 'attr-value',
+          node,
+          attr: 'number',
+          ruleId: 'invalid-clause-number',
+          message: 'clause numbers must be positive integers or dotted lists of positive integers',
+        });
+      }
+      if (ids[level] !== undefined) {
+        if (nums.length !== ids[level].length) {
+          spec.warn({
+            type: 'attr-value',
+            node,
+            attr: 'number',
+            ruleId: 'invalid-clause-number',
+            message:
+              'multi-step explicit clause numbers should not be mixed with single-step clause numbers in the same parent clause',
+          });
+        } else if (
+          nums.some((n, i) => n < ids[level][i]) ||
+          nums.every((n, i) => n === ids[level][i])
+        ) {
+          spec.warn({
+            type: 'attr-value',
+            node,
+            attr: 'number',
+            ruleId: 'invalid-clause-number',
+            message: 'clause numbers should be strictly increasing',
+          });
+        }
+      }
+      return nums;
+    }
+
+    if (ids[level] === undefined) return [1];
+    const head = (ids[level] as number[]).slice(0, -1);
+    const tail = (ids[level] as number[])[ids[level].length - 1];
+    return [...head, tail + 1];
   }
 }
