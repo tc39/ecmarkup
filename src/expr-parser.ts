@@ -349,6 +349,28 @@ class ExprParser {
               lastPart.parts.pop();
             }
             if (callee.length > 0) {
+              if (callee[0].name === 'text') {
+                // check for -F(), which is negation of F() not an AO named -F
+                const initialNonLetter = callee[0].contents.match(/^\P{Letter}+/u);
+                if (initialNonLetter != null) {
+                  const extra = initialNonLetter[0].length;
+                  const extraLoc = callee[0].location.start.offset;
+                  // we know by construction that there is at least one letter, so this is guaranteed to be nonempty
+                  callee[0].contents = callee[0].contents.substring(extra);
+                  callee[0].location.start.offset += extra;
+                  addProse(items, {
+                    type: 'prose',
+                    parts: [
+                      {
+                        name: 'text',
+                        contents: callee[0].contents.substring(0, extra),
+                        location: { start: { offset: extraLoc } },
+                      },
+                    ],
+                  });
+                }
+              }
+
               this.next.shift();
               const args: Seq[] = [];
               if (this.peek().type !== 'cparen') {
