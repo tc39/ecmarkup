@@ -920,3 +920,77 @@ describe('invocation kind', async () => {
     );
   });
 });
+
+describe('negation', async () => {
+  let biblio;
+  before(async () => {
+    biblio = await getBiblio(`
+      <emu-clause id="example" type="abstract operation">
+        <h1>F ()</h1>
+        <dl class="header"></dl>
+      </emu-clause>
+    `);
+  });
+
+  it('AO with a dash in it', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}x-F().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'could not find definition for x-F',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
+  it('AO with a dash in it, negated', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return -${M}x-F().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'could not find definition for x-F',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
+  it('negative: binary minus', async () => {
+    await assertLintFree(
+      `
+        <emu-alg>
+          1. Return x - F().
+        </emu-alg>
+      `,
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
+  it('negative: unary negation', async () => {
+    await assertLintFree(
+      `
+        <emu-alg>
+          1. Return -F().
+        </emu-alg>
+      `,
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+});
