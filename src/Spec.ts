@@ -1955,9 +1955,7 @@ async function walk(walker: TreeWalker, context: Context) {
     previousInNoEmd = false;
   }
 
-  if (context.node.nodeType === 3) {
-    // walked to a text node
-
+  if (context.node.nodeType === 3 /* Node.TEXT_NODE */) {
     if (context.node.textContent!.trim().length === 0) return; // skip empty nodes; nothing to do!
 
     const clause = context.clauseStack[context.clauseStack.length - 1] || context.spec;
@@ -1966,13 +1964,19 @@ async function walk(walker: TreeWalker, context: Context) {
       // new nodes as a result of emd processing should be skipped
       context.inNoEmd = true;
       let node = context.node as Node | null;
-      while (node && !node.nextSibling) {
+      function nextRealSibling(node: Node | null) {
+        while (node?.nextSibling?.nodeType === 8 /* Node.COMMENT_NODE */) {
+          node = node.nextSibling;
+        }
+        return node?.nextSibling;
+      }
+      while (node && !nextRealSibling(node)) {
         node = node.parentNode;
       }
 
       if (node) {
         // inNoEmd will be set to false when we walk to this node
-        context.followingEmd = node.nextSibling;
+        context.followingEmd = nextRealSibling(node)!;
       }
       // else, there's no more nodes to process and inNoEmd does not need to be tracked
 
