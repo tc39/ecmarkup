@@ -206,8 +206,14 @@ class ExprParser {
               },
             };
       const match = tok.name === 'text' ? tok.contents.match(tokMatcher) : null;
+      // the `tok.name !== 'text'` part in the test below is redundant but makes TS happier
       if (tok.name !== 'text' || match == null) {
-        if (!(tok.name === 'text' && tok.contents.length === 0)) {
+        const empty =
+          (tok.name === 'text' && tok.contents.length === 0) ||
+          tok.name === 'tag' ||
+          tok.name === 'opaqueTag' ||
+          tok.name === 'comment';
+        if (!empty) {
           currentProse.push(tok);
         }
         ++this.srcIndex;
@@ -239,6 +245,36 @@ class ExprParser {
       offset: this.src.length === 0 ? 0 : this.src[this.src.length - 1].location.end.offset,
       source: '',
     });
+  }
+
+  // returns true if this ate a newline
+  private eatWhitespace(): boolean {
+    let next;
+    let hadNewline = false;
+    while ((next = this.peek())?.type === 'prose') {
+      const firstNonWhitespaceIdx = next.parts.findIndex(
+        part => part.name !== 'text' || /\S/.test(part.contents)
+      );
+      if (firstNonWhitespaceIdx === -1) {
+        hadNewline ||= next.parts.some(
+          part => part.name === 'text' && part.contents.includes('\n')
+        );
+        this.next.shift();
+      } else if (firstNonWhitespaceIdx === 0) {
+        return hadNewline;
+      } else {
+        hadNewline ||= next.parts.some(
+          (part, i) =>
+            i < firstNonWhitespaceIdx && part.name === 'text' && part.contents.includes('\n')
+        );
+        this.next[0] = {
+          type: 'prose',
+          parts: next.parts.slice(firstNonWhitespaceIdx),
+        };
+        return hadNewline;
+      }
+    }
+    return hadNewline;
   }
 
   // guarantees the next token is an element of close
@@ -421,7 +457,20 @@ class ExprParser {
           let type: 'record' | 'record-spec' | null = null;
           const members: ({ name: string; value: Seq } | { name: string })[] = [];
           while (true) {
+            const hadNewline = this.eatWhitespace();
             const nextTok = this.peek();
+            if (nextTok.type === 'crec') {
+              if (!hadNewline) {
+                // ideally this would be a lint failure, or better yet a formatting thing, but whatever
+                throw new ParseFailure(
+                  members.length > 0
+                    ? 'trailing commas are only allowed when followed by a newline'
+                    : 'records cannot be empty',
+                  nextTok.offset
+                );
+              }
+              break;
+            }
             if (nextTok.type !== 'prose') {
               throw new ParseFailure('expected to find record field name', nextTok.offset);
             }
@@ -434,14 +483,6 @@ class ExprParser {
             const { contents } = nextTok.parts[0];
             const nameMatch = contents.match(/^\s*\[\[(?<name>\w+)\]\]\s*(?<colon>:?)/);
             if (nameMatch == null) {
-              if (members.length > 0 && /^\s*$/.test(contents) && contents.includes('\n')) {
-                // allow trailing commas when followed by a newline
-                this.next.shift(); // eat the whitespace
-                if (this.peek().type === 'crec') {
-                  this.next.shift();
-                  break;
-                }
-              }
               throw new ParseFailure(
                 'expected to find record field',
                 nextTok.parts[0].location.start.offset + contents.match(/^\s*/)![0].length
@@ -581,6 +622,8 @@ class ExprParser {
   }
 }
 
+// Note: this does not necessarily represent the entire input
+// in particular it may omit some whitespace, tags, and comments
 export function parse(src: FragmentNode[], opNames: Set<String>): Seq | Failure {
   const parser = new ExprParser(src, opNames);
   try {
