@@ -346,6 +346,16 @@ toc: false
       1. Return the result of evaluating this |NonTerminalProduction|.
   </emu-alg>
 
+  <h2>Declarations</h2>
+  <p>The linter checks that each used variable in an algorithm step is declared earlier. It recognizes most common forms of declaration automatically, but in case there is a declaration which is not automatically inferred, a variable can be marked as declared for the purposes of this analysis by adding a `[declared="v"]` attribute at the start of the step. Multiple variables can be listed by seperating them with commas.</p>
+
+  <h3>Element</h3>
+  <pre><code class="language-html">
+&lt;emu-alg>
+  1. [declared="x"] Suppose the existence of _x_.
+&lt;/emu-alg>
+  </code></pre>
+
   <h2>Replacement algorithms</h2>
   <p>Algorithms may be specified to replace a labeled step, in which case the algorithm will adopt the numbering of that step. For example:</p>
 
