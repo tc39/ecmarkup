@@ -29,7 +29,8 @@ export function checkVariableUsage(
   let preceding = previousOrParent(containingAlgorithm, parentClause);
   while (preceding != null) {
     if (preceding.tagName !== 'EMU-ALG' && preceding.querySelector('emu-alg') == null && preceding.textContent != null) {
-      for (let name of preceding.textContent.matchAll(/\b_([a-zA-Z0-9]+)_\b/g)) {
+      // `__` is for <del>_x_</del><ins>_y_</ins>, which has textContent `_x__y_`
+      for (let name of preceding.textContent.matchAll(/(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g)) {
         scope.declare(name[1], null);
       }
     }
@@ -282,7 +283,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
             if (
               // "of"/"in" guard is to distinguish "an integer X such that" from "an integer X in Y such that" - latter should not declare Y
               (isSuchThat && cur.name === 'text' && !/(?: of | in )/.test(cur.contents)) ||
-              (isBe && cur.name === 'text' && /\blet $/i.test(cur.contents))
+              (isBe && cur.name === 'text' && /\blet (?:each of )?$/i.test(cur.contents))
             ) {
               for (let v of varsDeclaredHere) {
                 scope.declare(v.contents[0].contents, v);

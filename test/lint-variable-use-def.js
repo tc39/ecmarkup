@@ -278,6 +278,22 @@ describe('variables are declared and used appropriately', () => {
       );
     });
 
+    it('abstract closure parameters/captures are visible', async () => {
+      await assertLintFree(
+        `
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( <del>_del_</del><ins>_obj_</ins> )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters (_key_, _value_) that captures _obj_ and performs the following steps when called:
+              1. Do something with _obj_, _key_, and _value_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `
+      );
+    });
+
     it('multiple declarations are visible', async () => {
       await assertLintFree(
         `
