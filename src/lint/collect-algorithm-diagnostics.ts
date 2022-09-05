@@ -11,6 +11,7 @@ import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
 import lintForEachElement from './rules/for-each-element';
 import lintStepAttributes from './rules/step-attributes';
+import { checkVariableUsage } from './rules/variable-use-def';
 
 const algorithmRules = [
   lintAlgorithmLineStyle,
@@ -80,6 +81,7 @@ export function collectAlgorithmDiagnostics(
     }
     if (tree != null) {
       visit(tree, observer);
+      checkVariableUsage(algorithm.element, tree.contents, reporter);
     }
 
     algorithm.tree = tree;

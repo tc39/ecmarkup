@@ -3,7 +3,7 @@ import type { Reporter } from '../algorithm-error-reporter-type';
 
 const ruleId = 'unknown-step-attribute';
 
-const KNOWN_ATTRIBUTES = ['id', 'fence-effects'];
+const KNOWN_ATTRIBUTES = ['id', 'fence-effects', 'declared'];
 
 /*
 Checks for unknown attributes on steps.
