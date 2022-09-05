@@ -15,14 +15,14 @@ export default function (report: Reporter, node: Element, algorithmSource: strin
       const idAttr = node.attrs.find(({ key }) => key === 'id');
       if (idAttr != null && !/^step-/.test(idAttr.value)) {
         const itemSource = algorithmSource.slice(
-          node.location.start.offset,
-          node.location.end.offset
+          idAttr.location.start.offset,
+          idAttr.location.end.offset
         );
-        const offset = itemSource.match(/^\s*\d+\. \[ *id *= *"/)![0].length;
+        const offset = itemSource.match(/^id *= *"/)![0].length;
         report({
           ruleId,
-          line: node.location.start.line,
-          column: node.location.start.column + offset,
+          line: idAttr.location.start.line,
+          column: idAttr.location.start.column + offset,
           message: `step labels should start with "step-"`,
         });
       }
