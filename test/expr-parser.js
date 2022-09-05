@@ -19,6 +19,7 @@ describe('expression parsing', () => {
     it('calls', async () => {
       await assertLintFree(`
         <emu-alg>
+          1. Let _foo_ be a variable.
           1. Let _x_ be _foo_().
           1. Set _x_ to _foo_( ).
           1. Set _x_ to _foo_.[[Bar]]().
@@ -41,8 +42,9 @@ describe('expression parsing', () => {
     it('record-spec', async () => {
       await assertLintFree(`
         <emu-alg>
+          1. Let _entries_ be a List.
           1. For each Record { [[Key]], [[Value]] } _p_ of _entries_, do
-            1. Something.
+            1. Use _p_.
         </emu-alg>
       `);
     });
@@ -54,6 +56,7 @@ describe('expression parsing', () => {
             0,
             1,
           ».
+        1. Use _x_.
         </emu-alg>
       `);
     });
@@ -61,10 +64,12 @@ describe('expression parsing', () => {
     it('trailing comma in multi-line call', async () => {
       await assertLintFree(`
         <emu-alg>
+        1. Let _foo_ be a function.
         1. Let _x_ be _foo_(
             0,
             1,
           ).
+        1. Use _x_.
         </emu-alg>
       `);
     });
@@ -76,6 +81,7 @@ describe('expression parsing', () => {
             [[X]]: 0,
             [[Y]]: 1,
           }.
+        1. Use _x_.
         </emu-alg>
       `);
     });
@@ -87,6 +93,7 @@ describe('expression parsing', () => {
         1. Let _x_ be a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1</ins> }.
         1. Let _x_ be a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1, [[Baz]]: 2</ins> }.
         1. Let _x_ be a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1,</ins> [[Baz]]: 2 }.
+        1. Use _x_.
         </emu-alg>
       `);
     });
@@ -127,7 +134,9 @@ describe('expression parsing', () => {
       await assertLint(
         positioned`
           <emu-alg>
+            1. Let _foo_ and _a_ be variables.
             1. Let _x_ be «_foo_(_a_${M}»).
+            1. Use _x_.
           </emu-alg>
         `,
         {
@@ -143,6 +152,7 @@ describe('expression parsing', () => {
         positioned`
           <emu-alg>
             1. Let _x_ be «${M},».
+            1. Use _x_.
           </emu-alg>
         `,
         {
@@ -170,7 +180,9 @@ describe('expression parsing', () => {
       await assertLint(
         positioned`
           <emu-alg>
+            1. Let _foo_ be a function.
             1. Let _x_ be _foo_(${M},)».
+            1. Use _x_.
           </emu-alg>
         `,
         {
@@ -183,7 +195,9 @@ describe('expression parsing', () => {
       await assertLint(
         positioned`
           <emu-alg>
+            1. Let _foo_ and _a_ be variables.
             1. Let _x_ be _foo_(_a_, ${M}).
+            1. Use _x_.
           </emu-alg>
         `,
         {
@@ -199,6 +213,7 @@ describe('expression parsing', () => {
         positioned`
           <emu-alg>
             1. Let _x_ be the Record { ${M}}.
+            1. Use _x_.
           </emu-alg>
         `,
         {
@@ -214,6 +229,7 @@ describe('expression parsing', () => {
         positioned`
           <emu-alg>
             1. Let _x_ be the Record { ${M}[x]: 0 }.
+            1. Use _x_.
           </emu-alg>
         `,
         {
@@ -229,6 +245,7 @@ describe('expression parsing', () => {
         positioned`
           <emu-alg>
             1. Let _x_ be the Record { [[A]]: 0, [[${M}A]]: 0 }.
+            1. Use _x_.
           </emu-alg>
         `,
         {
@@ -244,6 +261,7 @@ describe('expression parsing', () => {
         positioned`
           <emu-alg>
             1. Let _x_ be the Record { [[A]], [[B]]${M}: 0 }.
+            1. Use _x_.
           </emu-alg>
         `,
         {
@@ -257,6 +275,7 @@ describe('expression parsing', () => {
         positioned`
           <emu-alg>
             1. Let _x_ be the Record { [[A]]: 0, [[B]]${M} }.
+            1. Use _x_.
           </emu-alg>
         `,
         {

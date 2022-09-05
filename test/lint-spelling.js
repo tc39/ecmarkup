@@ -45,7 +45,10 @@ describe('spelling', () => {
   it('*0*', async () => {
     await assertLint(
       positioned`
-        <emu-alg>1. If _x_ is ${M}*0*<sub>𝔽</sub>, do foo.</emu-alg>
+        <emu-alg>
+          1. Let _x_ be a value.
+          1. If _x_ is ${M}*0*<sub>𝔽</sub>, do foo.
+        </emu-alg>
       `,
       {
         ruleId: 'spelling',
