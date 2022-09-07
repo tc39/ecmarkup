@@ -115,6 +115,38 @@ describe('variables are declared and used appropriately', () => {
       );
     });
 
+    it('variables in a loop header other than the loop variable must be declared', async () => {
+      await assertLint(
+        positioned`
+          <emu-alg>
+            1. Let _c_ be a variable.
+            1. For each integer _a_ of ${M}_b_ such that _c_ relates to _a_ in some way, do
+              1. Something.
+          </emu-alg>
+        `,
+        {
+          ruleId: 'use-before-def',
+          nodeType: 'emu-alg',
+          message: 'could not find a preceding declaration for "b"',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-alg>
+            1. Let _b_ be a variable.
+            1. For each integer _a_ of _b_ such that ${M}_c_ relates to _a_ in some way, do
+              1. Something.
+          </emu-alg>
+        `,
+        {
+          ruleId: 'use-before-def',
+          nodeType: 'emu-alg',
+          message: 'could not find a preceding declaration for "c"',
+        }
+      );
+    });
+
     it('explicit "declared" annotations should not be redundant', async () => {
       await assertLint(
         positioned`
