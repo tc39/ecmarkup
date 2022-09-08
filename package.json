@@ -27,7 +27,8 @@
 		"/lib",
 		"/js",
 		"/css",
-		"/boilerplate"
+		"/boilerplate",
+		"/entities-processed.json"
 	],
 	"repository": "tc39/ecmarkup",
 	"keywords": [
