@@ -482,6 +482,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-alg>
             1. Let _s_ be |${M}Example|.
+            1. Return _s_.
           </emu-alg>
         `,
         {
@@ -503,6 +504,7 @@ describe('linting whole program', () => {
             <emu-grammar>Statement: \`;\`</emu-grammar>
             <emu-alg>
               1. Let _s_ be |${M}Statements|.
+              1. Return _s_.
             </emu-alg>
           </emu-clause>
         `,
@@ -554,6 +556,7 @@ describe('linting whole program', () => {
         </emu-grammar>
         <emu-alg>
           1. Let _s_ be |Example1|.
+          1. Return _s_.
         </emu-alg>
         <p>Discuss: |Example1|.</p>
         <p>Discuss: <emu-nt>Example1</emu-nt>.</p>

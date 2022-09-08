@@ -45,6 +45,7 @@ describe('linting algorithms', () => {
     it('repeat', async () => {
       await assertLint(
         positioned`<emu-alg>
+          1. Let _x_ be a variable.
           1. Repeat, while _x_ < 10${M}
             1. Foo.
         </emu-alg>`,
@@ -59,6 +60,7 @@ describe('linting algorithms', () => {
     it('inline if', async () => {
       await assertLint(
         positioned`<emu-alg>
+          1. Let _x_ be a variable.
           1. If _x_, then${M}
         </emu-alg>`,
         {
@@ -72,6 +74,7 @@ describe('linting algorithms', () => {
     it('inline if-then', async () => {
       await assertLint(
         positioned`<emu-alg>
+          1. Let _x_ be a variable.
           1. If _x_, ${M}then do something.
         </emu-alg>`,
         {
@@ -85,6 +88,7 @@ describe('linting algorithms', () => {
     it('multiline if', async () => {
       await assertLint(
         positioned`<emu-alg>
+          1. Let _x_ be a variable.
           1. If _x_,${M}
             1. Foo.
         </emu-alg>`,
@@ -97,6 +101,7 @@ describe('linting algorithms', () => {
 
       await assertLint(
         positioned`<emu-alg>
+          1. Let _x_ be a variable.
           1. If _x_${M}; then
             1. Foo.
           </emu-alg>`,
@@ -112,6 +117,7 @@ describe('linting algorithms', () => {
     it('else if', async () => {
       await assertLint(
         positioned`<emu-alg>
+          1. Let _x_ and _y_ be variables.
           1. If _x_, foo.
           1. Else${M}, if _y_, bar.
         </emu-alg>`,
@@ -199,6 +205,7 @@ describe('linting algorithms', () => {
             1. ${M}Let _constructorText_ be the source text
             <pre><code class="javascript">constructor() {}</code></pre>
               1. Foo.
+            1. Use _constructorText_.
         </emu-alg>`,
         {
           ruleId,
@@ -219,6 +226,7 @@ describe('linting algorithms', () => {
     it('negative', async () => {
       await assertLintFree(`
         <emu-alg>
+          1. Let _x_, _y_, and _z_ be variables.
           1. If foo, bar.
           1. Else if foo, bar.
           1. Else, bar.
@@ -250,7 +258,9 @@ describe('linting algorithms', () => {
             1. Substep.
           1. Let _constructorText_ be the source text
           <pre><code class="javascript">constructor() {}</code></pre>
-          1. Set _constructor_ to _parse_(_constructorText_, _methodDefinition_).
+          1. Let _parse_ be a method.
+          1. Let _constructor_ be a variable.
+          1. Set _constructor_ to _parse_(_constructorText_).
           1. <mark>A highlighted line.</mark>
           1. <ins>Amend the spec with this.</ins>
           1. <del>Remove this from the spec.</del>
@@ -413,6 +423,7 @@ describe('linting algorithms', () => {
       await assertLint(
         positioned`
         <emu-alg>
+          1. Let _y_ be a List.
           1. For each ${M}_x_ of _y_, do foo.
         </emu-alg>`,
         {
@@ -426,6 +437,8 @@ describe('linting algorithms', () => {
     it('negative', async () => {
       await assertLintFree(`
         <emu-alg>
+          1. Let _y_ be a List.
+          1. Let _S_ be a Set.
           1. For each String _x_ of _y_, do foo.
           1. For each element _x_ of _y_, do foo.
           1. For each integer _x_ such that _x_ &in; _S_, do foo.

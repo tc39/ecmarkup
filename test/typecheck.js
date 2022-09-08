@@ -84,6 +84,7 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
+            1. Let _foo_ be 0.
             1. Return ${M}ExampleAlg of _foo_.
           </emu-alg>
           </emu-clause>
@@ -133,6 +134,7 @@ describe('typechecking completions', () => {
             1. Let _a_ be Completion(<emu-meta suppress-effects="user-code">ExampleAlg()</emu-meta>).
             1. Set _a_ to ! ExampleAlg().
             1. Return ? ExampleAlg().
+            1. Let _foo_ be 0.
             1. Let _a_ be Completion(ExampleSDO of _foo_).
             1. Let _a_ be Completion(ExampleSDO of _foo_ with argument 0).
             1. If ? ExampleSDO of _foo_ is *true*, then
@@ -230,6 +232,7 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return ${M}? _foo_.
         </emu-alg>
         </emu-clause>
@@ -272,6 +275,7 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
+          1. Let _x_ be 0.
           1. ${M}Return Completion(_x_).
         </emu-alg>
         </emu-clause>
@@ -298,6 +302,8 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
+            1. Let _foo_ be 0.
+            1. Let _x_ be 0.
             1. Return ? _foo_.
             1. Return Completion(_x_).
             1. Throw a new TypeError.
@@ -322,6 +328,7 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         ${M}<emu-alg>
+          1. Let _foo_ be 0.
           1. Return _foo_.
         </emu-alg>
         </emu-clause>
@@ -344,6 +351,7 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return ? _foo_.
         </emu-alg>
         </emu-clause>
@@ -357,6 +365,7 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return _foo_.
         </emu-alg>
         </emu-clause>
@@ -375,6 +384,7 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
+            1. Let _foo_ be 0.
             1. Return _foo_.
           </emu-alg>
           </emu-clause>
@@ -387,6 +397,7 @@ describe('typechecking completions', () => {
           </dl>
           <emu-alg>
             1. Let _x_ be ${M}ExampleAlg().
+            1. Return _x_.
           </emu-alg>
           </emu-clause>
         `,
@@ -408,6 +419,7 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return _foo_.
         </emu-alg>
         </emu-clause>
@@ -481,7 +493,8 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
-        1. Let _x_ be ExampleAlg().
+          1. Let _x_ be ExampleAlg().
+          1. Return _x_.
         </emu-alg>
         </emu-clause>
       `);
@@ -523,6 +536,7 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
+            1. Let _foo_ be 0.
             1. Return ? _foo_.
           </emu-alg>
           </emu-clause>
@@ -534,7 +548,8 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
-          1. Let _x_ be ! ExampleAlg().
+            1. Let _x_ be ! ExampleAlg().
+            1. Return _x_.
           </emu-alg>
           </emu-clause>
         `,
@@ -556,6 +571,7 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
+            1. Let _foo_ be 0.
             1. Return ? _foo_.
           </emu-alg>
           </emu-clause>
@@ -567,7 +583,8 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
-          1. Let _x_ be ? ExampleAlg().
+            1. Let _x_ be ? ExampleAlg().
+            1. Return _x_.
           </emu-alg>
           </emu-clause>
       `);
@@ -710,6 +727,7 @@ describe('signature agreement', async () => {
     await assertLint(
       positioned`
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return ${M}SDOTakesNoArgs of _foo_ with argument 1.
         </emu-alg>
       `,
@@ -726,6 +744,7 @@ describe('signature agreement', async () => {
     await assertLint(
       positioned`
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return <emu-meta suppress-effects="user-code">${M}SDOTakesNoArgs of _foo_ with argument 0</emu-meta>.
         </emu-alg>
       `,
@@ -742,6 +761,7 @@ describe('signature agreement', async () => {
     await assertLint(
       positioned`
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return ${M}SDOTakesOneOrTwoArgs of _foo_ with arguments 0, 1, and 2.
         </emu-alg>
       `,
@@ -794,6 +814,7 @@ describe('signature agreement', async () => {
     await assertLint(
       positioned`
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return ${M}SDOTakesOneArg of _foo_.
         </emu-alg>
       `,
@@ -810,6 +831,7 @@ describe('signature agreement', async () => {
     await assertLint(
       positioned`
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return ${M}SDOTakesOneOrTwoArgs of _foo_.
         </emu-alg>
       `,
@@ -828,6 +850,7 @@ describe('signature agreement', async () => {
     await assertLintFree(
       `
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Perform TakesNoArgs().
           1. Perform TakesOneArg(0).
           1. Perform TakesOneOrTwoArgs(0).
@@ -885,6 +908,7 @@ describe('invocation kind', async () => {
     await assertLint(
       positioned`
         <emu-alg>
+          1. Let _foo_ be 0.
           1. Return ${M}AO of _foo_.
         </emu-alg>
       `,

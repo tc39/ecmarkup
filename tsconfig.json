@@ -9,7 +9,7 @@
         "stripInternal": true,
         "importsNotUsedAsValues": "error",
         "outDir": "lib",
-        "lib": ["es5", "es2019", "dom", "dom.iterable"],
+        "lib": ["es2020", "dom", "dom.iterable"],
         "typeRoots": [
             "node_modules/@types"
         ]
