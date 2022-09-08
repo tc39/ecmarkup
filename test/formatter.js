@@ -546,32 +546,32 @@ describe('equation formatting', () => {
       `
       <emu-eqn id="eqn-DaysInYear" aoid="DaysInYear">
       DaysInYear(_y_)
-      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) &ne; 0
-        = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) &ne; 0
-    = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) &ne; 0
+      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) ≠ 0
+        = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) ≠ 0
+    = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
       = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0
       </emu-eqn>
 
       <emu-eqn id="eqn-DaysInYear" aoid="DaysInYear">DaysInYear(_y_)
-      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) &ne; 0
-      = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) &ne; 0
-      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) &ne; 0
+      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) ≠ 0
+      = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) ≠ 0
+      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
       = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0 </emu-eqn>
       `,
       dedentKeepingTrailingNewline`
       <emu-eqn id="eqn-DaysInYear" aoid="DaysInYear">
         DaysInYear(_y_)
-          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) &ne; 0
-          = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) &ne; 0
-          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) &ne; 0
+          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) ≠ 0
+          = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) ≠ 0
+          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
           = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0
       </emu-eqn>
 
       <emu-eqn id="eqn-DaysInYear" aoid="DaysInYear">
         DaysInYear(_y_)
-          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) &ne; 0
-          = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) &ne; 0
-          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) &ne; 0
+          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) ≠ 0
+          = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) ≠ 0
+          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
           = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0
       </emu-eqn>
       `
@@ -647,6 +647,31 @@ describe('structured header formatting', () => {
         <dl class="header">
         </dl>
       </emu-clause>
+      `
+    );
+  });
+});
+
+describe('entities', () => {
+  it('entities are transformed or not as appropriate', async () => {
+    await assertDocFormatsAs(
+      `
+      <div>
+        some entities are transformed: &AMP; &frac12; &frac12 &fjlig; &CapitalDifferentialD;
+        others are preserved: &amp; &lt; &nbsp; &nbsp &NotAnEntity;
+      </div>
+      <emu-alg>
+        1. This also works in algorithms, as in &laquo; 0, 1 &raquo;.
+      </emu-alg>
+      `,
+      dedentKeepingTrailingNewline`
+      <div>
+        some entities are transformed: &amp; ½ ½ fj ⅅ
+        others are preserved: &amp; &lt; &nbsp; &nbsp &NotAnEntity;
+      </div>
+      <emu-alg>
+        1. This also works in algorithms, as in « 0, 1 ».
+      </emu-alg>
       `
     );
   });

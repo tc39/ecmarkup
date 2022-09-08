@@ -1,10 +1,22 @@
 import { LineBuilder } from './line-builder';
+const entities = require('../../entities-processed.json');
 
 export function printText(text: string, indent: number): LineBuilder {
   const output: LineBuilder = new LineBuilder(indent);
   if (text === '') {
     return output;
   }
+  text = text.replace(/&[a-zA-Z0-9]+;?/g, m => {
+    // entities[m] is null if the entity expands to '&', '<', or a string which has blank/control/etc characters
+    if ({}.hasOwnProperty.call(entities, m) && entities[m] !== null) {
+      return entities[m];
+    }
+    const lower = m.toLowerCase();
+    if (lower === '&le;' || lower === '&amp;') {
+      return lower;
+    }
+    return m;
+  });
 
   const leadingSpace = text[0] === ' ' || text[0] === '\t';
   const trailingSpace = text[text.length - 1] === ' ' || text[text.length - 1] === '\t';
