@@ -391,6 +391,22 @@ describe('linting algorithms', () => {
     });
   });
 
+  describe('step attributes', () => {
+    const ruleId = 'unknown-step-attribute';
+    it('rejects unknown attributes', async () => {
+      await assertLint(
+        positioned`<emu-alg>
+          1. [id="step-id",${M}unknown="foo"] Step.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'unknown step attribute "unknown"',
+        }
+      );
+    });
+  });
+
   describe('for each element', () => {
     const ruleId = 'for-each-element';
     it('rejects loops without types', async () => {

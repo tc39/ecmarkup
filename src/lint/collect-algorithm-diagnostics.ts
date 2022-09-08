@@ -10,12 +10,14 @@ import lintAlgorithmLineStyle from './rules/algorithm-line-style';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
 import lintForEachElement from './rules/for-each-element';
+import lintStepAttributes from './rules/step-attributes';
 
 const algorithmRules = [
   lintAlgorithmLineStyle,
   lintAlgorithmStepNumbering,
   lintAlgorithmStepLabels,
   lintForEachElement,
+  lintStepAttributes,
 ];
 
 function composeObservers(...observers: Observer[]): Observer {
