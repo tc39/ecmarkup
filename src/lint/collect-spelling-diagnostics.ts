@@ -84,6 +84,10 @@ const matchers = [
     message: 'prefer "non-negative"',
   },
   {
+    pattern: /[Nn]onempty/gu,
+    message: 'prefer "non-empty"',
+  },
+  {
     pattern: /\b[Nn]onzero\b/gu,
     message: 'prefer "non-zero"',
   },

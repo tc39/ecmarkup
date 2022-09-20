@@ -286,6 +286,19 @@ describe('spelling', () => {
     );
   });
 
+  it('nonempty', async () => {
+    await assertLint(
+      positioned`
+        <p>a ${M}nonempty List</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'prefer "non-empty"',
+      }
+    );
+  });
+
   it('nonzero', async () => {
     await assertLint(
       positioned`
