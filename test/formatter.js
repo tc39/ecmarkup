@@ -657,7 +657,7 @@ describe('entities', () => {
     await assertDocFormatsAs(
       `
       <div>
-        some entities are transformed: &AMP; &frac12; &frac12 &fjlig; &CapitalDifferentialD;
+        some entities are transformed: &AMP; &AMP &LT &frac12; &frac12 &fjlig; &CapitalDifferentialD;
         others are preserved: &amp; &lt; &nbsp; &nbsp &NotAnEntity;
       </div>
       <emu-alg>
@@ -666,7 +666,7 @@ describe('entities', () => {
       `,
       dedentKeepingTrailingNewline`
       <div>
-        some entities are transformed: &amp; ½ ½ fj ⅅ
+        some entities are transformed: &amp; &amp; &lt; ½ ½ fj ⅅ
         others are preserved: &amp; &lt; &nbsp; &nbsp &NotAnEntity;
       </div>
       <emu-alg>

@@ -12,8 +12,10 @@ export function printText(text: string, indent: number): LineBuilder {
       return entities[m];
     }
     const lower = m.toLowerCase();
-    if (lower === '&le;' || lower === '&amp;') {
+    if (lower === '&lt;' || lower === '&amp;') {
       return lower;
+    } else if (lower === '&lt' || lower === '&amp') {
+      return lower + ';';
     }
     return m;
   });
