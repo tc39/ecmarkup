@@ -37,6 +37,9 @@ export function printText(text: string, indent: number): LineBuilder {
         return m;
       }
       const ch = String.fromCodePoint(codePoint);
+      if (/\p{White_Space}|\p{DI}|\p{gc=M}|\p{gc=C}/u.test(ch)) {
+        return m;
+      }
       if (ch === '&') {
         return '&amp;';
       } else if (ch === '<') {
