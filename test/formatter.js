@@ -657,8 +657,10 @@ describe('entities', () => {
     await assertDocFormatsAs(
       `
       <div>
-        some entities are transformed: &AMP; &AMP &LT &frac12; &frac12 &fjlig; &CapitalDifferentialD;
+        some named entities are transformed: &AMP; &AMP &LT &frac12; &frac12 &fjlig; &CapitalDifferentialD;
         others are preserved: &amp; &lt; &nbsp; &nbsp &NotAnEntity;
+        numeric entities are transformed too: &#x26; &#38; &#x3C; &#60; &#X1d306;
+        unless they're whitespace etc: &#xA0;
       </div>
       <emu-alg>
         1. This also works in algorithms, as in &laquo; 0, 1 &raquo;.
@@ -666,8 +668,10 @@ describe('entities', () => {
       `,
       dedentKeepingTrailingNewline`
       <div>
-        some entities are transformed: &amp; &amp; &lt; ½ ½ fj ⅅ
+        some named entities are transformed: &amp; &amp; &lt; ½ ½ fj ⅅ
         others are preserved: &amp; &lt; &nbsp; &nbsp &NotAnEntity;
+        numeric entities are transformed too: &amp; &amp; &lt; &lt; 𝌆
+        unless they're whitespace etc: &#xA0;
       </div>
       <emu-alg>
         1. This also works in algorithms, as in « 0, 1 ».
