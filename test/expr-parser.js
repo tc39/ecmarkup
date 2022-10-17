@@ -1,6 +1,12 @@
 'use strict';
 
-let { assertLint, positioned, lintLocationMarker: M, assertLintFree } = require('./utils.js');
+let {
+  assertLint,
+  positioned,
+  lintLocationMarker: M,
+  assertLintFree,
+  getBiblio,
+} = require('./utils.js');
 
 describe('expression parsing', () => {
   describe('valid', () => {
@@ -282,6 +288,63 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'expected record field to have value',
+        }
+      );
+    });
+  });
+
+  describe('handling of <del>', () => {
+    let biblio;
+    before(async () => {
+      biblio = await getBiblio(`
+        <emu-clause id="del-complex" type="abstract operation">
+          <h1>
+          Example (
+              _x_: unknown,
+              _y_: unknown,
+            ): unknown
+          </h1>
+          <dl class="header"></dl>
+        </emu-clause>
+      `);
+    });
+
+    it('ignores contents of <del> tags', async () => {
+      await assertLint(
+        positioned`
+          <emu-alg>
+            1. Perform ${M}Example(x<del>, y</del>).
+          </emu-alg>
+        `,
+        {
+          ruleId: 'typecheck',
+          nodeType: 'emu-alg',
+          message: 'Example takes 2 arguments, but this invocation passes 1',
+        },
+        {
+          extraBiblios: [biblio],
+        }
+      );
+
+      await assertLintFree(
+        `
+          <emu-alg>
+            1. Perform Example(x, y<del>, z</del>).
+          </emu-alg>
+        `,
+        {
+          extraBiblios: [biblio],
+        }
+      );
+
+      await assertLintFree(
+        `
+          <emu-alg>
+            1. <del>Perform Example(x, y, z).</del>
+          </emu-alg>
+        `,
+        {
+          extraBiblios: [biblio],
         }
       );
     });

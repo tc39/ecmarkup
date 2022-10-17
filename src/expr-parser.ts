@@ -171,6 +171,20 @@ function emptyThingHasNewline(s: Seq) {
   );
 }
 
+function getTagName(tok: ProsePart): 'open-del' | 'close-del' | null {
+  if (tok.name !== 'tag') {
+    return null;
+  }
+  const lowcase = tok.contents.toLowerCase();
+  if (lowcase.startsWith('<del>') || lowcase.startsWith('<del ')) {
+    return 'open-del';
+  } else if (lowcase.startsWith('</del>') || lowcase.startsWith('</del ')) {
+    return 'close-del';
+  } else {
+    return null;
+  }
+}
+
 class ExprParser {
   declare src: FragmentNode[];
   declare opNames: Set<String>;
@@ -218,6 +232,15 @@ class ExprParser {
         }
         ++this.srcIndex;
         this.textTokOffset = null;
+        // skip anything in `<del>`
+        if (getTagName(tok) === 'open-del') {
+          while (
+            this.srcIndex < this.src.length &&
+            getTagName(this.src[this.srcIndex]) !== 'close-del'
+          ) {
+            ++this.srcIndex;
+          }
+        }
         continue;
       }
       const { groups } = match;
@@ -302,7 +325,7 @@ class ExprParser {
           return { type: 'seq', items };
         }
         case 'eof': {
-          if (items.length === 0 || !close.includes('eof')) {
+          if (!close.includes('eof')) {
             throw new ParseFailure(`unexpected eof (expected ${formatClose(close)})`, next.offset);
           }
           return { type: 'seq', items };
