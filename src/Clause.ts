@@ -402,14 +402,18 @@ function parseType(type: string, offset: number): Type {
 
 function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
   const ret = {
-    parameters: parsedHeader.params.map(p => ({
-      name: p.name,
-      type: p.type == null ? null : parseType(p.type, p.typeOffset),
-    })),
-    optionalParameters: parsedHeader.optionalParams.map(p => ({
-      name: p.name,
-      type: p.type == null ? null : parseType(p.type, p.typeOffset),
-    })),
+    parameters: parsedHeader.params
+      .filter(p => p.wrappingTag !== 'del')
+      .map(p => ({
+        name: p.name,
+        type: p.type == null ? null : parseType(p.type, p.typeOffset),
+      })),
+    optionalParameters: parsedHeader.optionalParams
+      .filter(p => p.wrappingTag !== 'del')
+      .map(p => ({
+        name: p.name,
+        type: p.type == null ? null : parseType(p.type, p.typeOffset),
+      })),
     return:
       parsedHeader.returnType == null
         ? null

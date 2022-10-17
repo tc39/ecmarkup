@@ -846,6 +846,49 @@ describe('signature agreement', async () => {
     );
   });
 
+  it("<del>'d params don't contribute to signature", async () => {
+    let biblio = await getBiblio(`
+      <emu-clause id="del-complex" type="abstract operation">
+        <h1>
+        DelExample (
+            <del>_x_: unknown,</del>
+            _y_: unknown,
+            <ins>_z_: unknown,</ins>
+            <ins>_w_: unknown,</ins>
+          ): unknown
+        </h1>
+        <dl class="header"></dl>
+      </emu-clause>
+    `);
+
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}DelExample(*"x"*, *"y"*).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'DelExample takes 3 arguments, but this invocation passes 2',
+      },
+      {
+        extraBiblios: [biblio],
+      }
+    );
+
+    await assertLintFree(
+      `
+        <emu-alg>
+          1. Return DelExample(*"y"*, *"z"*, *"w"*).
+        </emu-alg>
+      `,
+      {
+        extraBiblios: [biblio],
+      }
+    );
+  });
+
   it('negative', async () => {
     await assertLintFree(
       `
