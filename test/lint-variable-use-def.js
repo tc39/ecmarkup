@@ -368,6 +368,17 @@ describe('variables are declared and used appropriately', () => {
       );
     });
 
+    it('"for some" counts as a declaration"', async () => {
+      await assertLintFree(
+        `
+          <emu-alg>
+            1. If some property of _i_ holds for some integer _i_ in the interval from 0 to 10, return _i_.
+            1. Return -1.
+          </emu-alg>
+        `
+      );
+    });
+
     it('declarations from explicit attributes are visible', async () => {
       await assertLintFree(
         `
