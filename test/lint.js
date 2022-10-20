@@ -393,6 +393,9 @@ describe('linting whole program', () => {
           <emu-clause id="i7">
             <h1>Function ( _p1_, _p2_, &hellip; , _pn_, _body_ )</h1>
           </emu-clause>
+          <emu-clause id="i7-a">
+            <h1>Function ( ..._parameterArgs_, _bodyArg_ )</h1>
+          </emu-clause>
           <emu-clause id="i8">
             <h1>Example ( _a_, <del>_b_</del><ins>_c_</ins> )</h1>
           </emu-clause>

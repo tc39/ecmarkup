@@ -80,10 +80,9 @@ export function collectHeaderDiagnostics(
         /^ \. \. \. $/,
 
         // String.raw ( _template_, ..._substitutions_ )
-        /^ (_[A-Za-z0-9]+_, )*\.\.\._[A-Za-z0-9]+_ $/,
-
         // Function ( _p1_, _p2_, &hellip; , _pn_, _body_ )
-        /^ (_[A-Za-z0-9]+_, )*… (, _[A-Za-z0-9]+_)+ $/,
+        // Function ( ..._parameterArgs_, _bodyArg_ )
+        /^ (_[A-Za-z0-9]+_, )*(\.\.\.|&hellip;|…)(_[A-Za-z0-9]+_| )(, _[A-Za-z0-9]+_)* $/,
 
         // Example ( _foo_ [ , _bar_ ] )
         // Example ( [ _foo_ ] )
