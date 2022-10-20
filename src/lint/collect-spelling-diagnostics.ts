@@ -76,7 +76,7 @@ const matchers = [
     message: 'ECMA-262 uses Oxford spelling ("behaviour", etc.)',
   },
   {
-    pattern: /[Ii]ndexes/gu,
+    pattern: /\b[Ii]ndexes\b/gu,
     message: 'prefer "indices"',
   },
   {
@@ -84,7 +84,7 @@ const matchers = [
     message: 'prefer "non-negative"',
   },
   {
-    pattern: /[Nn]onempty/gu,
+    pattern: /\b[Nn]onempty\b/gu,
     message: 'prefer "non-empty"',
   },
   {
@@ -92,7 +92,7 @@ const matchers = [
     message: 'prefer "non-zero"',
   },
   {
-    pattern: /[Tt]he empty string/gu,
+    pattern: /\b[Tt]he empty string\b/gu,
     message: 'prefer "the empty String"',
   },
   {
