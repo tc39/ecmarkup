@@ -257,7 +257,8 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
         const prev = parts[i - 1];
         if (
           prev.name === 'text' &&
-          /\b(?:for any |there exists |there is |there does not exist )(\w+ )*$/.test(prev.contents)
+          // prettier-ignore
+          /\b(?:for any |for some |there exists |there is |there does not exist )(\w+ )*$/.test(prev.contents)
         ) {
           scope.declare(varName, part);
           declaredThisLine.add(part);
