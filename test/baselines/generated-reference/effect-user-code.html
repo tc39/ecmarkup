@@ -130,14 +130,14 @@
 
 <emu-clause id="sec-result-of-evaluating" type="abstract operation" aoid="ResultOfEvaluating">
   <h1><span class="secnum">21</span> ResultOfEvaluating ( )</h1>
-  <p>The abstract operation ResultOfEvaluating takes no arguments. The phrase "the result of evaluating Foo" is automatically considered as can call user code. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Let <var>res</var> be the result of <span class="e-user-code">evaluating <emu-nt>Foo</emu-nt></span>.</li></ol></emu-alg>
+  <p>The abstract operation ResultOfEvaluating takes no arguments. The phrase "the result of evaluating Foo" is not automatically considered as can call user code. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Let <var>res</var> be the result of evaluating <emu-nt>Foo</emu-nt>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-fenced-effects" type="abstract operation" aoid="FencedEffects">
   <h1><span class="secnum">22</span> FencedEffects ( )</h1>
   <p>The abstract operation FencedEffects takes no arguments. Effects don't propagate past fences in parent steps. A fence must be at the beginning of a step. It performs the following steps when called:</p>
-  <emu-alg><ol><li fence-effects="user-code">Fence.<ol><li><emu-xref aoid="UserCode" id="_ref_20"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li><li>Let <var>foo</var> be the result of <span class="e-user-code">evaluating <var>someUserCode</var></span>.</li></ol></li></ol></emu-alg>
+  <emu-alg><ol><li fence-effects="user-code">Fence.<ol><li><emu-xref aoid="UserCode" id="_ref_20"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li><li>Let <var>foo</var> be the result of evaluating <var>someUserCode</var>.</li></ol></li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-call-fenced-effects" type="abstract operation" aoid="CallFencedEffects">

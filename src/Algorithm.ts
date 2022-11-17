@@ -25,21 +25,17 @@ export default class Algorithm extends Builder {
     context.inAlg = true;
     const { spec, node, clauseStack } = context;
 
-    // Mark all "the result of evaluation Foo" language as having the
-    // "user-code" effect. Do this before ecmarkdown, otherwise productions like
-    // |Foo| get turned into tags and the regexp gets complicated.
-    const innerHTML = node.innerHTML.replace(
-      /the result of evaluating ([a-zA-Z_|0-9]+)/g,
-      'the result of <emu-meta effects="user-code">evaluating $1</emu-meta>'
-    ); // TODO use original slice, forward this from linter
+    const innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
 
-    let emdTree;
-    try {
-      emdTree = emd.parseAlgorithm(innerHTML);
-    } catch (e: any) {
-      if (!('ecmarkdownTree' in node)) {
-        // if it is present, we've already warned earlier
-        warnEmdFailure(spec.warn, node, e);
+    let emdTree: ReturnType<typeof emd.parseAlgorithm> | null = null;
+    if ('ecmarkdownTree' in node) {
+      // @ts-expect-error
+      emdTree = node.ecmarkdownTree;
+    } else {
+      try {
+        emdTree = emd.parseAlgorithm(innerHTML);
+      } catch (e) {
+        warnEmdFailure(spec.warn, node, e as SyntaxError);
       }
     }
     if (emdTree == null) {
