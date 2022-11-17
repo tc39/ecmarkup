@@ -4,7 +4,7 @@ let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require(
 
 const nodeType = 'emu-alg';
 
-describe('linting algorithms', () => {
+describe.only('linting algorithms', () => {
   describe('line style', () => {
     const ruleId = 'algorithm-line-style';
 

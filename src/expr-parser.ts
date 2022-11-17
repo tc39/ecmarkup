@@ -42,11 +42,14 @@ type Paren = {
   type: 'paren';
   items: NonSeq[];
 };
+type Figure = {
+  type: 'figure';
+};
 export type Seq = {
   type: 'seq';
   items: NonSeq[];
 };
-type NonSeq = Prose | List | Record | RecordSpec | Call | SDOCall | Paren;
+type NonSeq = Prose | List | Record | RecordSpec | Call | SDOCall | Paren | Figure;
 export type Expr = NonSeq | Seq;
 type Failure = { type: 'failure'; message: string; offset: number };
 
@@ -63,7 +66,8 @@ type TokenType =
   | 'comma'
   | 'period'
   | 'x_of'
-  | 'with_args';
+  | 'with_args'
+  | 'figure';
 type CloseTokenType =
   | 'clist'
   | 'crec'
@@ -171,7 +175,9 @@ function emptyThingHasNewline(s: Seq) {
   );
 }
 
-function getTagName(tok: ProsePart): 'open-del' | 'close-del' | null {
+function getTagName(
+  tok: ProsePart
+): 'open-del' | 'close-del' | 'open-figure' | 'close-figure' | null {
   if (tok.name !== 'tag') {
     return null;
   }
@@ -180,6 +186,10 @@ function getTagName(tok: ProsePart): 'open-del' | 'close-del' | null {
     return 'open-del';
   } else if (lowcase.startsWith('</del>') || lowcase.startsWith('</del ')) {
     return 'close-del';
+  } else if (lowcase.startsWith('<figure>') || lowcase.startsWith('<figure ')) {
+    return 'open-figure';
+  } else if (lowcase.startsWith('</figure>') || lowcase.startsWith('</figure ')) {
+    return 'close-figure';
   } else {
     return null;
   }
@@ -233,13 +243,30 @@ class ExprParser {
         ++this.srcIndex;
         this.textTokOffset = null;
         // skip anything in `<del>`
-        if (getTagName(tok) === 'open-del') {
+        const tagName = getTagName(tok);
+        if (tagName === 'open-del') {
           while (
             this.srcIndex < this.src.length &&
             getTagName(this.src[this.srcIndex]) !== 'close-del'
           ) {
             ++this.srcIndex;
           }
+        } else if (tagName === 'open-figure') {
+          while (
+            this.srcIndex < this.src.length &&
+            getTagName(this.src[this.srcIndex]) !== 'close-figure'
+          ) {
+            ++this.srcIndex;
+          }
+          if (currentProse.length > 0) {
+            this.next.push({ type: 'prose', parts: currentProse });
+          }
+          this.next.push({
+            type: 'figure',
+            offset: tok.location.start.offset,
+            source: '',
+          });
+          return;
         }
         continue;
       }
@@ -636,8 +663,15 @@ class ExprParser {
           });
           break;
         }
+        case 'figure': {
+          this.next.shift();
+          items.push({
+            type: 'figure',
+          });
+          break;
+        }
         default: {
-          // @ts-ignore
+          // @ts-expect-error
           throw new Error(`unreachable: unknown token type ${next.type}`);
         }
       }
@@ -720,8 +754,11 @@ export function walk(
       }
       break;
     }
+    case 'figure': {
+      break;
+    }
     default: {
-      // @ts-ignore
+      // @ts-expect-error
       throw new Error(`unreachable: unknown expression node type ${current.type}`);
     }
   }
