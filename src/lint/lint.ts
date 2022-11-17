@@ -7,6 +7,7 @@ import { collectAlgorithmDiagnostics } from './collect-algorithm-diagnostics';
 import { collectHeaderDiagnostics } from './collect-header-diagnostics';
 import { collectTagDiagnostics } from './collect-tag-diagnostics';
 import type { AugmentedGrammarEle } from '../Grammar';
+import type { AlgorithmElementWithTree } from '../Algorithm';
 
 /*
 Currently this checks
@@ -83,10 +84,9 @@ export async function lint(
 
   for (const pair of algorithms) {
     if ('tree' in pair) {
-      // @ts-ignore we are intentionally adding a property here
-      pair.element.ecmarkdownTree = pair.tree;
-      // @ts-ignore we are intentionally adding a property here
-      pair.element.originalHtml = pair.element.innerHTML;
+      const element = pair.element as AlgorithmElementWithTree;
+      element.ecmarkdownTree = pair.tree ?? null;
+      element.originalHtml = pair.element.innerHTML;
     }
   }
 }

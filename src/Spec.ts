@@ -9,6 +9,7 @@ import type {
 import type { Context } from './Context';
 import type { AlgorithmBiblioEntry, ExportedBiblio, StepBiblioEntry, Type } from './Biblio';
 import type { BuilderInterface } from './Builder';
+import type { AlgorithmElementWithTree } from './Algorithm';
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -45,7 +46,7 @@ import {
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
-import type { OrderedListNode, parseAlgorithm } from 'ecmarkdown';
+import type { OrderedListNode } from 'ecmarkdown';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
 import { offsetToLineAndColumn } from './utils';
@@ -611,13 +612,11 @@ export default class Spec {
       if (node.hasAttribute('example') || !('ecmarkdownTree' in node)) {
         continue;
       }
-      // @ts-ignore
-      const tree = node.ecmarkdownTree as ReturnType<typeof parseAlgorithm>;
+      const tree = (node as AlgorithmElementWithTree).ecmarkdownTree;
       if (tree == null) {
         continue;
       }
-      // @ts-ignore
-      const originalHtml: string = node.originalHtml;
+      const originalHtml = (node as AlgorithmElementWithTree).originalHtml;
 
       const expressionVisitor = (expr: Expr, path: PathItem[]) => {
         if (expr.type !== 'call' && expr.type !== 'sdo-call') {

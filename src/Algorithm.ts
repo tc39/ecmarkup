@@ -1,5 +1,5 @@
 import type { Context } from './Context';
-import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
+import type { Node as EcmarkdownNode, OrderedListItemNode, AlgorithmNode } from 'ecmarkdown';
 import type { PartialBiblioEntry, StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
@@ -19,6 +19,12 @@ function findLabeledSteps(root: EcmarkdownNode) {
   return steps;
 }
 
+export type AlgorithmElementWithTree = HTMLElement & {
+  // null means a failed parse
+  ecmarkdownTree: AlgorithmNode | null;
+  originalHtml: string;
+};
+
 /*@internal*/
 export default class Algorithm extends Builder {
   static async enter(context: Context) {
@@ -27,13 +33,14 @@ export default class Algorithm extends Builder {
 
     const innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
 
-    let emdTree: ReturnType<typeof emd.parseAlgorithm> | null = null;
+    let emdTree: AlgorithmNode | null = null;
     if ('ecmarkdownTree' in node) {
-      // @ts-expect-error
-      emdTree = node.ecmarkdownTree;
+      emdTree = (node as AlgorithmElementWithTree).ecmarkdownTree;
     } else {
       try {
         emdTree = emd.parseAlgorithm(innerHTML);
+        (node as AlgorithmElementWithTree).ecmarkdownTree = emdTree;
+        (node as AlgorithmElementWithTree).originalHtml = innerHTML;
       } catch (e) {
         warnEmdFailure(spec.warn, node, e as SyntaxError);
       }
@@ -42,11 +49,6 @@ export default class Algorithm extends Builder {
       node.innerHTML = wrapEmdFailure(innerHTML);
       return;
     }
-
-    // @ts-ignore
-    node.ecmarkdownTree = emdTree;
-    // @ts-ignore
-    node.originalHtml = innerHTML;
 
     if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
       const clause = clauseStack[clauseStack.length - 1];

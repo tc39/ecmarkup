@@ -1,6 +1,6 @@
 import type { default as Spec, Warning } from '../Spec';
 
-import type { Node as EcmarkdownNode } from 'ecmarkdown';
+import type { AlgorithmNode } from 'ecmarkdown';
 
 type CollectNodesReturnType =
   | {
@@ -9,7 +9,7 @@ type CollectNodesReturnType =
       mainGrammar: { element: Element; source: string }[];
       sdos: { grammar: Element; alg: Element }[];
       earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[];
-      algorithms: { element: Element; tree?: EcmarkdownNode }[];
+      algorithms: { element: Element; tree?: AlgorithmNode }[];
     }
   | {
       success: false;
@@ -25,7 +25,7 @@ export function collectNodes(
   const mainGrammar: { element: Element; source: string }[] = [];
   const sdos: { grammar: Element; alg: Element }[] = [];
   const earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[] = [];
-  const algorithms: { element: Element; tree?: EcmarkdownNode }[] = [];
+  const algorithms: { element: Element; tree?: AlgorithmNode }[] = [];
 
   let failed = false;
 
