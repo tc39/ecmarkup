@@ -1,9 +1,9 @@
-import type { Node as EcmarkdownNode, Observer } from 'ecmarkdown';
+import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
 
-import type { LintingError } from './algorithm-error-reporter-type';
+import type { LintingError, Reporter } from './algorithm-error-reporter-type';
 import type { default as Spec, Warning } from '../Spec';
 
-import { parseAlgorithm, visit } from 'ecmarkdown';
+import { parseAlgorithm } from 'ecmarkdown';
 
 import { warnEmdFailure } from '../utils';
 import lintAlgorithmLineStyle from './rules/algorithm-line-style';
@@ -13,28 +13,14 @@ import lintForEachElement from './rules/for-each-element';
 import lintStepAttributes from './rules/step-attributes';
 import { checkVariableUsage } from './rules/variable-use-def';
 
-const algorithmRules = [
+type LineRule = (report: Reporter, step: OrderedListItemNode, algorithmSource: string) => void;
+const stepRules: LineRule[] = [
   lintAlgorithmLineStyle,
   lintAlgorithmStepNumbering,
   lintAlgorithmStepLabels,
   lintForEachElement,
   lintStepAttributes,
 ];
-
-function composeObservers(...observers: Observer[]): Observer {
-  return {
-    enter(node: EcmarkdownNode) {
-      for (const observer of observers) {
-        observer.enter?.(node);
-      }
-    },
-    exit(node: EcmarkdownNode) {
-      for (const observer of observers) {
-        observer.exit?.(node);
-      }
-    },
-  };
-}
 
 export function collectAlgorithmDiagnostics(
   report: (e: Warning) => void,
@@ -70,17 +56,26 @@ export function collectAlgorithmDiagnostics(
       location.startTag.endOffset,
       location.endTag.startOffset
     );
-    const observer = composeObservers(
-      ...algorithmRules.map(f => f(reporter, element, algorithmSource))
-    );
     let tree;
     try {
       tree = parseAlgorithm(algorithmSource);
     } catch (e: any) {
       warnEmdFailure(report, element, e);
     }
-    if (tree != null) {
-      visit(tree, observer);
+    function walk(visit: LineRule, step: OrderedListItemNode) {
+      visit(reporter, step, algorithmSource); // TODO reconsider algorithmSource
+      if (step.sublist?.name === 'ol') {
+        for (const substep of step.sublist.contents) {
+          walk(visit, substep);
+        }
+      }
+    }
+    if (tree != null && !element.hasAttribute('example')) {
+      for (const rule of stepRules) {
+        for (const step of tree.contents.contents) {
+          walk(rule, step);
+        }
+      }
       checkVariableUsage(algorithm.element, tree.contents, reporter);
     }
 
