@@ -199,12 +199,36 @@ describe('linting algorithms', () => {
       );
     });
 
-    it('rules still apply to ignored whole-line tags', async () => {
+    it('rules still apply when tags surround the line', async () => {
       await assertLint(positioned`<emu-alg>1. <mark>testing${M}</mark></emu-alg>`, {
         ruleId,
         nodeType,
         message: 'expected freeform line to end with "."',
       });
+    });
+
+    it('rules are aware of internal use of ins/del', async () => {
+      await assertLint(
+        positioned`<emu-alg>
+        1. <ins>If some condition, then</ins>
+          1. <ins>Do a thing.</ins>
+        1. <del>If</del><ins>Else if</ins> some other condition,${M}
+          1. Do a different thing.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected "If" with substeps to end with ", then"',
+        }
+      );
+      await assertLintFree(`
+        <emu-alg>
+          1. <ins>If some condition, then</ins>
+            1. <ins>Do a thing.</ins>
+          1. <del>If</del><ins>Else if</ins> some other condition, then
+            1. Do a different thing.
+        </emu-alg>
+      `);
     });
 
     it('negative', async () => {
