@@ -624,15 +624,15 @@ export default class Spec {
         }
 
         const { callee, arguments: args } = expr;
-        if (!(callee.parts.length === 1 && callee.parts[0].name === 'text')) {
+        if (!(callee.length === 1 && callee[0].name === 'text')) {
           return;
         }
-        const calleeName = callee.parts[0].contents;
+        const calleeName = callee[0].contents;
 
         const warn = (message: string) => {
           const { line, column } = offsetToLineAndColumn(
             originalHtml,
-            callee.parts[0].location.start.offset
+            callee[0].location.start.offset
           );
           this.warn({
             type: 'contents',
@@ -2098,11 +2098,9 @@ function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null
       parent.type === 'seq' &&
       parent.items.every(
         i =>
+          i === pointer ||
           (i.type === 'fragment' &&
-            i.parts.every(
-              p => p.name === 'tag' || (p.name === 'text' && /^\s*$/.test(p.contents))
-            )) ||
-          i === pointer
+            (i.frag.name === 'tag' || (i.frag.name === 'text' && /^\s*$/.test(i.frag.contents))))
       )
     ) {
       // if parent is just whitespace/tags around the call, walk up the tree further
@@ -2120,21 +2118,21 @@ function previousText(expr: Expr, path: PathItem[]): string | null {
   }
   const { parent, index } = part;
   if (parent.type === 'seq') {
-    return textFromPreviousPart(parent, index as number);
+    return textFromPreviousPart(parent, index);
   }
   return null;
 }
 
 function textFromPreviousPart(seq: Seq, index: number): string | null {
-  const prev = seq.items[index - 1];
-  if (prev?.type === 'fragment' && prev.parts.length > 0) {
-    let prevIndex = prev.parts.length - 1;
-    while (prevIndex > 0 && prev.parts[prevIndex].name === 'tag') {
+  let prevIndex = index - 1;
+  let prev;
+  while ((prev = seq.items[prevIndex])?.type === 'fragment') {
+    if (prev.frag.name === 'text') {
+      return prev.frag.contents;
+    } else if (prev.frag.name === 'tag') {
       --prevIndex;
-    }
-    const prevProse = prev.parts[prevIndex];
-    if (prevProse.name === 'text') {
-      return prevProse.contents;
+    } else {
+      break;
     }
   }
   return null;
@@ -2158,13 +2156,13 @@ function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
   const { parent, index } = part;
   if (parent.type === 'seq') {
     // if the previous text ends in `! ` or `? `, this is a completion
-    const text = textFromPreviousPart(parent, index as number);
+    const text = textFromPreviousPart(parent, index);
     if (text != null && /[!?]\s$/.test(text)) {
       return true;
     }
   } else if (parent.type === 'call' && index === 0 && parent.arguments.length === 1) {
     // if this is `Completion(Expr())`, this is a completion
-    const { parts } = parent.callee;
+    const parts = parent.callee;
     if (parts.length === 1 && parts[0].name === 'text' && parts[0].contents === 'Completion') {
       return true;
     }
