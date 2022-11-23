@@ -1,12 +1,18 @@
 import type { OrderedListItemNode } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
+import type { Seq } from '../../expr-parser';
 
 const ruleId = 'algorithm-step-labels';
 
 /*
 Checks that step labels all start with `step-`.
 */
-export default function (report: Reporter, node: OrderedListItemNode, algorithmSource: string) {
+export default function (
+  report: Reporter,
+  stepSeq: Seq | null,
+  node: OrderedListItemNode,
+  algorithmSource: string
+) {
   const idAttr = node.attrs.find(({ key }) => key === 'id');
   if (idAttr != null && !/^step-/.test(idAttr.value)) {
     const itemSource = algorithmSource.slice(

@@ -1,16 +1,16 @@
-import type { OrderedListItemNode } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
+import type { Seq } from '../../expr-parser';
 
 const ruleId = 'for-each-element';
 
 /*
 Checks that "For each" loops name a type or say "element" before the variable.
 */
-export default function (report: Reporter, node: OrderedListItemNode) {
-  if (node.contents.length < 2) {
+export default function (report: Reporter, stepSeq: Seq | null) {
+  if (stepSeq?.items[0]?.type !== 'prose' || stepSeq.items[0].parts.length < 2) {
     return;
   }
-  const [first, second] = node.contents;
+  const [first, second] = stepSeq.items[0].parts;
   if (first.name === 'text' && first.contents === 'For each ' && second.name === 'underscore') {
     report({
       ruleId,

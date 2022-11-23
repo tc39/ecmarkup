@@ -12,8 +12,14 @@ import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
 import lintForEachElement from './rules/for-each-element';
 import lintStepAttributes from './rules/step-attributes';
 import { checkVariableUsage } from './rules/variable-use-def';
+import { parse, Seq } from '../expr-parser';
 
-type LineRule = (report: Reporter, step: OrderedListItemNode, algorithmSource: string) => void;
+type LineRule = (
+  report: Reporter,
+  stepSeq: Seq | null,
+  step: OrderedListItemNode,
+  algorithmSource: string
+) => void;
 const stepRules: LineRule[] = [
   lintAlgorithmLineStyle,
   lintAlgorithmStepNumbering,
@@ -63,7 +69,10 @@ export function collectAlgorithmDiagnostics(
       warnEmdFailure(report, element, e);
     }
     function walk(visit: LineRule, step: OrderedListItemNode) {
-      visit(reporter, step, algorithmSource); // TODO reconsider algorithmSource
+      // we don't know the names of ops at this point
+      // TODO maybe run later in the process? but not worth worrying about for now
+      const parsed = parse(step.contents, new Set());
+      visit(reporter, parsed.type === 'seq' ? parsed : null, step, algorithmSource); // TODO reconsider algorithmSource
       if (step.sublist?.name === 'ol') {
         for (const substep of step.sublist.contents) {
           walk(visit, substep);

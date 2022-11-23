@@ -1,5 +1,6 @@
 import type { OrderedListItemNode } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
+import type { Seq } from '../../expr-parser';
 
 const ruleId = 'algorithm-line-style';
 
@@ -24,7 +25,12 @@ Checks that every algorithm step has one of these forms:
 - `Other.`
 - `Other:` + substeps
 */
-export default function (report: Reporter, node: OrderedListItemNode, algorithmSource: string) {
+export default function (
+  report: Reporter,
+  stepSeq: Seq | null,
+  node: OrderedListItemNode,
+  algorithmSource: string
+) {
   let firstIndex = 0;
   let lastIndex = node.contents.length - 1;
 

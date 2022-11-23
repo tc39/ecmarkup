@@ -1,12 +1,18 @@
 import type { OrderedListItemNode } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
+import type { Seq } from '../../expr-parser';
 
 const ruleId = 'algorithm-step-numbering';
 
 /*
 Checks that step numbers are all `1`.
 */
-export default function (report: Reporter, node: OrderedListItemNode, algorithmSource: string) {
+export default function (
+  report: Reporter,
+  stepSeq: Seq | null,
+  node: OrderedListItemNode,
+  algorithmSource: string
+) {
   const itemSource = algorithmSource.slice(node.location.start.offset, node.location.end.offset);
   const match = itemSource.match(/^(\s*)(\d+\.) /)!;
   if (match[2] !== '1.') {
