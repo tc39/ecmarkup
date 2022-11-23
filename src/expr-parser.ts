@@ -9,36 +9,52 @@ type ProsePart = FragmentNode | BareText;
 type Fragment = {
   type: 'fragment';
   frag: ProsePart;
+  start: number;
+  end: number;
 };
 type List = {
   type: 'list';
   elements: Seq[];
+  start: number;
+  end: number;
 };
 type Record = {
   type: 'record';
   members: { name: string; value: Seq }[];
+  start: number;
+  end: number;
 };
 type RecordSpec = {
   type: 'record-spec';
   members: { name: string }[];
+  start: number;
+  end: number;
 };
 type Call = {
   type: 'call';
   callee: ProsePart[]; // nonempty
   arguments: Seq[];
+  start: number;
+  end: number;
 };
 type SDOCall = {
   type: 'sdo-call';
   callee: [BareText]; // we put this in a length-one tuple for symmetry with Call
   parseNode: Seq;
   arguments: Seq[];
+  start: number;
+  end: number;
 };
 type Paren = {
   type: 'paren';
   items: NonSeq[];
+  start: number;
+  end: number;
 };
 type Figure = {
   type: 'figure';
+  start: number;
+  end: number;
 };
 export type Seq = {
   type: 'seq';
@@ -73,7 +89,8 @@ type CloseTokenType =
   | 'period'
   | 'eof'
   | 'with_args';
-type Token = Fragment | { type: TokenType; offset: number; source: string };
+type SimpleToken = { type: TokenType; offset: number; source: string };
+type Token = Fragment | SimpleToken;
 
 class ParseFailure extends Error {
   declare offset: number;
@@ -114,15 +131,38 @@ function formatClose(close: CloseTokenType[]) {
 function addProse(items: NonSeq[], token: Token) {
   // sometimes we determine after seeing a token that it should not have been treated as a token
   if (token.type === 'fragment') {
-    items.push(token);
+    const prev = items[items.length - 1];
+    if (
+      token.frag.name === 'text' &&
+      prev?.type === 'fragment' &&
+      prev.frag.name === 'text' &&
+      prev.end === token.start // might be false when e.g. skipping tags
+    ) {
+      // join with previous token
+      items[items.length - 1] = {
+        type: 'fragment',
+        frag: {
+          name: 'text',
+          contents: prev.frag.contents + token.frag.contents,
+          location: { start: { offset: prev.start } },
+        },
+        start: prev.start,
+        end: token.end,
+      };
+    } else {
+      items.push(token);
+    }
   } else {
-    items.push({
+    // invoke addProse so it has a chance to join
+    addProse(items, {
       type: 'fragment',
       frag: {
         name: 'text',
         contents: token.source,
         location: { start: { offset: token.offset } },
       },
+      start: token.offset,
+      end: token.offset + token.source.length,
     });
   }
 }
@@ -185,7 +225,16 @@ class ExprParser {
     const currentProse: ProsePart[] = [];
     const commitProse = () => {
       while (currentProse.length > 0) {
-        this.next.push({ type: 'fragment', frag: currentProse.shift()! });
+        const frag = currentProse.shift()!;
+        this.next.push({
+          type: 'fragment',
+          frag,
+          start: frag.location.start.offset,
+          end:
+            frag.name === 'text'
+              ? frag.location.start.offset + frag.contents.length
+              : frag.location.end.offset,
+        });
       }
     };
     while (this.srcIndex < this.src.length) {
@@ -314,7 +363,7 @@ class ExprParser {
           break;
         }
         case 'olist': {
-          this.next.shift();
+          const startTok = this.next.shift() as SimpleToken;
           const elements: Seq[] = [];
           if (this.peek().type !== 'clist') {
             while (true) {
@@ -336,8 +385,13 @@ class ExprParser {
               );
             }
           }
-          items.push({ type: 'list', elements });
-          this.next.shift(); // eat the clist
+          const endTok = this.next.shift() as SimpleToken; // eat the clist
+          items.push({
+            type: 'list',
+            elements,
+            start: startTok.offset,
+            end: endTok.offset + endTok.source.length,
+          });
           break;
         }
         case 'clist': {
@@ -375,6 +429,8 @@ class ExprParser {
                       contents: contents.slice(0, spaceIndex + 1),
                       location: ppart.frag.location,
                     },
+                    start: ppart.frag.location.start.offset,
+                    end: ppart.frag.location.start.offset + spaceIndex + 1,
                   };
                   // calleePart is nonempty because it matches \p{Letter}
                   callee.unshift({
@@ -401,13 +457,16 @@ class ExprParser {
                 // we know by construction that there is at least one letter, so this is guaranteed to be nonempty
                 callee[0].contents = callee[0].contents.substring(extra);
                 callee[0].location.start.offset += extra;
+                const contents = callee[0].contents.substring(0, extra);
                 addProse(items, {
                   type: 'fragment',
                   frag: {
                     name: 'text',
-                    contents: callee[0].contents.substring(0, extra),
+                    contents,
                     location: { start: { offset: extraLoc } },
                   },
+                  start: extraLoc,
+                  end: extraLoc + contents.length,
                 });
               }
             }
@@ -434,16 +493,24 @@ class ExprParser {
                 );
               }
             }
+            const cParen = this.next.shift() as SimpleToken;
             items.push({
               type: 'call',
               callee,
               arguments: args,
+              start: callee[0].location.start.offset,
+              end: cParen.offset + cParen.source.length,
             });
-            this.next.shift(); // eat the cparen
           } else {
-            this.next.shift();
-            items.push({ type: 'paren', items: this.parseSeq(['cparen']).items });
-            this.next.shift(); // eat the cparen
+            const oParen = this.next.shift() as SimpleToken;
+            const parenContents = this.parseSeq(['cparen']).items;
+            const cParen = this.next.shift() as SimpleToken;
+            items.push({
+              type: 'paren',
+              items: parenContents,
+              start: oParen.offset,
+              end: cParen.offset + cParen.source.length,
+            });
           }
           break;
         }
@@ -457,7 +524,7 @@ class ExprParser {
           return { type: 'seq', items };
         }
         case 'orec': {
-          this.next.shift();
+          const oRecTok = this.next.shift() as SimpleToken;
           let type: 'record' | 'record-spec' | null = null;
           const members: ({ name: string; value: Seq } | { name: string })[] = [];
           while (true) {
@@ -514,6 +581,8 @@ class ExprParser {
               this.next[0] = {
                 type: 'fragment',
                 frag: shortened,
+                start: offset,
+                end: offset + shortenedText.length,
               };
             }
             if (colon) {
@@ -546,9 +615,14 @@ class ExprParser {
             }
             this.next.shift(); // eat the comma
           }
-          // @ts-ignore typing this correctly is annoying
-          items.push({ type, members });
-          this.next.shift(); // eat the crec
+          const cRecTok = this.next.shift() as SimpleToken;
+          // @ts-expect-error typing this properly is annoying
+          items.push({
+            type: type!,
+            members,
+            start: oRecTok.offset,
+            end: cRecTok.offset + cRecTok.source.length,
+          });
           break;
         }
         case 'crec': {
@@ -599,6 +673,7 @@ class ExprParser {
               this.next.shift();
             }
           }
+          const lastThing = args.length > 0 ? args[args.length - 1] : parseNode;
           items.push({
             type: 'sdo-call',
             callee: [
@@ -610,13 +685,17 @@ class ExprParser {
             ],
             parseNode,
             arguments: args,
+            start: next.offset,
+            end: lastThing.items[lastThing.items.length - 1].end,
           });
           break;
         }
         case 'figure': {
-          this.next.shift();
+          const tok = this.next.shift() as SimpleToken;
           items.push({
             type: 'figure',
+            start: tok.offset,
+            end: tok.offset + tok.source.length,
           });
           break;
         }
