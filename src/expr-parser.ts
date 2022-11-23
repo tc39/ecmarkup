@@ -11,10 +11,9 @@ const tokMatcher =
 type ProsePart =
   | FragmentNode
   | { name: 'text'; contents: string; location: { start: { offset: number } } };
-type Prose = {
-  type: 'prose';
+type Fragment = {
+  type: 'fragment';
   parts: ProsePart[]; // nonempty
-  offset: number;
 };
 type List = {
   type: 'list';
@@ -30,12 +29,12 @@ type RecordSpec = {
 };
 type Call = {
   type: 'call';
-  callee: Prose;
+  callee: Fragment;
   arguments: Seq[];
 };
 type SDOCall = {
   type: 'sdo-call';
-  callee: Prose; // could just be string, but this way we get location and symmetry with Call
+  callee: Fragment; // could just be string, but this way we get location and symmetry with Call
   parseNode: Seq;
   arguments: Seq[];
 };
@@ -50,7 +49,7 @@ export type Seq = {
   type: 'seq';
   items: NonSeq[];
 };
-type NonSeq = Prose | List | Record | RecordSpec | Call | SDOCall | Paren | Figure;
+type NonSeq = Fragment | List | Record | RecordSpec | Call | SDOCall | Paren | Figure;
 export type Expr = NonSeq | Seq;
 type Failure = { type: 'failure'; message: string; offset: number };
 
@@ -79,7 +78,7 @@ type CloseTokenType =
   | 'period'
   | 'eof'
   | 'with_args';
-type Token = Prose | { type: TokenType; offset: number; source: string };
+type Token = Fragment | { type: TokenType; offset: number; source: string };
 
 class ParseFailure extends Error {
   declare offset: number;
@@ -121,15 +120,15 @@ function addProse(items: NonSeq[], token: Token) {
   // sometimes we determine after seeing a token that it should not have been treated as a token
   // in that case we want to join it with the preceding prose, if any
   const prev = items[items.length - 1];
-  if (token.type === 'prose') {
-    if (prev == null || prev.type !== 'prose') {
+  if (token.type === 'fragment') {
+    if (prev == null || prev.type !== 'fragment') {
       items.push(token);
     } else {
       const lastPartOfPrev = prev.parts[prev.parts.length - 1];
       const firstPartOfThis = token.parts[0];
       if (lastPartOfPrev?.name === 'text' && firstPartOfThis?.name === 'text') {
         items[items.length - 1] = {
-          type: 'prose',
+          type: 'fragment',
           parts: [
             ...prev.parts.slice(0, -1),
             {
@@ -139,19 +138,17 @@ function addProse(items: NonSeq[], token: Token) {
             },
             ...token.parts.slice(1),
           ],
-          offset: prev.offset,
         };
       } else {
         items[items.length - 1] = {
-          type: 'prose',
+          type: 'fragment',
           parts: [...prev.parts, ...token.parts],
-          offset: prev.offset,
         };
       }
     }
   } else {
     addProse(items, {
-      type: 'prose',
+      type: 'fragment',
       parts: [
         {
           name: 'text',
@@ -159,23 +156,24 @@ function addProse(items: NonSeq[], token: Token) {
           location: { start: { offset: token.offset } },
         },
       ],
-      offset: token.offset,
     });
   }
 }
 
-function isWhitespace(x: Prose) {
+function isWhitespace(x: Fragment) {
   return x.parts.every(p => p.name === 'text' && /^\s*$/.test(p.contents));
 }
 
 function isEmpty(s: Seq) {
-  return s.items.every(i => i.type === 'prose' && isWhitespace(i));
+  return s.items.every(i => i.type === 'fragment' && isWhitespace(i));
 }
 
 function emptyThingHasNewline(s: Seq) {
   // only call this function on things which pass isEmpty
   return s.items.some(i =>
-    (i as Prose).parts.some(p => (p as { name: 'text'; contents: string }).contents.includes('\n'))
+    (i as Fragment).parts.some(p =>
+      (p as { name: 'text'; contents: string }).contents.includes('\n')
+    )
   );
 }
 
@@ -263,11 +261,7 @@ class ExprParser {
             ++this.srcIndex;
           }
           if (currentProse.length > 0) {
-            this.next.push({
-              type: 'prose',
-              parts: currentProse,
-              offset: currentProse[0].location.start.offset,
-            });
+            this.next.push({ type: 'fragment', parts: currentProse });
           }
           this.next.push({
             type: 'figure',
@@ -285,11 +279,7 @@ class ExprParser {
       }
       const matchKind = Object.keys(groups!).find(x => groups![x] != null)!;
       if (currentProse.length > 0) {
-        this.next.push({
-          type: 'prose',
-          parts: currentProse,
-          offset: currentProse[0].location.start.offset,
-        });
+        this.next.push({ type: 'fragment', parts: currentProse });
       }
       this.textTokOffset = (this.textTokOffset ?? 0) + match.index! + match[0].length;
       this.next.push({
@@ -300,11 +290,7 @@ class ExprParser {
       return;
     }
     if (currentProse.length > 0) {
-      this.next.push({
-        type: 'prose',
-        parts: currentProse,
-        offset: currentProse[0].location.start.offset,
-      });
+      this.next.push({ type: 'fragment', parts: currentProse });
     }
     this.next.push({
       type: 'eof',
@@ -317,7 +303,7 @@ class ExprParser {
   private eatWhitespace(): boolean {
     let next;
     let hadNewline = false;
-    while ((next = this.peek())?.type === 'prose') {
+    while ((next = this.peek())?.type === 'fragment') {
       const firstNonWhitespaceIdx = next.parts.findIndex(
         part => part.name !== 'text' || /\S/.test(part.contents)
       );
@@ -333,11 +319,9 @@ class ExprParser {
           (part, i) =>
             i < firstNonWhitespaceIdx && part.name === 'text' && part.contents.includes('\n')
         );
-        const parts = next.parts.slice(firstNonWhitespaceIdx);
         this.next[0] = {
-          type: 'prose',
-          parts,
-          offset: parts[0].location.start.offset,
+          type: 'fragment',
+          parts: next.parts.slice(firstNonWhitespaceIdx),
         };
         return hadNewline;
       }
@@ -375,7 +359,7 @@ class ExprParser {
           }
           return { type: 'seq', items };
         }
-        case 'prose': {
+        case 'fragment': {
           addProse(items, next);
           this.next.shift();
           break;
@@ -418,7 +402,7 @@ class ExprParser {
         }
         case 'oparen': {
           const lastPart = items[items.length - 1];
-          if (lastPart != null && lastPart.type === 'prose') {
+          if (lastPart != null && lastPart.type === 'fragment') {
             const callee: ProsePart[] = [];
             for (let i = lastPart.parts.length - 1; i >= 0; --i) {
               const ppart = lastPart.parts[i];
@@ -463,7 +447,7 @@ class ExprParser {
                   callee[0].contents = callee[0].contents.substring(extra);
                   callee[0].location.start.offset += extra;
                   addProse(items, {
-                    type: 'prose',
+                    type: 'fragment',
                     parts: [
                       {
                         name: 'text',
@@ -471,7 +455,6 @@ class ExprParser {
                         location: { start: { offset: extraLoc } },
                       },
                     ],
-                    offset: extraLoc,
                   });
                 }
               }
@@ -500,7 +483,7 @@ class ExprParser {
               }
               items.push({
                 type: 'call',
-                callee: { type: 'prose', parts: callee, offset: callee[0].location.start.offset },
+                callee: { type: 'fragment', parts: callee },
                 arguments: args,
               });
               this.next.shift(); // eat the cparen
@@ -540,7 +523,7 @@ class ExprParser {
               }
               break;
             }
-            if (nextTok.type !== 'prose') {
+            if (nextTok.type !== 'fragment') {
               throw new ParseFailure('expected to find record field name', nextTok.offset);
             }
             if (nextTok.parts[0].name !== 'text') {
@@ -570,9 +553,8 @@ class ExprParser {
               this.next.shift();
             } else if (shortenedText.length === 0) {
               this.next[0] = {
-                type: 'prose',
+                type: 'fragment',
                 parts: nextTok.parts.slice(1),
-                offset: nextTok.parts[1].location.start.offset,
               };
             } else {
               const shortened: ProsePart = {
@@ -583,9 +565,8 @@ class ExprParser {
                 },
               };
               this.next[0] = {
-                type: 'prose',
+                type: 'fragment',
                 parts: [shortened, ...nextTok.parts.slice(1)],
-                offset,
               };
             }
             if (colon) {
@@ -674,11 +655,10 @@ class ExprParser {
           items.push({
             type: 'sdo-call',
             callee: {
-              type: 'prose',
+              type: 'fragment',
               parts: [
                 { name: 'text', contents: callee, location: { start: { offset: next.offset } } },
               ],
-              offset: next.offset,
             },
             parseNode,
             arguments: args,
@@ -726,7 +706,7 @@ export function walk(
 ) {
   f(current, path);
   switch (current.type) {
-    case 'prose': {
+    case 'fragment': {
       break;
     }
     case 'list': {

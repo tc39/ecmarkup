@@ -2098,7 +2098,7 @@ function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null
       parent.type === 'seq' &&
       parent.items.every(
         i =>
-          (i.type === 'prose' &&
+          (i.type === 'fragment' &&
             i.parts.every(
               p => p.name === 'tag' || (p.name === 'text' && /^\s*$/.test(p.contents))
             )) ||
@@ -2127,7 +2127,7 @@ function previousText(expr: Expr, path: PathItem[]): string | null {
 
 function textFromPreviousPart(seq: Seq, index: number): string | null {
   const prev = seq.items[index - 1];
-  if (prev?.type === 'prose' && prev.parts.length > 0) {
+  if (prev?.type === 'fragment' && prev.parts.length > 0) {
     let prevIndex = prev.parts.length - 1;
     while (prevIndex > 0 && prev.parts[prevIndex].name === 'tag') {
       --prevIndex;

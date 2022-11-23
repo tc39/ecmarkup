@@ -7,7 +7,7 @@ const ruleId = 'for-each-element';
 Checks that "For each" loops name a type or say "element" before the variable.
 */
 export default function (report: Reporter, stepSeq: Seq | null) {
-  if (stepSeq?.items[0]?.type !== 'prose' || stepSeq.items[0].parts.length < 2) {
+  if (stepSeq?.items[0]?.type !== 'fragment' || stepSeq.items[0].parts.length < 2) {
     return;
   }
   const [first, second] = stepSeq.items[0].parts;
