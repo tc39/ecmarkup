@@ -1,52 +1,66 @@
-import type { parseFragment } from 'ecmarkdown';
+import type { FragmentNode } from 'ecmarkdown';
 import { formatEnglishList } from './header-parser';
-
-// TODO export FragmentNode
-type Unarray<T> = T extends Array<infer U> ? U : T;
-type FragmentNode = Unarray<ReturnType<typeof parseFragment>>;
 
 const tokMatcher =
   /(?<olist>&laquo;|«)|(?<clist>&raquo;|»)|(?<orec>\{)|(?<crec>\})|(?<oparen>\()|(?<cparen>\))|(?<and>(?:, )?and )|(?<is> is )|(?<comma>,)|(?<period>\.(?= |$))|(?<x_of>\b\w+ of )|(?<with_args> with arguments? )/u;
 
-type ProsePart =
-  | FragmentNode
-  | { name: 'text'; contents: string; location: { start: { offset: number } } };
-type Prose = {
-  type: 'prose';
-  parts: ProsePart[]; // nonempty
+type BareText = { name: 'text'; contents: string; location: { start: { offset: number } } }; // like TextNode, but with less complete location information
+type ProsePart = FragmentNode | BareText;
+type Fragment = {
+  type: 'fragment';
+  frag: ProsePart;
+  start: number;
+  end: number;
 };
 type List = {
   type: 'list';
   elements: Seq[];
+  start: number;
+  end: number;
 };
 type Record = {
   type: 'record';
   members: { name: string; value: Seq }[];
+  start: number;
+  end: number;
 };
 type RecordSpec = {
   type: 'record-spec';
   members: { name: string }[];
+  start: number;
+  end: number;
 };
 type Call = {
   type: 'call';
-  callee: Prose;
+  callee: ProsePart[]; // nonempty
   arguments: Seq[];
+  start: number;
+  end: number;
 };
 type SDOCall = {
   type: 'sdo-call';
-  callee: Prose; // could just be string, but this way we get location and symmetry with Call
+  callee: [BareText]; // we put this in a length-one tuple for symmetry with Call
   parseNode: Seq;
   arguments: Seq[];
+  start: number;
+  end: number;
 };
 type Paren = {
   type: 'paren';
   items: NonSeq[];
+  start: number;
+  end: number;
+};
+type Figure = {
+  type: 'figure';
+  start: number;
+  end: number;
 };
 export type Seq = {
   type: 'seq';
   items: NonSeq[];
 };
-type NonSeq = Prose | List | Record | RecordSpec | Call | SDOCall | Paren;
+type NonSeq = Fragment | List | Record | RecordSpec | Call | SDOCall | Paren | Figure;
 export type Expr = NonSeq | Seq;
 type Failure = { type: 'failure'; message: string; offset: number };
 
@@ -63,7 +77,8 @@ type TokenType =
   | 'comma'
   | 'period'
   | 'x_of'
-  | 'with_args';
+  | 'with_args'
+  | 'figure';
 type CloseTokenType =
   | 'clist'
   | 'crec'
@@ -74,7 +89,8 @@ type CloseTokenType =
   | 'period'
   | 'eof'
   | 'with_args';
-type Token = Prose | { type: TokenType; offset: number; source: string };
+type SimpleToken = { type: TokenType; offset: number; source: string };
+type Token = Fragment | SimpleToken;
 
 class ParseFailure extends Error {
   declare offset: number;
@@ -114,64 +130,61 @@ function formatClose(close: CloseTokenType[]) {
 
 function addProse(items: NonSeq[], token: Token) {
   // sometimes we determine after seeing a token that it should not have been treated as a token
-  // in that case we want to join it with the preceding prose, if any
-  const prev = items[items.length - 1];
-  if (token.type === 'prose') {
-    if (prev == null || prev.type !== 'prose') {
-      items.push(token);
+  if (token.type === 'fragment') {
+    const prev = items[items.length - 1];
+    if (
+      token.frag.name === 'text' &&
+      prev?.type === 'fragment' &&
+      prev.frag.name === 'text' &&
+      prev.end === token.start // might be false when e.g. skipping tags
+    ) {
+      // join with previous token
+      items[items.length - 1] = {
+        type: 'fragment',
+        frag: {
+          name: 'text',
+          contents: prev.frag.contents + token.frag.contents,
+          location: { start: { offset: prev.start } },
+        },
+        start: prev.start,
+        end: token.end,
+      };
     } else {
-      const lastPartOfPrev = prev.parts[prev.parts.length - 1];
-      const firstPartOfThis = token.parts[0];
-      if (lastPartOfPrev?.name === 'text' && firstPartOfThis?.name === 'text') {
-        items[items.length - 1] = {
-          type: 'prose',
-          parts: [
-            ...prev.parts.slice(0, -1),
-            {
-              name: 'text',
-              contents: lastPartOfPrev.contents + firstPartOfThis.contents,
-              location: { start: { offset: lastPartOfPrev.location.start.offset } },
-            },
-            ...token.parts.slice(1),
-          ],
-        };
-      } else {
-        items[items.length - 1] = {
-          type: 'prose',
-          parts: [...prev.parts, ...token.parts],
-        };
-      }
+      items.push(token);
     }
   } else {
+    // invoke addProse so it has a chance to join
     addProse(items, {
-      type: 'prose',
-      parts: [
-        {
-          name: 'text',
-          contents: token.source,
-          location: { start: { offset: token.offset } },
-        },
-      ],
+      type: 'fragment',
+      frag: {
+        name: 'text',
+        contents: token.source,
+        location: { start: { offset: token.offset } },
+      },
+      start: token.offset,
+      end: token.offset + token.source.length,
     });
   }
 }
 
-function isWhitespace(x: Prose) {
-  return x.parts.every(p => p.name === 'text' && /^\s*$/.test(p.contents));
+function isWhitespace(x: Fragment) {
+  return x.frag.name === 'text' && /^\s*$/.test(x.frag.contents);
 }
 
 function isEmpty(s: Seq) {
-  return s.items.every(i => i.type === 'prose' && isWhitespace(i));
+  return s.items.every(i => i.type === 'fragment' && isWhitespace(i));
 }
 
 function emptyThingHasNewline(s: Seq) {
   // only call this function on things which pass isEmpty
   return s.items.some(i =>
-    (i as Prose).parts.some(p => (p as { name: 'text'; contents: string }).contents.includes('\n'))
+    ((i as Fragment).frag as { name: 'text'; contents: string }).contents.includes('\n')
   );
 }
 
-function getTagName(tok: ProsePart): 'open-del' | 'close-del' | null {
+function getTagName(
+  tok: ProsePart
+): 'open-del' | 'close-del' | 'open-figure' | 'close-figure' | null {
   if (tok.name !== 'tag') {
     return null;
   }
@@ -180,6 +193,10 @@ function getTagName(tok: ProsePart): 'open-del' | 'close-del' | null {
     return 'open-del';
   } else if (lowcase.startsWith('</del>') || lowcase.startsWith('</del ')) {
     return 'close-del';
+  } else if (lowcase.startsWith('<figure>') || lowcase.startsWith('<figure ')) {
+    return 'open-figure';
+  } else if (lowcase.startsWith('</figure>') || lowcase.startsWith('</figure ')) {
+    return 'close-figure';
   } else {
     return null;
   }
@@ -206,6 +223,20 @@ class ExprParser {
   // this method is complicated because the underlying data is a sequence of ecmarkdown fragments, not a string
   private advance() {
     const currentProse: ProsePart[] = [];
+    const commitProse = () => {
+      while (currentProse.length > 0) {
+        const frag = currentProse.shift()!;
+        this.next.push({
+          type: 'fragment',
+          frag,
+          start: frag.location.start.offset,
+          end:
+            frag.name === 'text'
+              ? frag.location.start.offset + frag.contents.length
+              : frag.location.end.offset,
+        });
+      }
+    };
     while (this.srcIndex < this.src.length) {
       const tok: ProsePart =
         this.textTokOffset == null
@@ -233,13 +264,28 @@ class ExprParser {
         ++this.srcIndex;
         this.textTokOffset = null;
         // skip anything in `<del>`
-        if (getTagName(tok) === 'open-del') {
+        const tagName = getTagName(tok);
+        if (tagName === 'open-del') {
           while (
             this.srcIndex < this.src.length &&
             getTagName(this.src[this.srcIndex]) !== 'close-del'
           ) {
             ++this.srcIndex;
           }
+        } else if (tagName === 'open-figure') {
+          while (
+            this.srcIndex < this.src.length &&
+            getTagName(this.src[this.srcIndex]) !== 'close-figure'
+          ) {
+            ++this.srcIndex;
+          }
+          commitProse();
+          this.next.push({
+            type: 'figure',
+            offset: tok.location.start.offset,
+            source: '',
+          });
+          return;
         }
         continue;
       }
@@ -249,9 +295,7 @@ class ExprParser {
         currentProse.push({ name: 'text', contents: before, location: tok.location });
       }
       const matchKind = Object.keys(groups!).find(x => groups![x] != null)!;
-      if (currentProse.length > 0) {
-        this.next.push({ type: 'prose', parts: currentProse });
-      }
+      commitProse();
       this.textTokOffset = (this.textTokOffset ?? 0) + match.index! + match[0].length;
       this.next.push({
         type: matchKind as TokenType,
@@ -260,9 +304,7 @@ class ExprParser {
       });
       return;
     }
-    if (currentProse.length > 0) {
-      this.next.push({ type: 'prose', parts: currentProse });
-    }
+    commitProse();
     this.next.push({
       type: 'eof',
       offset: this.src.length === 0 ? 0 : this.src[this.src.length - 1].location.end.offset,
@@ -274,27 +316,12 @@ class ExprParser {
   private eatWhitespace(): boolean {
     let next;
     let hadNewline = false;
-    while ((next = this.peek())?.type === 'prose') {
-      const firstNonWhitespaceIdx = next.parts.findIndex(
-        part => part.name !== 'text' || /\S/.test(part.contents)
-      );
-      if (firstNonWhitespaceIdx === -1) {
-        hadNewline ||= next.parts.some(
-          part => part.name === 'text' && part.contents.includes('\n')
-        );
+    while ((next = this.peek())?.type === 'fragment') {
+      if (next.frag.name === 'text' && !/\S/.test(next.frag.contents)) {
+        hadNewline ||= next.frag.contents.includes('\n');
         this.next.shift();
-      } else if (firstNonWhitespaceIdx === 0) {
-        return hadNewline;
       } else {
-        hadNewline ||= next.parts.some(
-          (part, i) =>
-            i < firstNonWhitespaceIdx && part.name === 'text' && part.contents.includes('\n')
-        );
-        this.next[0] = {
-          type: 'prose',
-          parts: next.parts.slice(firstNonWhitespaceIdx),
-        };
-        return hadNewline;
+        break;
       }
     }
     return hadNewline;
@@ -330,13 +357,13 @@ class ExprParser {
           }
           return { type: 'seq', items };
         }
-        case 'prose': {
+        case 'fragment': {
           addProse(items, next);
           this.next.shift();
           break;
         }
         case 'olist': {
-          this.next.shift();
+          const startTok = this.next.shift() as SimpleToken;
           const elements: Seq[] = [];
           if (this.peek().type !== 'clist') {
             while (true) {
@@ -358,8 +385,13 @@ class ExprParser {
               );
             }
           }
-          items.push({ type: 'list', elements });
-          this.next.shift(); // eat the clist
+          const endTok = this.next.shift() as SimpleToken; // eat the clist
+          items.push({
+            type: 'list',
+            elements,
+            start: startTok.offset,
+            end: endTok.offset + endTok.source.length,
+          });
           break;
         }
         case 'clist': {
@@ -372,98 +404,114 @@ class ExprParser {
           return { type: 'seq', items };
         }
         case 'oparen': {
-          const lastPart = items[items.length - 1];
-          if (lastPart != null && lastPart.type === 'prose') {
-            const callee: ProsePart[] = [];
-            for (let i = lastPart.parts.length - 1; i >= 0; --i) {
-              const ppart = lastPart.parts[i];
-              if (ppart.name === 'text') {
-                const spaceIndex = ppart.contents.lastIndexOf(' ');
-                if (spaceIndex !== -1) {
-                  if (spaceIndex < ppart.contents.length - 1) {
-                    const calleePart = ppart.contents.slice(spaceIndex + 1);
-                    if (!/\p{Letter}/u.test(calleePart)) {
-                      // e.g. -(x + 1)
-                      break;
-                    }
-                    lastPart.parts[i] = {
-                      name: 'text',
-                      contents: ppart.contents.slice(0, spaceIndex + 1),
-                      location: ppart.location,
-                    };
-                    callee.unshift({
-                      name: 'text',
-                      contents: calleePart,
-                      location: {
-                        start: { offset: ppart.location.start.offset + spaceIndex + 1 },
-                      },
-                    });
-                  }
-                  break;
-                }
-              } else if (ppart.name === 'tag') {
-                break;
-              }
-              callee.unshift(ppart);
-              lastPart.parts.pop();
-            }
-            if (callee.length > 0) {
-              if (callee[0].name === 'text') {
-                // check for -F(), which is negation of F() not an AO named -F
-                const initialNonLetter = callee[0].contents.match(/^\P{Letter}+/u);
-                if (initialNonLetter != null) {
-                  const extra = initialNonLetter[0].length;
-                  const extraLoc = callee[0].location.start.offset;
-                  // we know by construction that there is at least one letter, so this is guaranteed to be nonempty
-                  callee[0].contents = callee[0].contents.substring(extra);
-                  callee[0].location.start.offset += extra;
-                  addProse(items, {
-                    type: 'prose',
-                    parts: [
-                      {
-                        name: 'text',
-                        contents: callee[0].contents.substring(0, extra),
-                        location: { start: { offset: extraLoc } },
-                      },
-                    ],
-                  });
-                }
-              }
-
-              this.next.shift();
-              const args: Seq[] = [];
-              if (this.peek().type !== 'cparen') {
-                while (true) {
-                  args.push(this.parseSeq(['cparen', 'comma']));
-                  if (this.peek().type === 'cparen') {
-                    break;
-                  }
-                  this.next.shift();
-                }
-              }
-              if (args.length > 0 && isEmpty(args[args.length - 1])) {
-                if (args.length === 1 || emptyThingHasNewline(args[args.length - 1])) {
-                  // allow trailing commas when followed by a newline
-                  args.pop();
-                } else {
-                  throw new ParseFailure(
-                    `unexpected close parenthesis (expected some content for argument)`,
-                    (this.peek() as { offset: number }).offset
-                  );
-                }
-              }
-              items.push({
-                type: 'call',
-                callee: { type: 'prose', parts: callee },
-                arguments: args,
-              });
-              this.next.shift(); // eat the cparen
+          // scan backwards looking for stuff like `_foo_.bar`
+          // stop at the first space character or structured item
+          const callee: ProsePart[] = [];
+          for (let i = items.length - 1; i >= 0; --i) {
+            const ppart = items[i];
+            if (ppart.type !== 'fragment') {
               break;
             }
+            if (ppart.frag.name === 'text') {
+              const { contents } = ppart.frag;
+              const spaceIndex = contents.lastIndexOf(' ');
+              if (spaceIndex !== -1) {
+                if (spaceIndex < contents.length - 1) {
+                  const calleePart = contents.slice(spaceIndex + 1);
+                  if (!/\p{Letter}/u.test(calleePart)) {
+                    // e.g. -(x + 1)
+                    break;
+                  }
+                  items[i] = {
+                    type: 'fragment',
+                    frag: {
+                      name: 'text',
+                      contents: contents.slice(0, spaceIndex + 1),
+                      location: ppart.frag.location,
+                    },
+                    start: ppart.frag.location.start.offset,
+                    end: ppart.frag.location.start.offset + spaceIndex + 1,
+                  };
+                  // calleePart is nonempty because it matches \p{Letter}
+                  callee.unshift({
+                    name: 'text',
+                    contents: calleePart,
+                    location: {
+                      start: { offset: ppart.frag.location.start.offset + spaceIndex + 1 },
+                    },
+                  });
+                }
+                break;
+              }
+            }
+            callee.unshift(ppart.frag);
+            items.pop();
           }
-          this.next.shift();
-          items.push({ type: 'paren', items: this.parseSeq(['cparen']).items });
-          this.next.shift(); // eat the cparen
+          if (callee.length > 0) {
+            if (callee[0].name === 'text') {
+              // check for -F(), which is negation of F() not an AO named -F
+              const initialNonLetter = callee[0].contents.match(/^\P{Letter}+/u);
+              if (initialNonLetter != null) {
+                const extra = initialNonLetter[0].length;
+                const extraLoc = callee[0].location.start.offset;
+                // we know by construction that there is at least one letter, so this is guaranteed to be nonempty
+                callee[0].contents = callee[0].contents.substring(extra);
+                callee[0].location.start.offset += extra;
+                const contents = callee[0].contents.substring(0, extra);
+                addProse(items, {
+                  type: 'fragment',
+                  frag: {
+                    name: 'text',
+                    contents,
+                    location: { start: { offset: extraLoc } },
+                  },
+                  start: extraLoc,
+                  end: extraLoc + contents.length,
+                });
+              }
+            }
+
+            this.next.shift();
+            const args: Seq[] = [];
+            if (this.peek().type !== 'cparen') {
+              while (true) {
+                args.push(this.parseSeq(['cparen', 'comma']));
+                if (this.peek().type === 'cparen') {
+                  break;
+                }
+                this.next.shift();
+              }
+            }
+            if (args.length > 0 && isEmpty(args[args.length - 1])) {
+              if (args.length === 1 || emptyThingHasNewline(args[args.length - 1])) {
+                // allow trailing commas when followed by a newline
+                args.pop();
+              } else {
+                throw new ParseFailure(
+                  `unexpected close parenthesis (expected some content for argument)`,
+                  (this.peek() as { offset: number }).offset
+                );
+              }
+            }
+            const cParen = this.next.shift() as SimpleToken;
+            items.push({
+              type: 'call',
+              callee,
+              arguments: args,
+              start: callee[0].location.start.offset,
+              end: cParen.offset + cParen.source.length,
+            });
+          } else {
+            const oParen = this.next.shift() as SimpleToken;
+            const parenContents = this.parseSeq(['cparen']).items;
+            const cParen = this.next.shift() as SimpleToken;
+            items.push({
+              type: 'paren',
+              items: parenContents,
+              start: oParen.offset,
+              end: cParen.offset + cParen.source.length,
+            });
+          }
           break;
         }
         case 'cparen': {
@@ -476,7 +524,7 @@ class ExprParser {
           return { type: 'seq', items };
         }
         case 'orec': {
-          this.next.shift();
+          const oRecTok = this.next.shift() as SimpleToken;
           let type: 'record' | 'record-spec' | null = null;
           const members: ({ name: string; value: Seq } | { name: string })[] = [];
           while (true) {
@@ -494,39 +542,34 @@ class ExprParser {
               }
               break;
             }
-            if (nextTok.type !== 'prose') {
+            if (nextTok.type !== 'fragment') {
               throw new ParseFailure('expected to find record field name', nextTok.offset);
             }
-            if (nextTok.parts[0].name !== 'text') {
+            if (nextTok.frag.name !== 'text') {
               throw new ParseFailure(
                 'expected to find record field name',
-                nextTok.parts[0].location.start.offset
+                nextTok.frag.location.start.offset
               );
             }
-            const { contents } = nextTok.parts[0];
+            const { contents } = nextTok.frag;
             const nameMatch = contents.match(/^\s*\[\[(?<name>\w+)\]\]\s*(?<colon>:?)/);
             if (nameMatch == null) {
               throw new ParseFailure(
                 'expected to find record field',
-                nextTok.parts[0].location.start.offset + contents.match(/^\s*/)![0].length
+                nextTok.frag.location.start.offset + contents.match(/^\s*/)![0].length
               );
             }
             const { name, colon } = nameMatch.groups!;
             if (members.find(x => x.name === name)) {
               throw new ParseFailure(
                 `duplicate record field name ${name}`,
-                nextTok.parts[0].location.start.offset + contents.match(/^\s*\[\[/)![0].length
+                nextTok.frag.location.start.offset + contents.match(/^\s*\[\[/)![0].length
               );
             }
-            const shortenedText = nextTok.parts[0].contents.slice(nameMatch[0].length);
-            const offset = nextTok.parts[0].location.start.offset + nameMatch[0].length;
-            if (shortenedText.length === 0 && nextTok.parts.length === 1) {
+            const shortenedText = nextTok.frag.contents.slice(nameMatch[0].length);
+            const offset = nextTok.frag.location.start.offset + nameMatch[0].length;
+            if (shortenedText.length === 0) {
               this.next.shift();
-            } else if (shortenedText.length === 0) {
-              this.next[0] = {
-                type: 'prose',
-                parts: nextTok.parts.slice(1),
-              };
             } else {
               const shortened: ProsePart = {
                 name: 'text',
@@ -536,8 +579,10 @@ class ExprParser {
                 },
               };
               this.next[0] = {
-                type: 'prose',
-                parts: [shortened, ...nextTok.parts.slice(1)],
+                type: 'fragment',
+                frag: shortened,
+                start: offset,
+                end: offset + shortenedText.length,
               };
             }
             if (colon) {
@@ -570,9 +615,14 @@ class ExprParser {
             }
             this.next.shift(); // eat the comma
           }
-          // @ts-ignore typing this correctly is annoying
-          items.push({ type, members });
-          this.next.shift(); // eat the crec
+          const cRecTok = this.next.shift() as SimpleToken;
+          // @ts-expect-error typing this properly is annoying
+          items.push({
+            type: type!,
+            members,
+            start: oRecTok.offset,
+            end: cRecTok.offset + cRecTok.source.length,
+          });
           break;
         }
         case 'crec': {
@@ -623,21 +673,34 @@ class ExprParser {
               this.next.shift();
             }
           }
+          const lastThing = args.length > 0 ? args[args.length - 1] : parseNode;
           items.push({
             type: 'sdo-call',
-            callee: {
-              type: 'prose',
-              parts: [
-                { name: 'text', contents: callee, location: { start: { offset: next.offset } } },
-              ],
-            },
+            callee: [
+              {
+                name: 'text',
+                contents: callee,
+                location: { start: { offset: next.offset } },
+              },
+            ],
             parseNode,
             arguments: args,
+            start: next.offset,
+            end: lastThing.items[lastThing.items.length - 1].end,
+          });
+          break;
+        }
+        case 'figure': {
+          const tok = this.next.shift() as SimpleToken;
+          items.push({
+            type: 'figure',
+            start: tok.offset,
+            end: tok.offset + tok.source.length,
           });
           break;
         }
         default: {
-          // @ts-ignore
+          // @ts-expect-error
           throw new Error(`unreachable: unknown token type ${next.type}`);
         }
       }
@@ -661,8 +724,8 @@ export function parse(src: FragmentNode[], opNames: Set<String>): Seq | Failure 
 
 export type PathItem =
   | { parent: List | Record | Seq | Paren; index: number }
-  | { parent: Call; index: 'callee' | number }
-  | { parent: SDOCall; index: 'callee' | number };
+  | { parent: Call; index: number }
+  | { parent: SDOCall; index: number };
 export function walk(
   f: (expr: Expr, path: PathItem[]) => void,
   current: Expr,
@@ -670,7 +733,7 @@ export function walk(
 ) {
   f(current, path);
   switch (current.type) {
-    case 'prose': {
+    case 'fragment': {
       break;
     }
     case 'list': {
@@ -701,9 +764,6 @@ export function walk(
       break;
     }
     case 'call': {
-      path.push({ parent: current, index: 'callee' });
-      walk(f, current.callee, path);
-      path.pop();
       for (let i = 0; i < current.arguments.length; ++i) {
         path.push({ parent: current, index: i });
         walk(f, current.arguments[i], path);
@@ -720,8 +780,11 @@ export function walk(
       }
       break;
     }
+    case 'figure': {
+      break;
+    }
     default: {
-      // @ts-ignore
+      // @ts-expect-error
       throw new Error(`unreachable: unknown expression node type ${current.type}`);
     }
   }

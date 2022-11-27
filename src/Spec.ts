@@ -9,6 +9,7 @@ import type {
 import type { Context } from './Context';
 import type { AlgorithmBiblioEntry, ExportedBiblio, StepBiblioEntry, Type } from './Biblio';
 import type { BuilderInterface } from './Builder';
+import type { AlgorithmElementWithTree } from './Algorithm';
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -45,7 +46,7 @@ import {
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
-import type { OrderedListNode, parseAlgorithm } from 'ecmarkdown';
+import type { OrderedListNode } from 'ecmarkdown';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
 import { offsetToLineAndColumn } from './utils';
@@ -611,13 +612,11 @@ export default class Spec {
       if (node.hasAttribute('example') || !('ecmarkdownTree' in node)) {
         continue;
       }
-      // @ts-ignore
-      const tree = node.ecmarkdownTree as ReturnType<typeof parseAlgorithm>;
+      const tree = (node as AlgorithmElementWithTree).ecmarkdownTree;
       if (tree == null) {
         continue;
       }
-      // @ts-ignore
-      const originalHtml: string = node.originalHtml;
+      const originalHtml = (node as AlgorithmElementWithTree).originalHtml;
 
       const expressionVisitor = (expr: Expr, path: PathItem[]) => {
         if (expr.type !== 'call' && expr.type !== 'sdo-call') {
@@ -625,15 +624,15 @@ export default class Spec {
         }
 
         const { callee, arguments: args } = expr;
-        if (!(callee.parts.length === 1 && callee.parts[0].name === 'text')) {
+        if (!(callee.length === 1 && callee[0].name === 'text')) {
           return;
         }
-        const calleeName = callee.parts[0].contents;
+        const calleeName = callee[0].contents;
 
         const warn = (message: string) => {
           const { line, column } = offsetToLineAndColumn(
             originalHtml,
-            callee.parts[0].location.start.offset
+            callee[0].location.start.offset
           );
           this.warn({
             type: 'contents',
@@ -2099,11 +2098,9 @@ function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null
       parent.type === 'seq' &&
       parent.items.every(
         i =>
-          (i.type === 'prose' &&
-            i.parts.every(
-              p => p.name === 'tag' || (p.name === 'text' && /^\s*$/.test(p.contents))
-            )) ||
-          i === pointer
+          i === pointer ||
+          (i.type === 'fragment' &&
+            (i.frag.name === 'tag' || (i.frag.name === 'text' && /^\s*$/.test(i.frag.contents))))
       )
     ) {
       // if parent is just whitespace/tags around the call, walk up the tree further
@@ -2121,21 +2118,21 @@ function previousText(expr: Expr, path: PathItem[]): string | null {
   }
   const { parent, index } = part;
   if (parent.type === 'seq') {
-    return textFromPreviousPart(parent, index as number);
+    return textFromPreviousPart(parent, index);
   }
   return null;
 }
 
 function textFromPreviousPart(seq: Seq, index: number): string | null {
-  const prev = seq.items[index - 1];
-  if (prev?.type === 'prose' && prev.parts.length > 0) {
-    let prevIndex = prev.parts.length - 1;
-    while (prevIndex > 0 && prev.parts[prevIndex].name === 'tag') {
+  let prevIndex = index - 1;
+  let prev;
+  while ((prev = seq.items[prevIndex])?.type === 'fragment') {
+    if (prev.frag.name === 'text') {
+      return prev.frag.contents;
+    } else if (prev.frag.name === 'tag') {
       --prevIndex;
-    }
-    const prevProse = prev.parts[prevIndex];
-    if (prevProse.name === 'text') {
-      return prevProse.contents;
+    } else {
+      break;
     }
   }
   return null;
@@ -2159,13 +2156,13 @@ function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
   const { parent, index } = part;
   if (parent.type === 'seq') {
     // if the previous text ends in `! ` or `? `, this is a completion
-    const text = textFromPreviousPart(parent, index as number);
+    const text = textFromPreviousPart(parent, index);
     if (text != null && /[!?]\s$/.test(text)) {
       return true;
     }
   } else if (parent.type === 'call' && index === 0 && parent.arguments.length === 1) {
     // if this is `Completion(Expr())`, this is a completion
-    const { parts } = parent.callee;
+    const parts = parent.callee;
     if (parts.length === 1 && parts[0].name === 'text' && parts[0].contents === 'Completion') {
       return true;
     }

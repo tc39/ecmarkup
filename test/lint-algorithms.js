@@ -16,7 +16,7 @@ describe('linting algorithms', () => {
         {
           ruleId,
           nodeType,
-          message: 'expected freeform line to end with "." (found "testing")',
+          message: 'expected freeform line to end with "."',
         }
       );
     });
@@ -29,7 +29,7 @@ describe('linting algorithms', () => {
         {
           ruleId,
           nodeType,
-          message: 'expected freeform line to end with "." (found "testing")',
+          message: 'expected freeform line to end with "."',
         }
       );
     });
@@ -38,7 +38,7 @@ describe('linting algorithms', () => {
       await assertLint(positioned`<emu-alg>1. testing${M}</emu-alg>`, {
         ruleId,
         nodeType,
-        message: 'expected freeform line to end with "." (found "testing")',
+        message: 'expected freeform line to end with "."',
       });
     });
 
@@ -66,7 +66,7 @@ describe('linting algorithms', () => {
         {
           ruleId,
           nodeType,
-          message: 'expected "If" without substeps to end with "." or ":" (found ", then")',
+          message: 'expected "If" without substeps to end with "." or ":"',
         }
       );
     });
@@ -95,7 +95,7 @@ describe('linting algorithms', () => {
         {
           ruleId,
           nodeType,
-          message: 'expected "If" with substeps to end with ", then" (found ",")',
+          message: 'expected "If" with substeps to end with ", then"',
         }
       );
 
@@ -159,7 +159,7 @@ describe('linting algorithms', () => {
         {
           ruleId,
           nodeType,
-          message: 'expected freeform line to end with "." (found "NOTE: Foo")',
+          message: 'expected freeform line to end with "."',
         }
       );
     });
@@ -194,33 +194,41 @@ describe('linting algorithms', () => {
         {
           ruleId,
           nodeType,
-          message: 'expected freeform line to end with "." (found "Assert: Foo")',
+          message: 'expected freeform line to end with "."',
         }
       );
     });
 
-    it('pre', async () => {
+    it('rules still apply when tags surround the line', async () => {
+      await assertLint(positioned`<emu-alg>1. <mark>testing${M}</mark></emu-alg>`, {
+        ruleId,
+        nodeType,
+        message: 'expected freeform line to end with "."',
+      });
+    });
+
+    it('rules are aware of internal use of ins/del', async () => {
       await assertLint(
         positioned`<emu-alg>
-            1. ${M}Let _constructorText_ be the source text
-            <pre><code class="javascript">constructor() {}</code></pre>
-              1. Foo.
-            1. Use _constructorText_.
+        1. <ins>If some condition, then</ins>
+          1. <ins>Do a thing.</ins>
+        1. <del>If</del><ins>Else if</ins> some other condition,${M}
+          1. Do a different thing.
         </emu-alg>`,
         {
           ruleId,
           nodeType,
-          message: 'lines ending in <pre> tags must not have substeps',
+          message: 'expected "If" with substeps to end with ", then"',
         }
       );
-    });
-
-    it('rules still apply to ignored whole-line tags', async () => {
-      await assertLint(positioned`<emu-alg>1. <mark>testing${M}</mark></emu-alg>`, {
-        ruleId,
-        nodeType,
-        message: 'expected freeform line to end with "." (found "testing")',
-      });
+      await assertLintFree(`
+        <emu-alg>
+          1. <ins>If some condition, then</ins>
+            1. <ins>Do a thing.</ins>
+          1. <del>If</del><ins>Else if</ins> some other condition, then
+            1. Do a different thing.
+        </emu-alg>
+      `);
     });
 
     it('negative', async () => {
@@ -254,10 +262,10 @@ describe('linting algorithms', () => {
           1. Assert: The following algorithm returns *true*:
             1. Return *true*.
           1. Other.
+          1. Other. (But with an aside.)
           1. Other:
             1. Substep.
-          1. Let _constructorText_ be the source text
-          <pre><code class="javascript">constructor() {}</code></pre>
+          1. Let _constructorText_ be some text.
           1. Let _parse_ be a method.
           1. Let _constructor_ be a variable.
           1. Set _constructor_ to _parse_(_constructorText_).
