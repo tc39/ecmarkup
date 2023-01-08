@@ -253,7 +253,7 @@ toc: false
   <h1>Definitions</h1>
   <p>Terms can be defined using the `&lt;dfn>` element. Any uses of that term will be automatically linked to the clause containing the definition, or, if the `&lt;dfn>` element has an `id`, to the `&lt;dfn>` itself. This can be suppressed with the <a href="#emu-not-ref">`emu-not-ref`</a> element.</p>
   <p>When the term starts with a lowercase English letter, usages of the term with the first letter capitalized will also link.</p>
-  <p>Other variants of the term, such as plural forms, can be provided as a comma-seperated list in the `variants` attribute on the element.</p>
+  <p>Other variants of the term, such as plural forms, can be provided as a comma-separated list in the `variants` attribute on the element.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
@@ -279,7 +279,7 @@ toc: false
 
   <p>Effects do not normally propagate to callsites prefixed with <code>!</code>. Such sites must be manually marked with an &lt;emu-meta> tag.</p>
 
-  <p>When it is not possible to mark a particular part of an algorithm step as having effects (for example, when an AO is not defined with algorithm steps), the entire AO can be marked as having effects by adding to its <a href="#emu-clause-structured-headers">structured header</a> a &lt;dl>effects&lt;dl> entry whose corresponding &lt;dd> contains a comma-seperated list of effects:</p>
+  <p>When it is not possible to mark a particular part of an algorithm step as having effects (for example, when an AO is not defined with algorithm steps), the entire AO can be marked as having effects by adding to its <a href="#emu-clause-structured-headers">structured header</a> a &lt;dl>effects&lt;dl> entry whose corresponding &lt;dd> contains a comma-separated list of effects:</p>
   <pre><code class="language-html">&lt;dl class="header">&lt;dt>effects&lt;/dt>&lt;dd>user-code&lt;/dd>&lt;/dl></code></pre>
 
   <p>When an algorithm step or its substeps have effects, but those effects should not imply the containing algorithm has the same effects, propagation may be prevented using a <pre><code>[fence-effects="user-code"]</code></pre> marker at the begining of the step. This rule is automatically applied to steps which define abstract closures.</p>
@@ -347,7 +347,7 @@ toc: false
   </emu-alg>
 
   <h2>Declarations</h2>
-  <p>The linter checks that each used variable in an algorithm step is declared earlier. It recognizes most common forms of declaration automatically, but in case there is a declaration which is not automatically inferred, a variable can be marked as declared for the purposes of this analysis by adding a `[declared="v"]` attribute at the start of the step. Multiple variables can be listed by seperating them with commas.</p>
+  <p>The linter checks that each used variable in an algorithm step is declared earlier. It recognizes most common forms of declaration automatically, but in case there is a declaration which is not automatically inferred, a variable can be marked as declared for the purposes of this analysis by adding a `[declared="v"]` attribute at the start of the step. Multiple variables can be listed by separating them with commas.</p>
 
   <h3>Element</h3>
   <pre><code class="language-html">
