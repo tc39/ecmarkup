@@ -271,21 +271,20 @@ toc: false
 
 <emu-clause id="effects">
   <h1>Effects</h1>
-  <p>Abstract operations can be marked as having effects, which will propagate to callers. Calls to such operations are given the class <code>.e-effect-name</code>, subject to the following rules. When using `--mark-effects` the CSS includes styling for one effect, "user-code", which is off by default but can be togged by pressing <kbd>u</kbd>.</p>
+  <p>Abstract operations can be marked as having effects that propagate to their invocation sites. Subject to the following rules, calls to such operations are given a class of the effect name prefixed with “e-”. When using `--mark-effects`, the CSS includes styling for the "user-code" effect via class name `e-user-code` that is off by default but can be togged by pressing <kbd>u</kbd>.</p>
 
-  <h2>Annotating effects</h2>
-  <p>Effects can be added within an algorithm using an `emu-meta` element:</p>
-  <pre><code class="language-html">1. Return ? &lt;emu-meta effects="user-code">_O_.[[Get]]&lt;/emu-meta>(_P_, _O_).</code></pre>
+  <p>Within an algorithm, an `emu-meta` element enclosing an operation invocation can be used to indicate either the origination of effects or the absence of effects using a list of effect names separated by commas with optional whitespace in an <b>effects</b> or <b>suppress-effects</b> attribute (respectively).</p>
+  <pre><code class="language-html">
+    1. Let _value_ be ? &lt;emu-meta effects="user-code">_O_.[[Get]]&lt;/emu-meta>(_P_, _O_).
+    1. Let _primValue_ be ? ToPrimitive(_value_, ~number~).
+    1. Let _stringValue_ be ? &lt;emu-meta suppress-effects="user-code">ToString(_primValue_)&lt;/emu-meta>.
+  </code></pre>
 
-  <p>The same element can also indicate absence of effects for a particular invocation:</p>
-  <pre><code class="language-html">1. Set _buffer_ to ? &lt;emu-meta suppress-effects="user-code">AOWhichNormallyHasEffects()&lt;/emu-meta>.</code></pre>
+  <p>Effects do not normally propagate to callsites marked as infallibly non-abrupt with <code>!</code>. Such sites must be manually marked with `emu-meta`.</p>
 
-  <p>Effects do not normally propagate to callsites prefixed with <code>!</code>. Such sites must be manually marked with `emu-meta`.</p>
+  <p>When a step or its substeps have effects but those effects should not imply that the containing algorithm has the same effects, propagation may be prevented using a `[fence-effects="user-code"]` annotation at the begining of the step. This implicitly applies to steps which define abstract closures.</p>
 
-  <p>When it is not possible to mark a particular part of an algorithm step as having effects (for example, when an operation is not defined with algorithm steps), the entire operation can be marked as having effects by adding to its <a href="#emu-clause-structured-headers">structured header</a> an <b>effects</b> entry whose corresponding value contains a comma-separated list of effects:</p>
-  <pre><code class="language-html">&lt;dl class="header">&lt;dt>effects&lt;/dt>&lt;dd>user-code&lt;/dd>&lt;/dl></code></pre>
-
-  <p>When an algorithm step or its substeps have effects, but those effects should not imply the containing algorithm has the same effects, propagation may be prevented using a `[fence-effects="user-code"]` marker at the begining of the step. This implicitly applies to steps which define abstract closures.</p>
+  <p>It is also possible to associate effects at the level of an entire operation (for example, because it is not defined with algorithm steps) by adding to its <a href="#emu-clause-structured-headers">structured header</a> an <b>effects</b> entry.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
