@@ -329,68 +329,86 @@ toc: false
 <emu-clause id="emu-alg" aoid="EmuAlg">
   <h1>emu-alg</h1>
   <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate <b>aoid</b> in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
+  <p>Algorithm steps can be annotated with additional metadata as summarized in <emu-xref href="#algorithm-step-annotation"></emu-xref>.</p>
 
   <h2>Attributes</h2>
   <p><b>example:</b> If present, the element is an example.</p>
+  <p><b>replaces-step:</b> If present, references a step to replace by its <emu-xref href="#labeled-steps"><b>id</b></emu-xref> (whose numbering the algorithm adopts).</p>
 
   <h2>Example</h2>
-  <emu-note>The emu-alg clause has an aoid of "EmuAlg".</emu-note>
-  <h3>Element</h3>
-  <pre><code class="language-html">
-&lt;emu-alg aoid="EmuAlgExample">
-  1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
-  1. Step 2.
-    1. Let _recurse_ be the result of calling EmuAlgExample(*true*).
-    1. Return the result of evaluating this |NonTerminalProduction|.
-&lt;/emu-alg>
-  </code></pre>
-  <h3>Result</h3>
-  <emu-alg aoid="EmuAlgExample">
-    1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
-    1. Step 2.
-      1. Let _recurse_ be the result of calling EmuAlgExample(*true*).
-      1. Return the result of evaluating this |NonTerminalProduction|.
-  </emu-alg>
-
-  <h2>Declarations</h2>
-  <p>The linter checks that each used variable in an algorithm step is declared earlier. It recognizes most common forms of declaration automatically, but in case there is a declaration which is not automatically inferred, a variable can be marked as declared for the purposes of this analysis by adding a `[declared="v"]` attribute at the start of the step. Multiple variables can be separated by commas with optional whitespace.</p>
-
-  <h3>Element</h3>
-  <pre><code class="language-html">
-&lt;emu-alg>
-  1. [declared="x"] Suppose the existence of _x_.
-&lt;/emu-alg>
-  </code></pre>
-
-  <h2>Replacement algorithms</h2>
-  <p>Algorithms may be specified to replace a labeled step, in which case the algorithm will adopt the numbering of that step. For example:</p>
-
+  <emu-note>The <emu-xref href="#emu-alg" title></emu-xref> clause has an aoid of "EmuAlg".</emu-note>
   <h3>Element</h3>
   <pre><code class="language-html">
     &lt;emu-alg>
-      1. Step.
-      1. Step 2.
-        1. [id="step-replace-me"] Replaced.
-          1. Substep.
+      1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
+      1. If *false* is *true*, then
+        1. [id="step-example-label"] Let _recurse_ be the result of calling EmuAlg(*true*).
+        1. Return the result of evaluating this |NonTerminalProduction|.
     &lt;/emu-alg>
-    &lt;p>The following is an alernative definition of step &lt;emu-xref href="#step-replace-me">&lt;/emu-xref>.&lt;/p>
-    &lt;emu-alg replaces-step="replace-me">
+    &lt;p>The following is an alernative definition of step &lt;emu-xref href="#step-example-label">&lt;/emu-xref>.&lt;/p>
+    &lt;emu-alg replaces-step="step-example-label">
       1. Replacement.
         1. Substep.
     &lt;/emu-alg>
   </code></pre>
   <h3>Result</h3>
   <emu-alg>
-    1. Step.
-    1. Step 2.
-      1. [id="step-replace-me"] Replaced.
-        1. Substep.
+    1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
+    1. If *false* is *true*, then
+      1. [id="step-example-label"] Let _recurse_ be the result of calling EmuAlg(*true*).
+      1. Return the result of evaluating this |NonTerminalProduction|.
   </emu-alg>
-  <p>The following is an alernative definition of step <emu-xref href="#step-replace-me"></emu-xref>.</p>
-  <emu-alg replaces-step="step-replace-me">
+  <p>The following is an alernative definition of step <emu-xref href="#step-example-label"></emu-xref>.</p>
+  <emu-alg replaces-step="step-example-label">
     1. Replacement.
       1. Substep.
   </emu-alg>
+
+  <emu-table id="algorithm-step-annotation">
+    <emu-caption>Algorithm Step Annotation</emu-caption>
+    <table>
+      <tr><th>Data</th><th>Description</th><th>Example Syntax</th></tr>
+      <tr>
+        <td><emu-xref href="#labeled-steps">Step labels</emu-xref></td>
+        <td>Provide an id for referencing an individual step.</td>
+        <td>`[id="step-label"]`</td>
+      </tr>
+      <tr>
+        <td><emu-xref href="#variable-declarations" title></emu-xref></td>
+        <td>Inform the linter of the existence of a variable.</td>
+        <td>`[declared="x"]`</td>
+      </tr>
+      <tr>
+        <td><emu-xref href="#effects">Effect propagation control</emu-xref></td>
+        <td>Originate, suppress, or constrain the scope of effects.</td>
+        <td>`&lt;emu-meta>`, `[fence-effects="user-code"]`</td>
+      </tr>
+    </table>
+  </emu-table>
+
+  <emu-clause id="labeled-steps">
+    <h1>Step Labels</h1>
+    <p>Each step can be given an id for reference by <emu-xref href="#emu-xref" title></emu-xref> or <b>replaces-step</b>.</p>
+
+    <h3>Example</h3>
+    <pre><code class="language-html">
+      &lt;emu-alg>
+        1. [id="step-example-internal"] Let _obj_ be OrdinaryObjectCreate(*null*).
+      &lt;/emu-alg>
+    </code></pre>
+  </emu-clause>
+
+  <emu-clause id="variable-declarations">
+    <h1>Variable Declarations</h1>
+    <p>The linter checks that each used variable in an algorithm step is declared earlier. It recognizes most common forms of declaration automatically, but in case there is a declaration which is not automatically inferred, a variable can be marked as declared for the purposes of this analysis by adding a `[declared="v"]` attribute at the start of the step. Multiple variables can be separated by commas with optional whitespace.</p>
+
+    <h3>Element</h3>
+    <pre><code class="language-html">
+  &lt;emu-alg>
+    1. [declared="x"] Suppose the existence of _x_.
+  &lt;/emu-alg>
+    </code></pre>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="emu-eqn">
