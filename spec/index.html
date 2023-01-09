@@ -197,7 +197,7 @@ toc: false
           a <code>&lt;dl&gt;</code> element with class "header" and a collection of optional key-value pairs expressed using <code>&lt;dt&gt;</code> and <code>&lt;dd&gt;</code> elements:
           <ul>
             <li><b>description:</b> An explanation of the operation's behaviour.</li>
-            <li><b>effects:</b> A comma-separated list of "effects" associated with the clause and transitively with those referencing it. The only currently-known effect is "user-code", which indicates that the operation or method can evaluate non-implementation code (such as custom getter).
+            <li><b>effects:</b> A list of "effects" associated with the clause (and transitively with those referencing it), separated by commas with optional whitespace. The only currently-known effect is "user-code", which indicates that the operation or method can evaluate non-implementation code (such as custom getters).</li>
             <li><b>for:</b> The type of value to which a clause of type "concrete method" or "internal method" applies.</li>
             <li><b>redefinition:</b> If "true", the name of the operation will not automatically link (i.e., it will not automatically be given an aoid).</li>
           </ul>
@@ -253,7 +253,9 @@ toc: false
   <h1>Definitions</h1>
   <p>Terms can be defined using the `&lt;dfn>` element. Any uses of that term will be automatically linked to the clause containing the definition, or, if the `&lt;dfn>` element has an `id`, to the `&lt;dfn>` itself. This can be suppressed with the <a href="#emu-not-ref">`emu-not-ref`</a> element.</p>
   <p>When the term starts with a lowercase English letter, usages of the term with the first letter capitalized will also link.</p>
-  <p>Other variants of the term, such as plural forms, can be provided as a comma-separated list in the `variants` attribute on the element.</p>
+
+  <h2>Attributes</h2>
+  <p><b>variants:</b> If present, specifies other variants of the term (such as plural forms). Multiple variants are separated by commas with optional whitespace.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
@@ -327,6 +329,9 @@ toc: false
   <h1>emu-alg</h1>
   <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
 
+  <h2>Attributes</h2>
+  <p><b>example:</b> If present, the element is an example.</p>
+
   <h2>Example</h2>
   <emu-note>The emu-alg clause has an aoid of "EmuAlg".</emu-note>
   <h3>Element</h3>
@@ -392,8 +397,8 @@ toc: false
   <p>An equation, similar to those found in ES6 <a href="https://tc39.es/ecma262/#sec-year-number">Year Number</a>.</p>
 
   <h2>Attributes</h2>
-  <p><b>aoid:</b> Required: the abstract operation id that this equation defines.</p>
-  <p><b>id:</b> Optional id. If present, links will go directly to the eqn definition. Otherwise, links go to the parent clause.</p>
+  <p><b>aoid:</b> If present, an abstract operation id defined by this equation.</p>
+  <p><b>id:</b> If present, links will go directly to the eqn definition. Otherwise, links go to the parent clause.</p>
 </emu-clause>
 <emu-clause id="emu-note">
   <h1>emu-note</h1>
@@ -414,7 +419,7 @@ toc: false
   <p>Cross-references to an id check for clauses, productions, examples, and steps in this order. For each type, the local document is consulted before looking for external sources.</p>
 
   <h2>Attributes</h2>
-  <p><b>href:</b> Optional: URL of the target clause, production, or example to cross-reference.</p>
+  <p><b>href:</b> Optional: URL of the target clause, production, or example to cross-reference, interpreted relative to the containing document.</p>
   <p><b>title:</b> Optional: If present, xref will be filled in with the referenced clause's title. Otherwise, the clause's section number is used.</p>
   <p><b>aoid:</b> Optional: aoid of an abstract operation to reference.</p>
 
@@ -545,7 +550,7 @@ toc: false
   <p>Links a bibliography file. The bibliography file is a JSON document containing URLs for referenced documents along with any algorithms they define.</p>
 
   <h2>Attributes</h2>
-  <p><b>href:</b> Required: URL to the biblio file.</p>
+  <p><b>href:</b> Required: URL of the biblio file, interpreted relative to the containing document.</p>
 
   <h2>Example</h2>
   <b>biblio.json</b>
@@ -678,7 +683,14 @@ toc: false
     <p>Text inside emu-grammar elements is parsed using <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a>. The syntax is essentially identical to the notational conventions in ECMAScript (minus formatting). See the <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown readme</a>.</p>
     <p>Grammar will be displayed as an "inline" element flowing with text unless it is the immediate child of an emu-clause-like element.</p>
     <h2>Attributes</h2>
-    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>collapsed:</b> If present, productions are displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>example:</b> If present, the element is an example.</p>
+    <p><b>primary:</b> Optional: Deprecated in favor of type="definition".</p>
+    <p><b>type:</b> Optional: Disposition of the grammar. If absent, it is considered to reference productions defined elsewhere.</p>
+    <ul>
+      <li>"definition": The grammar is an authoritative source for productions which should be the target of references.</li>
+      <li>"example": Deprecated in favor of the <b>example</b> attribute.</li>
+    </ul>
   </emu-clause>
 
   <emu-clause id="emu-production">
@@ -686,27 +698,35 @@ toc: false
     <p>This is the top level element that contains all grammar productions. Each production MUST include at least one right-hand side (see <a href="#emu-rhs">emu-rhs</a>).</p>
     <p>The production will be displayed as an "inline" element flowing with text unless it is the immediate child of an emu-clause-like element or if its containing emu-grammar element is an immediate child of an emu-clause-like element.</p>
     <h2>Attributes</h2>
-    <p><b>name:</b> Required. Name of the production (i.e. the non-terminal on the LHS).</p>
-    <p><b>params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
-    <p><b>type:</b> Type of production, either "lexical" or "regexp". Default is blank (normal).</p>
-    <p><b>oneof:</b> If present, production is a one-of production. See DecimalDigit example above.</p>
-    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>name:</b> Required: Name of the production (i.e. the LHS). Should conform with the syntax of <a href="https://www.unicode.org/reports/tr31/#D1">Unicode Standard Annex #31, UAX31-D1 Default Identifier Syntax</a> and not include any underscore (U+005F LOW LINE “<b>_</b>”).</p>
+    <p><b>collapsed:</b> If present, the production is displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>oneof:</b> If present, the production is a one-of production. See the DecimalDigit example <emu-xref href="#grammar">above</emu-xref>.</p>
+    <!-- what does it even mean for a LHS to be optional??? -->
+    <p><b>optional:</b> If present, the LHS is marked as optional.</p>
+    <p><b>params:</b> Parameters for this production. Multiple parameters are separated by commas with optional whitespace.</p>
+    <p><b>primary:</b> Optional: The production is authoritative and should be the target of references.</p>
+    <p><b>type:</b> Optional: Type of production. If absent, the production is considered syntactic.</p>
+    <ul>
+      <li>"lexical": The production is part of a lexical grammar, and should render with the LHS and RHS separated by two colons “<b>::</b>”.</li>
+      <li>"regexp": Deprecated because the ECMAScript regular expression grammar is considered to be lexical. Productions with this type render with the LHS and RHS separated by three colons “<b>:::</b>”.</li>
+    </ul>
   </emu-clause>
 
   <emu-clause id="emu-rhs">
     <h1>emu-rhs</h1>
     <p>Describes one right-hand-side alternative of a production. Text nodes inside of an rhs are split on each space and turned into terminals. For example, <pre>&lt;emu-rhs>a b c&lt;/emu-rhs></pre> is semantically equivalent to <pre>&lt;emu-rhs>&lt;emu-t>a&lt;/emu-t> &lt;emu-t>b&lt;/emu-t> &lt;emu-t>c&lt;/emu-t>&lt;/emu-rhs></pre></p>
     <h2>Attributes</h2>
-    <p><b>constraints:</b> any constraints for this RHS. Multiple constraints separated by commas. See StatementList example above.</p>
-    <p><b>a:</b> Optional alternative id used to reference a particular RHS via `emu-prodref`. Must be unique for all `emu-rhs` elements inside an emu-production. Example might be <pre>&lt;emu-rhs a='1'></pre>.</p>
+    <p><b>constraints:</b> any constraints for this RHS. Multiple constraints are separated by commas with optional whitespace. See the StatementList example <emu-xref href="#grammar">above</emu-xref>.</p>
+    <p><b>a:</b> Optional: alternative id used to reference a particular RHS from an <emu-xref href="#emu-prodref" title></emu-xref>. Must be unique for all `emu-rhs` elements inside an <emu-xref href="#emu-production" title></emu-xref>.</p>
   </emu-clause>
 
   <emu-clause id="emu-nt">
     <h1>emu-nt</h1>
     <p>Non-terminal. Alpha characters only.</p>
     <h2>Attributes</h2>
-    <p><b>params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
-    <p><b>oneof:</b> If present, production is a one-of production (see DecimalDigit example above).</p>
+    <p><b>example:</b> If present, the element is an example.</p>
+    <p><b>optional:</b> If present, the non-terminal is optional in its containing RHS.</p>
+    <p><b>params:</b> Parameters for this non-terminal. Multiple parameters are separated by commas with optional whitespace.</p>
   </emu-clause>
 
   <emu-clause id="emu-t">
@@ -736,14 +756,17 @@ toc: false
     <p>References a production defined elsewhere in the document. Ecmarkup will insert either the entire production or a particular RHS depending on attributes.</p>
 
     <h2>Attributes</h2>
-    <p><b>name:</b> Required. Name of the production to reference.</p>
-    <p><b>a:</b> Optional. If present, specified a particular alternative ID to reference.</p>
+    <p><b>name:</b> Required: Name of the production to reference.</p>
+    <p><b>a:</b> Optional. If present, references a particular RHS with the specified alternative id in its <b>a</b> attribute.</p>
   </emu-clause>
 </emu-clause>
 
-<emu-clause id="imports">
-  <h1>Imports</h1>
-  <p>HTML Imports are treated specially in an ecmarkup document. Every import is inlined into its parent document at the location of the import tag. This is useful for breaking your spec document up into many smaller pieces.</p>
+<emu-clause id="emu-import" oldids="imports">
+  <h1>emu-import</h1>
+  <p>Imports are treated specially in an ecmarkup document. Every import is inlined into its parent document at the location of the import tag. This is useful for breaking your spec document up into many smaller pieces.</p>
+
+    <h2>Attributes</h2>
+    <p><b>href:</b> Required: URL of the document to import, interpreted relative to the document containing the `emu-import`.</p>
 </emu-clause>
 
 <emu-clause id="css">
