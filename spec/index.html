@@ -40,40 +40,40 @@ markEffects: true
 </emu-clause>
 <emu-clause id="useful-options">
   <h1>Options</h1>
-  <p>Build options and document options can be passed in via the command line or specified in the front-matter of your document.</p>
+  <p>Build options and document options can be passed in via the command line or specified in the <emu-xref href="#metadata">front-matter</emu-xref> of your document.</p>
   <emu-table id="build-options">
     <emu-caption>Build options</emu-caption>
     <table>
-      <tr><th>Option</th><th>Description</th></tr>
-      <tr><td>watch</td><td>Rebuild when files change</td></tr>
-      <tr><td>verbose</td><td>Print verbose logging info</td></tr>
-      <tr><td>write-biblio</td><td>Emit a biblio file to the specified path</td></tr>
-      <tr><td>assets</td><td>"none" for no CSS/JS, "inline" for inline CSS/JS</td></tr>
-      <tr><td>css-out</td><td>Emit the Ecmarkup CSS file to the specified path</td></tr>
-      <tr><td>js-out</td><td>Emit the Ecmarkup JS file to the specified path</td></tr>
-      <tr><td>lint-spec</td><td>Enforce some style and correctness checks</td></tr>
-      <tr><td>lint-formatter</td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using --verbose. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
-      <tr><td>strict</td><td>Exit with an error if there are warnings. Cannot be used with --watch</td></tr>
-      <tr><td>mark-effects</td><td>Whether to render <a href="#effects">effects</a> like "user code".</td></tr>
+      <tr><th>Command Line Option</th><th>Front-Matter Key</th><th>Description</th></tr>
+      <tr><td>`--watch`</td><td></td><td>Rebuild when files change.</td></tr>
+      <tr><td>`--verbose`</td><td></td><td>Print verbose logging info.</td></tr>
+      <tr><td>`--write-biblio`</td><td></td><td>Emit a biblio file to the specified path.</td></tr>
+      <tr><td>`--assets`</td><td>`assets`</td><td>"none" for no CSS/JS, "inline" for inline CSS/JS.</td></tr>
+      <tr><td>`--css-out`</td><td>`cssOut`</td><td>Emit the Ecmarkup CSS file to the specified path.</td></tr>
+      <tr><td>`--js-out`</td><td>`jsOut`</td><td>Emit the Ecmarkup JS file to the specified path.</td></tr>
+      <tr><td>`--lint-spec`</td><td>`lintSpec`</td><td>Enforce some style and correctness checks.</td></tr>
+      <tr><td>`--error-formatter`</td><td></td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using `--verbose`. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
+      <tr><td>`--strict`</td><td></td><td>Exit with an error if there are warnings. Cannot be used with `--watch`.</td></tr>
+      <tr><td>`--mark-effects`</td><td>`markEffects`</td><td>Propagate and render <a href="#effects">effects</a> like "user code".</td></tr>
     </table>
   </emu-table>
 
   <emu-table id="document-options">
     <emu-caption>Document options</emu-caption>
     <table>
-      <tr><th>Option</th><th>Description</th></tr>
-      <tr><td>title</td><td>Title of specification, for example `ECMAScript 2016` or `Async Functions`.</td></tr>
-      <tr><td>status</td><td>Status of specification. Can be `proposal`, `draft`, or `standard`. Default is `proposal`.</td></tr>
-      <tr><td>stage</td><td>Stage of proposal. Must be a number if provided, but is optional. Sets `version` to `Stage N Draft`, but can be overridden.</td></tr>
-      <tr><td>version</td><td>Version of specification, for example `6&lt;sup>th&lt;/sup> Edition` or `Draft 1`. Optional.</td></tr>
-      <tr><td>date</td><td>Date the spec was generated. Used for various pieces of boilerplate that include dates. Defaults to the value of <a href="https://reproducible-builds.org/docs/source-date-epoch/">the SOURCE_DATE_EPOCH environment variable</a> (as a number of second since the Unix epoch) if it exists, otherwise defaults to today's date.</td></tr>
-      <tr><td>shortname</td><td>Shortname of specification, for example `ECMA-262` or `ECMA-402`.</td></tr>
-      <tr><td>location</td><td>URL of this specification. Use in conjunction with the biblio file to enable external specs to reference this one.</td></tr>
-      <tr><td>copyright</td><td>Emit copyright and software license information. Boolean, default true.</td></tr>
-      <tr><td>contributors</td><td>Contributors to this specification, ie. those who own the copyright. If your proposal includes text from any Ecma specification, you should include "Ecma International" in this list.</td></tr>
-      <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
-      <tr><td>old-toc</td><td>Emit the old style of table of contents. Boolean, default false.</td></tr>
-      <tr><td>load-biblio</td><td>Load the specified biblio.json file. This should contain either an object as exported by `--write-biblio` or an array of such objects.</td></tr>
+      <tr><th>Command Line Option</th><th>Front-Matter Key</th><th>Description</th></tr>
+      <tr><td></td><td>`title`</td><td>Document title, for example "ECMAScript 2016" or "Async Functions".</td></tr>
+      <tr><td></td><td>`status`</td><td>Document status. Can be "proposal", "draft", or "standard". Defaults to "proposal".</td></tr>
+      <tr><td></td><td>`stage`</td><td><a href="https://tc39.es/process-document/">TC39 proposal stage</a>. If present and `status` is "proposal", `version` defaults to "Stage <var>stage</var> Draft".</td></tr>
+      <tr><td></td><td>`version`</td><td>Document version, for example "6&lt;sup>th&lt;/sup> Edition" or "Draft 1".</td></tr>
+      <tr><td></td><td>`date`</td><td>Timestamp of document rendering, used for various pieces of boilerplate. Defaults to the value of <a href="https://reproducible-builds.org/docs/source-date-epoch/">the `SOURCE_DATE_EPOCH` environment variable</a> (as a number of second since the POSIX epoch) if it exists, otherwise to the current date and time.</td></tr>
+      <tr><td></td><td>`shortname`</td><td>Document shortname, for example "ECMA-262". If present and `status` is "draft", `version` defaults to "Draft <var>shortname</var>".</td></tr>
+      <tr><td></td><td>`location`</td><td>URL of this document. Used in conjunction with the biblio file to support inbound references from other documents.</td></tr>
+      <tr><td></td><td>`copyright`</td><td>Emit copyright and software license information. Boolean, default true.</td></tr>
+      <tr><td></td><td>`contributors`</td><td>Contributors to this specification, i.e. those who own the copyright. If your proposal includes text from any Ecma specification, this should include "Ecma International".</td></tr>
+      <tr><td>`--no-toc`</td><td>`toc`</td><td>Emit table of contents. Boolean, default true.</td></tr>
+      <tr><td>`--old-toc`</td><td>`oldToc`</td><td>Emit the table of contents at the top of the document rather than as a side pane. Boolean, default false.</td></tr>
+      <tr><td>`--load-biblio`</td><td>`extraBiblios`</td><td>Extra biblio.json file(s) to load. This should contain either an object as exported by `--write-biblio` or an array of such objects.</td></tr>
     </table>
   </emu-table>
 </emu-clause>
@@ -141,9 +141,8 @@ markEffects: true
 </emu-clause>
 <emu-clause id="metadata">
   <h1>Metadata</h1>
-  <p>There are a number of settings that allow customizations or enable generation of boilerplate. Metadata can be included in the document and passed on the command line, for example `--no-toc --title "Document 1"`. Metadata given on the command line takes precedence.</p>
-  <p>To add metadata to your document, use yaml syntax inside a `&lt;pre class=metadata>` element somewhere in the root of your document.</p>
-  <p>All of the command line options can be provided in the metadata block. See <emu-xref href="#build-options"></emu-xref> and <emu-xref href="#document-options"></emu-xref> for a list (or consult `--help`).</p>
+  <p>There are a number of settings that allow customizations or enable generation of boilerplate. To add metadata to your document, use yaml syntax inside a `&lt;pre class="metadata">` element somewhere in the root of your document. See <emu-xref href="#build-options"></emu-xref> and <emu-xref href="#document-options"></emu-xref> for a list (or consult `--help`).</p>
+  <p>Some metadata can also be passed on the command line, for example `--no-toc`. Such options take precedence over embedded metadata.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
@@ -278,7 +277,7 @@ markEffects: true
 
 <emu-clause id="effects">
   <h1>Effects</h1>
-  <p>Abstract operations can be marked as having effects that propagate to their invocation sites. Subject to the following rules, calls to such operations are given a class of the effect name prefixed with “e-”. When using `--mark-effects`, the CSS includes styling for the "user-code" effect via class name `e-user-code` that is off by default but can be togged by pressing <kbd>u</kbd>.</p>
+  <p>Abstract operations can be marked as having effects that propagate to their invocation sites. Subject to the following rules, calls to such operations are given a class of the effect name prefixed with “e-”. When using `markEffects`, the CSS includes styling for the "user-code" effect via class name `e-user-code` that is off by default but can be togged by pressing <kbd>u</kbd>.</p>
 
   <p>Within an algorithm, an `emu-meta` element enclosing an operation invocation can be used to indicate either the origination of effects or the absence of effects using a list of effect names separated by commas with optional whitespace in an <b>effects</b> or <b>suppress-effects</b> attribute (respectively).</p>
   <pre><code class="language-html">
