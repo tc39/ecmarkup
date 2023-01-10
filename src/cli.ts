@@ -156,9 +156,11 @@ const build = debounce(async function build() {
       warnings.push(err);
     };
 
+    // Respect a reproducible build timestamp.
+    // https://reproducible-builds.org/specs/source-date-epoch/
     if (process.env.SOURCE_DATE_EPOCH) {
       const sde = process.env.SOURCE_DATE_EPOCH.trim();
-      if (!/^[0-9]+/.test(sde)) {
+      if (!/^[0-9]+$/.test(sde)) {
         fail(`SOURCE_DATE_EPOCH value ${sde} is not valid`);
       }
       const ts = +sde;
