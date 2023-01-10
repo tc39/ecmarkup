@@ -2005,7 +2005,7 @@ async function walk(walker: TreeWalker, context: Context) {
       throw new Error('oldids found on unsupported element: ' + context.node.nodeName);
     }
     oldids
-      .split(/,/g)
+      .split(',')
       .map(s => s.trim())
       .forEach(oid => {
         const s = spec.doc.createElement('span');

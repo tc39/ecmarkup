@@ -17,7 +17,7 @@ export default class Meta extends Builder {
         node
           .getAttribute('effects')!
           .split(',')
-          .map(c => c.trim()),
+          .map(e => e.trim()),
         node
       );
       for (const effect of effects) {
@@ -40,6 +40,7 @@ export default class Meta extends Builder {
       const classNames = node
         .getAttribute('effects')!
         .split(',')
+        .map(e => e.trim())
         .map(e => `e-${e}`)
         .join(' ');
       const span = spec.doc.createElement('span');
