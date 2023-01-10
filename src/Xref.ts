@@ -46,13 +46,19 @@ export default class Xref extends Builder {
       node.parentElement.children[0] === node
     ) {
       if (node.parentElement.hasAttribute('effects')) {
-        const addEffects = node.parentElement.getAttribute('effects')!.split(',');
+        const addEffects = node.parentElement
+          .getAttribute('effects')!
+          .split(',')
+          .map(e => e.trim());
         if (addEffects.length !== 0) {
           this.addEffects = validateEffects(spec, addEffects, node.parentElement);
         }
       }
       if (node.parentElement.hasAttribute('suppress-effects')) {
-        const suppressEffects = node.parentElement.getAttribute('suppress-effects')!.split(',');
+        const suppressEffects = node.parentElement
+          .getAttribute('suppress-effects')!
+          .split(',')
+          .map(e => e.trim());
         if (suppressEffects.length !== 0) {
           this.suppressEffects = validateEffects(spec, suppressEffects, node.parentElement);
         }
