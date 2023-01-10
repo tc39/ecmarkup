@@ -1456,14 +1456,14 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       this.doc.body.insertBefore(h1, this.doc.body.firstChild);
     }
 
-    // version string, ala 6th Edition July 2016 or Draft 10 / September 26, 2015
+    // version string, e.g. "6th Edition July 2016" or "Draft 10 / September 26, 2015"
     let versionText = '';
     let omitShortname = false;
     if (version) {
       versionText += version + ' / ';
     } else if (status === 'proposal' && stage) {
       versionText += 'Stage ' + stage + ' Draft / ';
-    } else if (shortname && status === 'draft') {
+    } else if (status === 'draft' && shortname) {
       versionText += 'Draft ' + shortname + ' / ';
       omitShortname = true;
     } else {
