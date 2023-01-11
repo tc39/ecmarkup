@@ -14,7 +14,6 @@ function addStepNumberText(ol, parentIndex) {
     let applicable = bullets[Math.min(index.length - 1, 5)];
     let span = document.createElement('span');
     span.textContent = (applicable[i] || '?') + '. ';
-    span.style.fontSize = '0';
     span.setAttribute('aria-hidden', 'true');
     child.prepend(span);
     let sublist = child.querySelector('ol');
