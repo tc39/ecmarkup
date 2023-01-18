@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <meta charset="utf8">
 <title>Ecmarkup</title>
 <pre class="metadata">
@@ -13,6 +13,7 @@ markEffects: true
   }
 </style>
 <emu-biblio href="./biblio.json"></emu-biblio>
+
 <emu-intro id="intro">
   <h1>Ecmarkup</h1>
   <p><a href="https://github.com/tc39/ecmarkup">Ecmarkup</a> is a number of custom elements and a toolchain suitable for specifying semantics for ECMAScript and other programming languages.</p>
@@ -38,6 +39,7 @@ markEffects: true
     $ ecmarkup spec.html out.html
   </code></pre>
 </emu-clause>
+
 <emu-clause id="useful-options">
   <h1>Options</h1>
   <p>Build options and document options can be passed in via the command line or specified in the <emu-xref href="#metadata">front-matter</emu-xref> of your document.</p>
@@ -84,6 +86,7 @@ markEffects: true
   <h1>Stylesheets and Scripts</h1>
   <p>Ecmarkup requires CSS styles and, if you're using the sidebar table of contents, javascript as well. By default CSS and JS dependencies are inlined into the document. You can override this by setting assets to "none" (for example if you want to manually link to external assets). Passing cssOut and jsOut will write the respective files to disk at the given path.</p>
 </emu-clause>
+
 <emu-clause id="editorial-conventions">
   <h1>Editorial Conventions</h1>
   <p>There are a large number of features in Ecmarkup. Detailed documentation can be found in later sections. This section provides a high-level overview of what capabilities are available and when to use them.</p>
@@ -141,6 +144,7 @@ markEffects: true
     </table>
   </emu-table>
 </emu-clause>
+
 <emu-clause id="metadata">
   <h1>Metadata</h1>
   <p>There are a number of settings that allow customizations or enable generation of boilerplate. To add metadata to your document, use yaml syntax inside a `&lt;pre class="metadata">` element somewhere in the root of your document. See <emu-xref href="#build-options"></emu-xref> and <emu-xref href="#document-options"></emu-xref> for a list (or consult `--help`).</p>
@@ -154,6 +158,7 @@ markEffects: true
     &lt;/pre>
   </code></pre>
 </emu-clause>
+
 <emu-clause id="clauses">
   <h1>Clauses</h1>
   <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in descendent text nodes as well. Text nodes are parsed as Ecmarkdown Fragments.</p>
@@ -229,6 +234,7 @@ markEffects: true
 
     <h3>Result</h3>
     <aside class="result">
+
       <emu-clause id="example-normative-optional" type="abstract operation" normative-optional example>
         <h1>
           ExampleOperation (
@@ -316,8 +322,9 @@ markEffects: true
   <h3>Result</h3>
   <em>Press <kbd>u</kbd> to toggle annotation visibility.</em>
   <aside class="result">
+
     <emu-clause id="sec-effect" type="abstract operation">
-      <h1>Effect ()</h1>
+      <h1>Effect ( )</h1>
       <dl class="header"></dl>
       <emu-alg>
         1. <emu-meta effects="user-code">Call user code.</emu-meta>
@@ -325,7 +332,7 @@ markEffects: true
     </emu-clause>
 
     <emu-clause id="sec-transitive-effect" type="abstract operation">
-      <h1>TransitiveEffect ()</h1>
+      <h1>TransitiveEffect ( )</h1>
       <dl class="header"></dl>
       <emu-alg>
         1. Perform Effect().
@@ -429,6 +436,7 @@ markEffects: true
   <p><b>aoid:</b> If present, an abstract operation id defined by this equation.</p>
   <p><b>id:</b> If present, links will go directly to the eqn definition. Otherwise, links go to the parent clause.</p>
 </emu-clause>
+
 <emu-clause id="emu-note">
   <h1>emu-note</h1>
   <p>Non-normative explanatory text. Comes in two types - regular notes and Editor's notes. Regular notes are intended for the implementers and end users of this specification. Editor's notes are notes to and from the Editors and will generally be removed prior to a specification being finalized and ratified.</p>
@@ -479,7 +487,11 @@ markEffects: true
     <p>See <emu-xref href="#emu-note" title></emu-xref> for information on the emu-note element.</p>
     <p>The <emu-xref href="#emu-biblio">biblio element</emu-xref> will eventually support xref to external specs.</p>
     <p><emu-xref aoid="Get"></emu-xref> is an abstract operation from ES6</p>
-    <p><emu-alg>1. [id="step-label-example"] Example labeled step.</emu-alg></p>
+    <p>
+      <emu-alg>
+        1. [id="step-label-example"] Example labeled step.
+      </emu-alg>
+    </p>
     <p>You can reference step <emu-xref href="#step-label-example"></emu-xref> like this</p>
   </aside>
 </emu-clause>
@@ -601,6 +613,7 @@ markEffects: true
     </emu-example>
   </aside>
 </emu-clause>
+
 <emu-clause id="emu-biblio">
   <h1>emu-biblio</h1>
   <p>Links a bibliography file. The bibliography file is a JSON document containing URLs for referenced documents along with any algorithms they define.</p>
@@ -665,7 +678,7 @@ markEffects: true
   </code></pre>
 
   <h3>Result</h3>
-  <aside class="result" data-simulate-tagName="emu-clause">
+  <aside class="result" data-simulate-tagname="emu-clause">
     <emu-production name="DecimalDigit" type="lexical" oneof primary>
       <emu-rhs>0 1 2 3 4 5 6 7 8 9</emu-rhs>
     </emu-production>
@@ -701,17 +714,17 @@ markEffects: true
   </code></pre>
 
   <h3>Result</h3>
-  <aside class="result" data-simulate-tagName="emu-clause">
+  <aside class="result" data-simulate-tagname="emu-clause">
     <emu-production name="ExpressionStatement" params="Yield" primary>
       <emu-rhs>
         <emu-gann>lookahead ∉ { <emu-t>{</emu-t>, <emu-t>function</emu-t>,
-            <emu-t>class</emu-t>, <emu-t>let [</emu-t> }</emu-gann>
+          <emu-t>class</emu-t>, <emu-t>let [</emu-t> }</emu-gann>
       </emu-rhs>
     </emu-production>
 
     <emu-production name="IterationStatement" primary>
       <emu-rhs>for ( <emu-nt>LexicalDeclaration</emu-nt> ; <emu-nt optional>Expression</emu-nt> ;
-      <emu-nt optional>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
+        <emu-nt optional>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
     </emu-production>
 
     <emu-production name="StatementList" params="Return, In" primary>
@@ -841,16 +854,18 @@ markEffects: true
   <h1>emu-import</h1>
   <p>Imports are treated specially in an ecmarkup document. Every import is inlined into its parent document at the location of the import tag. This is useful for breaking your spec document up into many smaller pieces.</p>
 
-    <h2>Attributes</h2>
-    <p><b>href:</b> Required: URL of the document to import, interpreted relative to the document containing the `emu-import`.</p>
+  <h2>Attributes</h2>
+  <p><b>href:</b> Required: URL of the document to import, interpreted relative to the document containing the `emu-import`.</p>
 </emu-clause>
 
 <emu-clause id="miscellaneous" oldids="css">
   <h1>Other Styles &amp; Conventions</h1>
+
   <emu-clause id="oldids">
-      <h1>Old IDs</h1>
-      <p>Old IDs for any element can be stored separated by commas with optional whitespace inside an <b>oldids</b> attribute, allowing links using them to continue working as expected.</p>
+    <h1>Old IDs</h1>
+    <p>Old IDs for any element can be stored separated by commas with optional whitespace inside an <b>oldids</b> attribute, allowing links using them to continue working as expected.</p>
   </emu-clause>
+
   <emu-clause id="ins-del">
     <h1>Indicating Changes</h1>
     <p>The `ins` and `del` HTML elements can be used to mark insertions and deletions respectively. When adding or removing block content (such as entire list items, paragrpahs, clauses, grammar RHSes, etc.), use a class of "block".</p>
@@ -873,7 +888,7 @@ markEffects: true
     </code></pre>
 
     <h3>Result</h3>
-    <aside class="result" data-simulate-tagName="emu-clause">
+    <aside class="result" data-simulate-tagname="emu-clause">
       <emu-production name="HoistableDeclaration">
         <emu-rhs><emu-nt>FunctionDeclaration</emu-nt></emu-rhs>
         <emu-rhs><emu-nt>GeneratorDeclaration</emu-nt></emu-rhs>
@@ -881,6 +896,7 @@ markEffects: true
       </emu-production>
     </aside>
   </emu-clause>
+
   <emu-clause id="pre-code">
     <h1>Code Listings</h1>
     <p>Create a code listing using `&lt;pre>&lt;code>`. The `code` element takes a class of `javascript`, `html`, or any other language provided by <a href="https://highlightjs.org/">highlightjs</a>. Ecmarkup will trim any leading blank lines and also normalize the indentation based on the indentation of the first line.</p>
