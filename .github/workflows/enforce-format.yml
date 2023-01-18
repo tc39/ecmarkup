@@ -26,4 +26,4 @@ jobs:
         run: npm run build
 
       - name: Enforce spec format
-        run: 'if ! node bin/emu-format.js --check spec/index.html; then echo "You need to run \`npm run format\`"; exit 1; fi'
+        run: 'if ! node bin/emu-format.js --check spec/index.html; then echo "You need to run \`npm run format-spec\`"; exit 1; fi'
