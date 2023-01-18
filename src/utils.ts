@@ -129,6 +129,7 @@ export function logWarning(str: string) {
   console.error(chalk.gray('[' + dateString + '] ') + chalk.red(str));
 }
 
+const CLAUSE_LIKE = ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'];
 /*@internal*/
 export function shouldInline(node: Node) {
   let parent = node.parentNode;
@@ -145,9 +146,10 @@ export function shouldInline(node: Node) {
     parent = parent.parentNode;
   }
 
-  return (
-    ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'].indexOf(parent.nodeName) === -1
-  );
+  const clauseLikeParent =
+    CLAUSE_LIKE.includes(parent.nodeName) ||
+    CLAUSE_LIKE.includes((parent as Element).getAttribute('data-simulate-tagName')?.toUpperCase()!);
+  return !clauseLikeParent;
 }
 
 /*@internal*/

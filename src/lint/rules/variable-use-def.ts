@@ -274,7 +274,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
           if (isSuchThat || isBe) {
             const varsDeclaredHere = [part];
             let varIndex = i - 1;
-            // walk backwards collecting this comma/'and' seperated list of variables
+            // walk backwards collecting this list of variables separated by comma/'and'
             for (; varIndex >= 1; varIndex -= 2) {
               if (parts[varIndex].name !== 'text') {
                 break;

@@ -1,9 +1,10 @@
 <!doctype html>
 <meta charset="utf8">
 <title>Ecmarkup</title>
-<pre class=metadata>
+<pre class="metadata">
 repository: https://github.com/tc39/ecmarkup
 copyright: false
+markEffects: true
 </pre>
 <style>
   .result {
@@ -31,54 +32,57 @@ copyright: false
 
 <emu-clause id="getting-started">
   <h1>Getting Started</h1>
-  <pre>npm install -g ecmarkup
-ecmarkup --help
-ecmarkup spec.html out.html
-  </pre>
+  <pre><code class="language-shell">
+    $ npm install -g ecmarkup
+    $ ecmarkup --help
+    $ ecmarkup spec.html out.html
+  </code></pre>
 </emu-clause>
 <emu-clause id="useful-options">
   <h1>Options</h1>
-  <p>Build options and document options can be passed in via the command line or specified in the front-matter of your document.</p>
-  <emu-table id="build-options">
+  <p>Build options and document options can be passed in via the command line or specified in the <emu-xref href="#metadata">front-matter</emu-xref> of your document.</p>
+  <emu-table id="build-options" class="code">
     <emu-caption>Build options</emu-caption>
     <table>
-      <tr><th>Option</th><th>Description</th></tr>
-      <tr><td>watch</td><td>Rebuild when files change</td></tr>
-      <tr><td>verbose</td><td>Print verbose logging info</td></tr>
-      <tr><td>write-biblio</td><td>Emit a biblio file to the specified location</td></tr>
-      <tr><td>assets</td><td>"none" for no css/js, "inline" for inline css/js</td></tr>
-      <tr><td>css-out</td><td>Emit the Ecmarkup CSS file to the specified location</td></tr>
-      <tr><td>js-out</td><td>Emit the Ecmarkup JS file to the specified location</td></tr>
-      <tr><td>lint-spec</td><td>Enforce some style and correctness checks</td></tr>
-      <tr><td>lint-formatter</td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using --verbose. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
-      <tr><td>strict</td><td>Exit with an error if there are warnings. Cannot be used with --watch</td></tr>
-      <tr><td>mark-effects</td><td>Whether to render <a href="#effects">effects</a> like "user code".</td></tr>
+      <tr><th>Command Line Option</th><th>Front-Matter Key</th><th>Description</th></tr>
+      <tr><td>`--watch`</td><td></td><td>Rebuild when files change.</td></tr>
+      <tr><td>`--verbose`</td><td></td><td>Print verbose logging info.</td></tr>
+      <tr><td>`--write-biblio`</td><td></td><td>Emit a biblio file to the specified path.</td></tr>
+      <tr><td>`--assets`</td><td>`assets`</td><td>"none" for no CSS/JS, "inline" for inline CSS/JS.</td></tr>
+      <tr><td>`--css-out`</td><td>`cssOut`</td><td>Emit the Ecmarkup CSS file to the specified path.</td></tr>
+      <tr><td>`--js-out`</td><td>`jsOut`</td><td>Emit the Ecmarkup JS file to the specified path.</td></tr>
+      <tr><td>`--lint-spec`</td><td>`lintSpec`</td><td>Enforce some style and correctness checks.</td></tr>
+      <tr><td>`--error-formatter`</td><td></td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using `--verbose`. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
+      <tr><td>`--strict`</td><td></td><td>Exit with an error if there are warnings. Cannot be used with `--watch`.</td></tr>
+      <tr><td>`--mark-effects`</td><td>`markEffects`</td><td>Propagate and render <a href="#effects">effects</a> like "user code".</td></tr>
+      <tr><td>`--multipage`</td><td></td><td>Emit a distinct page for each top-level clause.</td></tr>
     </table>
   </emu-table>
 
-  <emu-table id="document-options">
+  <emu-table id="document-options" class="code">
     <emu-caption>Document options</emu-caption>
     <table>
-      <tr><th>Option</th><th>Description</th></tr>
-      <tr><td>title</td><td>Title of specification, for example `ECMAScript 2016` or `Async Functions`.</td></tr>
-      <tr><td>status</td><td>Status of specification. Can be `proposal`, `draft`, or `standard`. Default is `proposal`.</td></tr>
-      <tr><td>stage</td><td>Stage of proposal. Must be a number if provided, but is optional. Sets `version` to `Stage N Draft`, but can be overridden.</td></tr>
-      <tr><td>version</td><td>Version of specification, for example `6&lt;sup>th&lt;/sup> Edition` or `Draft 1`. Optional.</td></tr>
-      <tr><td>date</td><td>Date the spec was generated. Used for various pieces of boilerplate that include dates. Defaults to the value of <a href="https://reproducible-builds.org/docs/source-date-epoch/">the SOURCE_DATE_EPOCH environment variable</a> (as a number of second since the Unix epoch) if it exists, otherwise defaults to today's date.</td></tr>
-      <tr><td>shortname</td><td>Shortname of specification, for example `ECMA-262` or `ECMA-402`.</td></tr>
-      <tr><td>location</td><td>URL of this specification. Use in conjunction with the biblio file to enable external specs to reference this one.</td></tr>
-      <tr><td>copyright</td><td>Emit copyright and software license information. Boolean, default true.</td></tr>
-      <tr><td>contributors</td><td>Contributors to this specification, ie. those who own the copyright. If your proposal includes text from any Ecma specification, you should include "Ecma International" in this list.</td></tr>
-      <tr><td>toc</td><td>Emit table of contents. Boolean, default true.</td></tr>
-      <tr><td>old-toc</td><td>Emit the old style of table of contents. Boolean, default false.</td></tr>
-      <tr><td>load-biblio</td><td>Load the specified biblio.json file. This should contain either an object as exported by `--write-biblio` or an array of such objects.</td></tr>
+      <tr><th>Command Line Option</th><th>Front-Matter Key</th><th>Description</th></tr>
+      <tr><td></td><td>`title`</td><td>Document title, for example "ECMAScript 2016" or "Async Functions".</td></tr>
+      <tr><td></td><td>`status`</td><td>Document status. Can be "proposal", "draft", or "standard". Defaults to "proposal".</td></tr>
+      <tr><td></td><td>`stage`</td><td><a href="https://tc39.es/process-document/">TC39 proposal stage</a>. If present and `status` is "proposal", `version` defaults to "Stage <var>stage</var> Draft".</td></tr>
+      <tr><td></td><td>`version`</td><td>Document version, for example "6&lt;sup>th&lt;/sup> Edition" or "Draft 1".</td></tr>
+      <tr><td></td><td>`date`</td><td>Timestamp of document rendering, used for various pieces of boilerplate. Defaults to the value of <a href="https://reproducible-builds.org/docs/source-date-epoch/">the `SOURCE_DATE_EPOCH` environment variable</a> (as a number of second since the POSIX epoch) if it exists, otherwise to the current date and time.</td></tr>
+      <tr><td></td><td>`shortname`</td><td>Document shortname, for example "ECMA-262". If present and `status` is "draft", `version` defaults to "Draft <var>shortname</var>".</td></tr>
+      <tr><td></td><td>`location`</td><td>URL of this document. Used in conjunction with the biblio file to support inbound references from other documents.</td></tr>
+      <tr><td></td><td>`copyright`</td><td>Emit copyright and software license information. Boolean, default true.</td></tr>
+      <tr><td></td><td>`contributors`</td><td>Contributors to this specification, i.e. those who own the copyright. If your proposal includes text from any Ecma specification, this should include "Ecma International".</td></tr>
+      <tr><td>`--no-toc`</td><td>`toc`</td><td>Emit table of contents. Boolean, default true.</td></tr>
+      <tr><td>`--old-toc`</td><td>`oldToc`</td><td>Emit the table of contents at the top of the document rather than as a side pane. Boolean, default false.</td></tr>
+      <tr><td>`--load-biblio`</td><td>`extraBiblios`</td><td>Extra biblio.json file(s) to load. This should contain either an object as exported by `--write-biblio` or an array of such objects.</td></tr>
+      <tr><td></td><td>`boilerplate`</td><td>An object with `address` and/or `copyright` and/or `license` fields containing paths to files containing the corresponding content for populating an element with class "copyright-and-software-license" (or if not found, an appended <emu-xref href="#emu-annex" title></emu-xref> with that id) when `copyright` is true. Absent fields are assumed to reference files in a "boilerplate" directory sibling of the directory containing the ecmarkup executable.</td></tr>
     </table>
   </emu-table>
 </emu-clause>
 
 <emu-clause id="stylesheets-and-scripts">
   <h1>Stylesheets and Scripts</h1>
-  <p>Ecmarkup requires css styles and, if you're using the sidebar table of contents, javascript as well. By default CSS and JS dependencies are inlined into the document. You can override this by setting assets to "none" (for example if you want to manually link to external assets). Passing cssOut and jsOut will write the respective files to disk at the given location.</p>
+  <p>Ecmarkup requires CSS styles and, if you're using the sidebar table of contents, javascript as well. By default CSS and JS dependencies are inlined into the document. You can override this by setting assets to "none" (for example if you want to manually link to external assets). Passing cssOut and jsOut will write the respective files to disk at the given path.</p>
 </emu-clause>
 <emu-clause id="editorial-conventions">
   <h1>Editorial Conventions</h1>
@@ -89,11 +93,12 @@ ecmarkup spec.html out.html
     <table>
       <tr><th>Notational Convention</th><th>Ecmarkup Functionality</th></tr>
       <tr><td>Clauses</td><td><emu-xref href="#emu-clause" title></emu-xref>, <emu-xref href="#emu-intro" title></emu-xref>, and <emu-xref href="#emu-annex" title></emu-xref></td></tr>
-      <tr><td>Algorithms</td><td><emu-xref href="#emu-alg" title></emu-xref> with Ecmarkdown (see also <emu-xref href="#emd-overview"></emu-xref>). Equations such as <a href="https://tc39.es/ecma262/#sec-year-number">Year Number</a> use <emu-xref href="#emu-eqn" title></emu-xref></td></tr>
+      <tr><td>Algorithms</td><td><emu-xref href="#emu-alg" title></emu-xref> with Ecmarkdown (see also <emu-xref href="#emd-overview"></emu-xref>)</td></tr>
+      <tr><td>Mathematical expressions</td><td><emu-xref href="#emu-eqn" title></emu-xref></td></tr>
       <tr><td>Notes</td><td><emu-xref href="#emu-note" title></emu-xref></td></tr>
-      <tr><td>Figures (such as images)</td><td><emu-xref href="#emu-figure" title></emu-xref> and `emu-caption`</td></tr>
-      <tr><td>Tables</td><td><emu-xref href="#emu-table" title></emu-xref> and `emu-caption`</td></tr>
-      <tr><td>Examples</td><td><emu-xref href="#emu-example" title></emu-xref> and `emu-caption`</td></tr>
+      <tr><td>Figures (such as images)</td><td><emu-xref href="#emu-figure" title></emu-xref></td></tr>
+      <tr><td>Tables</td><td><emu-xref href="#emu-table" title></emu-xref></td></tr>
+      <tr><td>Examples</td><td><emu-xref href="#emu-example" title></emu-xref></td></tr>
       <tr><td>Grammar</td><td><emu-xref href="#emu-grammar" title></emu-xref> using <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown syntax</a> or <emu-xref href="#emu-production" title></emu-xref> and child elements</td></tr>
       <tr><td>Cross-references</td><td><emu-xref href="#emu-xref" title></emu-xref> (can reference clauses, productions, abstract operations, tables, figuers, and examples)</td></tr>
     </table>
@@ -138,16 +143,16 @@ ecmarkup spec.html out.html
 </emu-clause>
 <emu-clause id="metadata">
   <h1>Metadata</h1>
-  <p>There are a number of settings that allow customizations or enable generation of boilerplate. Metadata can be included in the document and passed on the command line, for example `--no-toc --title "Document 1"`. Metadata given on the command line takes precedence.</p>
-  <p>To add metadata to your document, use yaml syntax inside a `&lt;pre class=metadata>` element somewhere in the root of your document.</p>
-  <p>All of the command line options can be provided in the metadata block. See <emu-xref href="#build-options"></emu-xref> and <emu-xref href="#document-options"></emu-xref> for a list (or consult `--help`).</p>
-  <h2>Example document with metadata</h2>
-<pre><code class="language-html">
-&lt;pre class=metadata>
-Title: Document 1
-toc: false
-&lt;/pre>
-</code></pre>
+  <p>There are a number of settings that allow customizations or enable generation of boilerplate. To add metadata to your document, use yaml syntax inside a `&lt;pre class="metadata">` element somewhere in the root of your document. See <emu-xref href="#build-options"></emu-xref> and <emu-xref href="#document-options"></emu-xref> for a list (or consult `--help`).</p>
+  <p>Some metadata can also be passed on the command line, for example `--no-toc`. Such options take precedence over embedded metadata.</p>
+
+  <h2>Example</h2>
+  <pre><code class="language-html">
+    &lt;pre class="metadata">
+    title: Document 1
+    toc: false
+    &lt;/pre>
+  </code></pre>
 </emu-clause>
 <emu-clause id="clauses">
   <h1>Clauses</h1>
@@ -197,7 +202,7 @@ toc: false
           a <code>&lt;dl&gt;</code> element with class "header" and a collection of optional key-value pairs expressed using <code>&lt;dt&gt;</code> and <code>&lt;dd&gt;</code> elements:
           <ul>
             <li><b>description:</b> An explanation of the operation's behaviour.</li>
-            <li><b>effects:</b> A comma-separated list of "effects" associated with the clause and transitively with those referencing it. The only currently-known effect is "user-code", which indicates that the operation or method can evaluate non-implementation code (such as custom getter).
+            <li><b>effects:</b> A list of "effects" associated with the clause (and transitively with those referencing it), separated by commas with optional whitespace. The only currently-known effect is "user-code", which indicates that the operation or method can evaluate non-implementation code (such as custom getters).</li>
             <li><b>for:</b> The type of value to which a clause of type "concrete method" or "internal method" applies.</li>
             <li><b>redefinition:</b> If "true", the name of the operation will not automatically link (i.e., it will not automatically be given an aoid).</li>
           </ul>
@@ -206,9 +211,8 @@ toc: false
     </emu-clause>
 
     <h2>Example</h2>
-    <h3>Element</h3>
     <pre><code class="language-html">
-      &lt;emu-clause id="example-normative-optional" type="abstract operation" example normative-optional>
+      &lt;emu-clause id="example-normative-optional" type="abstract operation" normative-optional example>
         &lt;h1>
           ExampleOperation (
             _S_: a String,
@@ -222,20 +226,23 @@ toc: false
         &lt;p>This clause is normative optional.&lt;/p>
       &lt;/emu-clause>
     </code></pre>
+
     <h3>Result</h3>
-    <emu-clause id="example-normative-optional" type="abstract operation" example normative-optional>
-      <h1>
-        ExampleOperation (
-          _S_: a String,
-          optional _length_: a non-negative integer,
-        )
-      </h1>
-      <dl class="header">
-        <dt>description</dt>
-        <dd>It returns a List of the code points of the first _length_ grapheme clusters of _S_ using the host environment's current locale, or all code points when _length_ is not present.</dd>
-      </dl>
-      <p>This clause is normative optional.</p>
-    </emu-clause>
+    <aside class="result">
+      <emu-clause id="example-normative-optional" type="abstract operation" normative-optional example>
+        <h1>
+          ExampleOperation (
+            _S_: a String,
+            optional _length_: a non-negative integer,
+          )
+        </h1>
+        <dl class="header">
+          <dt>description</dt>
+          <dd>It returns a List of the code points of the first _length_ grapheme clusters of _S_ using the host environment's current locale, or all code points when _length_ is not present.</dd>
+        </dl>
+        <p>This clause is normative optional.</p>
+      </emu-clause>
+    </aside>
   </emu-clause>
 
   <emu-clause id="emu-annex">
@@ -253,36 +260,39 @@ toc: false
   <h1>Definitions</h1>
   <p>Terms can be defined using the `&lt;dfn>` element. Any uses of that term will be automatically linked to the clause containing the definition, or, if the `&lt;dfn>` element has an `id`, to the `&lt;dfn>` itself. This can be suppressed with the <a href="#emu-not-ref">`emu-not-ref`</a> element.</p>
   <p>When the term starts with a lowercase English letter, usages of the term with the first letter capitalized will also link.</p>
-  <p>Other variants of the term, such as plural forms, can be provided as a comma-seperated list in the `variants` attribute on the element.</p>
+
+  <h2>Attributes</h2>
+  <p><b>variants:</b> If present, specifies other variants of the term (such as plural forms). Multiple variants are separated by commas with optional whitespace.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
-  &lt;p>A &lt;dfn id="swordfish" variants="swordfishes,broadbill,broadbills,Xiphias gladius">swordfish&lt;/dfn> is a large fish characterized by a long, pointed bill.&lt;/p>
-  &lt;p>The Latin name for swordfishes, &lt;em>Xiphias gladius&lt;/em>, comes from the Greek word "ξίφος" (xiphos, "sword") and from the Latin word "gladius" ("sword").&lt;/p>
+    &lt;p>A &lt;dfn id="swordfish" variants="swordfishes,broadbill,broadbills,Xiphias gladius">swordfish&lt;/dfn> is a large fish characterized by a long, pointed bill.&lt;/p>
+    &lt;p>The Latin name for swordfishes, &lt;em>Xiphias gladius&lt;/em>, comes from the Greek word "ξίφος" (xiphos, "sword") and from the Latin word "gladius" ("sword").&lt;/p>
   </code></pre>
 
-  <b>Result</b>
-  <p>A <dfn id="swordfish" variants="swordfishes,Xiphias gladius">swordfish</dfn> is large fish characterized by a long, pointed bill.</p>
-  <p>The Latin name for swordfishes, <em>Xiphias gladius</em>, comes from the Greek word "ξίφος" (xiphos, "sword") and from the Latin word "gladius" ("sword").</p>
+  <h3>Result</h3>
+  <aside class="result">
+    <p>A <dfn id="swordfish" variants="swordfishes,Xiphias gladius">swordfish</dfn> is large fish characterized by a long, pointed bill.</p>
+    <p>The Latin name for swordfishes, <em>Xiphias gladius</em>, comes from the Greek word "ξίφος" (xiphos, "sword") and from the Latin word "gladius" ("sword").</p>
+  </aside>
 </emu-clause>
 
 <emu-clause id="effects">
   <h1>Effects</h1>
-  <p>Abstract operations can be marked as having effects, which will propagate to callers. Calls to such operations are given the class <code>.e-effect-name</code>, subject to the following rules. When using `--mark-effects` the CSS includes styling for one effect, "user-code", which is off by default but can be togged by pressing "u".</p>
+  <p>Abstract operations can be marked as having effects that propagate to their invocation sites. Subject to the following rules, calls to such operations are given a class of the effect name prefixed with “e-”. When using `markEffects`, the CSS includes styling for the "user-code" effect via class name `e-user-code` that is off by default but can be togged by pressing <kbd>u</kbd>.</p>
 
-  <h2>Annotating effects</h2>
-  <p>Effects can be added within an algorithm using an &lt;emu-meta> tag:</p>
-  <pre><code class="language-html">1. Return ? &lt;emu-meta effects="user-code">_O_.[[Get]]&lt;/emu-meta>(_P_, _O_).</code></pre>
+  <p>Within an algorithm, an `emu-meta` element enclosing an operation invocation can be used to indicate either the origination of effects or the absence of effects using a list of effect names separated by commas with optional whitespace in an <b>effects</b> or <b>suppress-effects</b> attribute (respectively).</p>
+  <pre><code class="language-html">
+    1. Let _value_ be ? &lt;emu-meta effects="user-code">_O_.[[Get]]&lt;/emu-meta>(_P_, _O_).
+    1. Let _primValue_ be ? ToPrimitive(_value_, ~number~).
+    1. Let _stringValue_ be ? &lt;emu-meta suppress-effects="user-code">ToString(_primValue_)&lt;/emu-meta>.
+  </code></pre>
 
-  <p>The same tag also allows you to suppress effects from an AO invocation:</p>
-  <pre><code class="language-html">1. Set _buffer_ to ? &lt;emu-meta suppress-effects="user-code">AOWhichNormallyHasEffects()&lt;/emu-meta>.</code></pre>
+  <p>Effects do not normally propagate to callsites marked as infallibly non-abrupt with <code>!</code>. Such sites must be manually marked with `emu-meta`.</p>
 
-  <p>Effects do not normally propagate to callsites prefixed with <code>!</code>. Such sites must be manually marked with an &lt;emu-meta> tag.</p>
+  <p>When a step or its substeps have effects but those effects should not imply that the containing algorithm has the same effects, propagation may be prevented using a `[fence-effects="user-code"]` annotation at the begining of the step. This implicitly applies to steps which define abstract closures.</p>
 
-  <p>When it is not possible to mark a particular part of an algorithm step as having effects (for example, when an AO is not defined with algorithm steps), the entire AO can be marked as having effects by adding to its <a href="#emu-clause-structured-headers">structured header</a> a &lt;dl>effects&lt;dl> entry whose corresponding &lt;dd> contains a comma-seperated list of effects:</p>
-  <pre><code class="language-html">&lt;dl class="header">&lt;dt>effects&lt;/dt>&lt;dd>user-code&lt;/dd>&lt;/dl></code></pre>
-
-  <p>When an algorithm step or its substeps have effects, but those effects should not imply the containing algorithm has the same effects, propagation may be prevented using a <pre><code>[fence-effects="user-code"]</code></pre> marker at the begining of the step. This rule is automatically applied to steps which define abstract closures.</p>
+  <p>It is also possible to associate effects at the level of an entire operation (for example, because it is not defined with algorithm steps) by adding to its <a href="#emu-clause-structured-headers">structured header</a> an <b>effects</b> entry.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
@@ -303,8 +313,9 @@ toc: false
     &lt;/emu-clause>
   </code></pre>
 
-  <b>Result (press "u" to toggle visible annotations)</b>
-  <div class="result">
+  <h3>Result</h3>
+  <em>Press <kbd>u</kbd> to toggle annotation visibility.</em>
+  <aside class="result">
     <emu-clause id="sec-effect" type="abstract operation">
       <h1>Effect ()</h1>
       <dl class="header"></dl>
@@ -320,71 +331,94 @@ toc: false
         1. Perform Effect().
       </emu-alg>
     </emu-clause>
-  </div>
+  </aside>
 </emu-clause>
 
 <emu-clause id="emu-alg" aoid="EmuAlg">
   <h1>emu-alg</h1>
-  <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate "aoid" in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
+  <p>Algorithm steps. Should not contain any HTML. The node's textContent is parsed as an Ecmarkdown document. Additionally, calls to abstract operations inside algorithm steps are automatically linked to their definitions by first checking for any clauses or algorithms with the appropriate <b>aoid</b> in the current spec, and afterwards checking any linked <a href="#emu-biblio">bibliography files</a>.</p>
+  <p>Algorithm steps can be annotated with additional metadata as summarized in <emu-xref href="#algorithm-step-annotation"></emu-xref>.</p>
+
+  <h2>Attributes</h2>
+  <p><b>example:</b> If present, the element is an example.</p>
+  <p><b>replaces-step:</b> If present, references a step to replace by its <emu-xref href="#labeled-steps"><b>id</b></emu-xref> (whose numbering the algorithm adopts).</p>
 
   <h2>Example</h2>
-  <emu-note>The emu-alg clause has an aoid of "EmuAlg".</emu-note>
-  <h3>Element</h3>
-  <pre><code class="language-html">
-&lt;emu-alg aoid="EmuAlgExample">
-  1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
-  1. Step 2.
-    1. Let _recurse_ be the result of calling EmuAlgExample(*true*).
-    1. Return the result of evaluating this |NonTerminalProduction|.
-&lt;/emu-alg>
-  </code></pre>
-  <h3>Result</h3>
-  <emu-alg aoid="EmuAlgExample">
-    1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
-    1. Step 2.
-      1. Let _recurse_ be the result of calling EmuAlgExample(*true*).
-      1. Return the result of evaluating this |NonTerminalProduction|.
-  </emu-alg>
-
-  <h2>Declarations</h2>
-  <p>The linter checks that each used variable in an algorithm step is declared earlier. It recognizes most common forms of declaration automatically, but in case there is a declaration which is not automatically inferred, a variable can be marked as declared for the purposes of this analysis by adding a `[declared="v"]` attribute at the start of the step. Multiple variables can be listed by seperating them with commas.</p>
-
-  <h3>Element</h3>
-  <pre><code class="language-html">
-&lt;emu-alg>
-  1. [declared="x"] Suppose the existence of _x_.
-&lt;/emu-alg>
-  </code></pre>
-
-  <h2>Replacement algorithms</h2>
-  <p>Algorithms may be specified to replace a labeled step, in which case the algorithm will adopt the numbering of that step. For example:</p>
-
-  <h3>Element</h3>
+  <emu-note>The <emu-xref href="#emu-alg" title></emu-xref> clause has an aoid of "EmuAlg".</emu-note>
   <pre><code class="language-html">
     &lt;emu-alg>
-      1. Step.
-      1. Step 2.
-        1. [id="step-replace-me"] Replaced.
-          1. Substep.
+      1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
+      1. If *false* is *true*, then
+        1. [id="step-example-label"] Let _recurse_ be the result of calling EmuAlg(*true*).
+        1. Return the result of evaluating this |NonTerminalProduction|.
     &lt;/emu-alg>
-    &lt;p>The following is an alernative definition of step &lt;emu-xref href="#step-replace-me">&lt;/emu-xref>.&lt;/p>
-    &lt;emu-alg replaces-step="replace-me">
+    &lt;p>The following is an alernative definition of step &lt;emu-xref href="#step-example-label">&lt;/emu-xref>.&lt;/p>
+    &lt;emu-alg replaces-step="step-example-label">
       1. Replacement.
         1. Substep.
     &lt;/emu-alg>
   </code></pre>
+
   <h3>Result</h3>
-  <emu-alg>
-    1. Step.
-    1. Step 2.
-      1. [id="step-replace-me"] Replaced.
+  <aside class="result">
+    <emu-alg>
+      1. Let _clauseAbstractOp_ be the result of calling EmuAlg().
+      1. If *false* is *true*, then
+        1. [id="step-example-label"] Let _recurse_ be the result of calling EmuAlg(*true*).
+        1. Return the result of evaluating this |NonTerminalProduction|.
+    </emu-alg>
+    <p>The following is an alernative definition of step <emu-xref href="#step-example-label"></emu-xref>.</p>
+    <emu-alg replaces-step="step-example-label">
+      1. Replacement.
         1. Substep.
-  </emu-alg>
-  <p>The following is an alernative definition of step <emu-xref href="#step-replace-me"></emu-xref>.</p>
-  <emu-alg replaces-step="step-replace-me">
-    1. Replacement.
-      1. Substep.
-  </emu-alg>
+    </emu-alg>
+  </aside>
+
+  <emu-table id="algorithm-step-annotation">
+    <emu-caption>Algorithm Step Annotation</emu-caption>
+    <table>
+      <tr><th>Data</th><th>Description</th><th>Example Syntax</th></tr>
+      <tr>
+        <td><emu-xref href="#labeled-steps">Step labels</emu-xref></td>
+        <td>Provide an id for referencing an individual step.</td>
+        <td>`[id="step-label"]`</td>
+      </tr>
+      <tr>
+        <td><emu-xref href="#variable-declarations" title></emu-xref></td>
+        <td>Inform the linter of the existence of a variable.</td>
+        <td>`[declared="x"]`</td>
+      </tr>
+      <tr>
+        <td><emu-xref href="#effects">Effect propagation control</emu-xref></td>
+        <td>Originate, suppress, or constrain the scope of effects.</td>
+        <td>`&lt;emu-meta>`, `[fence-effects="user-code"]`</td>
+      </tr>
+    </table>
+  </emu-table>
+
+  <emu-clause id="labeled-steps">
+    <h1>Step Labels</h1>
+    <p>Each step can be given an id for reference by <emu-xref href="#emu-xref" title></emu-xref> or <b>replaces-step</b>.</p>
+
+    <h2>Example</h2>
+    <pre><code class="language-html">
+      &lt;emu-alg>
+        1. [id="step-example-internal"] Let _obj_ be OrdinaryObjectCreate(*null*).
+      &lt;/emu-alg>
+    </code></pre>
+  </emu-clause>
+
+  <emu-clause id="variable-declarations">
+    <h1>Variable Declarations</h1>
+    <p>The linter checks that each used variable in an algorithm step is declared earlier. It recognizes most common forms of declaration automatically, but in case there is a declaration which is not automatically inferred, a variable can be marked as declared for the purposes of this analysis by adding a `[declared="v"]` attribute at the start of the step. Multiple variables can be separated by commas with optional whitespace.</p>
+
+    <h2>Example</h2>
+    <pre><code class="language-html">
+      &lt;emu-alg>
+        1. [declared="x"] Suppose the existence of _x_.
+      &lt;/emu-alg>
+    </code></pre>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="emu-eqn">
@@ -392,20 +426,29 @@ toc: false
   <p>An equation, similar to those found in ES6 <a href="https://tc39.es/ecma262/#sec-year-number">Year Number</a>.</p>
 
   <h2>Attributes</h2>
-  <p><b>aoid:</b> Required: the abstract operation id that this equation defines.</p>
-  <p><b>id:</b> Optional id. If present, links will go directly to the eqn definition. Otherwise, links go to the parent clause.</p>
+  <p><b>aoid:</b> If present, an abstract operation id defined by this equation.</p>
+  <p><b>id:</b> If present, links will go directly to the eqn definition. Otherwise, links go to the parent clause.</p>
 </emu-clause>
 <emu-clause id="emu-note">
   <h1>emu-note</h1>
-  <p>Non-normative explanatory text. Comes in two flavors - regular notes and Editor's notes. Regular notes are intended for the implementers and end users of this specification. Editor's notes are notes to and from the Editors and will generally be removed prior to a specification being finalized and ratified.</p>
+  <p>Non-normative explanatory text. Comes in two types - regular notes and Editor's notes. Regular notes are intended for the implementers and end users of this specification. Editor's notes are notes to and from the Editors and will generally be removed prior to a specification being finalized and ratified.</p>
 
   <h2>Attributes</h2>
   <p><b>type:</b> The type of note, either blank or "editor".</p>
 
   <h2>Example</h2>
-  <p>For authentication only, servers and clients MUST support SASL Salted Challenge Response Authentication Mechanism [SCRAM].</p>
-  <emu-note>But we know you won't.</emu-note>
-  <emu-note type=editor>This joke brought to you by RFC6919.</emu-note>
+  <pre><code class="language-html">
+    &lt;p>For authentication only, servers and clients MUST support SASL Salted Challenge Response Authentication Mechanism [SCRAM].&lt;/p>
+    &lt;emu-note>But we know you won't.&lt;/emu-note>
+    &lt;emu-note type="editor">This joke brought to you by RFC6919.&lt;/emu-note>
+  </code></pre>
+
+  <h3>Result</h3>
+  <aside class="result">
+    <p>For authentication only, servers and clients MUST support SASL Salted Challenge Response Authentication Mechanism [SCRAM].</p>
+    <emu-note>But we know you won't.</emu-note>
+    <emu-note type="editor">This joke brought to you by RFC6919.</emu-note>
+  </aside>
 </emu-clause>
 
 <emu-clause id="emu-xref">
@@ -414,7 +457,7 @@ toc: false
   <p>Cross-references to an id check for clauses, productions, examples, and steps in this order. For each type, the local document is consulted before looking for external sources.</p>
 
   <h2>Attributes</h2>
-  <p><b>href:</b> Optional: URL of the target clause, production, or example to cross-reference.</p>
+  <p><b>href:</b> Optional: URL of the target clause, production, or example to cross-reference, interpreted relative to the containing document.</p>
   <p><b>title:</b> Optional: If present, xref will be filled in with the referenced clause's title. Otherwise, the clause's section number is used.</p>
   <p><b>aoid:</b> Optional: aoid of an abstract operation to reference.</p>
 
@@ -430,13 +473,15 @@ toc: false
     &lt;p>You can reference step &lt;emu-xref href="#step-label-example">&lt;/emu-xref> like this&lt;/p>
   </code></pre>
 
-  <b>Result</b>
-  <p>The clause element is specified in <emu-xref href="#emu-clause"></emu-xref>.</p>
-  <p>See <emu-xref href="#emu-note" title></emu-xref> for information on the emu-note element.</p>
-  <p>The <emu-xref href="#emu-biblio">biblio element</emu-xref> will eventually support xref to external specs.</p>
-  <p><emu-xref aoid="Get"></emu-xref> is an abstract operation from ES6</p>
-  <p><emu-alg>1. [id="step-label-example"] Example labeled step.</emu-alg></p>
-  <p>You can reference step <emu-xref href="#step-label-example"></emu-xref> like this</p>
+  <h3>Result</h3>
+  <aside class="result">
+    <p>The clause element is specified in <emu-xref href="#emu-clause"></emu-xref>.</p>
+    <p>See <emu-xref href="#emu-note" title></emu-xref> for information on the emu-note element.</p>
+    <p>The <emu-xref href="#emu-biblio">biblio element</emu-xref> will eventually support xref to external specs.</p>
+    <p><emu-xref aoid="Get"></emu-xref> is an abstract operation from ES6</p>
+    <p><emu-alg>1. [id="step-label-example"] Example labeled step.</emu-alg></p>
+    <p>You can reference step <emu-xref href="#step-label-example"></emu-xref> like this</p>
+  </aside>
 </emu-clause>
 
 <emu-clause id="emu-not-ref" namespace="emu-not-ref">
@@ -454,19 +499,22 @@ toc: false
   &lt;/div>
   </code></pre>
 
-  <b>Result</b>
-  <div id="not-ref-section-1">
-    <p>An <dfn>example</dfn> is used for illustrative purposes.</p>
-  </div>
-  <div id="not-ref-section-2">
-    <p>When a word defined in another section (or algorithm step) is used, as in this example, it is normally automatically linked to the section containing the definition.</p>
-    <p>When such a word should not be automatically linked, for <emu-not-ref>example</emu-not-ref> when using its colloquial definition, it can be wrapped with this tag to surpress the automatic linking.</p>
-  </div>
+  <h3>Result</h3>
+  <aside class="result">
+    <div id="not-ref-section-1">
+      <p>An <dfn>example</dfn> is used for illustrative purposes.</p>
+    </div>
+    <div id="not-ref-section-2">
+      <p>When a word defined in another section (or algorithm step) is used, as in this example, it is normally automatically linked to the section containing the definition.</p>
+      <p>When such a word should not be automatically linked, for <emu-not-ref>example</emu-not-ref> when using its colloquial definition, it can be wrapped with this tag to surpress the automatic linking.</p>
+    </div>
+  </aside>
 </emu-clause>
 
 <emu-clause id="emu-figure">
   <h1>emu-figure</h1>
-  <p>Creates a figure that can be xrefed by ID using the `emu-xref` element. Add a caption using a child `emu-caption` element.</p>
+  <p>Creates a figure that can be referenced by <emu-xref href="#emu-xref" title></emu-xref>. Add a caption using a child `emu-caption` element.</p>
+
   <h2>Attributes</h2>
   <p><b>informative:</b> Optional: If present, the figure is informative. Otherwise it is normative.</p>
 
@@ -477,15 +525,20 @@ toc: false
     [[insert some awesome graphic here, maybe something like figure 2]]
   &lt;/emu-figure>
   </code></pre>
-  <emu-figure>
-    <emu-caption>Example figure</emu-caption>
-    [[insert some awesome graphic here, maybe something like figure 2]]
-  </emu-figure>
+
+  <h3>Result</h3>
+  <aside class="result">
+    <emu-figure>
+      <emu-caption>Example figure</emu-caption>
+      [[insert some awesome graphic here, maybe something like figure 2]]
+    </emu-figure>
+  </aside>
 </emu-clause>
 
 <emu-clause id="emu-table">
   <h1>emu-table</h1>
-  <p>Creates a table that can be xrefed by ID using the `emu-xref` element. Add a caption using a child `emu-caption` element.</p>
+  <p>Creates a table that can be referenced by <emu-xref href="#emu-xref" title></emu-xref>. Add a caption using a child `emu-caption` element.</p>
+
   <h2>Attributes</h2>
   <p><b>caption:</b> Optional: Caption for the example</p>
   <p><b>informative:</b> Optional: If present, the table is informative. Otherwise it is normative.</p>
@@ -503,282 +556,330 @@ toc: false
     &lt;/table>
   &lt;/emu-table>
   </code></pre>
-  <emu-table>
-    <emu-caption>Example table</emu-caption>
-    <table>
-      <tr><th>Column 1</th><th>Column 2</th></tr>
-      <tr><td>Value</td><td>Value 2</td></tr>
-      <tr><td>Value</td><td>Value 2</td></tr>
-      <tr><td>Value</td><td>Value 2</td></tr>
-      <tr><td>Value</td><td>Value 2</td></tr>
-    </table>
-  </emu-table>
+
+  <h3>Result</h3>
+  <aside class="result">
+    <emu-table>
+      <emu-caption>Example table</emu-caption>
+      <table>
+        <tr><th>Column 1</th><th>Column 2</th></tr>
+        <tr><td>Value</td><td>Value 2</td></tr>
+        <tr><td>Value</td><td>Value 2</td></tr>
+        <tr><td>Value</td><td>Value 2</td></tr>
+        <tr><td>Value</td><td>Value 2</td></tr>
+      </table>
+    </emu-table>
+  </aside>
 </emu-clause>
 
 <emu-clause id="emu-example">
   <h1>emu-example</h1>
-  <p>Creates an informative example. Examples are numbered based on how many are present in the example's containing clause. Can be xrefed by ID using `emu-xref`.</p>
+  <p>Creates an informative example that can be referenced by <emu-xref href="#emu-xref" title></emu-xref>. Examples are numbered based on how many are present in the example's containing clause.</p>
 
   <h2>Attributes</h2>
   <p><b>caption:</b> Optional: Caption for the example</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
-&lt;emu-example caption="Example Example">
-  This is an example.
-&lt;/emu-example>
+    &lt;emu-example caption="Example Example">
+      This is an example.
+    &lt;/emu-example>
 
-&lt;emu-example caption="Another Example Example">
-  This is also an example.
-&lt;/emu-example>
+    &lt;emu-example caption="Another Example Example">
+      This is also an example.
+    &lt;/emu-example>
   </code></pre>
-  <emu-example caption="Example Example">
-    This is an example.
-  </emu-example>
 
-  <emu-example caption="Another Example Example">
-    This is also an example.
-  </emu-example>
+  <h3>Result</h3>
+  <aside class="result">
+    <emu-example caption="Example Example">
+      This is an example.
+    </emu-example>
+
+    <emu-example caption="Another Example Example">
+      This is also an example.
+    </emu-example>
+  </aside>
 </emu-clause>
 <emu-clause id="emu-biblio">
   <h1>emu-biblio</h1>
   <p>Links a bibliography file. The bibliography file is a JSON document containing URLs for referenced documents along with any algorithms they define.</p>
 
   <h2>Attributes</h2>
-  <p><b>href:</b> Required: URL to the biblio file.</p>
+  <p><b>href:</b> Required: URL of the biblio file, interpreted relative to the containing document.</p>
 
   <h2>Example</h2>
   <b>biblio.json</b>
-  <pre><code class="language-json">{
-  "https://tc39.github.io/ecma262/": [
+  <pre><code class="language-json">
     {
-      "type": "op",
-      "id": "sec-returnifabrupt",
-      "aoid": "ReturnIfAbrupt"
-    },
-    {
-      "type": "op",
-      "id": "sec-get-o-p",
-      "aoid": "Get"
+      "https://tc39.github.io/ecma262/": [
+        {
+          "type": "op",
+          "id": "sec-returnifabrupt",
+          "aoid": "ReturnIfAbrupt"
+        },
+        {
+          "type": "op",
+          "id": "sec-get-o-p",
+          "aoid": "Get"
+        }
+      ]
     }
-  ]
-}</code></pre>
+  </code></pre>
   <b>spec.emu</b>
   <pre><code class="language-html">
-&lt;emu-biblio href="./biblio.json">&lt;/emu-biblio>
-&lt;emu-alg>
-1. let _res_ be Get(_obj_, _key_).
-1. ReturnIfAbrupt(_res_).
-&lt;/emu-alg>
+    &lt;emu-biblio href="./biblio.json">&lt;/emu-biblio>
+    &lt;emu-alg>
+    1. Let _res_ be Get(_obj_, _key_).
+    1. ReturnIfAbrupt(_res_).
+    &lt;/emu-alg>
   </code></pre>
 
-  <b>Result</b>
-  <emu-alg>
-    1. let _res_ be Get(_obj_, _key_).
-    1. ReturnIfAbrupt(_res_).
-  </emu-alg>
+  <h3>Result</h3>
+  <aside class="result">
+    <emu-alg>
+      1. Let _res_ be Get(_obj_, _key_).
+      1. ReturnIfAbrupt(_res_).
+    </emu-alg>
+  </aside>
 </emu-clause>
 
 <emu-clause id="grammar">
   <h1>Specifying Grammar</h1>
   <p>There are two ways to specify grammar in Ecmarkup: using the <a href="#emu-production">emu-production</a> element and related elements, or by using the <a href="#emu-grammar">emu-grammar</a> element which allows specifying grammar using a plaintext format.</p>
 
-  <h2>Examples</h2>
-  <b>WhileStatement</b>
-  <pre><code class="language-html">&lt;emu-production name="WhileStatement">
-  &lt;emu-rhs>while ( &lt;emu-nt>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
-&lt;/emu-production></code></pre>
+  <h2>Lexical Grammar Examples</h2>
+  <pre><code class="language-html">
+    &lt;emu-production name="DecimalDigit" type="lexical" oneof>
+      &lt;emu-rhs>0 1 2 3 4 5 6 7 8 9&lt;/emu-rhs>
+    &lt;/emu-production>
 
-  <emu-production name="WhileStatement" primary>
-    <emu-rhs>while ( <emu-nt>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
-  </emu-production>
+    &lt;emu-production name="Identifier" type="lexical">
+      &lt;emu-rhs>&lt;emu-nt>IdentifierName&lt;/emu-nt> &lt;emu-gmod>but not
+          &lt;emu-nt>ReservedWord&lt;/emu-nt>&lt;/emu-gmod>&lt;/emu-rhs>
+    &lt;/emu-production>
 
-  <b>ArgumentList</b>
-  <pre><code class="language-html">&lt;emu-production name="ArgumentList">
-  &lt;emu-rhs>&lt;emu-nt>AssignmentExpression&lt;/emu-nt>&lt;/emu-rhs>
-  &lt;emu-rhs>&lt;emu-nt>ArgumentList&lt;/emu-nt> , &lt;emu-nt>AssignmentExpression&lt;/emu-nt>&lt;/emu-rhs>
-&lt;/emu-production></code></pre>
+    &lt;emu-production name="SourceCharacter" type="lexical">
+      &lt;emu-rhs>&lt;emu-gprose>any Unicode code point&lt;/emu-gprose>&lt;/emu-rhs>
+    &lt;/emu-production>
+  </code></pre>
 
-  <emu-production name="ArgumentList" primary>
-    <emu-rhs><emu-nt>AssignmentExpression</emu-nt></emu-rhs>
+  <h3>Result</h3>
+  <aside class="result" data-simulate-tagName="emu-clause">
+    <emu-production name="DecimalDigit" type="lexical" oneof primary>
+      <emu-rhs>0 1 2 3 4 5 6 7 8 9</emu-rhs>
+    </emu-production>
 
-    <emu-rhs><emu-nt>ArgumentList</emu-nt> , <emu-nt>AssignmentExpression</emu-nt></emu-rhs>
-  </emu-production>
+    <emu-production name="Identifier" type="lexical" primary>
+      <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
+          <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
+    </emu-production>
 
-  <b>IterationStatement</b>
-  <pre><code class="language-html">&lt;emu-production name="IterationStatement">
-  &lt;emu-rhs>for ( &lt;emu-nt>LexicalDeclaration&lt;/emu-nt> ; &lt;emu-nt optional>Expression&lt;/emu-nt> ;
-  &lt;emu-nt optional>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
-&lt;/emu-production></code></pre>
-  <emu-production name="IterationStatement" primary>
-    <emu-rhs>for ( <emu-nt>LexicalDeclaration</emu-nt> ; <emu-nt optional>Expression</emu-nt> ;
-    <emu-nt optional>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
-  </emu-production>
+    <emu-production name="SourceCharacter" type="lexical" primary>
+      <emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
+    </emu-production>
+  </aside>
 
-  <b>Identifier</b>
-  <pre><code class="language-html">&lt;emu-production name="Identifier" type="lexical">
-  &lt;emu-rhs>&lt;emu-nt>IdentifierName&lt;/emu-nt> &lt;emu-gmod>but not
-  &lt;emu-nt>ReservedWord&lt;/emu-nt>&lt;/emu-gmod>&lt;/emu-rhs>
-&lt;/emu-production></code></pre>
-  <emu-production name="Identifier" type="lexical" primary>
-    <emu-rhs><emu-nt>IdentifierName</emu-nt> <emu-gmod>but not
-    <emu-nt>ReservedWord</emu-nt></emu-gmod></emu-rhs>
-  </emu-production>
+  <h2>Syntactic Grammar Examples</h2>
+  <pre><code class="language-html">
+    &lt;emu-production name="ExpressionStatement" params="Yield">
+      &lt;emu-rhs>
+        &lt;emu-gann>lookahead ∉ { &lt;emu-t>{&lt;/emu-t>, &lt;emu-t>function&lt;/emu-t>,
+            &lt;emu-t>class&lt;/emu-t>, &lt;emu-t>let [&lt;/emu-t> }&lt;/emu-gann>
+      &lt;/emu-rhs>
+    &lt;/emu-production>
 
-  <b>SourceCharacter</b>
-  <pre><code class="language-html">&lt;emu-production name="SourceCharacter" type="lexical">
-  &lt;emu-rhs>&lt;emu-gprose>any Unicode code point&lt;/emu-gprose>&lt;/emu-rhs>
-&lt;/emu-production></code></pre>
-  <emu-production name="SourceCharacter" type="lexical" primary>
-    <emu-rhs><emu-gprose>any Unicode code point</emu-gprose></emu-rhs>
-  </emu-production>
+    &lt;emu-production name="IterationStatement">
+      &lt;emu-rhs>for ( &lt;emu-nt>LexicalDeclaration&lt;/emu-nt> ; &lt;emu-nt optional>Expression&lt;/emu-nt> ;
+      &lt;emu-nt optional>Expression&lt;/emu-nt> ) &lt;emu-nt>Statement&lt;/emu-nt>&lt;/emu-rhs>
+    &lt;/emu-production>
 
-  <b>ExpressionStatement</b>
-  <pre><code class="language-html">&lt;emu-production name="ExpressionStatement" params="Yield">
-  &lt;emu-rhs>
-    &lt;emu-gann>lookahead ∉ {
-      &lt;emu-t>{&lt;/emu-t>,
-      &lt;emu-t>function&lt;/emu-t>,
-      &lt;emu-t>class&lt;/emu-t>,
-      &lt;emu-t>let [&lt;/emu-t>
-    }&lt;/emu-gann>
-  &lt;/emu-rhs>
-&lt;/emu-production></code></pre>
-  <emu-production name="ExpressionStatement" params="Yield" primary>
-    <emu-rhs>
-      <emu-gann>lookahead ∉ {
-        <emu-t>{</emu-t>,
-        <emu-t>function</emu-t>,
-        <emu-t>class</emu-t>,
-        <emu-t>let [</emu-t>
-      }</emu-gann>
-    </emu-rhs>
-  </emu-production>
+    &lt;emu-production name="StatementList" params="Return, In">
+      &lt;emu-rhs constraints="~Return">&lt;emu-nt>ReturnStatement&lt;/emu-nt>&lt;/emu-rhs>
+      &lt;emu-rhs>&lt;emu-nt>ExpressionStatement&lt;/emu-nt>&lt;/emu-rhs>
+    &lt;/emu-production>
+  </code></pre>
 
-  <b>DecimalDigit</b>
-  <pre><code class="language-html">&lt;emu-production name="DecimalDigit" type="lexical" oneof>
-  &lt;emu-rhs>0 1 2 3 4 5 6 7 8 9&lt;/emu-rhs>
-&lt;/emu-production></code></pre>
-  <emu-production name="DecimalDigit" type="lexical" oneof primary>
-    <emu-rhs>0 1 2 3 4 5 6 7 8 9</emu-rhs>
-  </emu-production>
+  <h3>Result</h3>
+  <aside class="result" data-simulate-tagName="emu-clause">
+    <emu-production name="ExpressionStatement" params="Yield" primary>
+      <emu-rhs>
+        <emu-gann>lookahead ∉ { <emu-t>{</emu-t>, <emu-t>function</emu-t>,
+            <emu-t>class</emu-t>, <emu-t>let [</emu-t> }</emu-gann>
+      </emu-rhs>
+    </emu-production>
 
-  <b>StatementList</b>
-  <pre><code class="language-html">&lt;emu-production name="StatementList" params="Return, In">
-  &lt;emu-rhs constraints="~Return">&lt;emu-nt>ReturnStatement&lt;/emu-nt>&lt;/emu-rhs>
-  &lt;emu-rhs>&lt;emu-nt>ExpressionStatement&lt;/emu-nt>&lt;/emu-rhs>
-&lt;/emu-production></code></pre>
-  <emu-production name="StatementList" params="Return, In" primary>
-    <emu-rhs constraints="~Return"><emu-nt>ReturnStatement</emu-nt></emu-rhs>
-    <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
-  </emu-production>
+    <emu-production name="IterationStatement" primary>
+      <emu-rhs>for ( <emu-nt>LexicalDeclaration</emu-nt> ; <emu-nt optional>Expression</emu-nt> ;
+      <emu-nt optional>Expression</emu-nt> ) <emu-nt>Statement</emu-nt></emu-rhs>
+    </emu-production>
+
+    <emu-production name="StatementList" params="Return, In" primary>
+      <emu-rhs constraints="~Return"><emu-nt>ReturnStatement</emu-nt></emu-rhs>
+      <emu-rhs><emu-nt>ExpressionStatement</emu-nt></emu-rhs>
+    </emu-production>
+  </aside>
 
   <emu-clause id="emu-grammar">
     <h1>emu-grammar</h1>
     <p>Text inside emu-grammar elements is parsed using <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown</a>. The syntax is essentially identical to the notational conventions in ECMAScript (minus formatting). See the <a href="https://github.com/rbuckton/grammarkdown">Grammarkdown readme</a>.</p>
-    <p>Grammar will be displayed as an "inline" element flowing with text unless it is the immediate child of an emu-clause-like element.</p>
+    <p>Grammar will be displayed as an inline element flowing with text unless it is the immediate child of an emu-clause-like element.</p>
+
     <h2>Attributes</h2>
-    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
-    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>collapsed:</b> If present, productions are displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>example:</b> If present, the element is an example.</p>
+    <p><b>primary:</b> Optional: Deprecated in favor of type="definition".</p>
+    <p><b>type:</b> Optional: Disposition of the grammar. If absent, it is considered to reference productions defined elsewhere.</p>
+    <ul>
+      <li>"definition": The grammar is an authoritative source for productions which should be the target of references.</li>
+      <li>"example": Deprecated in favor of the <b>example</b> attribute.</li>
+    </ul>
+
+    <h2>Example</h2>
+    <pre><code class="language-html">
+      &lt;p>
+        &lt;emu-grammar type="definition" collapsed example>
+          HexIntegerLiteral :: `0x` HexDigits
+        &lt;/emu-grammar>
+        is a shorthand for:
+      &lt;/p>
+      &lt;emu-grammar type="definition" example>
+        HexIntegerLiteral :: `0` `x` HexDigits
+      &lt;/emu-grammar>
+    </code></pre>
+
+    <h3>Result</h3>
+    <aside class="result">
+      <p>
+        <emu-grammar type="definition" collapsed example>
+          HexIntegerLiteral :: `0x` HexDigits
+        </emu-grammar>
+        is a shorthand for:
+      </p>
+      <emu-grammar type="definition" example>
+        HexIntegerLiteral :: `0` `x` HexDigits
+      </emu-grammar>
+    </aside>
   </emu-clause>
 
   <emu-clause id="emu-production">
     <h1>emu-production</h1>
-    <p>This is the top level element that contains all grammar productions. Each production MUST include at least one right-hand side (see <a href="#emu-rhs">emu-rhs</a>).</p>
-    <p>The production will be displayed as an "inline" element flowing with text unless it is the immediate child of an emu-clause-like element or if its containing emu-grammar element is an immediate child of an emu-clause-like element.</p>
+    <p>This is the top level element that contains a grammar production associating a shared <dfn>LHS</dfn> (left-hand side) <emu-xref href="#emu-nt" title></emu-xref> non-terminal symbol with one or more <emu-xref href="#emu-rhs" title></emu-xref> elements containing arbitrary <dfn>RHS</dfn> (right-hand side) sequences of terminal and non-terminal symbols.</p>
+    <p>The production will be displayed as an inline element flowing with text unless it is the immediate child of an emu-clause-like element or if its containing emu-grammar element is an immediate child of an emu-clause-like element.</p>
+
     <h2>Attributes</h2>
-    <h2>Attributes</h2>
-    <p><b>Name:</b> Required. Name of the production (i.e. the non-terminal on the LHS).</p>
-    <p><b>Params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
-    <p><b>Type:</b> Type of production, either "lexical" or "regexp". Default is blank (normal).</p>
-    <p><b>oneof:</b> If present, production is a one-of production. See DecimalDigit example above.</p>
-    <p><b>collapsed:</b> If present, production is displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>name:</b> Required: Name of the production (i.e. the LHS). Should conform with the syntax of <a href="https://www.unicode.org/reports/tr31/#D1">Unicode Standard Annex #31, UAX31-D1 Default Identifier Syntax</a> and not include any underscore (U+005F LOW LINE “<b>_</b>”).</p>
+    <p><b>collapsed:</b> If present, the production is displayed in collapsed format with LHS and RHS on the same line.</p>
+    <p><b>oneof:</b> If present, the production is a one-of production. See the DecimalDigit example <emu-xref href="#grammar">above</emu-xref>.</p>
+    <!-- what does it even mean for a LHS to be optional??? -->
+    <p><b>optional:</b> If present, the LHS is marked as optional.</p>
+    <p><b>params:</b> Parameters for this production. Multiple parameters are separated by commas with optional whitespace.</p>
+    <p><b>primary:</b> Optional: The production is authoritative and should be the target of references.</p>
+    <p><b>type:</b> Optional: Type of production. If absent, the production is considered syntactic.</p>
+    <ul>
+      <li>"lexical": The production is part of a lexical grammar, and should render with the LHS and RHS separated by two colons “<b>::</b>”.</li>
+      <li>"regexp": Deprecated because the ECMAScript regular expression grammar is considered to be lexical. Productions with this type render with the LHS and RHS separated by three colons “<b>:::</b>”.</li>
+    </ul>
   </emu-clause>
 
   <emu-clause id="emu-rhs">
     <h1>emu-rhs</h1>
-    <p>Describes one right-hand-side alternative of a production. Text nodes inside of an rhs are split on each space and turned into terminals. For example, <pre>&lt;emu-rhs>a b c&lt;/emu-rhs></pre> is semantically equivalent to <pre>&lt;emu-rhs>&lt;emu-t>a&lt;/emu-t> &lt;emu-t>b&lt;/emu-t> &lt;emu-t>c&lt;/emu-t>&lt;/emu-rhs></pre></p>
+    <p>Describes one right-hand-side alternative of a production. Interior text nodes are split on each space and turned into terminal symbols. For example, the following elements are semantically equivalent:</p>
+    <pre><code class="language-html">
+      &lt;emu-rhs>a b c&lt;/emu-rhs>
+      &lt;emu-rhs>&lt;emu-t>a&lt;/emu-t> &lt;emu-t>b&lt;/emu-t> &lt;emu-t>c&lt;/emu-t>&lt;/emu-rhs>
+    </code></pre>
+
     <h2>Attributes</h2>
-    <p><b>constraints:</b> any constraints for this RHS. Multiple constraints separated by commas. See StatementList example above.</p>
-    <p><b>a:</b> Optional alternative id used to reference a particular RHS via `emu-prodref`. Must be unique for all `emu-rhs` elements inside an emu-production. Example might be <pre>&lt;emu-rhs a='1'></pre>.</p>
+    <p><b>constraints:</b> any constraints for this RHS. Multiple constraints are separated by commas with optional whitespace. See the StatementList example <emu-xref href="#grammar">above</emu-xref>.</p>
+    <p><b>a:</b> Optional: alternative id used to reference a particular RHS from an <emu-xref href="#emu-prodref" title></emu-xref>. Must be unique for all `emu-rhs` elements inside an <emu-xref href="#emu-production" title></emu-xref>.</p>
   </emu-clause>
 
   <emu-clause id="emu-nt">
     <h1>emu-nt</h1>
-    <p>Non-terminal. Alpha characters only.</p>
+    <p>References a non-terminal symbol by the <b>name</b> attribute of its <emu-xref href="#emu-production" title></emu-xref>.</p>
+
     <h2>Attributes</h2>
-    <p><b>Params:</b> Parameters for this production. Multiple parameters separated by commas.</p>
-    <p><b>oneof:</b> If present, production is a one-of production (see DecimalDigit example above).</p>
+    <p><b>example:</b> If present, the element is an example.</p>
+    <p><b>optional:</b> If present, the non-terminal is optional in its containing RHS.</p>
+    <p><b>params:</b> Parameters for this non-terminal. Multiple parameters are separated by commas with optional whitespace.</p>
   </emu-clause>
 
   <emu-clause id="emu-t">
     <h1>emu-t</h1>
-    <p>Terminal. No attributes available. Mostly don't need to create these elements manually as <a href="#emu-rhs">they are created automatically inside emu-rhs elements</a>.</p>
+    <p>References a terminal symbol. No attributes are available. Manual creation of these elements should be unnecessary as <a href="#emu-rhs">they are created automatically inside emu-rhs elements</a>.</p>
   </emu-clause>
 
   <emu-clause id="emu-gmod">
     <h1>emu-gmod</h1>
 
-    <p>Contains well-known modifiers to a right-hand side of a production. The only well-known modifier at present is the "but not" modifier. See the Identifier example above.</p>
+    <p>Contains well-known modifiers to a right-hand side of a production. The only well-known modifier at present is the "but not" modifier. See the Identifier example <emu-xref href="#grammar">above</emu-xref>.</p>
   </emu-clause>
 
   <emu-clause id="emu-gann">
     <h1>emu-gann</h1>
 
-    <p>Contains well-known annotations to to a right-hand side of a production. The only well-known modifiers at present are "lookahead" and "empty". See the ExpressionStatement example above. Any text inside a gann element is wrapped in square brackets.</p>
+    <p>Contains well-known annotations to to a right-hand side of a production. The only well-known modifiers at present are "lookahead" and "empty". See the ExpressionStatement example <emu-xref href="#grammar">above</emu-xref>. Any text inside a gann element is wrapped in square brackets.</p>
   </emu-clause>
 
   <emu-clause id="emu-gprose">
     <h1>emu-gprose</h1>
-    <p>Contains any prose text that describes a production. See SourceCharacter example above.</p>
+    <p>Contains any prose text that describes a production. See the SourceCharacter example <emu-xref href="#grammar">above</emu-xref>.</p>
   </emu-clause>
 
   <emu-clause id="emu-prodref">
     <h1>emu-prodref</h1>
-    <p>References a production defined elsewhere in the document. Ecmarkup will insert either the entire production or a particular RHS depending on attributes.</p>
+    <p>References a production or RHS defined elsewhere. Ecmarkup will insert either the entire production or a particular RHS depending on attributes.</p>
 
     <h2>Attributes</h2>
-    <p><b>name:</b> Required. Name of the production to reference.</p>
-    <p><b>a:</b> Optional. If present, specified a particular alternative ID to reference.</p>
+    <p><b>name:</b> Required: Name of the production to reference.</p>
+    <p><b>a:</b> Optional. If present, references a particular RHS with the specified alternative id in its <b>a</b> attribute.</p>
   </emu-clause>
 </emu-clause>
 
-<emu-clause id="imports">
-  <h1>Imports</h1>
-  <p>HTML Imports are treated specially in an ecmarkup document. Every import is inlined into its parent document at the location of the import tag. This is useful for breaking your spec document up into many smaller pieces.</p>
+<emu-clause id="emu-import" oldids="imports">
+  <h1>emu-import</h1>
+  <p>Imports are treated specially in an ecmarkup document. Every import is inlined into its parent document at the location of the import tag. This is useful for breaking your spec document up into many smaller pieces.</p>
+
+    <h2>Attributes</h2>
+    <p><b>href:</b> Required: URL of the document to import, interpreted relative to the document containing the `emu-import`.</p>
 </emu-clause>
 
-<emu-clause id="css">
+<emu-clause id="miscellaneous" oldids="css">
   <h1>Other Styles &amp; Conventions</h1>
   <emu-clause id="oldids">
       <h1>Old IDs</h1>
-      <p>Old IDs for any element can be stored as a comma-separated list inside an <b>oldids</b> attribute, allowing links using them to continue working as expected.</p>
+      <p>Old IDs for any element can be stored separated by commas with optional whitespace inside an <b>oldids</b> attribute, allowing links using them to continue working as expected.</p>
   </emu-clause>
   <emu-clause id="ins-del">
-    <h1>ins &amp; del</h1>
-    <p>The `ins` and `del` HTML tags can be used to mark insertions and deletions respectively. When adding or removing block content (such as entire list items, paragrpahs, clauses, grammar RHSes, etc.), use a class of "block".</p>
+    <h1>Indicating Changes</h1>
+    <p>The `ins` and `del` HTML elements can be used to mark insertions and deletions respectively. When adding or removing block content (such as entire list items, paragrpahs, clauses, grammar RHSes, etc.), use a class of "block".</p>
 
-    <h2>Inline Example:</h2>
+    <h2>Inline Example</h2>
     <pre><code class="language-html">ECMAScript &lt;del>6&lt;/del>&lt;ins>2015&lt;/ins> &lt;del>will be ratified&lt;/del>&lt;ins>was ratified&lt;/ins> in June, 2015.</code></pre>
-    <h3>Result:</h3>
-    <p>ECMAScript <del>6</del><ins>2015</ins> <del>will be ratified</del><ins>was ratified</ins> in June, 2015.</p>
 
-    <h2>Block Example:</h2>
+    <h3>Result</h3>
+    <aside class="result">
+      <p>ECMAScript <del>6</del><ins>2015</ins> <del>will be ratified</del><ins>was ratified</ins> in June, 2015.</p>
+    </aside>
+
+    <h2>Block Example</h2>
     <pre><code class="language-html">
-&lt;p>|HoistableDeclaration| is modified as follows:&lt;/p>
 &lt;emu-production name="HoistableDeclaration">
   &lt;emu-rhs>&lt;emu-nt>FunctionDeclaration&lt;/emu-nt>&lt;/emu-rhs>
   &lt;emu-rhs>&lt;emu-nt>GeneratorDeclaration&lt;/emu-nt>&lt;/emu-rhs>
   &lt;ins class="block">&lt;emu-rhs>&lt;emu-nt>AsyncFunctionDeclaration&lt;/emu-nt>&lt;/emu-rhs>&lt;/ins>
 &lt;/emu-production>
     </code></pre>
-    <h3>Result:</h3>
-    <p>|HoistableDeclaration| is modified as follows:</p>
-    <emu-production name="HoistableDeclaration">
-      <emu-rhs><emu-nt>FunctionDeclaration</emu-nt></emu-rhs>
-      <emu-rhs><emu-nt>GeneratorDeclaration</emu-nt></emu-rhs>
-      <ins class="block"><emu-rhs><emu-nt>AsyncFunctionDeclaration</emu-nt></emu-rhs></ins>
-    </emu-production>
+
+    <h3>Result</h3>
+    <aside class="result" data-simulate-tagName="emu-clause">
+      <emu-production name="HoistableDeclaration">
+        <emu-rhs><emu-nt>FunctionDeclaration</emu-nt></emu-rhs>
+        <emu-rhs><emu-nt>GeneratorDeclaration</emu-nt></emu-rhs>
+        <ins class="block"><emu-rhs><emu-nt>AsyncFunctionDeclaration</emu-nt></emu-rhs></ins>
+      </emu-production>
+    </aside>
   </emu-clause>
   <emu-clause id="pre-code">
     <h1>Code Listings</h1>
