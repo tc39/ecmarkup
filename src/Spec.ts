@@ -63,7 +63,16 @@ const STANDARD_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   month: 'long',
   timeZone: 'UTC',
 };
-const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
+const NO_EMD = new Set([
+  'PRE',
+  'CODE',
+  'SCRIPT',
+  'STYLE',
+  'EMU-PRODUCTION',
+  'EMU-ALG',
+  'EMU-GRAMMAR',
+  'EMU-EQN',
+]);
 const YES_EMD = new Set(['EMU-GMOD']); // these are processed even if they are nested in NO_EMD contexts
 
 interface VisitorMap {
