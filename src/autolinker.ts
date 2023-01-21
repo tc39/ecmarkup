@@ -11,6 +11,8 @@ const escape: (_: string) => string = require('html-escape');
 export const NO_CLAUSE_AUTOLINK = new Set([
   'PRE',
   'CODE',
+  'SCRIPT',
+  'STYLE',
   'EMU-CONST',
   'EMU-PRODUCTION',
   'EMU-GRAMMAR',
