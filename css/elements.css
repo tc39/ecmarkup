@@ -149,6 +149,10 @@ emu-val {
   font-weight: bold;
 }
 
+emu-alg {
+  white-space: pre-wrap;
+}
+
 /* depth 1 */
 emu-alg ol,
 /* depth 4 */
