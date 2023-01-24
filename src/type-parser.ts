@@ -169,7 +169,7 @@ export class TypeParser {
         };
       }
     }
-    if (this.eat(/^either\b/i)) {
+    if (this.eat(/^(?:either|one of)\b/i)) {
       let nextFieldIsLast = false;
       const unionTypes = [];
       while (true) {
