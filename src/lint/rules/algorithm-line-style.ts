@@ -50,7 +50,7 @@ export default function (
       report({
         ruleId,
         message: 'expected line with figure to end with ":"',
-        ...locate(last.end),
+        ...locate(last.location.end.offset),
       });
     }
     return;

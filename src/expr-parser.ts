@@ -4,57 +4,50 @@ import { formatEnglishList } from './header-parser';
 const tokMatcher =
   /(?<olist>&laquo;|«)|(?<clist>&raquo;|»)|(?<orec>\{)|(?<crec>\})|(?<oparen>\()|(?<cparen>\))|(?<and>(?:, )?and )|(?<is> is )|(?<comma>,)|(?<period>\.(?= |$))|(?<x_of>\b\w+ of )|(?<with_args> with arguments? )/u;
 
+type SimpleLocation = { start: { offset: number }; end: { offset: number } };
 type BareText = { name: 'text'; contents: string; location: { start: { offset: number } } }; // like TextNode, but with less complete location information
 type ProsePart = FragmentNode | BareText;
 type Fragment = {
   type: 'fragment';
   frag: ProsePart;
-  start: number;
-  end: number;
+  location: SimpleLocation;
 };
 type List = {
   type: 'list';
   elements: Seq[];
-  start: number;
-  end: number;
+  location: SimpleLocation;
 };
 type Record = {
   type: 'record';
   members: { name: string; value: Seq }[];
-  start: number;
-  end: number;
+  location: SimpleLocation;
 };
 type RecordSpec = {
   type: 'record-spec';
   members: { name: string }[];
-  start: number;
-  end: number;
+  location: SimpleLocation;
 };
 type Call = {
   type: 'call';
   callee: ProsePart[]; // nonempty
   arguments: Seq[];
-  start: number;
-  end: number;
+  location: SimpleLocation;
 };
 type SDOCall = {
   type: 'sdo-call';
   callee: [BareText]; // we put this in a length-one tuple for symmetry with Call
   parseNode: Seq;
   arguments: Seq[];
-  start: number;
-  end: number;
+  location: SimpleLocation;
 };
 type Paren = {
   type: 'paren';
   items: NonSeq[];
-  start: number;
-  end: number;
+  location: SimpleLocation;
 };
 type Figure = {
   type: 'figure';
-  start: number;
-  end: number;
+  location: SimpleLocation;
 };
 export type Seq = {
   type: 'seq';
@@ -136,7 +129,7 @@ function addProse(items: NonSeq[], token: Token) {
       token.frag.name === 'text' &&
       prev?.type === 'fragment' &&
       prev.frag.name === 'text' &&
-      prev.end === token.start // might be false when e.g. skipping tags
+      prev.location.end.offset === token.location.start.offset // might be false when e.g. skipping tags
     ) {
       // join with previous token
       items[items.length - 1] = {
@@ -144,10 +137,12 @@ function addProse(items: NonSeq[], token: Token) {
         frag: {
           name: 'text',
           contents: prev.frag.contents + token.frag.contents,
-          location: { start: { offset: prev.start } },
+          location: { start: { offset: prev.location.start.offset } },
         },
-        start: prev.start,
-        end: token.end,
+        location: {
+          start: { offset: prev.location.start.offset },
+          end: { offset: token.location.end.offset },
+        },
       };
     } else {
       items.push(token);
@@ -161,8 +156,10 @@ function addProse(items: NonSeq[], token: Token) {
         contents: token.source,
         location: { start: { offset: token.offset } },
       },
-      start: token.offset,
-      end: token.offset + token.source.length,
+      location: {
+        start: { offset: token.offset },
+        end: { offset: token.offset + token.source.length },
+      },
     });
   }
 }
@@ -229,11 +226,15 @@ class ExprParser {
         this.next.push({
           type: 'fragment',
           frag,
-          start: frag.location.start.offset,
-          end:
-            frag.name === 'text'
-              ? frag.location.start.offset + frag.contents.length
-              : frag.location.end.offset,
+          location: {
+            start: { offset: frag.location.start.offset },
+            end: {
+              offset:
+                frag.name === 'text'
+                  ? frag.location.start.offset + frag.contents.length
+                  : frag.location.end.offset,
+            },
+          },
         });
       }
     };
@@ -389,8 +390,10 @@ class ExprParser {
           items.push({
             type: 'list',
             elements,
-            start: startTok.offset,
-            end: endTok.offset + endTok.source.length,
+            location: {
+              start: { offset: startTok.offset },
+              end: { offset: endTok.offset + endTok.source.length },
+            },
           });
           break;
         }
@@ -429,8 +432,10 @@ class ExprParser {
                       contents: contents.slice(0, spaceIndex + 1),
                       location: ppart.frag.location,
                     },
-                    start: ppart.frag.location.start.offset,
-                    end: ppart.frag.location.start.offset + spaceIndex + 1,
+                    location: {
+                      start: { offset: ppart.frag.location.start.offset },
+                      end: { offset: ppart.frag.location.start.offset + spaceIndex + 1 },
+                    },
                   };
                   // calleePart is nonempty because it matches \p{Letter}
                   callee.unshift({
@@ -465,8 +470,10 @@ class ExprParser {
                     contents,
                     location: { start: { offset: extraLoc } },
                   },
-                  start: extraLoc,
-                  end: extraLoc + contents.length,
+                  location: {
+                    start: { offset: extraLoc },
+                    end: { offset: extraLoc + contents.length },
+                  },
                 });
               }
             }
@@ -498,8 +505,10 @@ class ExprParser {
               type: 'call',
               callee,
               arguments: args,
-              start: callee[0].location.start.offset,
-              end: cParen.offset + cParen.source.length,
+              location: {
+                start: { offset: callee[0].location.start.offset },
+                end: { offset: cParen.offset + cParen.source.length },
+              },
             });
           } else {
             const oParen = this.next.shift() as SimpleToken;
@@ -508,8 +517,10 @@ class ExprParser {
             items.push({
               type: 'paren',
               items: parenContents,
-              start: oParen.offset,
-              end: cParen.offset + cParen.source.length,
+              location: {
+                start: { offset: oParen.offset },
+                end: { offset: cParen.offset + cParen.source.length },
+              },
             });
           }
           break;
@@ -581,8 +592,10 @@ class ExprParser {
               this.next[0] = {
                 type: 'fragment',
                 frag: shortened,
-                start: offset,
-                end: offset + shortenedText.length,
+                location: {
+                  start: { offset },
+                  end: { offset: offset + shortenedText.length },
+                },
               };
             }
             if (colon) {
@@ -620,8 +633,10 @@ class ExprParser {
           items.push({
             type: type!,
             members,
-            start: oRecTok.offset,
-            end: cRecTok.offset + cRecTok.source.length,
+            location: {
+              start: { offset: oRecTok.offset },
+              end: { offset: cRecTok.offset + cRecTok.source.length },
+            },
           });
           break;
         }
@@ -685,8 +700,10 @@ class ExprParser {
             ],
             parseNode,
             arguments: args,
-            start: next.offset,
-            end: lastThing.items[lastThing.items.length - 1].end,
+            location: {
+              start: { offset: next.offset },
+              end: { offset: lastThing.items[lastThing.items.length - 1].location.end.offset },
+            },
           });
           break;
         }
@@ -694,8 +711,10 @@ class ExprParser {
           const tok = this.next.shift() as SimpleToken;
           items.push({
             type: 'figure',
-            start: tok.offset,
-            end: tok.offset + tok.source.length,
+            location: {
+              start: { offset: tok.offset },
+              end: { offset: tok.offset + tok.source.length },
+            },
           });
           break;
         }
