@@ -68,11 +68,18 @@ export function collectAlgorithmDiagnostics(
     } catch (e: any) {
       warnEmdFailure(report, element, e);
     }
+    const parsedSteps: Map<OrderedListItemNode, Seq> = new Map();
+    let allNodesParsedSuccessfully = true;
     function walk(visit: LineRule, step: OrderedListItemNode) {
       // we don't know the names of ops at this point
       // TODO maybe run later in the process? but not worth worrying about for now
       const parsed = parse(step.contents, new Set());
       visit(reporter, parsed.name === 'seq' ? parsed : null, step, algorithmSource); // TODO reconsider algorithmSource
+      if (parsed.name === 'failure') {
+        allNodesParsedSuccessfully = false;
+      } else {
+        parsedSteps.set(step, parsed);
+      }
       if (step.sublist?.name === 'ol') {
         for (const substep of step.sublist.contents) {
           walk(visit, substep);
@@ -85,7 +92,15 @@ export function collectAlgorithmDiagnostics(
           walk(rule, step);
         }
       }
-      checkVariableUsage(algorithm.element, tree.contents, reporter);
+      if (allNodesParsedSuccessfully) {
+        checkVariableUsage(
+          algorithmSource,
+          algorithm.element,
+          tree.contents,
+          parsedSteps,
+          reporter
+        );
+      }
     }
 
     algorithm.tree = tree;

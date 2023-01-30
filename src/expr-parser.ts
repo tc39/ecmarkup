@@ -752,6 +752,9 @@ export type PathItem =
   | { parent: List | Record | Seq | Paren; index: number }
   | { parent: Call; index: number }
   | { parent: SDOCall; index: number };
+
+// NB: paths are currently missing the index for prose sequences
+// nothing needs this as yet so I haven't bothered finding a good way to represent it
 export function walk(
   f: (expr: Expr, path: PathItem[]) => void,
   current: Expr,
@@ -775,10 +778,10 @@ export function walk(
       }
       break;
     }
-    case 'record-spec': {
-      break;
-    }
     case 'sdo-call': {
+      for (const part of current.callee) {
+        walk(f, part, path);
+      }
       for (let i = 0; i < current.arguments.length; ++i) {
         path.push({ parent: current, index: i });
         walk(f, current.arguments[i], path);
@@ -787,6 +790,9 @@ export function walk(
       break;
     }
     case 'call': {
+      for (const part of current.callee) {
+        walk(f, part, path);
+      }
       for (let i = 0; i < current.arguments.length; ++i) {
         path.push({ parent: current, index: i });
         walk(f, current.arguments[i], path);
@@ -818,9 +824,6 @@ export function walk(
       break;
     }
     default: {
-      if (isProsePart(current)) {
-        break;
-      }
       // @ts-expect-error
       throw new Error(`unreachable: unknown expression node type ${current.name}`);
     }
