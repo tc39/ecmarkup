@@ -50,7 +50,14 @@ import type { OrderedListNode } from 'ecmarkdown';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
 import { offsetToLineAndColumn } from './utils';
-import { parse as parseExpr, walk as walkExpr, Expr, PathItem, Seq } from './expr-parser';
+import {
+  parse as parseExpr,
+  walk as walkExpr,
+  Expr,
+  PathItem,
+  Seq,
+  isProsePart,
+} from './expr-parser';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -673,14 +680,14 @@ export default class Spec {
           return;
         }
 
-        if (biblioEntry.kind === 'syntax-directed operation' && expr.type === 'call') {
+        if (biblioEntry.kind === 'syntax-directed operation' && expr.name === 'call') {
           warn(
             `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`
           );
         } else if (
           biblioEntry.kind != null &&
           biblioEntry.kind !== 'syntax-directed operation' &&
-          expr.type === 'sdo-call'
+          expr.name === 'sdo-call'
         ) {
           warn(`${calleeName} is not a syntax-directed operation but here is being invoked as one`);
         }
@@ -2106,10 +2113,7 @@ function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null
     if (
       parent.name === 'seq' &&
       parent.items.every(
-        i =>
-          i === pointer ||
-          (i.name === 'fragment' &&
-            (i.frag.name === 'tag' || (i.frag.name === 'text' && /^\s*$/.test(i.frag.contents))))
+        i => i === pointer || i.name === 'tag' || (i.name === 'text' && /^\s*$/.test(i.contents))
       )
     ) {
       // if parent is just whitespace/tags around the call, walk up the tree further
@@ -2135,10 +2139,10 @@ function previousText(expr: Expr, path: PathItem[]): string | null {
 function textFromPreviousPart(seq: Seq, index: number): string | null {
   let prevIndex = index - 1;
   let prev;
-  while ((prev = seq.items[prevIndex])?.name === 'fragment') {
-    if (prev.frag.name === 'text') {
-      return prev.frag.contents;
-    } else if (prev.frag.name === 'tag') {
+  while (isProsePart((prev = seq.items[prevIndex]))) {
+    if (prev.name === 'text') {
+      return prev.contents;
+    } else if (prev.name === 'tag') {
       --prevIndex;
     } else {
       break;

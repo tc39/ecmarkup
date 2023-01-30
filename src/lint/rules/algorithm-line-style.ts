@@ -44,9 +44,7 @@ export default function (
   // If the step has a figure, it should end in `:`
   if (last.name === 'figure') {
     last = stepSeq.items[stepSeq.items.length - 2];
-    if (
-      !(last.name === 'fragment' && last.frag.name === 'text' && /:\n +$/.test(last.frag.contents))
-    ) {
+    if (!(last.name === 'text' && /:\n +$/.test(last.contents))) {
       report({
         ruleId,
         message: 'expected line with figure to end with ":"',
@@ -59,9 +57,8 @@ export default function (
   const hasSubsteps = node.sublist !== null;
 
   const first = stepSeq.items[0];
-  const initialText =
-    first.name === 'fragment' && first.frag.name === 'text' ? first.frag.contents : '';
-  const finalText = last.name === 'fragment' && last.frag.name === 'text' ? last.frag.contents : '';
+  const initialText = first.name === 'text' ? first.contents : '';
+  const finalText = last.name === 'text' ? last.contents : '';
 
   if (/^(?:If |Else if)/.test(initialText)) {
     if (hasSubsteps) {
@@ -220,7 +217,7 @@ export default function (
     } else if (!/(?:\.|\.\))$/.test(finalText)) {
       if (last.name === 'paren' && last.items.length > 0) {
         const lastItem = last.items[last.items.length - 1];
-        if (lastItem.name === 'fragment' && lastItem.frag.name === 'text') {
+        if (lastItem.name === 'text') {
           return;
         }
       }

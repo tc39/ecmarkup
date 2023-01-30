@@ -11,17 +11,11 @@ export default function (report: Reporter, stepSeq: Seq | null) {
     return;
   }
   const [first, second] = stepSeq.items;
-  if (
-    first.name === 'fragment' &&
-    first.frag.name === 'text' &&
-    first.frag.contents === 'For each ' &&
-    second.name === 'fragment' &&
-    second.frag.name === 'underscore'
-  ) {
+  if (first.name === 'text' && first.contents === 'For each ' && second.name === 'underscore') {
     report({
       ruleId,
-      line: second.frag.location.start.line,
-      column: second.frag.location.start.column,
+      line: second.location.start.line,
+      column: second.location.start.column,
       message: 'expected "for each" to have a type name or "element" before the loop variable',
     });
   }

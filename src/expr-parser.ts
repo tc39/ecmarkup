@@ -5,13 +5,12 @@ const tokMatcher =
   /(?<olist>&laquo;|«)|(?<clist>&raquo;|»)|(?<orec>\{)|(?<crec>\})|(?<oparen>\()|(?<cparen>\))|(?<and>(?:, )?and )|(?<is> is )|(?<comma>,)|(?<period>\.(?= |$))|(?<x_of>\b\w+ of )|(?<with_args> with arguments? )/u;
 
 type SimpleLocation = { start: { offset: number }; end: { offset: number } };
-type BareText = { name: 'text'; contents: string; location: { start: { offset: number } } }; // like TextNode, but with less complete location information
+type BareText = {
+  name: 'text';
+  contents: string;
+  location: { start: { offset: number }; end: { offset: number } };
+}; // like TextNode, but with less complete location information
 type ProsePart = FragmentNode | BareText;
-type Fragment = {
-  name: 'fragment';
-  frag: ProsePart;
-  location: SimpleLocation;
-};
 type List = {
   name: 'list';
   elements: Seq[];
@@ -53,9 +52,9 @@ export type Seq = {
   name: 'seq';
   items: NonSeq[];
 };
-type NonSeq = Fragment | List | Record | RecordSpec | Call | SDOCall | Paren | Figure;
+type NonSeq = ProsePart | List | Record | RecordSpec | Call | SDOCall | Paren | Figure;
 export type Expr = NonSeq | Seq;
-type Failure = { type: 'failure'; message: string; offset: number };
+type Failure = { name: 'failure'; message: string; offset: number };
 
 type TokenType =
   | 'eof'
@@ -83,7 +82,22 @@ type CloseTokenType =
   | 'eof'
   | 'with_args';
 type SimpleToken = { name: TokenType; offset: number; source: string };
-type Token = Fragment | SimpleToken;
+type Token = ProsePart | SimpleToken;
+
+export function isProsePart(tok: NonSeq | Token | undefined): tok is ProsePart {
+  return (
+    tok != null &&
+    (tok.name === 'text' ||
+      tok.name === 'comment' ||
+      tok.name === 'tag' ||
+      tok.name === 'opaqueTag' ||
+      tok.name === 'star' ||
+      tok.name === 'underscore' ||
+      tok.name === 'tick' ||
+      tok.name === 'tilde' ||
+      tok.name === 'pipe')
+  );
+}
 
 class ParseFailure extends Error {
   declare offset: number;
@@ -123,22 +137,17 @@ function formatClose(close: CloseTokenType[]) {
 
 function addProse(items: NonSeq[], token: Token) {
   // sometimes we determine after seeing a token that it should not have been treated as a token
-  if (token.name === 'fragment') {
+  if (isProsePart(token)) {
     const prev = items[items.length - 1];
     if (
-      token.frag.name === 'text' &&
-      prev?.name === 'fragment' &&
-      prev.frag.name === 'text' &&
+      token.name === 'text' &&
+      prev?.name === 'text' &&
       prev.location.end.offset === token.location.start.offset // might be false when e.g. skipping tags
     ) {
       // join with previous token
       items[items.length - 1] = {
-        name: 'fragment',
-        frag: {
-          name: 'text',
-          contents: prev.frag.contents + token.frag.contents,
-          location: { start: { offset: prev.location.start.offset } },
-        },
+        name: 'text',
+        contents: prev.contents + token.contents,
         location: {
           start: { offset: prev.location.start.offset },
           end: { offset: token.location.end.offset },
@@ -150,12 +159,8 @@ function addProse(items: NonSeq[], token: Token) {
   } else {
     // invoke addProse so it has a chance to join
     addProse(items, {
-      name: 'fragment',
-      frag: {
-        name: 'text',
-        contents: token.source,
-        location: { start: { offset: token.offset } },
-      },
+      name: 'text',
+      contents: token.source,
       location: {
         start: { offset: token.offset },
         end: { offset: token.offset + token.source.length },
@@ -164,19 +169,17 @@ function addProse(items: NonSeq[], token: Token) {
   }
 }
 
-function isWhitespace(x: Fragment) {
-  return x.frag.name === 'text' && /^\s*$/.test(x.frag.contents);
+function isWhitespace(x: ProsePart) {
+  return x.name === 'text' && /^\s*$/.test(x.contents);
 }
 
 function isEmpty(s: Seq) {
-  return s.items.every(i => i.name === 'fragment' && isWhitespace(i));
+  return s.items.every(i => isProsePart(i) && isWhitespace(i));
 }
 
 function emptyThingHasNewline(s: Seq) {
   // only call this function on things which pass isEmpty
-  return s.items.some(i =>
-    ((i as Fragment).frag as { name: 'text'; contents: string }).contents.includes('\n')
-  );
+  return s.items.some(i => (i as { name: 'text'; contents: string }).contents.includes('\n'));
 }
 
 function getTagName(
@@ -203,7 +206,7 @@ class ExprParser {
   declare src: FragmentNode[];
   declare opNames: Set<String>;
   srcIndex = 0;
-  textTokOffset: number | null = null; // offset into current text node; only meaningful if srcOffset points to a text node
+  textTokOffset: number | null = null; // offset into current text node; only non-null if srcOffset points to a text node (but not conversely)
   next: Token[] = [];
   constructor(src: FragmentNode[], opNames: Set<String>) {
     this.src = src;
@@ -223,34 +226,26 @@ class ExprParser {
     const commitProse = () => {
       while (currentProse.length > 0) {
         const frag = currentProse.shift()!;
-        this.next.push({
-          name: 'fragment',
-          frag,
-          location: {
-            start: { offset: frag.location.start.offset },
-            end: {
-              offset:
-                frag.name === 'text'
-                  ? frag.location.start.offset + frag.contents.length
-                  : frag.location.end.offset,
-            },
-          },
-        });
+        this.next.push(frag);
       }
     };
     while (this.srcIndex < this.src.length) {
-      const tok: ProsePart =
-        this.textTokOffset == null
-          ? this.src[this.srcIndex]
-          : {
-              name: 'text',
-              contents: (this.src[this.srcIndex].contents as string).slice(this.textTokOffset),
-              location: {
-                start: {
-                  offset: this.src[this.srcIndex].location.start.offset + this.textTokOffset,
-                },
-              },
-            };
+      let tok: ProsePart;
+      if (this.textTokOffset == null) {
+        tok = this.src[this.srcIndex];
+      } else {
+        const originalTok = this.src[this.srcIndex] as BareText;
+        const newContents = originalTok.contents.slice(this.textTokOffset);
+        const newStart = originalTok.location.start.offset + this.textTokOffset;
+        tok = {
+          name: 'text',
+          contents: newContents,
+          location: {
+            start: { offset: newStart },
+            end: { offset: newStart + newContents.length },
+          },
+        };
+      }
       const match = tok.name === 'text' ? tok.contents.match(tokMatcher) : null;
       // the `tok.name !== 'text'` part in the test below is redundant but makes TS happier
       if (tok.name !== 'text' || match == null) {
@@ -293,7 +288,14 @@ class ExprParser {
       const { groups } = match;
       const before = tok.contents.slice(0, match.index);
       if (before.length > 0) {
-        currentProse.push({ name: 'text', contents: before, location: tok.location });
+        currentProse.push({
+          name: 'text',
+          contents: before,
+          location: {
+            start: tok.location.start,
+            end: { offset: tok.location.start.offset + before.length },
+          },
+        });
       }
       const matchKind = Object.keys(groups!).find(x => groups![x] != null)!;
       commitProse();
@@ -317,9 +319,9 @@ class ExprParser {
   private eatWhitespace(): boolean {
     let next;
     let hadNewline = false;
-    while ((next = this.peek())?.name === 'fragment') {
-      if (next.frag.name === 'text' && !/\S/.test(next.frag.contents)) {
-        hadNewline ||= next.frag.contents.includes('\n');
+    while (isProsePart((next = this.peek()))) {
+      if (next.name === 'text' && !/\S/.test(next.contents)) {
+        hadNewline ||= next.contents.includes('\n');
         this.next.shift();
       } else {
         break;
@@ -357,11 +359,6 @@ class ExprParser {
             throw new ParseFailure(`unexpected eof (expected ${formatClose(close)})`, next.offset);
           }
           return { name: 'seq', items };
-        }
-        case 'fragment': {
-          addProse(items, next);
-          this.next.shift();
-          break;
         }
         case 'olist': {
           const startTok = this.next.shift() as SimpleToken;
@@ -412,11 +409,11 @@ class ExprParser {
           const callee: ProsePart[] = [];
           for (let i = items.length - 1; i >= 0; --i) {
             const ppart = items[i];
-            if (ppart.name !== 'fragment') {
+            if (!isProsePart(ppart)) {
               break;
             }
-            if (ppart.frag.name === 'text') {
-              const { contents } = ppart.frag;
+            if (ppart.name === 'text') {
+              const { contents } = ppart;
               const spaceIndex = contents.lastIndexOf(' ');
               if (spaceIndex !== -1) {
                 if (spaceIndex < contents.length - 1) {
@@ -426,30 +423,28 @@ class ExprParser {
                     break;
                   }
                   items[i] = {
-                    name: 'fragment',
-                    frag: {
-                      name: 'text',
-                      contents: contents.slice(0, spaceIndex + 1),
-                      location: ppart.frag.location,
-                    },
+                    name: 'text',
+                    contents: contents.slice(0, spaceIndex + 1),
                     location: {
-                      start: { offset: ppart.frag.location.start.offset },
-                      end: { offset: ppart.frag.location.start.offset + spaceIndex + 1 },
+                      start: { offset: ppart.location.start.offset },
+                      end: { offset: ppart.location.start.offset + spaceIndex + 1 },
                     },
                   };
+                  const startOffset = ppart.location.start.offset + spaceIndex + 1;
                   // calleePart is nonempty because it matches \p{Letter}
                   callee.unshift({
                     name: 'text',
                     contents: calleePart,
                     location: {
-                      start: { offset: ppart.frag.location.start.offset + spaceIndex + 1 },
+                      start: { offset: startOffset },
+                      end: { offset: startOffset + calleePart.length },
                     },
                   });
                 }
                 break;
               }
             }
-            callee.unshift(ppart.frag);
+            callee.unshift(ppart);
             items.pop();
           }
           if (callee.length > 0) {
@@ -464,12 +459,8 @@ class ExprParser {
                 callee[0].location.start.offset += extra;
                 const contents = callee[0].contents.substring(0, extra);
                 addProse(items, {
-                  name: 'fragment',
-                  frag: {
-                    name: 'text',
-                    contents,
-                    location: { start: { offset: extraLoc } },
-                  },
+                  name: 'text',
+                  contents,
                   location: {
                     start: { offset: extraLoc },
                     end: { offset: extraLoc + contents.length },
@@ -553,45 +544,38 @@ class ExprParser {
               }
               break;
             }
-            if (nextTok.name !== 'fragment') {
+            if (!isProsePart(nextTok)) {
               throw new ParseFailure('expected to find record field name', nextTok.offset);
             }
-            if (nextTok.frag.name !== 'text') {
+            if (nextTok.name !== 'text') {
               throw new ParseFailure(
                 'expected to find record field name',
-                nextTok.frag.location.start.offset
+                nextTok.location.start.offset
               );
             }
-            const { contents } = nextTok.frag;
+            const { contents } = nextTok;
             const nameMatch = contents.match(/^\s*\[\[(?<name>\w+)\]\]\s*(?<colon>:?)/);
             if (nameMatch == null) {
               throw new ParseFailure(
                 'expected to find record field',
-                nextTok.frag.location.start.offset + contents.match(/^\s*/)![0].length
+                nextTok.location.start.offset + contents.match(/^\s*/)![0].length
               );
             }
             const { name, colon } = nameMatch.groups!;
             if (members.find(x => x.name === name)) {
               throw new ParseFailure(
                 `duplicate record field name ${name}`,
-                nextTok.frag.location.start.offset + contents.match(/^\s*\[\[/)![0].length
+                nextTok.location.start.offset + contents.match(/^\s*\[\[/)![0].length
               );
             }
-            const shortenedText = nextTok.frag.contents.slice(nameMatch[0].length);
-            const offset = nextTok.frag.location.start.offset + nameMatch[0].length;
+            const shortenedText = nextTok.contents.slice(nameMatch[0].length);
+            const offset = nextTok.location.start.offset + nameMatch[0].length;
             if (shortenedText.length === 0) {
               this.next.shift();
             } else {
-              const shortened: ProsePart = {
+              this.next[0] = {
                 name: 'text',
                 contents: shortenedText,
-                location: {
-                  start: { offset },
-                },
-              };
-              this.next[0] = {
-                name: 'fragment',
-                frag: shortened,
                 location: {
                   start: { offset },
                   end: { offset: offset + shortenedText.length },
@@ -695,7 +679,10 @@ class ExprParser {
               {
                 name: 'text',
                 contents: callee,
-                location: { start: { offset: next.offset } },
+                location: {
+                  start: { offset: next.offset },
+                  end: { offset: next.offset + callee.length },
+                },
               },
             ],
             parseNode,
@@ -719,8 +706,14 @@ class ExprParser {
           break;
         }
         default: {
-          // @ts-expect-error
-          throw new Error(`unreachable: unknown token type ${next.name}`);
+          if (isProsePart(next)) {
+            addProse(items, next);
+            this.next.shift();
+            break;
+          } else {
+            // @ts-expect-error
+            throw new Error(`unreachable: unknown token type ${next.name}`);
+          }
         }
       }
     }
@@ -735,7 +728,7 @@ export function parse(src: FragmentNode[], opNames: Set<String>): Seq | Failure 
     return parser.parseSeq(['eof']);
   } catch (e) {
     if (e instanceof ParseFailure) {
-      return { type: 'failure', message: e.message, offset: e.offset };
+      return { name: 'failure', message: e.message, offset: e.offset };
     }
     throw e;
   }
@@ -752,9 +745,6 @@ export function walk(
 ) {
   f(current, path);
   switch (current.name) {
-    case 'fragment': {
-      break;
-    }
     case 'list': {
       for (let i = 0; i < current.elements.length; ++i) {
         path.push({ parent: current, index: i });
@@ -803,6 +793,9 @@ export function walk(
       break;
     }
     default: {
+      if (isProsePart(current)) {
+        break;
+      }
       // @ts-expect-error
       throw new Error(`unreachable: unknown expression node type ${current.name}`);
     }
