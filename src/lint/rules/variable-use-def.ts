@@ -1,10 +1,4 @@
-import type {
-  FragmentNode,
-  OrderedListNode,
-  UnorderedListNode,
-  TextNode,
-  UnderscoreNode,
-} from 'ecmarkdown';
+import type { FragmentNode, OrderedListNode, UnorderedListNode, UnderscoreNode } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
 
 type HasLocation = { location: { start: { line: number; column: number } } };
@@ -47,8 +41,8 @@ class Scope {
     this.vars.delete(name);
   }
 
-  use(use: VariableNode) {
-    const name = use.contents[0].contents;
+  use(use: UnderscoreNode) {
+    const name = use.contents;
     if (this.declared(name)) {
       this.vars.get(name)!.used = true;
     } else {
@@ -62,7 +56,6 @@ class Scope {
   }
 }
 
-type VariableNode = UnderscoreNode & { contents: [TextNode] };
 export function checkVariableUsage(
   containingAlgorithm: Element,
   steps: OrderedListNode,
@@ -122,8 +115,8 @@ export function checkVariableUsage(
 function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope, report: Reporter) {
   for (const step of steps.contents) {
     const parts = step.contents;
-    const loopVars: Set<VariableNode> = new Set();
-    const declaredThisLine: Set<VariableNode> = new Set();
+    const loopVars: Set<UnderscoreNode> = new Set();
+    const declaredThisLine: Set<UnderscoreNode> = new Set();
 
     let firstRealIndex = 0;
     let first = parts[firstRealIndex];
@@ -174,7 +167,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
       if (isVariable(loopVar)) {
         loopVars.add(loopVar);
 
-        scope.declare(loopVar.contents[0].contents, loopVar, 'loop variable');
+        scope.declare(loopVar.contents, loopVar, 'loop variable');
       }
     }
 
@@ -188,8 +181,8 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
         first.contents === 'Let ' &&
         isVariable(parts[firstRealIndex + 1])
       ) {
-        const closureName = parts[firstRealIndex + 1] as VariableNode;
-        scope.declare(closureName.contents[0].contents, closureName);
+        const closureName = parts[firstRealIndex + 1] as UnderscoreNode;
+        scope.declare(closureName.contents, closureName);
       }
       // everything in an AC needs to be captured explicitly
       const acScope = new Scope(report);
@@ -208,7 +201,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
         ) {
           const v = parts[paramsIndex];
           if (isVariable(v)) {
-            acScope.declare(v.contents[0].contents, v, 'abstract closure parameter');
+            acScope.declare(v.contents, v, 'abstract closure parameter');
           }
         }
       }
@@ -223,7 +216,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
             break;
           }
           if (isVariable(v)) {
-            const name = v.contents[0].contents;
+            const name = v.contents;
             scope.use(v);
             acScope.declare(name, v, 'abstract closure capture');
           }
@@ -251,7 +244,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
     for (let i = 1; i < parts.length; ++i) {
       const part = parts[i];
       if (isVariable(part) && !loopVars.has(part)) {
-        const varName = part.contents[0].contents;
+        const varName = part.contents;
 
         // check for "there exists"
         const prev = parts[i - 1];
@@ -297,7 +290,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
               (isBe && cur.name === 'text' && /\blet (?:each of )?$/i.test(cur.contents))
             ) {
               for (const v of varsDeclaredHere) {
-                scope.declare(v.contents[0].contents, v);
+                scope.declare(v.contents, v);
                 declaredThisLine.add(v);
               }
             }
@@ -320,18 +313,13 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
     }
 
     for (const decl of loopVars) {
-      scope.undeclare(decl.contents[0].contents);
+      scope.undeclare(decl.contents);
     }
   }
 }
 
-function isVariable(node: FragmentNode | null): node is VariableNode {
-  if (node == null) {
-    return false;
-  }
-  return (
-    node.name === 'underscore' && node.contents.length === 1 && node.contents[0].name === 'text'
-  );
+function isVariable(node: FragmentNode | null): node is UnderscoreNode {
+  return node?.name === 'underscore';
 }
 
 function previousOrParent(element: Element, stopAt: Element | null): Element | null {
