@@ -12,10 +12,10 @@ export default function (report: Reporter, stepSeq: Seq | null) {
   }
   const [first, second] = stepSeq.items;
   if (
-    first.type === 'fragment' &&
+    first.name === 'fragment' &&
     first.frag.name === 'text' &&
     first.frag.contents === 'For each ' &&
-    second.type === 'fragment' &&
+    second.name === 'fragment' &&
     second.frag.name === 'underscore'
   ) {
     report({

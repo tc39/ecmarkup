@@ -628,7 +628,7 @@ export default class Spec {
       const originalHtml = (node as AlgorithmElementWithTree).originalHtml;
 
       const expressionVisitor = (expr: Expr, path: PathItem[]) => {
-        if (expr.type !== 'call' && expr.type !== 'sdo-call') {
+        if (expr.name !== 'call' && expr.name !== 'sdo-call') {
           return;
         }
 
@@ -751,7 +751,7 @@ export default class Spec {
       const walkLines = (list: OrderedListNode) => {
         for (const line of list.contents) {
           const item = parseExpr(line.contents, opNames);
-          if (item.type === 'failure') {
+          if (item.name === 'failure') {
             const { line, column } = offsetToLineAndColumn(originalHtml, item.offset);
             this.warn({
               type: 'contents',
@@ -2104,11 +2104,11 @@ function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null
   for (let pointer: Expr = expr, i = path.length - 1; i >= 0; pointer = path[i].parent, --i) {
     const { parent } = path[i];
     if (
-      parent.type === 'seq' &&
+      parent.name === 'seq' &&
       parent.items.every(
         i =>
           i === pointer ||
-          (i.type === 'fragment' &&
+          (i.name === 'fragment' &&
             (i.frag.name === 'tag' || (i.frag.name === 'text' && /^\s*$/.test(i.frag.contents))))
       )
     ) {
@@ -2126,7 +2126,7 @@ function previousText(expr: Expr, path: PathItem[]): string | null {
     return null;
   }
   const { parent, index } = part;
-  if (parent.type === 'seq') {
+  if (parent.name === 'seq') {
     return textFromPreviousPart(parent, index);
   }
   return null;
@@ -2135,7 +2135,7 @@ function previousText(expr: Expr, path: PathItem[]): string | null {
 function textFromPreviousPart(seq: Seq, index: number): string | null {
   let prevIndex = index - 1;
   let prev;
-  while ((prev = seq.items[prevIndex])?.type === 'fragment') {
+  while ((prev = seq.items[prevIndex])?.name === 'fragment') {
     if (prev.frag.name === 'text') {
       return prev.frag.contents;
     } else if (prev.frag.name === 'tag') {
@@ -2163,13 +2163,13 @@ function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
     return false;
   }
   const { parent, index } = part;
-  if (parent.type === 'seq') {
+  if (parent.name === 'seq') {
     // if the previous text ends in `! ` or `? `, this is a completion
     const text = textFromPreviousPart(parent, index);
     if (text != null && /[!?]\s$/.test(text)) {
       return true;
     }
-  } else if (parent.type === 'call' && index === 0 && parent.arguments.length === 1) {
+  } else if (parent.name === 'call' && index === 0 && parent.arguments.length === 1) {
     // if this is `Completion(Expr())`, this is a completion
     const parts = parent.callee;
     if (parts.length === 1 && parts[0].name === 'text' && parts[0].contents === 'Completion') {

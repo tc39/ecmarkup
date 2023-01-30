@@ -72,7 +72,7 @@ export function collectAlgorithmDiagnostics(
       // we don't know the names of ops at this point
       // TODO maybe run later in the process? but not worth worrying about for now
       const parsed = parse(step.contents, new Set());
-      visit(reporter, parsed.type === 'seq' ? parsed : null, step, algorithmSource); // TODO reconsider algorithmSource
+      visit(reporter, parsed.name === 'seq' ? parsed : null, step, algorithmSource); // TODO reconsider algorithmSource
       if (step.sublist?.name === 'ol') {
         for (const substep of step.sublist.contents) {
           walk(visit, substep);
