@@ -93,7 +93,13 @@ export function collectAlgorithmDiagnostics(
         }
       }
       if (allNodesParsedSuccessfully) {
-        checkVariableUsage(algorithm.element, tree.contents, parsedSteps, reporter);
+        checkVariableUsage(
+          algorithmSource,
+          algorithm.element,
+          tree.contents,
+          parsedSteps,
+          reporter
+        );
       }
     }
 

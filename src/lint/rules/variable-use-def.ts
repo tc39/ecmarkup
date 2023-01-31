@@ -1,12 +1,13 @@
 import type {
-  FragmentNode,
   OrderedListNode,
   UnorderedListNode,
   UnderscoreNode,
   OrderedListItemNode,
+  TextNode,
 } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
-import type { Seq } from '../../expr-parser';
+import type { Seq, Expr } from '../../expr-parser';
+import { offsetToLineAndColumn } from '../../utils';
 
 type HasLocation = { location: { start: { line: number; column: number } } };
 type VarKind =
@@ -64,6 +65,7 @@ class Scope {
 }
 
 export function checkVariableUsage(
+  algorithmSource: string,
   containingAlgorithm: Element,
   steps: OrderedListNode,
   parsed: Map<OrderedListItemNode, Seq>,
@@ -104,7 +106,7 @@ export function checkVariableUsage(
     preceding = previousOrParent(preceding, parentClause);
   }
 
-  walkAlgorithm(steps, parsed, scope, report);
+  walkAlgorithm(algorithmSource, steps, parsed, scope, report);
 
   for (const [name, { kind, used, node }] of scope.vars) {
     if (!used && node != null && kind !== 'parameter' && kind !== 'abstract closure parameter') {
@@ -121,29 +123,36 @@ export function checkVariableUsage(
 }
 
 function walkAlgorithm(
+  algorithmSource: string,
   steps: OrderedListNode | UnorderedListNode,
   parsed: Map<OrderedListItemNode, Seq>,
   scope: Scope,
   report: Reporter
 ) {
-  for (const step of steps.contents) {
-    const parts = step.contents;
+  if (steps.name === 'ul') {
+    // unordered lists can refer to variables, but only that
+    for (const step of steps.contents) {
+      const parts = step.contents;
+      for (let i = 0; i < parts.length; ++i) {
+        const part = parts[i];
+        if (part.name === 'underscore') {
+          scope.use(part);
+        }
+      }
+      if (step.sublist != null) {
+        walkAlgorithm(algorithmSource, step.sublist, parsed, scope, report);
+      }
+    }
+    return;
+  }
+
+  stepLoop: for (const step of steps.contents) {
     const loopVars: Set<UnderscoreNode> = new Set();
     const declaredThisLine: Set<UnderscoreNode> = new Set();
 
-    let firstRealIndex = 0;
-    let first = parts[firstRealIndex];
-    while (['comment', 'tag', 'opaqueTag'].includes(first.name)) {
-      ++firstRealIndex;
-      first = parts[firstRealIndex];
-    }
-
-    let lastRealIndex = parts.length - 1;
-    let last = parts[lastRealIndex];
-    while (['comment', 'tag', 'opaqueTag'].includes(last.name)) {
-      --lastRealIndex;
-      last = parts[lastRealIndex];
-    }
+    const expr = parsed.get(step)!;
+    const first = expr.items[0];
+    const last = expr.items[expr.items.length - 1];
 
     // handle [declared="foo"] attributes
     const extraDeclarations = step.attrs.find(d => d.key === 'declared');
@@ -172,10 +181,10 @@ function walkAlgorithm(
     }
 
     // handle loops
-    if (first.name === 'text' && first.contents.startsWith('For each ')) {
-      let loopVar = parts[firstRealIndex + 1];
-      if (loopVar?.name === 'pipe') {
-        loopVar = parts[firstRealIndex + 3]; // 2 is the space
+    if (first?.name === 'text' && first.contents.startsWith('For each ')) {
+      let loopVar = expr.items[1];
+      if (loopVar?.name === 'pipe' || loopVar?.name === 'record-spec') {
+        loopVar = expr.items[3]; // 2 is the space
       }
       if (isVariable(loopVar)) {
         loopVars.add(loopVar);
@@ -186,45 +195,61 @@ function walkAlgorithm(
 
     // handle abstract closures
     if (
-      last.name === 'text' &&
+      last?.name === 'text' &&
       / performs the following steps (atomically )?when called:$/.test(last.contents)
     ) {
-      if (
-        first.name === 'text' &&
-        first.contents === 'Let ' &&
-        isVariable(parts[firstRealIndex + 1])
-      ) {
-        const closureName = parts[firstRealIndex + 1] as UnderscoreNode;
+      if (first.name === 'text' && first.contents === 'Let ' && isVariable(expr.items[1])) {
+        const closureName = expr.items[1];
         scope.declare(closureName.contents, closureName);
       }
       // everything in an AC needs to be captured explicitly
       const acScope = new Scope(report);
-      let paramsIndex = parts.findIndex(
-        p => p.name === 'text' && p.contents.endsWith(' with parameters (')
+      const paramsIndex = expr.items.findIndex(
+        p => p.name === 'text' && p.contents.endsWith(' with parameters ')
       );
-      if (paramsIndex !== -1) {
-        for (
-          ;
-          paramsIndex < parts.length &&
-          !(
-            parts[paramsIndex].name === 'text' &&
-            (parts[paramsIndex].contents as string).includes(')')
-          );
-          ++paramsIndex
-        ) {
-          const v = parts[paramsIndex];
-          if (isVariable(v)) {
-            acScope.declare(v.contents, v, 'abstract closure parameter');
+      if (paramsIndex !== -1 && paramsIndex < expr.items.length - 1) {
+        const paramList = expr.items[paramsIndex + 1];
+        if (paramList.name !== 'paren') {
+          report({
+            ruleId: 'bad-ac',
+            message: `expected to find a parenthesized list of parameter names here`,
+            ...offsetToLineAndColumn(algorithmSource, paramList.location.start.offset),
+          });
+          continue;
+        }
+        // TODO this kind of parsing should really be factored out
+        for (let i = 0; i < paramList.items.length; ++i) {
+          const item = paramList.items[i];
+          if (i % 2 === 0) {
+            if (item.name !== 'underscore') {
+              report({
+                ruleId: 'bad-ac',
+                message: `expected to find a parameter name here`,
+                ...offsetToLineAndColumn(algorithmSource, item.location.start.offset),
+              });
+              continue stepLoop;
+            }
+            acScope.declare(item.contents, item, 'abstract closure parameter');
+          } else {
+            if (item.name !== 'text' || item.contents !== ', ') {
+              report({
+                ruleId: 'bad-ac',
+                message: `expected to find ", " here`,
+                ...offsetToLineAndColumn(algorithmSource, item.location.start.offset),
+              });
+              continue stepLoop;
+            }
           }
         }
       }
-      let capturesIndex = parts.findIndex(
+
+      let capturesIndex = expr.items.findIndex(
         p => p.name === 'text' && p.contents.endsWith(' that captures ')
       );
 
       if (capturesIndex !== -1) {
-        for (; capturesIndex < parts.length; ++capturesIndex) {
-          const v = parts[capturesIndex];
+        for (; capturesIndex < expr.items.length; ++capturesIndex) {
+          const v = expr.items[capturesIndex];
           if (v.name === 'text' && v.contents.includes(' and performs ')) {
             break;
           }
@@ -238,7 +263,7 @@ function walkAlgorithm(
 
       // we have a lint rule elsewhere which checks there are substeps for closures, but we can't guarantee that rule hasn't tripped this run, so we still need to guard
       if (step.sublist != null && step.sublist.name === 'ol') {
-        walkAlgorithm(step.sublist, parsed, acScope, report);
+        walkAlgorithm(algorithmSource, step.sublist, parsed, acScope, report);
         for (const [name, { node, kind, used }] of acScope.vars) {
           if (kind === 'abstract closure capture' && !used) {
             report({
@@ -254,13 +279,13 @@ function walkAlgorithm(
     }
 
     // handle let/such that/there exists declarations
-    for (let i = 1; i < parts.length; ++i) {
-      const part = parts[i];
+    for (let i = 1; i < expr.items.length; ++i) {
+      const part = expr.items[i];
       if (isVariable(part) && !loopVars.has(part)) {
         const varName = part.contents;
 
         // check for "there exists"
-        const prev = parts[i - 1];
+        const prev = expr.items[i - 1];
         if (
           prev.name === 'text' &&
           // prettier-ignore
@@ -272,8 +297,8 @@ function walkAlgorithm(
         }
 
         // check for "Let _x_ be" / "_x_ and _y_ such that"
-        if (i < parts.length - 1) {
-          const next = parts[i + 1];
+        if (i < expr.items.length - 1) {
+          const next = expr.items[i + 1];
           const isSuchThat = next.name === 'text' && next.contents.startsWith(' such that ');
           const isBe = next.name === 'text' && next.contents.startsWith(' be ');
 
@@ -282,21 +307,21 @@ function walkAlgorithm(
             let varIndex = i - 1;
             // walk backwards collecting this list of variables separated by comma/'and'
             for (; varIndex >= 1; varIndex -= 2) {
-              if (parts[varIndex].name !== 'text') {
+              if (expr.items[varIndex].name !== 'text') {
                 break;
               }
-              const sep = parts[varIndex].contents as string;
+              const sep = (expr.items[varIndex] as TextNode).contents;
               if (![', ', ', and ', ' and '].includes(sep)) {
                 break;
               }
-              const prev = parts[varIndex - 1];
+              const prev = expr.items[varIndex - 1];
               if (!isVariable(prev)) {
                 break;
               }
               varsDeclaredHere.push(prev);
             }
 
-            const cur = parts[varIndex];
+            const cur = expr.items[varIndex];
             if (
               // "of"/"in" guard is to distinguish "an integer X such that" from "an integer X in Y such that" - latter should not declare Y
               (isSuchThat && cur.name === 'text' && !/(?: of | in )/.test(cur.contents)) ||
@@ -314,15 +339,14 @@ function walkAlgorithm(
     }
 
     // handle uses
-    for (let i = 0; i < parts.length; ++i) {
-      const part = parts[i];
-      if (isVariable(part) && !loopVars.has(part) && !declaredThisLine.has(part)) {
-        scope.use(part);
+    forEachVariable(expr, v => {
+      if (!loopVars.has(v) && !declaredThisLine.has(v)) {
+        scope.use(v);
       }
-    }
+    });
 
     if (step.sublist != null) {
-      walkAlgorithm(step.sublist, parsed, scope, report);
+      walkAlgorithm(algorithmSource, step.sublist, parsed, scope, report);
     }
 
     for (const decl of loopVars) {
@@ -331,7 +355,7 @@ function walkAlgorithm(
   }
 }
 
-function isVariable(node: FragmentNode | null): node is UnderscoreNode {
+function isVariable(node: UnderscoreNode | { name: string } | null): node is UnderscoreNode {
   return node?.name === 'underscore';
 }
 
@@ -351,4 +375,64 @@ function previousOrParent(element: Element, stopAt: Element | null): Element | n
 function findDeclaredAttrOffset(attrSource: string, name: string) {
   const matcher = new RegExp('\\b' + name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\b'); // regexp.escape when
   return attrSource.match(matcher)!.index!;
+}
+
+function forEachVariable(thing: Expr, fn: (u: UnderscoreNode) => void) {
+  if (thing.name === 'seq') {
+    for (const item of thing.items) {
+      forEachVariable(item, fn);
+    }
+    return;
+  }
+  const item = thing;
+  switch (item.name) {
+    case 'underscore': {
+      fn(item);
+      break;
+    }
+    case 'call':
+    case 'sdo-call': {
+      for (const part of item.callee) {
+        forEachVariable(part, fn);
+      }
+      for (const arg of item.arguments) {
+        forEachVariable(arg, fn);
+      }
+      break;
+    }
+    case 'list': {
+      for (const ele of item.elements) {
+        forEachVariable(ele, fn);
+      }
+      break;
+    }
+    case 'paren': {
+      for (const part of item.items) {
+        forEachVariable(part, fn);
+      }
+      break;
+    }
+    case 'record': {
+      for (const pair of item.members) {
+        forEachVariable(pair.value, fn);
+      }
+      break;
+    }
+    case 'comment':
+    case 'figure':
+    case 'opaqueTag':
+    case 'pipe':
+    case 'record-spec':
+    case 'star':
+    case 'tag':
+    case 'text':
+    case 'tick':
+    case 'tilde': {
+      break;
+    }
+    default: {
+      // @ts-expect-error
+      throw new Error(`unreachable: node type ${item.name}`);
+    }
+  }
 }
