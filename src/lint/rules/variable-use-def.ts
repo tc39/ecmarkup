@@ -6,7 +6,7 @@ import type {
   TextNode,
 } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
-import type { Seq, Expr } from '../../expr-parser';
+import { Seq, walk as walkExpr } from '../../expr-parser';
 import { offsetToLineAndColumn } from '../../utils';
 
 type HasLocation = { location: { start: { line: number; column: number } } };
@@ -339,11 +339,11 @@ function walkAlgorithm(
     }
 
     // handle uses
-    forEachVariable(expr, v => {
-      if (!loopVars.has(v) && !declaredThisLine.has(v)) {
+    walkExpr(v => {
+      if (v.name === 'underscore' && !loopVars.has(v) && !declaredThisLine.has(v)) {
         scope.use(v);
       }
-    });
+    }, expr);
 
     if (step.sublist != null) {
       walkAlgorithm(algorithmSource, step.sublist, parsed, scope, report);
@@ -375,64 +375,4 @@ function previousOrParent(element: Element, stopAt: Element | null): Element | n
 function findDeclaredAttrOffset(attrSource: string, name: string) {
   const matcher = new RegExp('\\b' + name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\b'); // regexp.escape when
   return attrSource.match(matcher)!.index!;
-}
-
-function forEachVariable(thing: Expr, fn: (u: UnderscoreNode) => void) {
-  if (thing.name === 'seq') {
-    for (const item of thing.items) {
-      forEachVariable(item, fn);
-    }
-    return;
-  }
-  const item = thing;
-  switch (item.name) {
-    case 'underscore': {
-      fn(item);
-      break;
-    }
-    case 'call':
-    case 'sdo-call': {
-      for (const part of item.callee) {
-        forEachVariable(part, fn);
-      }
-      for (const arg of item.arguments) {
-        forEachVariable(arg, fn);
-      }
-      break;
-    }
-    case 'list': {
-      for (const ele of item.elements) {
-        forEachVariable(ele, fn);
-      }
-      break;
-    }
-    case 'paren': {
-      for (const part of item.items) {
-        forEachVariable(part, fn);
-      }
-      break;
-    }
-    case 'record': {
-      for (const pair of item.members) {
-        forEachVariable(pair.value, fn);
-      }
-      break;
-    }
-    case 'comment':
-    case 'figure':
-    case 'opaqueTag':
-    case 'pipe':
-    case 'record-spec':
-    case 'star':
-    case 'tag':
-    case 'text':
-    case 'tick':
-    case 'tilde': {
-      break;
-    }
-    default: {
-      // @ts-expect-error
-      throw new Error(`unreachable: node type ${item.name}`);
-    }
-  }
 }
