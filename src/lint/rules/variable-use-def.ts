@@ -1,5 +1,12 @@
-import type { FragmentNode, OrderedListNode, UnorderedListNode, UnderscoreNode } from 'ecmarkdown';
+import type {
+  FragmentNode,
+  OrderedListNode,
+  UnorderedListNode,
+  UnderscoreNode,
+  OrderedListItemNode,
+} from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
+import type { Seq } from '../../expr-parser';
 
 type HasLocation = { location: { start: { line: number; column: number } } };
 type VarKind =
@@ -59,6 +66,7 @@ class Scope {
 export function checkVariableUsage(
   containingAlgorithm: Element,
   steps: OrderedListNode,
+  parsed: Map<OrderedListItemNode, Seq>,
   report: Reporter
 ) {
   if (containingAlgorithm.hasAttribute('replaces-step')) {
@@ -96,7 +104,7 @@ export function checkVariableUsage(
     preceding = previousOrParent(preceding, parentClause);
   }
 
-  walkAlgorithm(steps, scope, report);
+  walkAlgorithm(steps, parsed, scope, report);
 
   for (const [name, { kind, used, node }] of scope.vars) {
     if (!used && node != null && kind !== 'parameter' && kind !== 'abstract closure parameter') {
@@ -112,7 +120,12 @@ export function checkVariableUsage(
   }
 }
 
-function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope, report: Reporter) {
+function walkAlgorithm(
+  steps: OrderedListNode | UnorderedListNode,
+  parsed: Map<OrderedListItemNode, Seq>,
+  scope: Scope,
+  report: Reporter
+) {
   for (const step of steps.contents) {
     const parts = step.contents;
     const loopVars: Set<UnderscoreNode> = new Set();
@@ -225,7 +238,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
 
       // we have a lint rule elsewhere which checks there are substeps for closures, but we can't guarantee that rule hasn't tripped this run, so we still need to guard
       if (step.sublist != null && step.sublist.name === 'ol') {
-        walkAlgorithm(step.sublist, acScope, report);
+        walkAlgorithm(step.sublist, parsed, acScope, report);
         for (const [name, { node, kind, used }] of acScope.vars) {
           if (kind === 'abstract closure capture' && !used) {
             report({
@@ -309,7 +322,7 @@ function walkAlgorithm(steps: OrderedListNode | UnorderedListNode, scope: Scope,
     }
 
     if (step.sublist != null) {
-      walkAlgorithm(step.sublist, scope, report);
+      walkAlgorithm(step.sublist, parsed, scope, report);
     }
 
     for (const decl of loopVars) {
