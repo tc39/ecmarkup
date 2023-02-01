@@ -2,7 +2,9 @@ import type { FragmentNode } from 'ecmarkdown';
 import { formatEnglishList } from './header-parser';
 
 const tokMatcher =
-  /(?<olist>&laquo;|«)|(?<clist>&raquo;|»)|(?<orec>\{)|(?<crec>\})|(?<oparen>\()|(?<cparen>\))|(?<and>(?:, )?and )|(?<is> is )|(?<comma>,)|(?<period>\.(?= |$))|(?<x_of>\b\w+ of )|(?<with_args> with arguments? )/u;
+  /(?<olist>&laquo;|«)|(?<clist>&raquo;|»)|(?<orec>\{)|(?<crec>\})|(?<oparen>\()|(?<cparen>\))|(?<and>(?:, )?and )|(?<is> is )|(?<comma>,)|(?<x_of>\b\w+ of )|(?<with_args> with arguments? )/u;
+const periodSpaceMatcher = /(?<period>\.(?= ))/u;
+const periodSpaceOrEOFMatcher = /(?<period>\.(?= |$))/u;
 
 type SimpleLocation = { start: { offset: number }; end: { offset: number } };
 type BareText = {
@@ -93,6 +95,7 @@ export function isProsePart(tok: NonSeq | Token | undefined): tok is ProsePart {
       tok.name === 'opaqueTag' ||
       tok.name === 'star' ||
       tok.name === 'underscore' ||
+      tok.name === 'double-brackets' ||
       tok.name === 'tick' ||
       tok.name === 'tilde' ||
       tok.name === 'pipe')
@@ -246,7 +249,14 @@ class ExprParser {
           },
         };
       }
-      const match = tok.name === 'text' ? tok.contents.match(tokMatcher) : null;
+      let match = tok.name === 'text' ? tok.contents.match(tokMatcher) : null;
+      if (tok.name === 'text' && match == null) {
+        // in `foo.[[bar]]`, the `.` ends this text token, but should not be recognized as a period
+        // but if `foo.` is the last token, it should be recognized as a period.
+        const periodMatcher =
+          this.srcIndex < this.src.length - 1 ? periodSpaceMatcher : periodSpaceOrEOFMatcher;
+        match = tok.contents.match(periodMatcher);
+      }
       // the `tok.name !== 'text'` part in the test below is redundant but makes TS happier
       if (tok.name !== 'text' || match == null) {
         const empty =
@@ -547,42 +557,39 @@ class ExprParser {
             if (!isProsePart(nextTok)) {
               throw new ParseFailure('expected to find record field name', nextTok.offset);
             }
-            if (nextTok.name !== 'text') {
+            if (nextTok.name !== 'double-brackets') {
+              const skipWs =
+                nextTok.name === 'text' ? nextTok.contents.match(/^\s*/)![0].length : 0;
               throw new ParseFailure(
                 'expected to find record field name',
-                nextTok.location.start.offset
+                nextTok.location.start.offset + skipWs
               );
             }
-            const { contents } = nextTok;
-            const nameMatch = contents.match(/^\s*\[\[(?<name>\w+)\]\]\s*(?<colon>:?)/);
-            if (nameMatch == null) {
-              throw new ParseFailure(
-                'expected to find record field',
-                nextTok.location.start.offset + contents.match(/^\s*/)![0].length
-              );
-            }
-            const { name, colon } = nameMatch.groups!;
+            const { contents: name } = nextTok;
             if (members.find(x => x.name === name)) {
               throw new ParseFailure(
                 `duplicate record field name ${name}`,
-                nextTok.location.start.offset + contents.match(/^\s*\[\[/)![0].length
+                nextTok.location.start.offset + 2
               );
             }
-            const shortenedText = nextTok.contents.slice(nameMatch[0].length);
-            const offset = nextTok.location.start.offset + nameMatch[0].length;
-            if (shortenedText.length === 0) {
-              this.next.shift();
-            } else {
+            this.next.shift();
+            const afterName = this.peek();
+            const colonMatch = afterName.name === 'text' ? afterName.contents.match(/^\s*:/) : null;
+
+            if (colonMatch != null) {
+              const afterNameAsText = afterName as BareText;
+              const withoutColon = afterNameAsText.contents.slice(colonMatch[0].length);
+
+              const offset = afterNameAsText.location.start.offset + colonMatch[0].length;
               this.next[0] = {
                 name: 'text',
-                contents: shortenedText,
+                contents: withoutColon,
                 location: {
                   start: { offset },
-                  end: { offset: offset + shortenedText.length },
+                  end: { offset: offset + withoutColon.length },
                 },
               };
-            }
-            if (colon) {
+
               if (type == null) {
                 type = 'record';
               } else if (type === 'record-spec') {
@@ -600,11 +607,18 @@ class ExprParser {
               if (type == null) {
                 type = 'record-spec';
               } else if (type === 'record') {
-                throw new ParseFailure('expected record field to have value', offset - 1);
+                throw new ParseFailure(
+                  'expected record field to have value',
+                  nextTok.location.end.offset
+                );
               }
               members.push({ name });
+              this.eatWhitespace();
               if (!['crec', 'comma'].includes(this.peek().name)) {
-                throw new ParseFailure(`expected ${formatClose(['crec', 'comma'])}`, offset);
+                throw new ParseFailure(
+                  `expected ${formatClose(['crec', 'comma'])}`,
+                  nextTok.location.end.offset
+                );
               }
             }
             if (this.peek().name === 'crec') {
@@ -789,7 +803,18 @@ export function walk(
       }
       break;
     }
-    case 'figure': {
+    case 'underscore':
+    case 'double-brackets':
+    case 'comment':
+    case 'figure':
+    case 'opaqueTag':
+    case 'pipe':
+    case 'record-spec':
+    case 'star':
+    case 'tag':
+    case 'text':
+    case 'tick':
+    case 'tilde': {
       break;
     }
     default: {

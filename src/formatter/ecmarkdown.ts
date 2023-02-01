@@ -7,7 +7,7 @@ import type {
   PipeNode,
   UnorderedListItemNode,
 } from 'ecmarkdown';
-import type { FragmentNode } from 'ecmarkdown/dist/node-types';
+import type { FragmentNode, UnderscoreNode } from 'ecmarkdown/dist/node-types';
 import { parseFragment } from 'parse5';
 import type { Element } from 'parse5';
 import { LineBuilder } from './line-builder';
@@ -63,7 +63,6 @@ async function printStep(
   return output;
 }
 
-// TODO make ecmarkdown export all the types
 export async function printFragments(
   source: string,
   contents: FragmentNode[],
@@ -74,6 +73,7 @@ export async function printFragments(
   for (let i = 0; i < contents.length; ++i) {
     const node = contents[i];
     switch (node.name) {
+      case 'underscore':
       case 'text': {
         // ecmarkdown has a very permissive parser
         // this means figuring out exactly which things were escaped is difficult
@@ -175,8 +175,7 @@ export async function printFragments(
       }
       case 'star':
       case 'tick':
-      case 'tilde':
-      case 'underscore': {
+      case 'tilde': {
         output.append(await printFormat(source, node, indent));
         break;
       }
@@ -191,7 +190,7 @@ export async function printFragments(
 
 async function printFormat(
   source: string,
-  node: Exclude<FormatNode, PipeNode>,
+  node: Exclude<FormatNode, PipeNode | UnderscoreNode>,
   indent: number
 ): Promise<LineBuilder> {
   let tok: '*' | `\`` | '~' | '_' | '|';
@@ -206,11 +205,8 @@ async function printFormat(
     case 'tilde':
       tok = '~';
       break;
-    case 'underscore':
-      tok = '_';
-      break;
     default: {
-      // @ts-ignore
+      // @ts-expect-error
       throw new Error(`Unknown node type ${node.name}`);
     }
   }
