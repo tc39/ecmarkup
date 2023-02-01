@@ -7,6 +7,9 @@ let {
   assertLintFree,
   getBiblio,
 } = require('./utils.js');
+let { parse: parseExpr } = require('../lib/expr-parser.js');
+let assert = require('assert');
+let { parseFragment } = require('ecmarkdown');
 
 describe('expression parsing', () => {
   describe('valid', () => {
@@ -241,7 +244,7 @@ describe('expression parsing', () => {
         {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
-          message: 'expected to find record field',
+          message: 'expected to find record field name',
         }
       );
     });
@@ -347,6 +350,68 @@ describe('expression parsing', () => {
           extraBiblios: [biblio],
         }
       );
+    });
+  });
+
+  describe('parse trees', () => {
+    function parse(src, sdoNames = new Set()) {
+      let tree = parseExpr(parseFragment(src), sdoNames);
+      return JSON.parse(JSON.stringify(tree, (k, v) => (k === 'location' ? undefined : v)));
+    }
+    it('is able to handle `a.[[b]` nodes in SDO calls', async () => {
+      let tree = parse('Perform SDO of _A_.[[B]] with argument _c_.[[D]].', new Set(['SDO']));
+      assert.deepStrictEqual(tree, {
+        name: 'seq',
+        items: [
+          { name: 'text', contents: 'Perform ' },
+          {
+            name: 'sdo-call',
+            callee: [
+              {
+                name: 'text',
+                contents: 'SDO',
+              },
+            ],
+            parseNode: {
+              items: [
+                {
+                  name: 'underscore',
+                  contents: 'A',
+                },
+                {
+                  name: 'text',
+                  contents: '.',
+                },
+                {
+                  name: 'double-brackets',
+                  contents: 'B',
+                },
+              ],
+              name: 'seq',
+            },
+            arguments: [
+              {
+                name: 'seq',
+                items: [
+                  {
+                    name: 'underscore',
+                    contents: 'c',
+                  },
+                  {
+                    name: 'text',
+                    contents: '.',
+                  },
+                  {
+                    name: 'double-brackets',
+                    contents: 'D',
+                  },
+                ],
+              },
+            ],
+          },
+          { name: 'text', contents: '.' },
+        ],
+      });
     });
   });
 });

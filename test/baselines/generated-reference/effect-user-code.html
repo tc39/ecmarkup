@@ -101,7 +101,7 @@
 <emu-clause id="sec-rendered-meta" type="abstract operation" aoid="RenderedMeta">
   <h1><span class="secnum">16</span> RenderedMeta ( )</h1>
   <p>The abstract operation RenderedMeta takes no arguments. emu-meta tags with the effects attribute that aren't surrounding what ecmarkup recognizes as invocations are changed into span tags to be rendered. The effects list is prefixed with e- and changed into class names. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Perform ?&nbsp;<span class="e-user-code"><var>O</var>.[[Call]]()</span>.</li></ol></emu-alg>
+  <emu-alg><ol><li>Perform ?&nbsp;<span class="e-user-code"><var>O</var>.<var class="field">[[Call]]</var>()</span>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-make-abstract-closure" type="abstract operation" aoid="MakeAbstractClosure">
@@ -125,7 +125,7 @@
 <emu-clause id="sec-xref-not-first-child-of-emu-meta" type="abstract operation" aoid="XrefNotFirstChildOfEmuMeta">
   <h1><span class="secnum">20</span> XrefNotFirstChildOfEmuMeta ( )</h1>
   <p>The abstract operation XrefNotFirstChildOfEmuMeta takes no arguments. Effect additions and suppressions via emu-meta only affect xrefs that are the first child of the emu-meta. Below, <emu-xref aoid="UserCode" id="_ref_17"><a href="#sec-user-code">UserCode</a></emu-xref>() gets autolinked and get an xref. Its parent element is an emu-meta, but since the xref is not the first child, it should not be interpreted to override the effects of the <emu-xref aoid="UserCode" id="_ref_18"><a href="#sec-user-code">UserCode</a></emu-xref>() call. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Perform <span class="e-user-code"><var>map</var>.[[DefineOwnProperty]](! <emu-xref aoid="UserCode" id="_ref_19"><a href="#sec-user-code">UserCode</a></emu-xref>())</span>.</li></ol></emu-alg>
+  <emu-alg><ol><li>Perform <span class="e-user-code"><var>map</var>.<var class="field">[[DefineOwnProperty]]</var>(! <emu-xref aoid="UserCode" id="_ref_19"><a href="#sec-user-code">UserCode</a></emu-xref>())</span>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-result-of-evaluating" type="abstract operation" aoid="ResultOfEvaluating">
