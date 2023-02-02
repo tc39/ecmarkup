@@ -1,9 +1,16 @@
 'use strict';
 
 // Update superscripts to not suffer misinterpretation when copied and pasted as plain text.
-// For example, `10<sup>3</sup>` becomes `103`, but `10³` is preserved.
+// For example,
+// * Replace `10<sup>3</sup>` with `10³` so it gets pasted as that rather than `103`.
+// * Replace `10<sup>-<var>x</var></sup>` with
+//   `10<span aria-hidden="true"> ↑ </span><sup>-<var>x</var></sup>`
+//   so it gets pasted as `10 ↑ -x` rather than `10-x`.
+// * Replace `2<sup><var>a</var> + 1</sup>` with
+//   `2<span …> ↑ (</span><sup><var>a</var> + 1</sup><span …>)</span>`
+//   so it gets pasted as `2 ↑ (a + 1)` rather than `2a + 1`.
 
-const arithmeticReplacements = new Map([
+const supReplacements = new Map([
   ['0', '⁰'],
   ['1', '¹'],
   ['2', '²'],
@@ -23,25 +30,27 @@ const arithmeticReplacements = new Map([
   [' ', ' '],
 ]);
 
-function makeSuperscriptAccessible(sup) {
-  // Replace a text-only superscript with text when it is fully replaceable,
+function makeExponentPlainTextSafe(sup) {
+  // Replace a text-only <sup> if its contents are fully representable,
   // but otherwise do not modify it (for cases such as `1<sup>st</sup>`).
   if ([...sup.childNodes].every(node => node.nodeType === 3)) {
-    const replacementText = sup.textContent
+    const text = sup.textContent;
+    const replacementText = text
       .split('')
-      .map(ch => arithmeticReplacements.get(ch) || '')
+      .map(ch => supReplacements.get(ch) || '')
       .join('');
-    if (replacementText.length === sup.textContent.length) {
+    if (replacementText.length === text.length) {
       sup.replaceWith(replacementText);
     }
     return;
   }
-  // Wrap a not-yet-handled superscript with hidden Knuth up-arrow notation
-  // if it appears to represent exponentiation.
-  if (!sup.classList.contains('text') && !sup.querySelector('*:not(var)')) {
+
+  // Add a hidden Knuth up-arrow before a <sup> that appears to represent an exponent.
+  if (!sup.querySelector('*:not(var)')) {
     let prefix = ' ↑ ';
     let suffix = '';
-    if (sup.childNodes.length > 1 && !/^\(.*\)$/s.test(sup.textContent.trim())) {
+    // Add wrapping parentheses unless they are already present or there are no medial spaces.
+    if (!/^\(.*\)$|^\S*$/s.test(sup.textContent.trim())) {
       prefix += '(';
       suffix += ')';
     }
@@ -53,7 +62,7 @@ function makeSuperscriptAccessible(sup) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('sup').forEach(sup => {
-    makeSuperscriptAccessible(sup);
+  document.querySelectorAll('sup:not(.text)').forEach(sup => {
+    makeExponentPlainTextSafe(sup);
   });
 });

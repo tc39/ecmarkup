@@ -119,6 +119,10 @@ body.oldtoc {
   margin: 0 auto;
 }
 
+span[aria-hidden='true'] {
+  font-size: 0;
+}
+
 a {
   text-decoration: none;
   color: #206ca7;
@@ -282,10 +286,6 @@ emu-alg ol.nested-once ol ol ol ol,
 /* depth 7+ */
 emu-alg ol.nested-lots ol {
   list-style-type: lower-roman;
-}
-
-emu-alg [aria-hidden='true'] {
-  font-size: 0;
 }
 
 emu-eqn {
