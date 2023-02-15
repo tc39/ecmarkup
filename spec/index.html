@@ -42,7 +42,7 @@ markEffects: true
 
 <emu-clause id="useful-options">
   <h1>Options</h1>
-  <p>Build options and document options can be passed in via the command line or specified in the <emu-xref href="#metadata">front-matter</emu-xref> of your document.</p>
+  <p>Build options and document options can be passed in via the command line or specified in the <emu-xref href="#metadata">front-matter</emu-xref> of your document. There is no bright line separating the two categories, but for purposes of organization, document options are defined as those affecting the observable rendered output content.</p>
   <emu-table id="build-options" class="code">
     <emu-caption>Build options</emu-caption>
     <table>
@@ -56,7 +56,6 @@ markEffects: true
       <tr><td>`--lint-spec`</td><td>`lintSpec`</td><td>Enforce some style and correctness checks.</td></tr>
       <tr><td>`--error-formatter`</td><td></td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using `--verbose`. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
       <tr><td>`--strict`</td><td></td><td>Exit with an error if there are warnings. Cannot be used with `--watch`.</td></tr>
-      <tr><td>`--mark-effects`</td><td>`markEffects`</td><td>Propagate and render <a href="#effects">effects</a> like "user code".</td></tr>
       <tr><td>`--multipage`</td><td></td><td>Emit a distinct page for each top-level clause.</td></tr>
     </table>
   </emu-table>
@@ -78,6 +77,7 @@ markEffects: true
       <tr><td>`--old-toc`</td><td>`oldToc`</td><td>Emit the table of contents at the top of the document rather than as a side pane. Boolean, default false.</td></tr>
       <tr><td>`--load-biblio`</td><td>`extraBiblios`</td><td>Extra biblio.json file(s) to load. This should contain either an object as exported by `--write-biblio` or an array of such objects.</td></tr>
       <tr><td></td><td>`boilerplate`</td><td>An object with `address` and/or `copyright` and/or `license` fields containing paths to files containing the corresponding content for populating an element with class "copyright-and-software-license" (or if not found, an appended <emu-xref href="#emu-annex" title></emu-xref> with that id) when `copyright` is true. Absent fields are assumed to reference files in a "boilerplate" directory sibling of the directory containing the ecmarkup executable.</td></tr>
+      <tr><td>`--mark-effects`</td><td>`markEffects`</td><td>Propagate and render <a href="#effects">effects</a> like "user code".</td></tr>
     </table>
   </emu-table>
 </emu-clause>
