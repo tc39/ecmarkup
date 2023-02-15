@@ -42,15 +42,13 @@ export default function (
   let last = stepSeq.items[stepSeq.items.length - 1];
 
   // If the step has a figure, it should end in `:`
-  if (last.type === 'figure') {
+  if (last.name === 'figure') {
     last = stepSeq.items[stepSeq.items.length - 2];
-    if (
-      !(last.type === 'fragment' && last.frag.name === 'text' && /:\n +$/.test(last.frag.contents))
-    ) {
+    if (!(last.name === 'text' && /:\n +$/.test(last.contents))) {
       report({
         ruleId,
         message: 'expected line with figure to end with ":"',
-        ...locate(last.end),
+        ...locate(last.location.end.offset),
       });
     }
     return;
@@ -59,9 +57,8 @@ export default function (
   const hasSubsteps = node.sublist !== null;
 
   const first = stepSeq.items[0];
-  const initialText =
-    first.type === 'fragment' && first.frag.name === 'text' ? first.frag.contents : '';
-  const finalText = last.type === 'fragment' && last.frag.name === 'text' ? last.frag.contents : '';
+  const initialText = first.name === 'text' ? first.contents : '';
+  const finalText = last.name === 'text' ? last.contents : '';
 
   if (/^(?:If |Else if)/.test(initialText)) {
     if (hasSubsteps) {
@@ -71,7 +68,7 @@ export default function (
           report({
             ruleId,
             message: `expected "If" with substeps to end with ", then"`,
-            ...locate(last.end),
+            ...locate(last.location.end.offset),
           });
         } else if (
           end[0][0] === ';' &&
@@ -80,7 +77,7 @@ export default function (
           report({
             ruleId,
             message: `expected "If" with substeps to end with ", then" rather than "; then" when there are no other commas`,
-            ...locate(last.end - 6),
+            ...locate(last.location.end.offset - 6),
           });
         }
       } else {
@@ -88,25 +85,28 @@ export default function (
           report({
             ruleId,
             message: `expected "If" with list to end with ":"`,
-            ...locate(last.end),
+            ...locate(last.location.end.offset),
           });
         }
       }
     } else {
-      const lineSource = algorithmSource.slice(first.start, last.end);
+      const lineSource = algorithmSource.slice(
+        first.location.start.offset,
+        last.location.end.offset
+      );
       const ifThenMatch = lineSource.match(/^If[^,\n]+, then /);
       if (ifThenMatch != null) {
         report({
           ruleId,
           message: `single-line "If" steps should not have a "then"`,
-          ...locate(first.start + ifThenMatch[0].length - 5),
+          ...locate(first.location.start.offset + ifThenMatch[0].length - 5),
         });
       }
       if (!/(?:\.|\.\)|:)$/.test(finalText)) {
         report({
           ruleId,
           message: `expected "If" without substeps to end with "." or ":"`,
-          ...locate(last.end),
+          ...locate(last.location.end.offset),
         });
       }
     }
@@ -115,7 +115,7 @@ export default function (
       report({
         ruleId,
         message: `prefer "Else if" over "Else, if"`,
-        ...locate(first.start + 4),
+        ...locate(first.location.start.offset + 4),
       });
     }
     if (hasSubsteps) {
@@ -126,7 +126,7 @@ export default function (
         report({
           ruleId,
           message: `expected "Else" with substeps to end with ","`,
-          ...locate(last.end),
+          ...locate(last.location.end.offset),
         });
       }
     } else {
@@ -134,7 +134,7 @@ export default function (
         report({
           ruleId,
           message: `expected "Else" without substeps to end with "." or ":"`,
-          ...locate(last.end),
+          ...locate(last.location.end.offset),
         });
       }
     }
@@ -154,14 +154,14 @@ export default function (
       report({
         ruleId,
         message: `expected "Repeat" to start with "Repeat, while " or "Repeat, until "`,
-        ...locate(first.start),
+        ...locate(first.location.start.offset),
       });
     }
     if (!/,$/.test(finalText)) {
       report({
         ruleId,
         message: 'expected "Repeat" to end with ","',
-        ...locate(last.end),
+        ...locate(last.location.end.offset),
       });
     }
   } else if (/^For each/.test(initialText)) {
@@ -170,7 +170,7 @@ export default function (
         report({
           ruleId,
           message: `expected "For each" with substeps to end with ", do"`,
-          ...locate(last.end),
+          ...locate(last.location.end.offset),
         });
       }
     } else {
@@ -178,7 +178,7 @@ export default function (
         report({
           ruleId,
           message: `expected "For each" without substeps to end with "."`,
-          ...locate(last.end),
+          ...locate(last.location.end.offset),
         });
       }
     }
@@ -189,21 +189,21 @@ export default function (
       report({
         ruleId,
         message: `the clause after "${kind}:" should begin with a capital letter`,
-        ...locate(first.start + kind.length + 2),
+        ...locate(first.location.start.offset + kind.length + 2),
       });
     }
     if (/^NOTE:/i.test(initialText) && !/^NOTE:/.test(initialText)) {
       report({
         ruleId,
         message: `"NOTE:" should be fully capitalized`,
-        ...locate(first.start),
+        ...locate(first.location.start.offset),
       });
     }
     if (/^Assert:/i.test(initialText) && !/^Assert:/.test(initialText)) {
       report({
         ruleId,
         message: `"Assert:" should be capitalized`,
-        ...locate(first.start),
+        ...locate(first.location.start.offset),
       });
     }
     if (hasSubsteps) {
@@ -211,20 +211,20 @@ export default function (
         report({
           ruleId,
           message: `expected freeform line with substeps to end with ":"`,
-          ...locate(last.end),
+          ...locate(last.location.end.offset),
         });
       }
     } else if (!/(?:\.|\.\))$/.test(finalText)) {
-      if (last.type === 'paren' && last.items.length > 0) {
+      if (last.name === 'paren' && last.items.length > 0) {
         const lastItem = last.items[last.items.length - 1];
-        if (lastItem.type === 'fragment' && lastItem.frag.name === 'text') {
+        if (lastItem.name === 'text') {
           return;
         }
       }
       report({
         ruleId,
         message: `expected freeform line to end with "."`,
-        ...locate(last.end),
+        ...locate(last.location.end.offset),
       });
     }
   }
