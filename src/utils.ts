@@ -148,7 +148,7 @@ export function shouldInline(node: Node) {
 
   const clauseLikeParent =
     CLAUSE_LIKE.includes(parent.nodeName) ||
-    CLAUSE_LIKE.includes((parent as Element).getAttribute('data-simulate-tagName')?.toUpperCase()!);
+    CLAUSE_LIKE.includes((parent as Element).getAttribute('data-simulate-tagname')?.toUpperCase()!);
   return !clauseLikeParent;
 }
 

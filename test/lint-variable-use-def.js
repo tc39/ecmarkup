@@ -171,7 +171,7 @@ describe('variables are declared and used appropriately', () => {
           <emu-alg>
             1. Let _x_ be 0.
             1. Let ${M}_y_ be 1.
-            1. Return _x_.
+            1. Return « _x_ ».
           </emu-alg>
         `,
         {
@@ -294,6 +294,65 @@ describe('variables are declared and used appropriately', () => {
       );
     });
 
+    it('abstract closure parameters must be a parenthesized list of variables', async () => {
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( _obj_ )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters ${M}« _x_ » that captures nothing and performs the following steps when called:
+              1. Do something with _x_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'bad-ac',
+          nodeType: 'emu-alg',
+          message: 'expected to find a parenthesized list of parameter names here',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( _obj_ )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters (${M}x) that captures nothing and performs the following steps when called:
+              1. Do something with _x_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'bad-ac',
+          nodeType: 'emu-alg',
+          message: 'expected to find a parameter name here',
+        }
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( _obj_ )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters (_x_${M} _y_) that captures nothing and performs the following steps when called:
+              1. Do something with _x_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'bad-ac',
+          nodeType: 'emu-alg',
+          message: 'expected to find ", " here',
+        }
+      );
+    });
+
     it('abstract closure parameters/captures are visible', async () => {
       await assertLintFree(
         `
@@ -404,6 +463,16 @@ describe('variables are declared and used appropriately', () => {
         `
           <emu-alg>
             1. For each |CaseClause| _c_ of some list, do
+              1. Something with _c_.
+          </emu-alg>
+        `,
+        { extraBiblios: [biblio] }
+      );
+
+      await assertLintFree(
+        `
+          <emu-alg>
+            1. For each Record { [[Type]], [[Value]] } _c_ of some list, do
               1. Something with _c_.
           </emu-alg>
         `,
