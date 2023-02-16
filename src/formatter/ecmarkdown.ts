@@ -179,8 +179,12 @@ export async function printFragments(
         output.append(await printFormat(source, node, indent));
         break;
       }
+      case 'double-brackets': {
+        output.appendText(`[[${node.contents}]]`);
+        break;
+      }
       default: {
-        // @ts-ignore
+        // @ts-expect-error
         throw new Error(`Unknown node type ${node.name}`);
       }
     }
