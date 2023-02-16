@@ -46,7 +46,7 @@ function productionBodies(body: ProductionBody) {
     case SyntaxKind.RightHandSide:
       return [body];
     default:
-      // @ts-ignore
+      // @ts-expect-error
       throw new Error('unknown production body type ' + body.constructor.name);
   }
 }
