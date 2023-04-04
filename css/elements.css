@@ -1,9 +1,11 @@
+@import url(https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&amp;family=Source+Sans+Pro:wght@300;400;600&amp;display=swap);
+
 body {
   display: flex;
   word-wrap: break-word;
   font-size: 18px;
   line-height: 1.5;
-  font-family: Cambria, Palatino Linotype, Palatino, Liberation Serif, serif;
+  font-family: 'Open Sans', sans-serif;
   padding: 0;
   margin: 0;
   color: #111;
@@ -191,7 +193,7 @@ emu-alg ol.nested-lots ol {
   list-style-type: lower-roman;
 }
 
-emu-alg [aria-hidden=true] {
+emu-alg [aria-hidden='true'] {
   font-size: 0;
 }
 
