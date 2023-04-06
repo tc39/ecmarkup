@@ -1,0 +1,29 @@
+<!doctype html>
+<head><meta charset="utf-8"></head><body><div id="shortcuts-help">
+<ul>
+  <li><span>Toggle shortcuts help</span><code>?</code></li>
+  <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+
+  <li><span>Jump to search box</span><code>/</code></li>
+</ul></div><div id="spec-container">
+<emu-note>This is a note. Since it is outside a clause it is unstyled.</emu-note>
+
+<emu-clause id="conformance">
+  <h1><span class="secnum">1</span> Definitions of Normative Optional etc</h1>
+  <p><dfn id="normative-optional">Normative Optional</dfn> is a defined term, as is <dfn id="legacy">Legacy</dfn>. For comparison, "Deprecated" is not.</p>
+</emu-clause>
+
+<emu-clause id="example-normative-optional" normative-optional=""><div class="attributes-tag"><emu-xref href="#normative-optional" id="_ref_0"><a href="#normative-optional">Normative Optional</a></emu-xref></div>
+  <h1><span class="secnum">2</span> Example Normative Optional Clause</h1>
+  <p>This clause is normative optional.</p>
+</emu-clause>
+
+<emu-clause id="example-normative-optional-legacy" normative-optional="" legacy=""><div class="attributes-tag"><emu-xref href="#normative-optional" id="_ref_1"><a href="#normative-optional">Normative Optional</a></emu-xref>, <emu-xref href="#legacy" id="_ref_2"><a href="#legacy">Legacy</a></emu-xref></div>
+  <h1><span class="secnum">3</span> Example Legacy Clause</h1>
+  <p>This clause is legacy.</p>
+</emu-clause>
+
+<emu-clause id="example-alg">
+  <h1><span class="secnum">4</span> Example algorithm with marked steps.</h1>
+  <emu-alg><ol><li>This step is required.</li><li normative-optional=""><div class="attributes-tag"><emu-xref href="#normative-optional" id="_ref_3"><a href="#normative-optional">Normative Optional</a></emu-xref></div>This step is optional.</li><li normative-optional="" legacy=""><div class="attributes-tag"><emu-xref href="#normative-optional" id="_ref_4"><a href="#normative-optional">Normative Optional</a></emu-xref>, <emu-xref href="#legacy" id="_ref_5"><a href="#legacy">Legacy</a></emu-xref></div>This step is legacy.</li><li legacy=""><div class="attributes-tag"><emu-xref href="#legacy" id="_ref_6"><a href="#legacy">Legacy</a></emu-xref></div>This step is only legacy, but has substeps.<ol><li>This is a substep.</li></ol></li><li deprecated=""><div class="attributes-tag">Deprecated</div>This step is optional.</li><li>This step is required.</li></ol></emu-alg></emu-clause>
+</div></body>

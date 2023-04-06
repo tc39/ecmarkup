@@ -410,7 +410,7 @@ describe('linting algorithms', () => {
   });
 
   describe('step attributes', () => {
-    const ruleId = 'unknown-step-attribute';
+    const ruleId = 'step-attribute';
     it('rejects unknown attributes', async () => {
       await assertLint(
         positioned`<emu-alg>
@@ -420,6 +420,19 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'unknown step attribute "unknown"',
+        }
+      );
+    });
+
+    it('rejects values on attributes which do not make use of them', async () => {
+      await assertLint(
+        positioned`<emu-alg>
+          1. [legacy="${M}foo"] Step.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'step attribute "legacy" should not have a value',
         }
       );
     });
