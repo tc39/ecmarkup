@@ -3,6 +3,7 @@ import type { Node as EcmarkdownNode, OrderedListItemNode, AlgorithmNode } from 
 import type { PartialBiblioEntry, StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
+import { SPECIAL_KINDS_MAP, SPECIAL_KINDS } from './Clause';
 import { warnEmdFailure, wrapEmdFailure } from './utils';
 import { collectNonterminalsFromEmd } from './lint/utils';
 import * as emd from 'ecmarkdown';
@@ -18,6 +19,8 @@ function findLabeledSteps(root: EcmarkdownNode) {
   });
   return steps;
 }
+
+const kindSelector = SPECIAL_KINDS.map(kind => `li[${kind}]`).join(',');
 
 export type AlgorithmElementWithTree = HTMLElement & {
   // null means a failed parse
@@ -173,6 +176,32 @@ export default class Algorithm extends Builder {
         // The biblio entries for labeled steps in replacement algorithms will be modified in-place by a subsequent pass
         labeledStepEntries.push(entry as StepBiblioEntry);
         context.spec.labeledStepsToBeRectified.add(step.id);
+      }
+    }
+
+    for (const step of node.querySelectorAll(kindSelector)) {
+      // prettier-ignore
+      const attributes = SPECIAL_KINDS
+        .filter(kind => step.hasAttribute(kind))
+        .map(kind => SPECIAL_KINDS_MAP.get(kind));
+      const tag = spec.doc.createElement('div');
+      tag.className = 'attributes-tag';
+      const text = attributes.join(', ');
+      const contents = spec.doc.createTextNode(text);
+      tag.append(contents);
+      step.prepend(tag);
+
+      // we've already walked past the text node, so it won't get picked up by the usual process for autolinking
+      const clause = clauseStack[clauseStack.length - 1];
+      if (clause != null) {
+        // the `== null` case only happens if you put an algorithm at the top level of your document
+        spec._textNodes[clause.namespace] = spec._textNodes[clause.namespace] || [];
+        spec._textNodes[clause.namespace].push({
+          node: contents,
+          clause,
+          inAlg: true,
+          currentId: context.currentId,
+        });
       }
     }
   }

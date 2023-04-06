@@ -1,0 +1,33 @@
+<pre class=metadata>
+toc: false
+copyright: false
+assets: none
+</pre>
+<emu-note>This is a note. Since it is outside a clause it is unstyled.</emu-note>
+
+<emu-clause id="conformance">
+  <h1>Definitions of Normative Optional etc</h1>
+  <p><dfn id="normative-optional">Normative Optional</dfn> is a defined term, as is <dfn id="legacy">Legacy</dfn>. For comparison, "Deprecated" is not.</p>
+</emu-clause>
+
+<emu-clause id="example-normative-optional" normative-optional>
+  <h1>Example Normative Optional Clause</h1>
+  <p>This clause is normative optional.</p>
+</emu-clause>
+
+<emu-clause id="example-normative-optional-legacy" normative-optional legacy>
+  <h1>Example Legacy Clause</h1>
+  <p>This clause is legacy.</p>
+</emu-clause>
+
+<emu-clause id="example-alg">
+  <h1>Example algorithm with marked steps.</h1>
+  <emu-alg>
+    1. This step is required.
+    1. [normative-optional=""] This step is optional.
+    1. [normative-optional="", legacy=""] This step is legacy.
+    1. [legacy=""] This step is only legacy, but has substeps.
+      1. This is a substep.
+    1. [deprecated=""] This step is optional.
+    1. This step is required.
+</emu-clause>

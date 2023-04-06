@@ -24,6 +24,13 @@ const aoidTypes = [
   'numeric method',
 ];
 
+export const SPECIAL_KINDS_MAP = new Map([
+  ['normative-optional', 'Normative Optional'],
+  ['legacy', 'Legacy'],
+  ['deprecated', 'Deprecated'],
+]);
+export const SPECIAL_KINDS = [...SPECIAL_KINDS_MAP.keys()];
+
 export function extractStructuredHeader(header: Element): Element | null {
   const dl = header.nextElementSibling;
   if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
@@ -302,16 +309,13 @@ export default class Clause extends Builder {
     clause.buildExamples();
     clause.buildNotes();
 
-    const attributes = [];
-    if (node.hasAttribute('normative-optional')) {
-      attributes.push('Normative Optional');
-    }
-    if (node.hasAttribute('legacy')) {
-      attributes.push('Legacy');
-    }
+    // prettier-ignore
+    const attributes = SPECIAL_KINDS
+      .filter(kind => node.hasAttribute(kind))
+      .map(kind => SPECIAL_KINDS_MAP.get(kind));
     if (attributes.length > 0) {
       const tag = spec.doc.createElement('div');
-      tag.className = 'clause-attributes-tag';
+      tag.className = 'attributes-tag';
       const text = attributes.join(', ');
       const contents = spec.doc.createTextNode(text);
       tag.append(contents);
