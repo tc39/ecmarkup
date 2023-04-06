@@ -473,7 +473,7 @@ describe('algorithm formatting', () => {
       1.  Step.
       1. Another   step.
             1. A substep.
-            1. [ x =  "a",y="b"  ] A step with attributes.
+            1. [ x =  "a",y="b" ,c="",d ] A step with attributes.
             1. A step with _vars_, numbers like **10<sup>x</sup>**, records like {  [[A]]: 0  }, and fields like _o_.[[field]].
       </emu-alg>
       `,
@@ -482,7 +482,7 @@ describe('algorithm formatting', () => {
         1. Step.
         1. Another step.
           1. A substep.
-          1. [x="a", y="b"] A step with attributes.
+          1. [x="a", y="b", c, d] A step with attributes.
           1. A step with _vars_, numbers like **10<sup>x</sup>**, records like { [[A]]: 0 }, and fields like _o_.[[field]].
       </emu-alg>
       `
