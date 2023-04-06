@@ -43,7 +43,9 @@ async function printStep(
   output.firstLineIsPartial = false;
   output.appendText(item.name === 'ordered-list-item' ? '1. ' : '* ');
   if (item.attrs.length > 0) {
-    const joined = item.attrs.map(({ key, value }) => `${key}=${JSON.stringify(value)}`).join(', ');
+    const joined = item.attrs
+      .map(({ key, value }) => (value === '' ? key : `${key}=${JSON.stringify(value)}`))
+      .join(', ');
     output.appendText(`[${joined}] `);
   }
   const contents = await printFragments(source, item.contents, indent + 1);
