@@ -70,11 +70,8 @@ export function collectAlgorithmDiagnostics(
     }
     const parsedSteps: Map<OrderedListItemNode, Seq> = new Map();
     let allNodesParsedSuccessfully = true;
-    function walk(visit: LineRule, step: OrderedListItemNode) {
-      // we don't know the names of ops at this point
-      // TODO maybe run later in the process? but not worth worrying about for now
+    function parseStep(step: OrderedListItemNode) {
       const parsed = parse(step.contents, new Set());
-      visit(reporter, parsed.name === 'seq' ? parsed : null, step, algorithmSource); // TODO reconsider algorithmSource
       if (parsed.name === 'failure') {
         allNodesParsedSuccessfully = false;
       } else {
@@ -82,14 +79,30 @@ export function collectAlgorithmDiagnostics(
       }
       if (step.sublist?.name === 'ol') {
         for (const substep of step.sublist.contents) {
-          walk(visit, substep);
+          parseStep(substep);
+        }
+      }
+    }
+
+    function applyRule(visit: LineRule, step: OrderedListItemNode) {
+      // we don't know the names of ops at this point
+      // TODO maybe run later in the process? but not worth worrying about for now
+      const parsed = parsedSteps.get(step) ?? null;
+      visit(reporter, parsed, step, algorithmSource); // TODO reconsider algorithmSource
+      if (step.sublist?.name === 'ol') {
+        for (const substep of step.sublist.contents) {
+          applyRule(visit, substep);
         }
       }
     }
     if (tree != null && !element.hasAttribute('example')) {
+      for (const step of tree.contents.contents) {
+        parseStep(step);
+      }
+
       for (const rule of stepRules) {
         for (const step of tree.contents.contents) {
-          walk(rule, step);
+          applyRule(rule, step);
         }
       }
       if (allNodesParsedSuccessfully) {
