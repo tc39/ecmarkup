@@ -28,10 +28,11 @@ Checks that every algorithm step has one of these forms:
 */
 export default function (
   report: Reporter,
-  stepSeq: Seq | null,
   node: OrderedListItemNode,
-  algorithmSource: string
+  algorithmSource: string,
+  parsedSteps: Map<OrderedListItemNode, Seq>
 ) {
+  const stepSeq = parsedSteps.get(node);
   if (stepSeq == null || stepSeq.items.length === 0) {
     return;
   }

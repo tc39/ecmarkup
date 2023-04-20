@@ -16,9 +16,9 @@ import { parse, Seq } from '../expr-parser';
 
 type LineRule = (
   report: Reporter,
-  stepSeq: Seq | null,
   step: OrderedListItemNode,
-  algorithmSource: string
+  algorithmSource: string,
+  parsedSteps: Map<OrderedListItemNode, Seq>
 ) => void;
 const stepRules: LineRule[] = [
   lintAlgorithmLineStyle,
@@ -87,8 +87,7 @@ export function collectAlgorithmDiagnostics(
     function applyRule(visit: LineRule, step: OrderedListItemNode) {
       // we don't know the names of ops at this point
       // TODO maybe run later in the process? but not worth worrying about for now
-      const parsed = parsedSteps.get(step) ?? null;
-      visit(reporter, parsed, step, algorithmSource); // TODO reconsider algorithmSource
+      visit(reporter, step, algorithmSource, parsedSteps);
       if (step.sublist?.name === 'ol') {
         for (const substep of step.sublist.contents) {
           applyRule(visit, substep);
