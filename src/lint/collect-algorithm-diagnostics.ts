@@ -1,4 +1,4 @@
-import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
+import type { Node as EcmarkdownNode, OrderedListItemNode, OrderedListNode } from 'ecmarkdown';
 
 import type { LintingError, Reporter } from './algorithm-error-reporter-type';
 import type { default as Spec, Warning } from '../Spec';
@@ -11,6 +11,7 @@ import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
 import lintForEachElement from './rules/for-each-element';
 import lintStepAttributes from './rules/step-attributes';
+import lintIfElseConsistency from './rules/if-else-consistency';
 import { checkVariableUsage } from './rules/variable-use-def';
 import { parse, Seq } from '../expr-parser';
 
@@ -18,7 +19,8 @@ type LineRule = (
   report: Reporter,
   step: OrderedListItemNode,
   algorithmSource: string,
-  parsedSteps: Map<OrderedListItemNode, Seq>
+  parsedSteps: Map<OrderedListItemNode, Seq>,
+  parent: OrderedListNode
 ) => void;
 const stepRules: LineRule[] = [
   lintAlgorithmLineStyle,
@@ -26,6 +28,7 @@ const stepRules: LineRule[] = [
   lintAlgorithmStepLabels,
   lintForEachElement,
   lintStepAttributes,
+  lintIfElseConsistency,
 ];
 
 export function collectAlgorithmDiagnostics(
@@ -84,13 +87,13 @@ export function collectAlgorithmDiagnostics(
       }
     }
 
-    function applyRule(visit: LineRule, step: OrderedListItemNode) {
+    function applyRule(visit: LineRule, step: OrderedListItemNode, parent: OrderedListNode) {
       // we don't know the names of ops at this point
       // TODO maybe run later in the process? but not worth worrying about for now
-      visit(reporter, step, algorithmSource, parsedSteps);
+      visit(reporter, step, algorithmSource, parsedSteps, parent);
       if (step.sublist?.name === 'ol') {
         for (const substep of step.sublist.contents) {
-          applyRule(visit, substep);
+          applyRule(visit, substep, step.sublist);
         }
       }
     }
@@ -101,7 +104,7 @@ export function collectAlgorithmDiagnostics(
 
       for (const rule of stepRules) {
         for (const step of tree.contents.contents) {
-          applyRule(rule, step);
+          applyRule(rule, step, tree.contents);
         }
       }
       if (allNodesParsedSuccessfully) {

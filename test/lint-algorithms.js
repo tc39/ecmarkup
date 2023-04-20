@@ -467,4 +467,132 @@ describe('linting algorithms', () => {
       `);
     });
   });
+
+  describe('if/else consistency', () => {
+    const ruleId = 'if-else-consistency';
+    it('rejects single-line if with multiline else', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. ${M}If some condition holds, do something.
+          1. Else,
+            1. Do something else.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: '"If" steps should be multiline whenever their corresponding "Else" is',
+        }
+      );
+    });
+
+    it('rejects single-line if with multiline else-if', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. ${M}If some condition holds, do something.
+          1. Else if another condition holds, then
+            1. Do something else.
+          1. Else,
+            1. Do something yet otherwise.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: '"If" steps should be multiline whenever their corresponding "Else" is',
+        }
+      );
+    });
+
+    it('rejects single-line else-if with multiline else', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. If some condition holds, do something.
+          1. ${M}Else if another condition holds, do something else.
+          1. Else,
+            1. Do something yet otherwise.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: '"If" steps should be multiline whenever their corresponding "Else" is',
+        }
+      );
+    });
+
+    it('rejects multi-line if with single-line else', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. If some condition holds, then
+            1. Do something.
+          1. ${M}Else do something else.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: '"Else" steps should be multiline whenever their corresponding "If" is',
+        }
+      );
+    });
+
+    it('rejects multi-line if with single-line else-f', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. If some condition holds, then
+            1. Do something.
+          1. ${M}Else if another condition holds do something else.
+          1. Else, do something yet otherwise.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: '"Else" steps should be multiline whenever their corresponding "If" is',
+        }
+      );
+    });
+
+    it('rejects multi-line else-if with single-line else', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. If some condition holds, then
+            1. Do something.
+          1. Else if another condition holds, then
+            1. Do something else.
+          1. ${M}Else, do something yet otherwise.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: '"Else" steps should be multiline whenever their corresponding "If" is',
+        }
+      );
+    });
+
+    it('negative', async () => {
+      await assertLintFree(`
+        <emu-alg>
+          1. If some condition holds, do something simple.
+          1. Else, do something yet otherwise simple.
+          1. If some condition holds, do something simple.
+          1. Else if another condition holds, do something else simple.
+          1. Else, do something yet otherwise simple.
+          1. NOTE: Also works for multiline.
+          1. If some condition holds, then
+            1. Do something simple.
+          1. Else,
+            1. Do something yet otherwise simple.
+          1. If some condition holds, then
+            1. Do something simple.
+          1. Else if another condition holds, then
+            1. Do something else simple.
+          1. Else,
+            1. Do something yet otherwise simple.
+        </emu-alg>
+      `);
+    });
+  });
 });
