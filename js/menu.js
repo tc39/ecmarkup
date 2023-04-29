@@ -366,21 +366,41 @@ Menu.prototype.revealInToc = function (path) {
   }
 };
 
+
 function findActiveClause(root, path) {
   let clauses = getChildClauses(root);
   path = path || [];
 
-  for (let $clause of clauses) {
-    let rect = $clause.getBoundingClientRect();
-    let $header = $clause.querySelector('h1');
-    let marginTop = Math.max(
-      parseInt(getComputedStyle($clause)['margin-top']),
-      parseInt(getComputedStyle($header)['margin-top'])
-    );
+  let fullyVisibleClauses = [];
+  let crossesMidpointClauses = [];
 
-    if (rect.top - marginTop <= 1 && rect.bottom > 0) {
-      return findActiveClause($clause, path.concat($clause)) || path;
+  for (let $clause of clauses) {
+    let { top: clauseTop, bottom: clauseBottom } = $clause.getBoundingClientRect();
+    let isPartiallyVisible =
+      clauseTop > 0 && clauseTop < window.innerHeight
+      || clauseBottom > 0 && clauseBottom < window.innerHeight
+      || clauseTop < 0 && clauseBottom > window.innerHeight;
+
+    if (isPartiallyVisible) {
+      let midpoint = Math.floor(window.innerHeight / 2);
+      let isFullyVisibleAboveTheFold = clauseTop > 0 && clauseTop < midpoint && clauseBottom < window.innerHeight;
+      if (isFullyVisibleAboveTheFold) {
+        fullyVisibleClauses.push($clause);
+      } else {
+        let $header = $clause.querySelector('h1');
+        let clauseStyles = getComputedStyle($clause);
+        let marginTop = Math.max(0, parseInt(clauseStyles['margin-top']), parseInt(getComputedStyle($header)['margin-top']));
+        let marginBottom = Math.max(0, parseInt(clauseStyles['margin-top']));
+        let crossesMidpoint = clauseTop - marginTop <= midpoint && clauseBottom + marginBottom >= midpoint;
+        if (crossesMidpoint) {
+          crossesMidpointClauses.push($clause);
+        }
+      }
     }
+  }
+
+  for (let $clause of [].concat(fullyVisibleClauses, crossesMidpointClauses)) {
+    return findActiveClause($clause, path.concat($clause));
   }
 
   return path;
