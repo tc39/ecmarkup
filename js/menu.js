@@ -366,44 +366,63 @@ Menu.prototype.revealInToc = function (path) {
   }
 };
 
-
 function findActiveClause(root, path) {
-  let clauses = getChildClauses(root);
   path = path || [];
 
-  let fullyVisibleClauses = [];
-  let crossesMidpointClauses = [];
+  let visibleClauses = getVisibleClauses(root, path);
+  let midpoint = Math.floor(window.innerHeight / 2);
 
-  for (let $clause of clauses) {
+  for (let [$clause, path] of visibleClauses) {
     let { top: clauseTop, bottom: clauseBottom } = $clause.getBoundingClientRect();
-    let isPartiallyVisible =
-      clauseTop > 0 && clauseTop < window.innerHeight
-      || clauseBottom > 0 && clauseBottom < window.innerHeight
-      || clauseTop < 0 && clauseBottom > window.innerHeight;
-
-    if (isPartiallyVisible) {
-      let midpoint = Math.floor(window.innerHeight / 2);
-      let isFullyVisibleAboveTheFold = clauseTop > 0 && clauseTop < midpoint && clauseBottom < window.innerHeight;
-      if (isFullyVisibleAboveTheFold) {
-        fullyVisibleClauses.push($clause);
-      } else {
-        let $header = $clause.querySelector('h1');
-        let clauseStyles = getComputedStyle($clause);
-        let marginTop = Math.max(0, parseInt(clauseStyles['margin-top']), parseInt(getComputedStyle($header)['margin-top']));
-        let marginBottom = Math.max(0, parseInt(clauseStyles['margin-top']));
-        let crossesMidpoint = clauseTop - marginTop <= midpoint && clauseBottom + marginBottom >= midpoint;
-        if (crossesMidpoint) {
-          crossesMidpointClauses.push($clause);
-        }
-      }
+    let isFullyVisibleAboveTheFold =
+      clauseTop > 0 && clauseTop < midpoint && clauseBottom < window.innerHeight;
+    if (isFullyVisibleAboveTheFold) {
+      return path;
     }
   }
 
-  for (let $clause of [].concat(fullyVisibleClauses, crossesMidpointClauses)) {
-    return findActiveClause($clause, path.concat($clause));
+  visibleClauses.sort(([, pathA], [, pathB]) => pathB.length - pathA.length);
+  for (let [$clause, path] of visibleClauses) {
+    let { top: clauseTop, bottom: clauseBottom } = $clause.getBoundingClientRect();
+    let $header = $clause.querySelector('h1');
+    let clauseStyles = getComputedStyle($clause);
+    let marginTop = Math.max(
+      0,
+      parseInt(clauseStyles['margin-top']),
+      parseInt(getComputedStyle($header)['margin-top'])
+    );
+    let marginBottom = Math.max(0, parseInt(clauseStyles['margin-bottom']));
+    let crossesMidpoint =
+      clauseTop - marginTop <= midpoint && clauseBottom + marginBottom >= midpoint;
+    if (crossesMidpoint) {
+      return path;
+    }
   }
 
   return path;
+}
+
+function getVisibleClauses(root, path) {
+  let childClauses = getChildClauses(root);
+  path = path || [];
+
+  let result = [];
+
+  for (let $clause of childClauses) {
+    let { top: clauseTop, bottom: clauseBottom } = $clause.getBoundingClientRect();
+    let isPartiallyVisible =
+      (clauseTop > 0 && clauseTop < window.innerHeight) ||
+      (clauseBottom > 0 && clauseBottom < window.innerHeight) ||
+      (clauseTop < 0 && clauseBottom > window.innerHeight);
+
+    if (isPartiallyVisible) {
+      let innerPath = path.concat($clause);
+      result.push([$clause, innerPath]);
+      result.push(...getVisibleClauses($clause, innerPath));
+    }
+  }
+
+  return result;
 }
 
 function* getChildClauses(root) {
