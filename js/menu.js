@@ -408,6 +408,7 @@ function getVisibleClauses(root, path) {
 
   let result = [];
 
+  let seenVisibleClause = false;
   for (let $clause of childClauses) {
     let { top: clauseTop, bottom: clauseBottom } = $clause.getBoundingClientRect();
     let isPartiallyVisible =
@@ -416,9 +417,12 @@ function getVisibleClauses(root, path) {
       (clauseTop < 0 && clauseBottom > window.innerHeight);
 
     if (isPartiallyVisible) {
+      seenVisibleClause = true;
       let innerPath = path.concat($clause);
       result.push([$clause, innerPath]);
       result.push(...getVisibleClauses($clause, innerPath));
+    } else if (seenVisibleClause) {
+      break;
     }
   }
 
