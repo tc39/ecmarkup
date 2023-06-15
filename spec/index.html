@@ -423,6 +423,7 @@ markEffects: true
   <emu-clause id="variable-declarations">
     <h1>Variable Declarations</h1>
     <p>The linter checks that each used variable in an algorithm step is declared earlier. It recognizes most common forms of declaration automatically, but in case there is a declaration which is not automatically inferred, a variable can be marked as declared for the purposes of this analysis by adding a `[declared="v"]` attribute at the start of the step. Multiple variables can be separated by commas with optional whitespace.</p>
+    <p>Note that the `[declared="v"]` attribute must be at the beginning of the step, including before any `&lt;ins>` tags.</p>
 
     <h2>Example</h2>
     <pre><code class="language-html">
