@@ -108,17 +108,21 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
             message:
               'multi-step explicit clause numbers should not be mixed with single-step clause numbers in the same parent clause',
           });
-        } else if (
-          nums.some((n, i) => n < ids[level][i]) ||
-          nums.every((n, i) => n === ids[level][i])
-        ) {
-          spec.warn({
-            type: 'attr-value',
-            node,
-            attr: 'number',
-            ruleId: 'invalid-clause-number',
-            message: 'clause numbers should be strictly increasing',
-          });
+        } else {
+          // Make sure that `nums` is strictly greater than `ids[level]` (i.e.,
+          // that their items are not identical and that the item in `nums` is
+          // strictly greater than the value in `ids[level]` at the first
+          // index where they differ).
+          const i = nums.findIndex((num, i) => num !== ids[level][i]);
+          if (i < 0 || !(nums[i] > ids[level][i])) {
+            spec.warn({
+              type: 'attr-value',
+              node,
+              attr: 'number',
+              ruleId: 'invalid-clause-number',
+              message: 'clause numbers should be strictly increasing',
+            });
+          }
         }
       }
       return nums;
