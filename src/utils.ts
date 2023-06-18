@@ -117,6 +117,33 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
   return newXrefNodes;
 }
 
+type NodeRelationship =
+  | 'parentNode'
+  | 'parentElement'
+  | 'previousSibling'
+  | 'previousElementSibling'
+  | 'nextSibling'
+  | 'nextElementSibling'
+  | 'firstChild'
+  | 'firstElementChild'
+  | 'lastChild'
+  | 'lastElementChild';
+
+/*@internal*/
+export function traverseWhile(
+  node: Node | null,
+  relationship: NodeRelationship,
+  cb: (node: Node) => boolean,
+  options?: { once?: boolean }
+): Node | null {
+  const once = options?.once ?? false;
+  while (node != null && cb(node)) {
+    node = (node as Element)[relationship];
+    if (once) break;
+  }
+  return node;
+}
+
 /*@internal*/
 export function logVerbose(str: string) {
   const dateString = new Date().toISOString();
@@ -132,19 +159,11 @@ export function logWarning(str: string) {
 const CLAUSE_LIKE = ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'];
 /*@internal*/
 export function shouldInline(node: Node) {
-  let parent = node.parentNode;
+  const surrogateParentTags = ['EMU-GRAMMAR', 'EMU-IMPORT', 'INS', 'DEL'];
+  const parent = traverseWhile(node.parentNode, 'parentNode', node =>
+    surrogateParentTags.includes(node?.nodeName ?? '')
+  );
   if (!parent) return false;
-
-  while (
-    parent &&
-    parent.parentNode &&
-    (parent.nodeName === 'EMU-GRAMMAR' ||
-      parent.nodeName === 'EMU-IMPORT' ||
-      parent.nodeName === 'INS' ||
-      parent.nodeName === 'DEL')
-  ) {
-    parent = parent.parentNode;
-  }
 
   const clauseLikeParent =
     CLAUSE_LIKE.includes(parent.nodeName) ||

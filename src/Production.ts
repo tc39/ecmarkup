@@ -52,18 +52,14 @@ export default class Production extends Builder {
     if (node.hasAttribute('primary')) {
       primary = true;
     } else {
-      let parent = node.parentElement;
-      if (parent != null) {
+      const parent = utils.traverseWhile(
+        node.parentElement,
+        'parentElement',
         // highlighted nodes still count as primary unless they are being deleted (i.e. in a <del> tag)
-        while (parent.tagName === 'INS' || parent.tagName === 'MARK') {
-          parent = parent.parentElement;
-          if (parent == null) {
-            break;
-          }
-        }
-        if (parent != null && parent.tagName === 'EMU-GRAMMAR') {
-          primary = parent.hasAttribute('primary') || parent.getAttribute('type') === 'definition';
-        }
+        el => el.nodeName === 'INS' || el.nodeName === 'MARK'
+      ) as Element;
+      if (parent != null && parent.tagName === 'EMU-GRAMMAR') {
+        primary = parent.hasAttribute('primary') || parent.getAttribute('type') === 'definition';
       }
     }
     this.primary = primary;

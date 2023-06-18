@@ -13,7 +13,7 @@ import {
   parseH1,
   ParsedHeader,
 } from './header-parser';
-import { offsetToLineAndColumn } from './utils';
+import { offsetToLineAndColumn, traverseWhile } from './utils';
 
 const aoidTypes = [
   'abstract operation',
@@ -95,11 +95,12 @@ export default class Clause extends Builder {
     }
 
     this.signature = null;
-    let header = this.node.firstElementChild;
-    while (header != null && header.tagName === 'SPAN' && header.children.length === 0) {
+    const header = traverseWhile(
+      this.node.firstElementChild,
+      'nextElementSibling',
       // skip oldids
-      header = header.nextElementSibling;
-    }
+      el => el.nodeName === 'SPAN' && (el as Element).children.length === 0
+    ) as Element;
     if (header == null) {
       this.spec.warn({
         type: 'node',
