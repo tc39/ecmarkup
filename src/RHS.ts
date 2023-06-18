@@ -36,17 +36,13 @@ export default class RHS extends Builder {
 
   terminalify(parentNode: Element) {
     // we store effects to perform later so the iteration doesn't get messed up
+    const surrogateTags = ['INS', 'DEL', 'MARK'];
     const pairs: { parent: Element; child: Text }[] = [];
-    for (let i = 0; i < parentNode.childNodes.length; i++) {
-      const node = parentNode.childNodes[i];
+    for (const node of parentNode.childNodes) {
       if (node.nodeType === 3) {
         pairs.push({ parent: parentNode, child: node as Text });
-      } else if (
-        node.nodeType === 1 &&
-        (node.nodeName === 'INS' || node.nodeName === 'DEL' || node.nodeName === 'MARK')
-      ) {
-        for (let i = 0; i < node.childNodes.length; i++) {
-          const child = node.childNodes[i];
+      } else if (surrogateTags.includes(node.nodeName)) {
+        for (const child of node.childNodes) {
           if (child.nodeType === 3) {
             pairs.push({ parent: node as Element, child: child as Text });
           }
