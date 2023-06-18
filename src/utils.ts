@@ -118,6 +118,21 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
 }
 
 /*@internal*/
+export function traverseWhile<P extends string, T extends Record<P, T | null>>(
+  node: T | null,
+  relationship: P,
+  predicate: (node: T) => boolean,
+  options?: { once?: boolean }
+): T | null {
+  const once = options?.once ?? false;
+  while (node != null && predicate(node)) {
+    node = node[relationship];
+    if (once) break;
+  }
+  return node;
+}
+
+/*@internal*/
 export function logVerbose(str: string) {
   const dateString = new Date().toISOString();
   console.error(chalk.gray('[' + dateString + '] ') + str);
@@ -132,19 +147,11 @@ export function logWarning(str: string) {
 const CLAUSE_LIKE = ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'];
 /*@internal*/
 export function shouldInline(node: Node) {
-  let parent = node.parentNode;
+  const surrogateParentTags = ['EMU-GRAMMAR', 'EMU-IMPORT', 'INS', 'DEL'];
+  const parent = traverseWhile(node.parentNode, 'parentNode', node =>
+    surrogateParentTags.includes(node?.nodeName ?? '')
+  );
   if (!parent) return false;
-
-  while (
-    parent &&
-    parent.parentNode &&
-    (parent.nodeName === 'EMU-GRAMMAR' ||
-      parent.nodeName === 'EMU-IMPORT' ||
-      parent.nodeName === 'INS' ||
-      parent.nodeName === 'DEL')
-  ) {
-    parent = parent.parentNode;
-  }
 
   const clauseLikeParent =
     CLAUSE_LIKE.includes(parent.nodeName) ||

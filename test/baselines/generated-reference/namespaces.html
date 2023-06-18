@@ -44,6 +44,8 @@
 </emu-production>
 </emu-grammar>
 
+    <!-- FIXME: Shouldn't this be allowed by the preceding `namespace=clause`? -->
+    <!-- EXPECT_WARNING { "ruleId": "duplicate-definition", "message": "duplicate definition \"SomeAlg\"" } -->
     <emu-clause id="c111" aoid="SomeAlg">
       <h1><span class="secnum">1.1.1</span> SomeAlg</h1>
     </emu-clause>
@@ -63,10 +65,14 @@
     </emu-rhs>
 </emu-production>
 </emu-grammar>
+  <!-- FIXME: Shouldn't this be allowed by the preceding `namespace=annex`? -->
+  <!-- EXPECT_WARNING { "ruleId": "duplicate-definition", "message": "duplicate definition \"SomeAlg\"" } -->
   <emu-annex id="annex11" aoid="SomeAlg">
     <h1><span class="secnum">A.1</span> SomeAlg</h1>
   </emu-annex>
 
+  <!-- FIXME: Shouldn't this be allowed by `namespace=annex2`? -->
+  <!-- EXPECT_WARNING { "ruleId": "duplicate-definition", "message": "duplicate definition \"SomeAlg\"" } -->
   <emu-annex id="annex12" aoid="SomeAlg" namespace="annex2">
     <h1><span class="secnum">A.2</span> Annex 1.2</h1>
     <p><emu-xref aoid="SomeAlg" id="_ref_3"><a href="#i1">SomeAlg</a></emu-xref> should link to #annex12. <emu-nt id="_ref_12"><a href="#prod-annex-Foo">Foo</a></emu-nt> should link to the production in #annex1.</p>
@@ -78,6 +84,7 @@
 
 <emu-annex id="annex2" namespace="annex">
   <h1><span class="secnum">B</span> Annex 2</h1>
+  <!-- EXPECT_WARNING { "ruleId": "duplicate-definition", "message": "duplicate definition \"SomeAlg\"" } -->
   <emu-annex id="annex21" aoid="SomeAlg">
     <h1><span class="secnum">B.1</span> SomeAlg</h1>
   </emu-annex>

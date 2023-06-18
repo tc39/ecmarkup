@@ -35,7 +35,8 @@ describe('baselines', () => {
   let optionsSets = [{ lintSpec: false }];
   for (let file of files) {
     const reference = REFERENCE_DIR + file;
-    it(SOURCES_DIR + file, async () => {
+    const sourcePath = SOURCES_DIR + file;
+    it(sourcePath, async () => {
       let expectedFiles = new Map();
 
       (function walk(f) {
@@ -51,7 +52,7 @@ describe('baselines', () => {
         }
       })(reference);
 
-      let spec = await build(SOURCES_DIR + file, {});
+      let spec = await build(sourcePath, {});
 
       let actualFiles = handleSingleFileOutput(spec.generatedFiles);
 
@@ -81,13 +82,38 @@ describe('baselines', () => {
       if (rebaseline) {
         return;
       }
+
+      let contents = fs.readFileSync(sourcePath, 'utf8');
+      let expectedWarnings = [...contents.matchAll(/<!--\s+EXPECT_WARNING(.*?)-->/g)].map(m =>
+        JSON.parse(m[1])
+      );
+      let warningProps = new Set(expectedWarnings.flatMap(obj => Object.keys(obj)));
+      function pickFromWarning(warning) {
+        if (warningProps.size === 0) {
+          // No warnings are expected, so "pick" the entire object.
+          return warning;
+        }
+        let picks = {};
+        for (let [key, value] of Object.entries(warning)) {
+          if (warningProps.has(key)) picks[key] = value;
+        }
+        return picks;
+      }
+
       for (let options of optionsSets) {
-        let spec = await build(SOURCES_DIR + file, options);
+        let warnings = [];
+        let warn = warning => warnings.push(warning);
+        let spec = await build(sourcePath, { ...options, warn });
         let actualFiles = handleSingleFileOutput(spec.generatedFiles);
         assert.deepStrictEqual(
           actualFiles,
           expectedFiles,
           `output differed when using option ${JSON.stringify(options)}`
+        );
+        assert.deepStrictEqual(
+          warnings.map(warning => pickFromWarning(warning)),
+          expectedWarnings,
+          `warnings differed when using option ${JSON.stringify(options)}`
         );
       }
     });

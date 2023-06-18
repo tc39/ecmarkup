@@ -13,7 +13,7 @@ import {
   parseH1,
   ParsedHeader,
 } from './header-parser';
-import { offsetToLineAndColumn } from './utils';
+import { offsetToLineAndColumn, traverseWhile } from './utils';
 
 const aoidTypes = [
   'abstract operation',
@@ -32,7 +32,11 @@ export const SPECIAL_KINDS_MAP = new Map([
 export const SPECIAL_KINDS = [...SPECIAL_KINDS_MAP.keys()];
 
 export function extractStructuredHeader(header: Element): Element | null {
-  const dl = header.nextElementSibling;
+  const dl = traverseWhile(
+    header.nextElementSibling,
+    'nextElementSibling',
+    el => el.nodeName === 'DEL'
+  );
   if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
     return null;
   }
@@ -95,39 +99,43 @@ export default class Clause extends Builder {
     }
 
     this.signature = null;
-    let header = this.node.firstElementChild;
-    while (header != null && header.tagName === 'SPAN' && header.children.length === 0) {
-      // skip oldids
-      header = header.nextElementSibling;
-    }
-    if (header == null) {
+    const header = traverseWhile(
+      this.node.firstElementChild,
+      'nextElementSibling',
+      // skip <del> and oldids
+      el => el.nodeName === 'DEL' || (el.nodeName === 'SPAN' && el.children.length === 0)
+    );
+    let headerH1 = traverseWhile(header, 'firstElementChild', el => el.nodeName === 'INS', {
+      once: true,
+    });
+    if (headerH1 == null) {
       this.spec.warn({
         type: 'node',
         ruleId: 'missing-header',
         message: `could not locate header element`,
         node: this.node,
       });
-      header = null;
-    } else if (header.tagName !== 'H1') {
+      headerH1 = null;
+    } else if (headerH1.tagName !== 'H1') {
       this.spec.warn({
         type: 'node',
         ruleId: 'missing-header',
-        message: `could not locate header element; found <${header.tagName.toLowerCase()}> before any <h1>`,
-        node: header,
+        message: `could not locate header element; found <${header!.tagName.toLowerCase()}> before any <h1>`,
+        node: header!,
       });
-      header = null;
+      headerH1 = null;
     } else {
-      this.buildStructuredHeader(header);
+      this.buildStructuredHeader(headerH1, header!);
     }
-    this.header = header;
-    if (header == null) {
+    this.header = headerH1;
+    if (headerH1 == null) {
       this.title = 'UNKNOWN';
       this.titleHTML = 'UNKNOWN';
     }
   }
 
-  buildStructuredHeader(header: Element) {
-    const dl = extractStructuredHeader(header);
+  buildStructuredHeader(header: Element, headerSurrogate: Element = header) {
+    const dl = extractStructuredHeader(headerSurrogate);
     if (dl === null) {
       return;
     }
