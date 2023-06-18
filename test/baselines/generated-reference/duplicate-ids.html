@@ -8,6 +8,7 @@
 </ul></div><div id="spec-container">
 <emu-clause id="sec-a">
   <h1><span class="secnum">1</span> A</h1>
+  <!-- EXPECT_WARNING { "ruleId": "duplicate-id", "message": "<emu-clause> has duplicate id \"sec-a\"" } -->
   <emu-clause id="sec-a">
     <h1><span class="secnum">1.1</span> Sub A</h1>
 
@@ -16,6 +17,7 @@
     </figure></emu-example>
   </emu-clause>
 </emu-clause>
+<!-- EXPECT_WARNING { "ruleId": "duplicate-id", "message": "<emu-clause> has duplicate id \"sec-a\"" } -->
 <emu-clause id="sec-a">
   <h1><span class="secnum">2</span> Section A: Extras</h1>
   <emu-table id="table-of-stuff" caption="A Table Of Stuff" informative=""><figure><figcaption>Table 1 (Informative): A Table Of Stuff</figcaption>
@@ -25,14 +27,17 @@
     </tbody></table>
   </figure></emu-table>
 </emu-clause>
+<!-- EXPECT_WARNING { "ruleId": "duplicate-id", "message": "<emu-clause> has duplicate id \"sec-a\"" } -->
 <emu-clause id="sec-a">
   <h1><span class="secnum">3</span> Section A: Extras</h1>
+  <!-- EXPECT_WARNING { "ruleId": "duplicate-id", "message": "<emu-table> has duplicate id \"table-of-stuff\"" } -->
   <emu-table id="table-of-stuff" caption="A Table Of Stuff" informative=""><figure><figcaption>Table 2 (Informative): A Table Of Stuff</figcaption>
     <table>
       <tbody><tr><th>Column 1</th><th>Column 2</th></tr>
       <tr><td>Value</td><td>Value 2</td></tr>
     </tbody></table>
   </figure></emu-table>
+  <!-- EXPECT_WARNING { "ruleId": "duplicate-id", "message": "<emu-example> has duplicate id \"an-example\"" } -->
   <emu-example id="an-example" caption="An example"><figure><figcaption>Example (Informative): An example</figcaption>
     Multiple examples are numbered similar to notes
   </figure></emu-example>
