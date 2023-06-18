@@ -36,7 +36,7 @@ export function extractStructuredHeader(header: Element): Element | null {
     header.nextElementSibling,
     'nextElementSibling',
     el => el.nodeName === 'DEL'
-  ) as Element;
+  );
   if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
     return null;
   }
@@ -103,12 +103,11 @@ export default class Clause extends Builder {
       this.node.firstElementChild,
       'nextElementSibling',
       // skip <del> and oldids
-      el =>
-        el.nodeName === 'DEL' || (el.nodeName === 'SPAN' && (el as Element).children.length === 0)
-    ) as Element;
+      el => el.nodeName === 'DEL' || (el.nodeName === 'SPAN' && el.children.length === 0)
+    );
     let headerH1 = traverseWhile(header, 'firstElementChild', el => el.nodeName === 'INS', {
       once: true,
-    }) as Element | null;
+    });
     if (headerH1 == null) {
       this.spec.warn({
         type: 'node',
@@ -121,12 +120,12 @@ export default class Clause extends Builder {
       this.spec.warn({
         type: 'node',
         ruleId: 'missing-header',
-        message: `could not locate header element; found <${header.tagName.toLowerCase()}> before any <h1>`,
-        node: header,
+        message: `could not locate header element; found <${header!.tagName.toLowerCase()}> before any <h1>`,
+        node: header!,
       });
       headerH1 = null;
     } else {
-      this.buildStructuredHeader(headerH1, header);
+      this.buildStructuredHeader(headerH1, header!);
     }
     this.header = headerH1;
     if (headerH1 == null) {

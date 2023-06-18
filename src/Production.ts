@@ -57,7 +57,7 @@ export default class Production extends Builder {
         'parentElement',
         // highlighted nodes still count as primary unless they are being deleted (i.e. in a <del> tag)
         el => el.nodeName === 'INS' || el.nodeName === 'MARK'
-      ) as Element;
+      );
       if (parent != null && parent.tagName === 'EMU-GRAMMAR') {
         primary = parent.hasAttribute('primary') || parent.getAttribute('type') === 'definition';
       }

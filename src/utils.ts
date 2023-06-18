@@ -117,28 +117,16 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
   return newXrefNodes;
 }
 
-type NodeRelationship =
-  | 'parentNode'
-  | 'parentElement'
-  | 'previousSibling'
-  | 'previousElementSibling'
-  | 'nextSibling'
-  | 'nextElementSibling'
-  | 'firstChild'
-  | 'firstElementChild'
-  | 'lastChild'
-  | 'lastElementChild';
-
 /*@internal*/
-export function traverseWhile(
-  node: Node | null,
-  relationship: NodeRelationship,
-  cb: (node: Node) => boolean,
+export function traverseWhile<P extends string, T extends Record<P, T | null>>(
+  node: T | null,
+  relationship: P,
+  cb: (node: T) => boolean,
   options?: { once?: boolean }
-): Node | null {
+): T | null {
   const once = options?.once ?? false;
   while (node != null && cb(node)) {
-    node = (node as Element)[relationship];
+    node = node[relationship];
     if (once) break;
   }
   return node;
