@@ -121,11 +121,11 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
 export function traverseWhile<P extends string, T extends Record<P, T | null>>(
   node: T | null,
   relationship: P,
-  cb: (node: T) => boolean,
+  predicate: (node: T) => boolean,
   options?: { once?: boolean }
 ): T | null {
   const once = options?.once ?? false;
-  while (node != null && cb(node)) {
+  while (node != null && predicate(node)) {
     node = node[relationship];
     if (once) break;
   }
