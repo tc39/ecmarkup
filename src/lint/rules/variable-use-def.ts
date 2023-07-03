@@ -289,7 +289,7 @@ function walkAlgorithm(
         if (
           prev.name === 'text' &&
           // prettier-ignore
-          /\b(?:for any |for some |there exists |there is |there does not exist )(\w+ )*$/.test(prev.contents)
+          /\b(?:for any |for some |there exists |there is |there does not exist )((?!of |in )(\w+ ))*$/.test(prev.contents)
         ) {
           scope.declare(varName, part);
           declaredThisLine.add(part);
