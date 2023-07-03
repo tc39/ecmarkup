@@ -115,6 +115,22 @@ describe('variables are declared and used appropriately', () => {
       );
     });
 
+    it('"there exists a value in _x_ with a property" does not declare _x_"', async () => {
+      await assertLint(
+        positioned`
+          <emu-alg>
+            1. If there exists an integer in ${M}_x_ greater than 0, return *true*.
+            1. Return *false*.
+          </emu-alg>
+        `,
+        {
+          ruleId: 'use-before-def',
+          nodeType: 'emu-alg',
+          message: 'could not find a preceding declaration for "x"',
+        }
+      );
+    });
+
     it('variables in a loop header other than the loop variable must be declared', async () => {
       await assertLint(
         positioned`
