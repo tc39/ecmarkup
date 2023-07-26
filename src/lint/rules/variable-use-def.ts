@@ -9,6 +9,26 @@ import type { Reporter } from '../algorithm-error-reporter-type';
 import { Seq, walk as walkExpr } from '../../expr-parser';
 import { offsetToLineAndColumn } from '../../utils';
 
+/*
+Ecmaspeak scope rules are a bit weird.
+Variables can be declared across branches and used subsequently, as in
+
+1. If condition, then
+  1. Let _var_ be true.
+1. Else,
+  1. Let _var_ be false.
+1. Use _var_.
+
+So it mostly behaves like `var`-declared variables in JS.
+
+(Exception: loop variables can't be used outside the loop.)
+
+But for readability reasons, we don't want to allow redeclaration or shadowing.
+
+The `Scope` class tracks names as if they are `var`-scoped, and the `strictScopes` property is
+used to track names as if they are `let`-scoped, so we can warn on redeclaration.
+*/
+
 type HasLocation = { location: { start: { line: number; column: number } } };
 type VarKind =
   | 'parameter'
@@ -19,14 +39,17 @@ type VarKind =
   | 'attribute declaration';
 class Scope {
   declare vars: Map<string, { kind: VarKind; used: boolean; node: HasLocation | null }>;
+  declare strictScopes: Set<string>[];
   declare report: Reporter;
   constructor(report: Reporter) {
     this.vars = new Map();
+    this.strictScopes = [new Set()];
+    this.report = report;
+
     // TODO remove this when regex state objects become less dumb
     for (const name of ['captures', 'input', 'startIndex', 'endIndex']) {
-      this.declare(name, null);
+      this.declare(name, null, undefined, true);
     }
-    this.report = report;
   }
 
   declared(name: string): boolean {
@@ -38,11 +61,32 @@ class Scope {
     return this.vars.get(name)!.used;
   }
 
-  declare(name: string, nameNode: HasLocation | null, kind: VarKind = 'variable'): void {
+  declare(
+    name: string,
+    nameNode: HasLocation | null,
+    kind: VarKind = 'variable',
+    mayBeShadowed: boolean = false
+  ): void {
     if (this.declared(name)) {
-      return;
+      if (!mayBeShadowed) {
+        for (const scope of this.strictScopes) {
+          if (scope.has(name)) {
+            this.report({
+              ruleId: 're-declaration',
+              message: `${JSON.stringify(name)} is already declared`,
+              line: nameNode!.location.start.line,
+              column: nameNode!.location.start.column,
+            });
+            return;
+          }
+        }
+      }
+    } else {
+      this.vars.set(name, { kind, used: false, node: nameNode });
     }
-    this.vars.set(name, { kind, used: false, node: nameNode });
+    if (!mayBeShadowed) {
+      this.strictScopes[this.strictScopes.length - 1].add(name);
+    }
   }
 
   undeclare(name: string) {
@@ -100,7 +144,7 @@ export function checkVariableUsage(
     ) {
       // `__` is for <del>_x_</del><ins>_y_</ins>, which has textContent `_x__y_`
       for (const name of preceding.textContent.matchAll(/(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g)) {
-        scope.declare(name[1], null);
+        scope.declare(name[1], null, undefined, true);
       }
     }
     preceding = previousOrParent(preceding, parentClause);
@@ -145,6 +189,7 @@ function walkAlgorithm(
     }
     return;
   }
+  scope.strictScopes.push(new Set());
 
   stepLoop: for (const step of steps.contents) {
     const loopVars: Set<UnderscoreNode> = new Set();
@@ -175,7 +220,12 @@ function walkAlgorithm(
             column,
           });
         } else {
-          scope.declare(name, { location: { start: { line, column } } }, 'attribute declaration');
+          scope.declare(
+            name,
+            { location: { start: { line, column } } },
+            'attribute declaration',
+            true
+          );
         }
       }
     }
@@ -327,8 +377,12 @@ function walkAlgorithm(
               (isSuchThat && cur.name === 'text' && !/(?: of | in )/.test(cur.contents)) ||
               (isBe && cur.name === 'text' && /\blet (?:each of )?$/i.test(cur.contents))
             ) {
+              const conditional =
+                expr.items[0].name === 'text' &&
+                /^(If|Else|Otherwise)\b/.test(expr.items[0].contents);
+
               for (const v of varsDeclaredHere) {
-                scope.declare(v.contents, v);
+                scope.declare(v.contents, v, 'variable', conditional);
                 declaredThisLine.add(v);
               }
             }
@@ -353,6 +407,7 @@ function walkAlgorithm(
       scope.undeclare(decl.contents);
     }
   }
+  scope.strictScopes.pop();
 }
 
 function isVariable(node: UnderscoreNode | { name: string } | null): node is UnderscoreNode {

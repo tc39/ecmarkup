@@ -497,3 +497,95 @@ describe('variables are declared and used appropriately', () => {
     });
   });
 });
+
+describe('variables cannot be redeclared', () => {
+  it('redeclaration at the same level is an error', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. Let ${M}_x_ be 1.
+          1. Return _x_.
+        </emu-alg>
+      </emu-clause>
+      `,
+      {
+        ruleId: 're-declaration',
+        nodeType: 'emu-alg',
+        message: '"x" is already declared',
+      }
+    );
+  });
+
+  it('redeclaration at an inner level is an error', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. Repeat,
+            1. Let ${M}_x_ be 1.
+          1. Return _x_.
+        </emu-alg>
+      </emu-clause>
+      `,
+      {
+        ruleId: 're-declaration',
+        nodeType: 'emu-alg',
+        message: '"x" is already declared',
+      }
+    );
+  });
+
+  it('multi-line if-else does not count as redeclaration', async () => {
+    await assertLintFree(
+      `
+      <emu-alg>
+        1. If condition, then
+          1. Let _result_ be 0.
+        1. Else,
+          1. Let _result_ be 1.
+        1. Return _result_.
+      </emu-alg>
+      `
+    );
+  });
+
+  it('single-line if-else does not count as redeclaration', async () => {
+    await assertLintFree(
+      `
+      <emu-alg>
+        1. If condition, let _result_ be 0.
+        1. Else, let _result_ be 1.
+        1. Return _result_.
+      </emu-alg>
+      `
+    );
+  });
+
+  it('[declared] annotation can be redeclared', async () => {
+    await assertLintFree(
+      `
+      <emu-alg>
+        1. [declared="var"] NOTE: Something about _var_.
+        1. Let _var_ be 0.
+        1. Return _var_.
+      </emu-alg>
+      `
+    );
+  });
+
+  it('variables mentioned in the premable can be redeclared', async () => {
+    await assertLintFree(
+      `
+      <emu-clause id="example">
+        <h1>Example</h1>
+        <p>In the following algorithm, _var_ is a variable.</p>
+        <emu-alg>
+          1. Let _var_ be 0.
+          1. Return _var_.
+        </emu-alg>
+      </emu-clause>
+      `
+    );
+  });
+});

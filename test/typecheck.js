@@ -131,12 +131,12 @@ describe('typechecking completions', () => {
           </dl>
           <emu-alg>
             1. Let _a_ be Completion(ExampleAlg()).
-            1. Let _a_ be Completion(<emu-meta suppress-effects="user-code">ExampleAlg()</emu-meta>).
+            1. Set _a_ to Completion(<emu-meta suppress-effects="user-code">ExampleAlg()</emu-meta>).
             1. Set _a_ to ! ExampleAlg().
             1. Return ? ExampleAlg().
             1. Let _foo_ be 0.
-            1. Let _a_ be Completion(ExampleSDO of _foo_).
-            1. Let _a_ be Completion(ExampleSDO of _foo_ with argument 0).
+            1. Set _a_ to Completion(ExampleSDO of _foo_).
+            1. Set _a_ to Completion(ExampleSDO of _foo_ with argument 0).
             1. If ? ExampleSDO of _foo_ is *true*, then
               1. Something.
           </emu-alg>
