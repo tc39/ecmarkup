@@ -99,9 +99,9 @@ describe('expression parsing', () => {
       await assertLintFree(`
         <emu-alg>
         1. Let _x_ be a new Record { [[Foo]]: 0, <!-- comment --> [[Bar]]: 1 }.
-        1. Let _x_ be a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1</ins> }.
-        1. Let _x_ be a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1, [[Baz]]: 2</ins> }.
-        1. Let _x_ be a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1,</ins> [[Baz]]: 2 }.
+        1. Set _x_ to a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1</ins> }.
+        1. Set _x_ to a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1, [[Baz]]: 2</ins> }.
+        1. Set _x_ to a new Record { [[Foo]]: 0, <ins>[[Bar]]: 1,</ins> [[Baz]]: 2 }.
         1. Use _x_.
         </emu-alg>
       `);
