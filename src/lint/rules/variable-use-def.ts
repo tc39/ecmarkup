@@ -68,17 +68,15 @@ class Scope {
     mayBeShadowed: boolean = false
   ): void {
     if (this.declared(name)) {
-      if (!mayBeShadowed) {
-        for (const scope of this.strictScopes) {
-          if (scope.has(name)) {
-            this.report({
-              ruleId: 're-declaration',
-              message: `${JSON.stringify(name)} is already declared`,
-              line: nameNode!.location.start.line,
-              column: nameNode!.location.start.column,
-            });
-            return;
-          }
+      for (const scope of this.strictScopes) {
+        if (scope.has(name)) {
+          this.report({
+            ruleId: 're-declaration',
+            message: `${JSON.stringify(name)} is already declared`,
+            line: nameNode!.location.start.line,
+            column: nameNode!.location.start.column,
+          });
+          return;
         }
       }
     } else {
