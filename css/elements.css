@@ -899,15 +899,13 @@ tr.del > td {
 }
 
 .menu-pane-header {
-  padding: 0 5px;
-  text-transform: uppercase;
-  background-color: #aaa;
-  color: #335;
+  padding: 2px 8px;
+  background-color: #bbb;
   font-weight: bold;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   flex-grow: 0;
   flex-shrink: 0;
-  font-size: 0.8em;
+  font-size: 80%;
 }
 
 .menu-pane-header emu-opt,
