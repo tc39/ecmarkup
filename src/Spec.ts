@@ -18,7 +18,8 @@ import * as yaml from 'js-yaml';
 import * as utils from './utils';
 import * as hljs from 'highlight.js';
 // Builders
-import Import, { EmuImportElement } from './Import';
+import type { EmuImportElement } from './Import';
+import Import from './Import';
 import Clause from './Clause';
 import ClauseNumbers from './clauseNums';
 import Algorithm from './Algorithm';
@@ -50,14 +51,8 @@ import type { OrderedListNode } from 'ecmarkdown';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
 import { offsetToLineAndColumn } from './utils';
-import {
-  parse as parseExpr,
-  walk as walkExpr,
-  Expr,
-  PathItem,
-  Seq,
-  isProsePart,
-} from './expr-parser';
+import type { Expr, PathItem, Seq } from './expr-parser';
+import { parse as parseExpr, walk as walkExpr, isProsePart } from './expr-parser';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',

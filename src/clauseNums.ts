@@ -114,7 +114,7 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
           // strictly greater than the value in `ids[level]` at the first
           // index where they differ).
           const i = nums.findIndex((num, i) => num !== ids[level][i]);
-          if (i < 0 || !(nums[i] > ids[level][i])) {
+          if (i < 0 || !(nums[i] > (ids[level] as number[])[i])) {
             spec.warn({
               type: 'attr-value',
               node,

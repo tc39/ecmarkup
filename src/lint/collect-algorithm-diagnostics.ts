@@ -13,7 +13,8 @@ import lintForEachElement from './rules/for-each-element';
 import lintStepAttributes from './rules/step-attributes';
 import lintIfElseConsistency from './rules/if-else-consistency';
 import { checkVariableUsage } from './rules/variable-use-def';
-import { parse, Seq } from '../expr-parser';
+import type { Seq } from '../expr-parser';
+import { parse } from '../expr-parser';
 
 type LineRule = (
   report: Reporter,
