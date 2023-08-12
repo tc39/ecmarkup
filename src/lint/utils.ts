@@ -11,10 +11,11 @@ import type {
   OneOfSymbol,
   ArgumentList,
   SourceFile,
+  Grammar as GrammarFile,
 } from 'grammarkdown';
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
-import { Grammar as GrammarFile, SyntaxKind, skipTrivia, NodeVisitor } from 'grammarkdown';
+import { SyntaxKind, skipTrivia, NodeVisitor } from 'grammarkdown';
 import * as emd from 'ecmarkdown';
 
 export function getProductions(sourceFiles: readonly SourceFile[]) {

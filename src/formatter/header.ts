@@ -1,5 +1,5 @@
-import { ParsedHeaderOrFailure, printSimpleParamList } from '../header-parser';
-import type { Param } from '../header-parser';
+import { printSimpleParamList } from '../header-parser';
+import type { Param, ParsedHeaderOrFailure } from '../header-parser';
 import { LineBuilder } from './line-builder';
 
 function printTypedParam(param: Param, optional: boolean) {

@@ -1,19 +1,21 @@
-import {
+import type {
   CompilerOptions,
+  Node,
+  Prose,
+  RightHandSide,
+  OneOfList,
+  ParameterList,
+  Trivia,
+} from 'grammarkdown';
+import {
   NewLineKind,
   CoreAsyncHost,
   Grammar,
   GrammarkdownEmitter,
-  Node,
   SyntaxKind,
-  Prose,
-  RightHandSide,
   SourceFile,
   Production,
-  OneOfList,
   RightHandSideList,
-  ParameterList,
-  Trivia,
 } from 'grammarkdown';
 import { LineBuilder } from './line-builder';
 
@@ -90,7 +92,7 @@ class EmitterWithComments extends GrammarkdownEmitter {
 
           const newRhses: RightHandSide[] = prods.flatMap(p => {
             if (p.body!.kind === SyntaxKind.RightHandSide) {
-              return [p.body! as RightHandSide];
+              return [p.body!];
             } else if (p.body!.kind === SyntaxKind.RightHandSideList) {
               return (p.body as RightHandSideList).elements!;
             } else {

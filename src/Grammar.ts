@@ -1,9 +1,9 @@
 import type { Context } from './Context';
-import type { SourceFile } from 'grammarkdown';
+import type { SourceFile, CompilerOptions } from 'grammarkdown';
 
 import Builder from './Builder';
 import { collectNonterminalsFromGrammar } from './lint/utils';
-import { CoreAsyncHost, CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
+import { CoreAsyncHost, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;

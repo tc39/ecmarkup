@@ -1,14 +1,12 @@
 import type { default as Spec, Warning } from '../Spec';
 
+import type { SymbolSpan, Production, Parameter } from 'grammarkdown';
 import {
   Grammar as GrammarFile,
   CoreAsyncHost,
   EmitFormat,
   SyntaxKind,
-  SymbolSpan,
   Diagnostics,
-  Production,
-  Parameter,
 } from 'grammarkdown';
 
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './utils';

@@ -6,13 +6,8 @@ import type { Context } from './Context';
 
 import { ParseError, TypeParser } from './type-parser';
 import Builder from './Builder';
-import {
-  formatPreamble,
-  parseStructuredHeaderDl,
-  formatHeader,
-  parseH1,
-  ParsedHeader,
-} from './header-parser';
+import type { ParsedHeader } from './header-parser';
+import { formatPreamble, parseStructuredHeaderDl, formatHeader, parseH1 } from './header-parser';
 import { offsetToLineAndColumn, traverseWhile } from './utils';
 
 const aoidTypes = [

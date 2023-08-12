@@ -6,7 +6,8 @@ import type {
   TextNode,
 } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
-import { Seq, walk as walkExpr } from '../../expr-parser';
+import type { Seq } from '../../expr-parser';
+import { walk as walkExpr } from '../../expr-parser';
 import { offsetToLineAndColumn } from '../../utils';
 
 /*
