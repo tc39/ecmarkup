@@ -50,9 +50,8 @@ markEffects: true
       <tr><td>`--watch`</td><td></td><td>Rebuild when files change.</td></tr>
       <tr><td>`--verbose`</td><td></td><td>Print verbose logging info.</td></tr>
       <tr><td>`--write-biblio`</td><td></td><td>Emit a biblio file to the specified path.</td></tr>
-      <tr><td>`--assets`</td><td>`assets`</td><td>"none" for no CSS/JS, "inline" for inline CSS/JS.</td></tr>
-      <tr><td>`--css-out`</td><td>`cssOut`</td><td>Emit the Ecmarkup CSS file to the specified path.</td></tr>
-      <tr><td>`--js-out`</td><td>`jsOut`</td><td>Emit the Ecmarkup JS file to the specified path.</td></tr>
+      <tr><td>`--assets`</td><td>`assets`</td><td>"none" for no CSS/JS/etc, "inline" for inline CSS/JS/etc, "external" for external CSS/JS/etc.</td></tr>
+      <tr><td>`--assets-dir`</td><td>`assetsDir`</td><td>Directory in which to place assets when using `--assets=external`.</td></tr>
       <tr><td>`--lint-spec`</td><td>`lintSpec`</td><td>Enforce some style and correctness checks.</td></tr>
       <tr><td>`--error-formatter`</td><td></td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using `--verbose`. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
       <tr><td>`--strict`</td><td></td><td>Exit with an error if there are warnings. Cannot be used with `--watch`.</td></tr>
