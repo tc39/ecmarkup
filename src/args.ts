@@ -28,20 +28,16 @@ export const options = [
   {
     name: 'assets',
     type: String,
-    typeLabel: 'none|inline|external', // TODO I don't think we actually distinguish between inline and external
-    description: 'Link to css and js assets (default: inline, unless --multipage)',
+    typeLabel: 'none|inline|external',
+    description:
+      'Omit assets, inline them, or add them as external. Default: inline, unless --multipage or --assets-dir are specified, in which case external.',
   },
   {
-    name: 'css-out',
+    name: 'assets-dir',
     type: String,
-    typeLabel: '{underline file}',
-    description: 'Path to a file where the CSS assets should be written',
-  },
-  {
-    name: 'js-out',
-    type: String,
-    typeLabel: '{underline file}',
-    description: 'Path to a file where the JS assets should be written',
+    typeLabel: '{underline dir}',
+    description:
+      'The directory in which to place generated assets when using --assets=external. Implies --assets=external. Defaults to [outfile]/assets.',
   },
   {
     name: 'no-toc',
@@ -74,8 +70,7 @@ export const options = [
   {
     name: 'multipage',
     type: Boolean,
-    description:
-      'Generate a multipage version of the spec. Cannot be used with --js-out or --css-out.',
+    description: 'Generate a multipage version of the spec. Implies --assets=external.',
   },
   {
     name: 'strict',
@@ -98,5 +93,15 @@ export const options = [
     type: String,
     multiple: true,
     defaultOption: true,
+  },
+
+  // removed; still defined here so we can give better errors
+  {
+    name: 'css-out',
+    type: String,
+  },
+  {
+    name: 'js-out',
+    type: String,
   },
 ] as const;

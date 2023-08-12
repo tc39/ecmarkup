@@ -298,6 +298,7 @@ export function maybeAddClauseToEffectWorklist(
 export default class Spec {
   spec: this;
   opts: Options;
+  assets: { type: 'none' } | { type: 'inline' } | { type: 'external'; directory: string };
   rootPath: string;
   rootDir: string;
   sourceText: string;
@@ -340,12 +341,10 @@ export default class Spec {
     rootPath: string,
     fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
     dom: JSDOM,
-    opts: Options,
+    opts: Options = {},
     sourceText: string,
     token = CancellationToken.none
   ) {
-    opts = opts || {};
-
     this.spec = this;
     this.opts = {};
     this.rootPath = rootPath;
@@ -364,6 +363,7 @@ export default class Spec {
     this.cancellationToken = token;
     this.generatedFiles = new Map();
     this.log = opts.log ?? (() => {});
+    // TODO warnings should probably default to console.error, with a reasonable formatting
     this.warn = opts.warn ? wrapWarn(sourceText, this, opts.warn) : () => {};
     this._figureCounts = {
       table: 0,
@@ -383,18 +383,45 @@ export default class Spec {
     this.processMetadata();
     Object.assign(this.opts, opts);
 
+    if (this.opts.jsOut || this.opts.cssOut) {
+      throw new Error('--js-out and --css-out have been removed; use --assets-dir instead');
+    }
+
+    if (
+      this.opts.assets != null &&
+      this.opts.assets !== 'external' &&
+      this.opts.assetsDir != null
+    ) {
+      throw new Error(`--assets=${this.opts.assets} cannot be used --assets-dir"`);
+    }
+
     if (this.opts.multipage) {
-      if (this.opts.jsOut || this.opts.cssOut) {
-        throw new Error('Cannot use --multipage with --js-out or --css-out');
+      this.opts.outfile ??= '';
+      const type = this.opts.assets ?? 'external';
+      if (type === 'inline') {
+        throw new Error('assets cannot be inline for multipage builds');
+      } else if (type === 'none') {
+        this.assets = { type: 'none' };
+      } else {
+        this.assets = {
+          type: 'external',
+          directory: this.opts.assetsDir ?? path.join(this.opts.outfile, 'assets'),
+        };
       }
-
-      if (this.opts.outfile == null) {
-        this.opts.outfile = '';
-      }
-
-      if (this.opts.assets !== 'none') {
-        this.opts.jsOut = path.join(this.opts.outfile, 'ecmarkup.js');
-        this.opts.cssOut = path.join(this.opts.outfile, 'ecmarkup.css');
+    } else {
+      const type = this.opts.assets ?? (this.opts.assetsDir == null ? 'inline' : 'external');
+      if (type === 'inline') {
+        console.error('Warning: inlining assets; this should not be done for production builds.');
+        this.assets = { type: 'inline' };
+      } else if (type === 'none') {
+        this.assets = { type: 'none' };
+      } else {
+        this.assets = {
+          type: 'external',
+          directory:
+            this.opts.assetsDir ??
+            (this.opts.outfile ? path.join(path.dirname(this.opts.outfile), 'assets') : 'assets'),
+        };
       }
     }
 
@@ -562,11 +589,11 @@ export default class Spec {
       (await concatJs(sdoJs, tocJs)) + `\n;let usesMultipage = ${!!this.opts.multipage}`;
     const jsSha = sha(jsContents);
 
-    if (this.opts.multipage) {
-      await this.buildMultipage(wrapper, commonEles, jsSha);
-    }
-
     await this.buildAssets(jsContents, jsSha);
+
+    if (this.opts.multipage) {
+      await this.buildMultipage(wrapper, commonEles);
+    }
 
     const file = this.opts.multipage
       ? path.join(this.opts.outfile!, 'index.html')
@@ -1004,7 +1031,7 @@ export default class Spec {
     return null;
   }
 
-  private async buildMultipage(wrapper: Element, commonEles: Element[], jsSha: string) {
+  private async buildMultipage(wrapper: Element, commonEles: Element[]) {
     let stillIntro = true;
     const introEles = [];
     const sections: { name: string; eles: Element[] }[] = [];
@@ -1101,53 +1128,46 @@ export default class Spec {
     }
 
     const head = this.doc.head.cloneNode(true) as HTMLHeadElement;
-    this.addStyle(head, 'ecmarkup.css'); // omit `../` because we rewrite `<link>` elements below
-    this.addStyle(
-      head,
-      `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
-        (hljs as any).versionString
-      }/styles/base16/solarized-light.min.css`
-    );
-
-    const script = this.doc.createElement('script');
-    script.src = '../ecmarkup.js?cache=' + jsSha;
-    script.setAttribute('defer', '');
-    head.appendChild(script);
 
     const containedMap = JSON.stringify(Object.fromEntries(sectionToContainedIds)).replace(
       /[\\`$]/g,
       '\\$&'
     );
-    const multipageJsContents = `'use strict';
+    if (this.assets.type !== 'none') {
+      const multipageJsContents = `'use strict';
 let multipageMap = JSON.parse(\`${containedMap}\`);
 ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 `;
-    if (this.opts.assets !== 'none') {
-      this.generatedFiles.set(
-        path.join(this.opts.outfile!, 'multipage/multipage.js'),
-        multipageJsContents
-      );
-    }
 
-    const multipageScript = this.doc.createElement('script');
-    multipageScript.src = 'multipage.js?cache=' + sha(multipageJsContents);
-    multipageScript.setAttribute('defer', '');
-    head.insertBefore(multipageScript, head.querySelector('script'));
+      // assets are never internal for multipage builds
+      // @ts-expect-error
+      const multipageLocationOnDisk = path.join(this.assets.directory, 'multipage.js');
+
+      this.generatedFiles.set(multipageLocationOnDisk, multipageJsContents);
+
+      // the path will be rewritten below
+      // so it should initially be relative to outfile, not outfile/multipage
+      const multipageScript = this.doc.createElement('script');
+      multipageScript.src =
+        path.relative(this.opts.outfile!, multipageLocationOnDisk) +
+        '?cache=' +
+        sha(multipageJsContents);
+      multipageScript.setAttribute('defer', '');
+      head.insertBefore(multipageScript, head.querySelector('script'));
+    }
 
     for (const { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
       const headClone = head.cloneNode(true) as HTMLHeadElement;
       const commonClone = commonEles.map(e => e.cloneNode(true));
       const clones = eles.map(e => e.cloneNode(true));
-      const allClones = [headClone, ...commonClone, ...clones];
-      // @ts-ignore
-      const links = allClones.flatMap(e => [...e.querySelectorAll('a,link')]);
-      for (const link of links) {
-        if (linkIsAbsolute(link)) {
+      const allClones = [headClone, ...commonClone, ...clones] as Element[];
+      for (const anchor of allClones.flatMap(e => [...e.querySelectorAll('a')])) {
+        if (linkIsAbsolute(anchor)) {
           continue;
         }
-        if (linkIsInternal(link)) {
-          let p = link.hash.substring(1);
+        if (linkIsInternal(anchor)) {
+          let p = anchor.hash.substring(1);
           if (!containedIdToSection.has(p)) {
             try {
               p = decodeURIComponent(p);
@@ -1158,29 +1178,41 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
               this.warn({
                 type: 'node',
                 ruleId: 'multipage-link-target',
-                message: 'could not find appropriate section for ' + link.hash,
-                node: link,
+                message: 'could not find appropriate section for ' + anchor.hash,
+                node: anchor,
               });
               continue;
             }
           }
           const targetSec = containedIdToSection.get(p)!;
-          link.href = (targetSec === 'index' ? './' : targetSec + '.html') + link.hash;
-        } else if (linkIsPathRelative(link)) {
-          link.href = '../' + pathFromRelativeLink(link);
+          anchor.href = (targetSec === 'index' ? './' : targetSec + '.html') + anchor.hash;
+        } else if (linkIsPathRelative(anchor)) {
+          anchor.href = path.relative('multipage', pathFromRelativeLink(anchor));
         }
       }
-      // @ts-ignore
+
+      for (const link of allClones.flatMap(e => [...e.querySelectorAll('link')])) {
+        if (!linkIsAbsolute(link) && linkIsPathRelative(link)) {
+          link.href = path.relative('multipage', pathFromRelativeLink(link));
+        }
+      }
+
       for (const img of allClones.flatMap(e => [...e.querySelectorAll('img')])) {
         if (!/^(http:|https:|:|\/)/.test(img.src)) {
-          img.src = '../' + img.src;
+          img.src = path.relative('multipage', img.src);
         }
       }
+
+      for (const script of allClones.flatMap(e => [...e.querySelectorAll('script')])) {
+        if (script.src != null && !/^(http:|https:|:|\/)/.test(script.src)) {
+          script.src = path.relative('multipage', script.src);
+        }
+      }
+
       // prettier-ignore
-      // @ts-ignore
-      for (const object of allClones.flatMap(e => [...e.querySelectorAll('object[data]')])) {
+      for (const object of allClones.flatMap(e => [...e.querySelectorAll('object[data]')]) as HTMLObjectElement[]) {
         if (!/^(http:|https:|:|\/)/.test(object.data)) {
-          object.data = '../' + object.data;
+          object.data = path.relative('multipage', object.data);
         }
       }
 
@@ -1191,9 +1223,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         headClone.appendChild(canonical);
       }
 
-      // @ts-ignore
+      // @ts-expect-error
       const commonHTML = commonClone.map(e => e.outerHTML).join('\n');
-      // @ts-ignore
+      // @ts-expect-error
       const clonesHTML = clones.map(e => e.outerHTML).join('\n');
       const content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${commonHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
 
@@ -1202,63 +1234,50 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
   }
 
   private async buildAssets(jsContents: string, jsSha: string) {
+    if (this.assets.type === 'none') return;
+
+    // check for very old manual 'ecmarkup.js'/'ecmarkup.css'
+    const oldEles = this.doc.querySelectorAll(
+      "script[src='ecmarkup.js'],link[href='ecmarkup.css']"
+    );
+    for (const item of oldEles) {
+      this.warn({
+        type: 'attr',
+        ruleId: 'old-script-or-style',
+        node: item,
+        attr: item.tagName === 'SCRIPT' ? 'src' : 'href',
+        message:
+          'ecmarkup will insert its own js/css; the input document should not include tags for them',
+      });
+    }
+
     const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
+    if (this.assets.type === 'external') {
+      const outDir = this.opts.outfile
+        ? this.opts.multipage
+          ? this.opts.outfile
+          : path.dirname(this.opts.outfile)
+        : process.cwd();
 
-    if (this.opts.jsOut) {
-      this.generatedFiles.set(this.opts.jsOut, jsContents);
-    }
+      const scriptLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.js');
+      const styleLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.css');
 
-    if (this.opts.cssOut) {
-      this.generatedFiles.set(this.opts.cssOut, cssContents);
-    }
+      this.generatedFiles.set(scriptLocationOnDisk, jsContents);
+      this.generatedFiles.set(styleLocationOnDisk, cssContents);
 
-    if (this.opts.assets === 'none') return;
+      const script = this.doc.createElement('script');
+      script.src = path.relative(outDir, scriptLocationOnDisk) + '?cache=' + jsSha;
+      script.setAttribute('defer', '');
+      this.doc.head.appendChild(script);
 
-    const outDir = this.opts.outfile
-      ? this.opts.multipage
-        ? this.opts.outfile
-        : path.dirname(this.opts.outfile)
-      : process.cwd();
-
-    if (this.opts.jsOut) {
-      let skipJs = false;
-      const scripts = this.doc.querySelectorAll('script');
-      for (let i = 0; i < scripts.length; i++) {
-        const script = scripts[i];
-        const src = script.getAttribute('src');
-        if (src && path.normalize(path.join(outDir, src)) === path.normalize(this.opts.jsOut)) {
-          this.log(`Found existing js link to ${src}, skipping inlining...`);
-          skipJs = true;
-        }
-      }
-      if (!skipJs) {
-        const script = this.doc.createElement('script');
-        script.src = path.relative(outDir, this.opts.jsOut) + '?cache=' + jsSha;
-        script.setAttribute('defer', '');
-        this.doc.head.appendChild(script);
-      }
+      this.addStyle(this.doc.head, path.relative(outDir, styleLocationOnDisk));
     } else {
+      // i.e. assets.type === 'inline'
       this.log('Inlining JavaScript assets...');
       const script = this.doc.createElement('script');
       script.textContent = jsContents;
       this.doc.head.appendChild(script);
-    }
 
-    if (this.opts.cssOut) {
-      let skipCss = false;
-      const links = this.doc.querySelectorAll('link[rel=stylesheet]');
-      for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        const href = link.getAttribute('href');
-        if (href && path.normalize(path.join(outDir, href)) === path.normalize(this.opts.cssOut)) {
-          this.log(`Found existing css link to ${href}, skipping inlining...`);
-          skipCss = true;
-        }
-      }
-      if (!skipCss) {
-        this.addStyle(this.doc.head, path.relative(outDir, this.opts.cssOut));
-      }
-    } else {
       this.log('Inlining CSS assets...');
       const style = this.doc.createElement('style');
       style.textContent = cssContents;
