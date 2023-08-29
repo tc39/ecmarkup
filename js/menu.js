@@ -735,16 +735,16 @@ let referencePane = {
     this.$header.appendChild(this.$closeButton);
 
     this.$pane.appendChild(this.$header);
-    let tableContainer = document.createElement('div');
-    tableContainer.setAttribute('id', 'references-pane-table-container');
+    this.$tableContainer = document.createElement('div');
+    this.$tableContainer.setAttribute('id', 'references-pane-table-container');
 
     this.$table = document.createElement('table');
     this.$table.setAttribute('id', 'references-pane-table');
 
     this.$tableBody = this.$table.createTBody();
 
-    tableContainer.appendChild(this.$table);
-    this.$pane.appendChild(tableContainer);
+    this.$tableContainer.appendChild(this.$table);
+    this.$pane.appendChild(this.$tableContainer);
 
     menu.$specContainer.appendChild(this.$container);
   },
@@ -797,6 +797,7 @@ let referencePane = {
     this.$table.removeChild(this.$tableBody);
     this.$tableBody = newBody;
     this.$table.appendChild(this.$tableBody);
+    this.autoSize();
   },
 
   showSDOs(sdos, alternativeId) {
@@ -843,19 +844,24 @@ let referencePane = {
     this.$table.removeChild(this.$tableBody);
     this.$tableBody = newBody;
     this.$table.appendChild(this.$tableBody);
+    this.autoSize();
+  },
+
+  autoSize() {
+    this.$tableContainer.style.height =
+      Math.min(250, this.$table.getBoundingClientRect().height) + 'px';
   },
 
   dragStart(pointerDownEvent) {
     let startingMousePos = pointerDownEvent.clientY;
-    let startingHeight = parseInt(getComputedStyle(this.$container).height);
+    let startingHeight = parseInt(this.$tableContainer.getBoundingClientRect().height);
     let moveListener = pointerMoveEvent => {
       if (pointerMoveEvent.buttons === 0) {
         removeListeners();
         return;
       }
       let desiredHeight = startingHeight - (pointerMoveEvent.clientY - startingMousePos);
-      this.$container.style.height =
-        Math.max(50, Math.min(visualViewport.height - 150, desiredHeight)) + 'px';
+      this.$tableContainer.style.height = Math.max(0, desiredHeight) + 'px';
     };
     let listenerOptions = { capture: true, passive: true };
     let removeListeners = () => {

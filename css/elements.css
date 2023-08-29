@@ -1247,7 +1247,6 @@ li.menu-search-result-term:before {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 250px;
   display: none;
   background-color: #ddd;
   z-index: 1;
@@ -1256,6 +1255,8 @@ li.menu-search-result-term:before {
 #references-pane-table-container {
   overflow-x: hidden;
   overflow-y: auto;
+  min-height: 35px;
+  max-height: 85vh;
 }
 
 #references-pane {
