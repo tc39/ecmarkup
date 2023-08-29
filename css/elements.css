@@ -992,6 +992,8 @@ tr.del > td {
   flex-grow: 0;
   flex-shrink: 0;
   font-size: 80%;
+  cursor: row-resize;
+  user-select: none;
 }
 
 .menu-pane-header emu-opt,
