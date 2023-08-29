@@ -723,7 +723,9 @@ let referencePane = {
     this.$header.appendChild(this.$headerText);
     this.$headerRefId = document.createElement('a');
     this.$header.appendChild(this.$headerRefId);
-    this.$header.addEventListener('pointerdown', e => { this.dragStart(e); });
+    this.$header.addEventListener('pointerdown', e => {
+      this.dragStart(e);
+    });
 
     this.$closeButton = document.createElement('span');
     this.$closeButton.setAttribute('id', 'references-pane-close');
@@ -846,13 +848,14 @@ let referencePane = {
   dragStart(pointerDownEvent) {
     let startingMousePos = pointerDownEvent.clientY;
     let startingHeight = parseInt(getComputedStyle(this.$container).height);
-    let moveListener = (pointerMoveEvent) => {
+    let moveListener = pointerMoveEvent => {
       if (pointerMoveEvent.buttons === 0) {
         removeListeners();
         return;
       }
       let desiredHeight = startingHeight - (pointerMoveEvent.clientY - startingMousePos);
-      this.$container.style.height = Math.max(50, Math.min(visualViewport.height - 150, desiredHeight)) + 'px';
+      this.$container.style.height =
+        Math.max(50, Math.min(visualViewport.height - 150, desiredHeight)) + 'px';
     };
     let listenerOptions = { capture: true, passive: true };
     let removeListeners = () => {
