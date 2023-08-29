@@ -854,7 +854,7 @@ let referencePane = {
 
   dragStart(pointerDownEvent) {
     let startingMousePos = pointerDownEvent.clientY;
-    let startingHeight = parseInt(this.$tableContainer.getBoundingClientRect().height);
+    let startingHeight = this.$tableContainer.getBoundingClientRect().height;
     let moveListener = pointerMoveEvent => {
       if (pointerMoveEvent.buttons === 0) {
         removeListeners();
