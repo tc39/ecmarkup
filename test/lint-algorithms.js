@@ -438,6 +438,61 @@ describe('linting algorithms', () => {
     });
   });
 
+  describe('kebab-case enums', () => {
+    const ruleId = 'enum-casing';
+    it('rejects various other casings', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. Do something with ~${M}aValue~.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'enum values should be lowercase and kebab-cased',
+        }
+      );
+
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. Do something with ~${M}ADifferentValue~.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'enum values should be lowercase and kebab-cased',
+        }
+      );
+
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. Do something with ~${M}a value with spaces~.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'enum values should be lowercase and kebab-cased',
+        }
+      );
+    });
+
+    it('negative', async () => {
+      await assertLintFree(`
+        <emu-alg>
+          1. Do something with ~a-kebab-cased-value~.
+        </emu-alg>
+      `);
+
+      await assertLintFree(`
+        <emu-alg>
+          1. Do something with ~numeric-value-32~.
+        </emu-alg>
+      `);
+    });
+  });
+
   describe('for each element', () => {
     const ruleId = 'for-each-element';
     it('rejects loops without types', async () => {
