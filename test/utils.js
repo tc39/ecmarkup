@@ -35,6 +35,7 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
   if (opts?.asImport !== 'only') {
     await emu.build(rootFile, async () => html, {
       copyright: false,
+      assets: 'none',
       warn: e =>
         warnings.push({
           ruleId: e.ruleId,
@@ -72,6 +73,7 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
   let fetch = name => (name === rootFile ? importWrapper : html);
   await emu.build(rootFile, fetch, {
     copyright: false,
+    assets: 'none',
     warn: e =>
       warnings.push({
         ruleId: e.ruleId,
@@ -112,6 +114,7 @@ async function assertErrorFree(html, opts) {
 
   await emu.build('test-example.emu', async () => html, {
     copyright: false,
+    assets: 'none',
     warn: e => warnings.push(e),
     ...opts,
   });
@@ -129,6 +132,7 @@ async function assertLintFree(html, opts = {}) {
 
 async function getBiblio(html) {
   let upstream = await emu.build('root.html', () => html, {
+    assets: 'none',
     location: 'https://example.com/spec/',
   });
   return upstream.exportBiblio();
