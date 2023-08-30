@@ -762,7 +762,7 @@ let referencePane = {
     let previousId;
     let previousCell;
     let dupCount = 0;
-    this.$headerRefId.textContent = '#' + entry.id;
+    this.$headerRefId.innerHTML = getKey(entry);
     this.$headerRefId.setAttribute('href', makeLinkToId(entry.id));
     this.$headerRefId.style.display = 'inline';
     (entry.referencingIds || [])
