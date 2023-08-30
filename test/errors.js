@@ -465,6 +465,7 @@ ${M}      </pre>
     };
     await emu.build('foo/index.html', fetch, {
       copyright: false,
+      assets: 'none',
       warn: e =>
         warnings.push({
           ruleId: e.ruleId,
@@ -1050,6 +1051,7 @@ ${M}      </pre>
       const fetch = () => '';
       await emu.build('index.html', fetch, {
         copyright: false,
+        assets: 'none',
         extraBiblios: [{ 'https://tc39.es/ecma262/': [] }],
       });
     }, /old-style biblio/);
