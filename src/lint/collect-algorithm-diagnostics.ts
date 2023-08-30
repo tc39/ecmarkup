@@ -9,6 +9,7 @@ import { warnEmdFailure } from '../utils';
 import lintAlgorithmLineStyle from './rules/algorithm-line-style';
 import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
+import lintEnumCasing from './rules/enum-casing';
 import lintForEachElement from './rules/for-each-element';
 import lintStepAttributes from './rules/step-attributes';
 import lintIfElseConsistency from './rules/if-else-consistency';
@@ -27,6 +28,7 @@ const stepRules: LineRule[] = [
   lintAlgorithmLineStyle,
   lintAlgorithmStepNumbering,
   lintAlgorithmStepLabels,
+  lintEnumCasing,
   lintForEachElement,
   lintStepAttributes,
   lintIfElseConsistency,
