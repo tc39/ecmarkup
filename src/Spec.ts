@@ -77,6 +77,22 @@ const NO_EMD = new Set([
 ]);
 const YES_EMD = new Set(['EMU-GMOD']); // these are processed even if they are nested in NO_EMD contexts
 
+// maps PostScript font names to files in fonts/
+const FONT_FILES = new Map([
+  ['IBMPlexSerif-Regular', 'IBMPlexSerif-Regular-SlashedZero.woff2'],
+  ['IBMPlexSerif-Bold', 'IBMPlexSerif-Bold-SlashedZero.woff2'],
+  ['IBMPlexSerif-Italic', 'IBMPlexSerif-Italic-SlashedZero.woff2'],
+  ['IBMPlexSerif-BoldItalic', 'IBMPlexSerif-BoldItalic-SlashedZero.woff2'],
+  ['IBMPlexSans-Regular', 'IBMPlexSans-Regular-SlashedZero.woff2'],
+  ['IBMPlexSans-Bold', 'IBMPlexSans-Bold-SlashedZero.woff2'],
+  ['IBMPlexSans-Italic', 'IBMPlexSans-Italic-SlashedZero.woff2'],
+  ['IBMPlexSans-BoldItalic', 'IBMPlexSans-BoldItalic-SlashedZero.woff2'],
+  ['IBMPlexMono-Regular', 'IBMPlexMono-Regular-SlashedZero.woff2'],
+  ['IBMPlexMono-Bold', 'IBMPlexMono-Bold-SlashedZero.woff2'],
+  ['IBMPlexMono-Italic', 'IBMPlexMono-Italic-SlashedZero.woff2'],
+  ['IBMPlexMono-BoldItalic', 'IBMPlexMono-BoldItalic-SlashedZero.woff2'],
+]);
+
 interface VisitorMap {
   [k: string]: BuilderInterface;
 }
@@ -118,7 +134,7 @@ export default interface Spec {
   rootDir: string;
   namespace: string;
   exportBiblio(): any;
-  generatedFiles: Map<string | null, string>;
+  generatedFiles: Map<string | null, string | Buffer>;
 }
 
 export type Warning =
@@ -309,7 +325,7 @@ export default class Spec {
   labeledStepsToBeRectified: Set<string>;
   replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
-  generatedFiles: Map<string | null, string>;
+  generatedFiles: Map<string | null, string | Buffer>;
   log: (msg: string) => void;
   warn: (err: Warning) => void | undefined;
 
@@ -1246,7 +1262,36 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       });
     }
 
-    const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
+    let cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
+
+    const FONT_FILE_CONTENTS = new Map(
+      zip(
+        FONT_FILES.values(),
+        await Promise.all(
+          Array.from(FONT_FILES.values()).map(fontFile =>
+            utils.readBinaryFile(path.join(__dirname, '..', 'fonts', fontFile))
+          )
+        )
+      )
+    );
+
+    cssContents = cssContents.replace(
+      /^([ \t]*)src: +local\(([^)]+)\), +local\(([^)]+)\);$/gm,
+      (match, indent, displayName, postScriptName) => {
+        const fontFile = FONT_FILES.get(postScriptName) ?? FONT_FILES.get(displayName);
+        if (fontFile == null) {
+          throw new Error(`Unrecognised font: ${JSON.stringify(postScriptName)}`);
+        }
+        const fontType = path.extname(fontFile).slice(1);
+        const urlRef =
+          this.assets.type === 'inline'
+            ? // prettier-ignore
+              `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
+            : `./${fontFile}`;
+        return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
+      }
+    );
+
     if (this.assets.type === 'external') {
       const outDir = this.opts.outfile
         ? this.opts.multipage
@@ -1259,6 +1304,12 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
       this.generatedFiles.set(scriptLocationOnDisk, jsContents);
       this.generatedFiles.set(styleLocationOnDisk, cssContents);
+      for (const [, fontFile] of FONT_FILES) {
+        this.generatedFiles.set(
+          path.join(this.assets.directory, fontFile),
+          FONT_FILE_CONTENTS.get(fontFile)!
+        );
+      }
 
       const script = this.doc.createElement('script');
       script.src = path.relative(outDir, scriptLocationOnDisk) + '?cache=' + jsSha;
@@ -2105,20 +2156,38 @@ function sha(str: string) {
 
 // jsdom does not handle the `.hostname` (etc) parts correctly, so we have to look at the href directly
 // it also (some?) relative links as links to about:blank, for the purposes of testing the href
-function linkIsAbsolute(link: HTMLAnchorElement | HTMLLinkElement) {
-  return !link.href.startsWith('about:blank') && /^[a-z]+:/.test(link.href);
+function linkIsAbsolute(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement) {
+  const href = getHref(link);
+  return !href.startsWith('about:blank') && /^[a-z]+:/.test(href);
 }
 
-function linkIsInternal(link: HTMLAnchorElement | HTMLLinkElement) {
-  return link.href.startsWith('#') || link.href.startsWith('about:blank#');
+function linkIsInternal(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement) {
+  const href = getHref(link);
+  return href.startsWith('#') || href.startsWith('about:blank#');
 }
 
-function linkIsPathRelative(link: HTMLAnchorElement | HTMLLinkElement) {
-  return !link.href.startsWith('/') && !link.href.startsWith('about:blank/');
+function linkIsPathRelative(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement) {
+  const href = getHref(link);
+  return !href.startsWith('/') && !href.startsWith('about:blank/');
 }
 
-function pathFromRelativeLink(link: HTMLAnchorElement | HTMLLinkElement) {
-  return link.href.startsWith('about:blank') ? link.href.substring(11) : link.href;
+function pathFromRelativeLink(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement) {
+  const href = getHref(link);
+  return href.startsWith('about:blank') ? href.substring(11) : href;
+}
+
+function getHref(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement): string {
+  if (isScriptNode(link)) {
+    return link.src;
+  } else {
+    return link.href;
+  }
+}
+
+function isScriptNode(
+  node: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement
+): node is HTMLScriptElement {
+  return node.nodeName.toLowerCase() === 'script';
 }
 
 function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null {
@@ -2195,4 +2264,24 @@ function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
     }
   }
   return false;
+}
+
+function* zip<A, B>(as: Iterable<A>, bs: Iterable<B>): Iterable<[A, B]> {
+  const iterA = as[Symbol.iterator]();
+  const iterB = bs[Symbol.iterator]();
+
+  while (true) {
+    const iterResultA = iterA.next();
+    const iterResultB = iterB.next();
+
+    if (iterResultA.done !== iterResultB.done) {
+      throw new Error('zipping iterators which ended at different times');
+    }
+
+    if (iterResultA.done) {
+      break;
+    }
+
+    yield [iterResultA.value, iterResultB.value];
+  }
 }

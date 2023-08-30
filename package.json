@@ -28,6 +28,7 @@
 		"/lib",
 		"/js",
 		"/css",
+		"/fonts",
 		"/boilerplate",
 		"/entities-processed.json"
 	],

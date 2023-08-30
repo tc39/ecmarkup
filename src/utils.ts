@@ -167,12 +167,23 @@ export function readFile(file: string) {
 }
 
 /*@internal*/
-export function writeFile(file: string, content: string) {
+export function readBinaryFile(file: string) {
+  return new Promise<Buffer>((resolve, reject) => {
+    fs.readFile(file, (err, data) => (err ? reject(err) : resolve(data)));
+  });
+}
+
+/*@internal*/
+export function writeFile(file: string, content: string | Buffer) {
   return new Promise<void>((resolve, reject) => {
     // we could do this async, but it's not worth worrying about
     fs.mkdirSync(path.dirname(file), { recursive: true });
 
-    fs.writeFile(file, content, { encoding: 'utf8' }, err => (err ? reject(err) : resolve()));
+    if (typeof content === 'string') {
+      content = Buffer.from(content, 'utf8');
+    }
+
+    fs.writeFile(file, content, err => (err ? reject(err) : resolve()));
   });
 }
 
