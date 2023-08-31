@@ -794,7 +794,7 @@ emu-clause:target, emu-annex:target, emu-table:target figure {
   padding-left: 1em;
   margin-left: -1em;
 }
-dfn:target, emu-xref:target {
+dfn:target, emu-xref:target, emu-eqn:target {
   text-decoration: wavy underline;
   text-decoration-color: #FF9800;
 }
