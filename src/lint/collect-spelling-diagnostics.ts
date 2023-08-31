@@ -42,7 +42,9 @@ const matchers = [
   },
   {
     // this needs its own rule to catch +0 as a real number
-    pattern: /(?<= )\+[0-9]/gu,
+    // (but not similar text such as expanded-year dates like +000000-01-01
+    // or UTC offsets like +00:00)
+    pattern: /(?<=^|\s)\+[0-9](?![0-9]*[-:])/gu,
     message: 'positive real numbers should not have a leading plus sign (+)',
   },
   {
@@ -66,11 +68,15 @@ const matchers = [
     message: '"Number value", not "number value"',
   },
   {
-    pattern: /[Bb]ehavior/gu,
-    message: 'ECMA-262 uses Oxford spelling ("behaviour")',
+    // it would be best to somehow literally check against en-GB-oxendict,
+    // but absent that we use the sample list from
+    // https://en.wikipedia.org/wiki/American_and_British_English_spelling_differences#-our%2C_-or
+    pattern:
+      /\b(?:[Bb]ehaviors?|[Ff]lavors?|[Hh]arbors?|[Hh]onors?|[Hh]umors?|[Ll]abors?|[Nn]eighbors?|[Rr]umors?|[Ss]plendors?)\b/gu,
+    message: 'ECMA-262 uses Oxford spelling ("behaviour", etc.)',
   },
   {
-    pattern: /[Ii]ndexes/gu,
+    pattern: /\b[Ii]ndexes\b/gu,
     message: 'prefer "indices"',
   },
   {
@@ -78,11 +84,15 @@ const matchers = [
     message: 'prefer "non-negative"',
   },
   {
+    pattern: /\b[Nn]onempty\b/gu,
+    message: 'prefer "non-empty"',
+  },
+  {
     pattern: /\b[Nn]onzero\b/gu,
     message: 'prefer "non-zero"',
   },
   {
-    pattern: /[Tt]he empty string/gu,
+    pattern: /\b[Tt]he empty string\b/gu,
     message: 'prefer "the empty String"',
   },
   {

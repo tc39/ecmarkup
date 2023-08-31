@@ -33,7 +33,7 @@ export default class Toc {
 
       if (expandy) {
         if (sub.subclauses.length > 0) {
-          html += '<span class="item-toggle">◢</span>';
+          html += '<span class="item-toggle">+</span>';
         } else {
           html += '<span class="item-toggle-none"></span>';
         }

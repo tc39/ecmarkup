@@ -23,6 +23,7 @@
   </emu-alg>
 </emu-clause>
 
+<!-- EXPECT_WARNING { "ruleId": "duplicate-id", "message": "<emu-clause> has duplicate id \"sec-exampleao\"" } -->
 <emu-clause id="sec-exampleao" type="abstract operation">
   <h1>ExampleAO ( )</h1>
   <dl class='header'>
@@ -52,7 +53,8 @@
 <emu-clause id="sec-exampleao3" type="abstract operation">
   <h1>
     ExampleAO3 (
-      <del>param : an integer,</del>
+      <del>_param_ : an integer,</del>
+      <ins>optional _newParam_ : an integer,</ins>
     )
   </h1>
   <dl class='header'>
@@ -60,6 +62,26 @@
   <emu-alg>
     1. Algorithm steps go here.
   </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-exampleao4" type="abstract operation">
+  <h1>
+    ExampleAO4 (
+      param : an integer,
+    )
+  </h1>
+  <dl class='header'>
+  </dl>
+  <del class="block">
+    <emu-alg>
+      1. Algorithm steps go here.
+    </emu-alg>
+  </del>
+  <ins class="block">
+    <emu-alg>
+      1. New algorithm steps go here.
+    </emu-alg>
+  </ins>
 </emu-clause>
 
 <emu-clause id="sec-example-grammar">
@@ -105,7 +127,7 @@
 
 <emu-clause id="sec-example-return-type" type="abstract operation">
   <h1>
-    ExampleAO3 (
+    ExampleAO5 (
       param : an integer,
     ): the return type
   </h1>

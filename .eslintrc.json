@@ -5,7 +5,8 @@
     "prettier"
   ],
   "plugins": [
-    "prettier"
+    "prettier",
+    "@typescript-eslint"
   ],
   "env": {
     "node": true,
@@ -49,6 +50,7 @@
     }
   ],
   "rules": {
+    "@typescript-eslint/consistent-type-imports": "error",
     "prettier/prettier": "error",
     "arrow-body-style": "error",
     "prefer-arrow-callback": "error",

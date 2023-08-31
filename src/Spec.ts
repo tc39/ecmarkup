@@ -1,8 +1,15 @@
 import type { ElementLocation } from 'parse5';
 import type { EcmarkupError, Options } from './ecmarkup';
+import type {
+  OneOfList,
+  RightHandSide,
+  SourceFile,
+  Production as GMDProduction,
+} from 'grammarkdown';
 import type { Context } from './Context';
 import type { AlgorithmBiblioEntry, ExportedBiblio, StepBiblioEntry, Type } from './Biblio';
 import type { BuilderInterface } from './Builder';
+import type { AlgorithmElementWithTree } from './Algorithm';
 
 import * as path from 'path';
 import * as fs from 'fs';
@@ -11,7 +18,8 @@ import * as yaml from 'js-yaml';
 import * as utils from './utils';
 import * as hljs from 'highlight.js';
 // Builders
-import Import, { EmuImportElement } from './Import';
+import type { EmuImportElement } from './Import';
+import Import from './Import';
 import Clause from './Clause';
 import ClauseNumbers from './clauseNums';
 import Algorithm from './Algorithm';
@@ -39,7 +47,12 @@ import {
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
-import type { OrderedListItemNode, parseAlgorithm, UnorderedListItemNode } from 'ecmarkdown';
+import type { OrderedListNode } from 'ecmarkdown';
+import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
+import type { AugmentedGrammarEle } from './Grammar';
+import { offsetToLineAndColumn } from './utils';
+import type { Expr, PathItem, Seq } from './expr-parser';
+import { parse as parseExpr, walk as walkExpr, isProsePart } from './expr-parser';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -52,8 +65,33 @@ const STANDARD_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   month: 'long',
   timeZone: 'UTC',
 };
-const NO_EMD = new Set(['PRE', 'CODE', 'EMU-PRODUCTION', 'EMU-ALG', 'EMU-GRAMMAR', 'EMU-EQN']);
+const NO_EMD = new Set([
+  'PRE',
+  'CODE',
+  'SCRIPT',
+  'STYLE',
+  'EMU-PRODUCTION',
+  'EMU-ALG',
+  'EMU-GRAMMAR',
+  'EMU-EQN',
+]);
 const YES_EMD = new Set(['EMU-GMOD']); // these are processed even if they are nested in NO_EMD contexts
+
+// maps PostScript font names to files in fonts/
+const FONT_FILES = new Map([
+  ['IBMPlexSerif-Regular', 'IBMPlexSerif-Regular-SlashedZero.woff2'],
+  ['IBMPlexSerif-Bold', 'IBMPlexSerif-Bold-SlashedZero.woff2'],
+  ['IBMPlexSerif-Italic', 'IBMPlexSerif-Italic-SlashedZero.woff2'],
+  ['IBMPlexSerif-BoldItalic', 'IBMPlexSerif-BoldItalic-SlashedZero.woff2'],
+  ['IBMPlexSans-Regular', 'IBMPlexSans-Regular-SlashedZero.woff2'],
+  ['IBMPlexSans-Bold', 'IBMPlexSans-Bold-SlashedZero.woff2'],
+  ['IBMPlexSans-Italic', 'IBMPlexSans-Italic-SlashedZero.woff2'],
+  ['IBMPlexSans-BoldItalic', 'IBMPlexSans-BoldItalic-SlashedZero.woff2'],
+  ['IBMPlexMono-Regular', 'IBMPlexMono-Regular-SlashedZero.woff2'],
+  ['IBMPlexMono-Bold', 'IBMPlexMono-Bold-SlashedZero.woff2'],
+  ['IBMPlexMono-Italic', 'IBMPlexMono-Italic-SlashedZero.woff2'],
+  ['IBMPlexMono-BoldItalic', 'IBMPlexMono-BoldItalic-SlashedZero.woff2'],
+]);
 
 interface VisitorMap {
   [k: string]: BuilderInterface;
@@ -96,7 +134,7 @@ export default interface Spec {
   rootDir: string;
   namespace: string;
   exportBiblio(): any;
-  generatedFiles: Map<string | null, string>;
+  generatedFiles: Map<string | null, string | Buffer>;
 }
 
 export type Warning =
@@ -271,6 +309,7 @@ export function maybeAddClauseToEffectWorklist(
 export default class Spec {
   spec: this;
   opts: Options;
+  assets: { type: 'none' } | { type: 'inline' } | { type: 'external'; directory: string };
   rootPath: string;
   rootDir: string;
   sourceText: string;
@@ -286,7 +325,7 @@ export default class Spec {
   labeledStepsToBeRectified: Set<string>;
   replacementAlgorithms: { element: Element; target: string }[];
   cancellationToken: CancellationToken;
-  generatedFiles: Map<string | null, string>;
+  generatedFiles: Map<string | null, string | Buffer>;
   log: (msg: string) => void;
   warn: (err: Warning) => void | undefined;
 
@@ -313,12 +352,10 @@ export default class Spec {
     rootPath: string,
     fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
     dom: JSDOM,
-    opts: Options,
+    opts: Options = {},
     sourceText: string,
     token = CancellationToken.none
   ) {
-    opts = opts || {};
-
     this.spec = this;
     this.opts = {};
     this.rootPath = rootPath;
@@ -337,6 +374,7 @@ export default class Spec {
     this.cancellationToken = token;
     this.generatedFiles = new Map();
     this.log = opts.log ?? (() => {});
+    // TODO warnings should probably default to console.error, with a reasonable formatting
     this.warn = opts.warn ? wrapWarn(sourceText, this, opts.warn) : () => {};
     this._figureCounts = {
       table: 0,
@@ -356,18 +394,45 @@ export default class Spec {
     this.processMetadata();
     Object.assign(this.opts, opts);
 
+    if (this.opts.jsOut || this.opts.cssOut) {
+      throw new Error('--js-out and --css-out have been removed; use --assets-dir instead');
+    }
+
+    if (
+      this.opts.assets != null &&
+      this.opts.assets !== 'external' &&
+      this.opts.assetsDir != null
+    ) {
+      throw new Error(`--assets=${this.opts.assets} cannot be used --assets-dir"`);
+    }
+
     if (this.opts.multipage) {
-      if (this.opts.jsOut || this.opts.cssOut) {
-        throw new Error('Cannot use --multipage with --js-out or --css-out');
+      this.opts.outfile ??= '';
+      const type = this.opts.assets ?? 'external';
+      if (type === 'inline') {
+        throw new Error('assets cannot be inline for multipage builds');
+      } else if (type === 'none') {
+        this.assets = { type: 'none' };
+      } else {
+        this.assets = {
+          type: 'external',
+          directory: this.opts.assetsDir ?? path.join(this.opts.outfile, 'assets'),
+        };
       }
-
-      if (this.opts.outfile == null) {
-        this.opts.outfile = '';
-      }
-
-      if (this.opts.assets !== 'none') {
-        this.opts.jsOut = path.join(this.opts.outfile, 'ecmarkup.js');
-        this.opts.cssOut = path.join(this.opts.outfile, 'ecmarkup.css');
+    } else {
+      const type = this.opts.assets ?? (this.opts.assetsDir == null ? 'inline' : 'external');
+      if (type === 'inline') {
+        console.error('Warning: inlining assets; this should not be done for production builds.');
+        this.assets = { type: 'inline' };
+      } else if (type === 'none') {
+        this.assets = { type: 'none' };
+      } else {
+        this.assets = {
+          type: 'external',
+          directory:
+            this.opts.assetsDir ??
+            (this.opts.outfile ? path.join(path.dirname(this.opts.outfile), 'assets') : 'assets'),
+        };
       }
     }
 
@@ -535,11 +600,11 @@ export default class Spec {
       (await concatJs(sdoJs, tocJs)) + `\n;let usesMultipage = ${!!this.opts.multipage}`;
     const jsSha = sha(jsContents);
 
-    if (this.opts.multipage) {
-      await this.buildMultipage(wrapper, commonEles, jsSha);
-    }
-
     await this.buildAssets(jsContents, jsSha);
+
+    if (this.opts.multipage) {
+      await this.buildMultipage(wrapper, commonEles);
+    }
 
     const file = this.opts.multipage
       ? path.join(this.opts.outfile!, 'index.html')
@@ -576,10 +641,9 @@ export default class Spec {
     }
   }
 
-  // right now this just checks that AOs which do/don't return completion records are invoked appropriately
-  // someday, more!
+  // checks that AOs which do/don't return completion records are invoked appropriately
+  // also checks that the appropriate number of arguments are passed
   private typecheck() {
-    const isCall = (x: Xref) => x.isInvocation && x.clause != null && x.aoid != null;
     const isUnused = (t: Type) =>
       t.kind === 'unused' ||
       (t.kind === 'completion' &&
@@ -590,146 +654,167 @@ export default class Spec {
     const onlyPerformed: Map<string, null | 'only performed' | 'top'> = new Map(
       AOs.filter(e => !isUnused(e.signature!.return!)).map(a => [a.aoid, null])
     );
-
     const alwaysAssertedToBeNormal: Map<string, null | 'always asserted normal' | 'top'> = new Map(
       AOs.filter(e => e.signature!.return!.kind === 'completion').map(a => [a.aoid, null])
     );
 
-    for (const xref of this._xrefs) {
-      if (!isCall(xref)) {
-        continue;
-      }
-      const biblioEntry = this.biblio.byAoid(xref.aoid);
-      if (biblioEntry == null) {
-        this.warn({
-          type: 'node',
-          node: xref.node,
-          ruleId: 'xref-biblio',
-          message: `could not find biblio entry for xref ${JSON.stringify(xref.aoid)}`,
-        });
-        continue;
-      }
-      const signature = biblioEntry.signature;
-      if (signature == null) {
-        continue;
-      }
+    // TODO strictly speaking this needs to be done in the namespace of the current algorithm
+    const opNames = this.biblio.getOpNames(this.namespace);
 
-      const { return: returnType } = signature;
-      if (returnType == null) {
+    // TODO move declarations out of loop
+    for (const node of this.doc.querySelectorAll('emu-alg')) {
+      if (node.hasAttribute('example') || !('ecmarkdownTree' in node)) {
         continue;
       }
+      const tree = (node as AlgorithmElementWithTree).ecmarkdownTree;
+      if (tree == null) {
+        continue;
+      }
+      const originalHtml = (node as AlgorithmElementWithTree).originalHtml;
 
-      // this is really gross
-      // i am sorry
-      // the better approach is to make the xref-linkage logic happen on the level of the ecmarkdown tree
-      // so that we still have this information at that point
-      // rather than having to reconstruct it, approximately
-      // ... someday!
-      const warn = (message: string) => {
-        const path = [];
-        let pointer: HTMLElement | null = xref.node;
-        let alg: HTMLElement | null = null;
-        while (pointer != null) {
-          if (pointer.tagName === 'LI') {
-            // @ts-ignore
-            path.unshift([].indexOf.call(pointer.parentElement!.children, pointer));
-          }
-          if (pointer.tagName === 'EMU-ALG') {
-            alg = pointer;
-            break;
-          }
-          pointer = pointer.parentElement;
-        }
-        if (alg?.hasAttribute('example')) {
+      const expressionVisitor = (expr: Expr, path: PathItem[]) => {
+        if (expr.name !== 'call' && expr.name !== 'sdo-call') {
           return;
         }
-        if (alg == null || !{}.hasOwnProperty.call(alg, 'ecmarkdownTree')) {
-          const ruleId = 'completion-invocation';
-          let pointer: Element | null = xref.node;
-          while (this.locate(pointer) == null) {
-            pointer = pointer.parentElement;
-            if (pointer == null) {
-              break;
-            }
-          }
-          if (pointer == null) {
-            this.warn({
-              type: 'global',
-              ruleId,
-              message: message + ` but I wasn't able to find a source location to give you, sorry!`,
-            });
-          } else {
-            this.warn({
-              type: 'node',
-              node: pointer,
-              ruleId,
-              message,
-            });
-          }
-        } else {
-          // @ts-ignore
-          const tree = alg.ecmarkdownTree as ReturnType<typeof parseAlgorithm>;
-          let stepPointer: OrderedListItemNode | UnorderedListItemNode = {
-            sublist: tree.contents,
-          } as OrderedListItemNode;
-          for (const step of path) {
-            stepPointer = stepPointer.sublist!.contents[step];
-          }
+
+        const { callee, arguments: args } = expr;
+        if (!(callee.length === 1 && callee[0].name === 'text')) {
+          return;
+        }
+        const calleeName = callee[0].contents;
+
+        const warn = (message: string) => {
+          const { line, column } = offsetToLineAndColumn(
+            originalHtml,
+            callee[0].location.start.offset
+          );
           this.warn({
             type: 'contents',
-            node: alg,
-            ruleId: 'invocation-return-type',
+            ruleId: 'typecheck',
             message,
-            nodeRelativeLine: stepPointer.location.start.line,
-            nodeRelativeColumn: stepPointer.location.start.column,
+            node,
+            nodeRelativeLine: line,
+            nodeRelativeColumn: column,
           });
-        }
-      };
+        };
 
-      const consumedAsCompletion = isConsumedAsCompletion(xref);
-      // checks elsewhere ensure that well-formed documents never have a union of completion and non-completion, so checking the first child suffices
-      // TODO: this is for 'a break completion or a throw completion', which is kind of a silly union; maybe address that in some other way?
-      const isCompletion =
-        returnType.kind === 'completion' ||
-        (returnType.kind === 'union' && returnType.types[0].kind === 'completion');
-      if (['Completion', 'ThrowCompletion', 'NormalCompletion'].includes(xref.aoid)) {
-        if (consumedAsCompletion) {
+        const biblioEntry = this.biblio.byAoid(calleeName);
+        if (biblioEntry == null) {
+          if (
+            ![
+              'thisTimeValue',
+              'thisStringValue',
+              'thisBigIntValue',
+              'thisNumberValue',
+              'thisSymbolValue',
+              'thisBooleanValue',
+              'toUppercase',
+              'toLowercase',
+            ].includes(calleeName)
+          ) {
+            // TODO make the spec not do this
+            warn(`could not find definition for ${calleeName}`);
+          }
+          return;
+        }
+
+        if (biblioEntry.kind === 'syntax-directed operation' && expr.name === 'call') {
           warn(
-            `${xref.aoid} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`
+            `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`
+          );
+        } else if (
+          biblioEntry.kind != null &&
+          biblioEntry.kind !== 'syntax-directed operation' &&
+          expr.name === 'sdo-call'
+        ) {
+          warn(`${calleeName} is not a syntax-directed operation but here is being invoked as one`);
+        }
+
+        if (biblioEntry.signature == null) {
+          return;
+        }
+        const min = biblioEntry.signature.parameters.length;
+        const max = min + biblioEntry.signature.optionalParameters.length;
+        if (args.length < min || args.length > max) {
+          const count = `${min}${min === max ? '' : `-${max}`}`;
+          // prettier-ignore
+          const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
+          warn(message);
+        }
+
+        const { return: returnType } = biblioEntry.signature;
+        if (returnType == null) {
+          return;
+        }
+
+        const consumedAsCompletion = isConsumedAsCompletion(expr, path);
+
+        // checks elsewhere ensure that well-formed documents never have a union of completion and non-completion, so checking the first child suffices
+        // TODO: this is for 'a break completion or a throw completion', which is kind of a silly union; maybe address that in some other way?
+        const isCompletion =
+          returnType.kind === 'completion' ||
+          (returnType.kind === 'union' && returnType.types[0].kind === 'completion');
+        if (['Completion', 'ThrowCompletion', 'NormalCompletion'].includes(calleeName)) {
+          if (consumedAsCompletion) {
+            warn(
+              `${calleeName} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`
+            );
+          }
+        } else if (isCompletion && !consumedAsCompletion) {
+          warn(`${calleeName} returns a Completion Record, but is not consumed as if it does`);
+        } else if (!isCompletion && consumedAsCompletion) {
+          warn(`${calleeName} does not return a Completion Record, but is consumed as if it does`);
+        }
+        if (returnType.kind === 'unused' && !isCalledAsPerform(expr, path, false)) {
+          warn(
+            `${calleeName} does not return a meaningful value and should only be invoked as \`Perform ${calleeName}(...).\``
           );
         }
-      } else if (isCompletion && !consumedAsCompletion) {
-        warn(`${xref.aoid} returns a Completion Record, but is not consumed as if it does`);
-      } else if (!isCompletion && consumedAsCompletion) {
-        warn(`${xref.aoid} does not return a Completion Record, but is consumed as if it does`);
-      }
-      if (returnType.kind === 'unused' && !isCalledAsPerform(xref, false)) {
-        warn(
-          `${xref.aoid} does not return a meaningful value and should only be invoked as \`Perform ${xref.aoid}(...).\``
-        );
-      }
 
-      if (onlyPerformed.has(xref.aoid) && onlyPerformed.get(xref.aoid) !== 'top') {
-        const old = onlyPerformed.get(xref.aoid);
-        const performed = isCalledAsPerform(xref, true);
-        if (!performed) {
-          onlyPerformed.set(xref.aoid, 'top');
-        } else if (old === null) {
-          onlyPerformed.set(xref.aoid, 'only performed');
+        if (onlyPerformed.has(calleeName) && onlyPerformed.get(calleeName) !== 'top') {
+          const old = onlyPerformed.get(calleeName);
+          const performed = isCalledAsPerform(expr, path, true);
+          if (!performed) {
+            onlyPerformed.set(calleeName, 'top');
+          } else if (old === null) {
+            onlyPerformed.set(calleeName, 'only performed');
+          }
         }
-      }
-      if (
-        alwaysAssertedToBeNormal.has(xref.aoid) &&
-        alwaysAssertedToBeNormal.get(xref.aoid) !== 'top'
-      ) {
-        const old = alwaysAssertedToBeNormal.get(xref.aoid);
-        const asserted = isAssertedToBeNormal(xref);
-        if (!asserted) {
-          alwaysAssertedToBeNormal.set(xref.aoid, 'top');
-        } else if (old === null) {
-          alwaysAssertedToBeNormal.set(xref.aoid, 'always asserted normal');
+        if (
+          alwaysAssertedToBeNormal.has(calleeName) &&
+          alwaysAssertedToBeNormal.get(calleeName) !== 'top'
+        ) {
+          const old = alwaysAssertedToBeNormal.get(calleeName);
+          const asserted = isAssertedToBeNormal(expr, path);
+          if (!asserted) {
+            alwaysAssertedToBeNormal.set(calleeName, 'top');
+          } else if (old === null) {
+            alwaysAssertedToBeNormal.set(calleeName, 'always asserted normal');
+          }
         }
-      }
+      };
+      const walkLines = (list: OrderedListNode) => {
+        for (const line of list.contents) {
+          const item = parseExpr(line.contents, opNames);
+          if (item.name === 'failure') {
+            const { line, column } = offsetToLineAndColumn(originalHtml, item.offset);
+            this.warn({
+              type: 'contents',
+              ruleId: 'expression-parsing',
+              message: item.message,
+              node,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
+            });
+          } else {
+            walkExpr(expressionVisitor, item);
+          }
+          if (line.sublist?.name === 'ol') {
+            walkLines(line.sublist);
+          }
+        }
+      };
+      walkLines(tree.contents);
     }
 
     for (const [aoid, state] of onlyPerformed) {
@@ -957,7 +1042,7 @@ export default class Spec {
     return null;
   }
 
-  private async buildMultipage(wrapper: Element, commonEles: Element[], jsSha: string) {
+  private async buildMultipage(wrapper: Element, commonEles: Element[]) {
     let stillIntro = true;
     const introEles = [];
     const sections: { name: string; eles: Element[] }[] = [];
@@ -1054,53 +1139,46 @@ export default class Spec {
     }
 
     const head = this.doc.head.cloneNode(true) as HTMLHeadElement;
-    this.addStyle(head, 'ecmarkup.css'); // omit `../` because we rewrite `<link>` elements below
-    this.addStyle(
-      head,
-      `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
-        (hljs as any).versionString
-      }/styles/base16/solarized-light.min.css`
-    );
-
-    const script = this.doc.createElement('script');
-    script.src = '../ecmarkup.js?cache=' + jsSha;
-    script.setAttribute('defer', '');
-    head.appendChild(script);
 
     const containedMap = JSON.stringify(Object.fromEntries(sectionToContainedIds)).replace(
       /[\\`$]/g,
       '\\$&'
     );
-    const multipageJsContents = `'use strict';
+    if (this.assets.type !== 'none') {
+      const multipageJsContents = `'use strict';
 let multipageMap = JSON.parse(\`${containedMap}\`);
 ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 `;
-    if (this.opts.assets !== 'none') {
-      this.generatedFiles.set(
-        path.join(this.opts.outfile!, 'multipage/multipage.js'),
-        multipageJsContents
-      );
-    }
 
-    const multipageScript = this.doc.createElement('script');
-    multipageScript.src = 'multipage.js?cache=' + sha(multipageJsContents);
-    multipageScript.setAttribute('defer', '');
-    head.insertBefore(multipageScript, head.querySelector('script'));
+      // assets are never internal for multipage builds
+      // @ts-expect-error
+      const multipageLocationOnDisk = path.join(this.assets.directory, 'multipage.js');
+
+      this.generatedFiles.set(multipageLocationOnDisk, multipageJsContents);
+
+      // the path will be rewritten below
+      // so it should initially be relative to outfile, not outfile/multipage
+      const multipageScript = this.doc.createElement('script');
+      multipageScript.src =
+        path.relative(this.opts.outfile!, multipageLocationOnDisk) +
+        '?cache=' +
+        sha(multipageJsContents);
+      multipageScript.setAttribute('defer', '');
+      head.insertBefore(multipageScript, head.querySelector('script'));
+    }
 
     for (const { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
       const headClone = head.cloneNode(true) as HTMLHeadElement;
       const commonClone = commonEles.map(e => e.cloneNode(true));
       const clones = eles.map(e => e.cloneNode(true));
-      const allClones = [headClone, ...commonClone, ...clones];
-      // @ts-ignore
-      const links = allClones.flatMap(e => [...e.querySelectorAll('a,link')]);
-      for (const link of links) {
-        if (linkIsAbsolute(link)) {
+      const allClones = [headClone, ...commonClone, ...clones] as Element[];
+      for (const anchor of allClones.flatMap(e => [...e.querySelectorAll('a')])) {
+        if (linkIsAbsolute(anchor)) {
           continue;
         }
-        if (linkIsInternal(link)) {
-          let p = link.hash.substring(1);
+        if (linkIsInternal(anchor)) {
+          let p = anchor.hash.substring(1);
           if (!containedIdToSection.has(p)) {
             try {
               p = decodeURIComponent(p);
@@ -1111,29 +1189,41 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
               this.warn({
                 type: 'node',
                 ruleId: 'multipage-link-target',
-                message: 'could not find appropriate section for ' + link.hash,
-                node: link,
+                message: 'could not find appropriate section for ' + anchor.hash,
+                node: anchor,
               });
               continue;
             }
           }
           const targetSec = containedIdToSection.get(p)!;
-          link.href = (targetSec === 'index' ? './' : targetSec + '.html') + link.hash;
-        } else if (linkIsPathRelative(link)) {
-          link.href = '../' + pathFromRelativeLink(link);
+          anchor.href = (targetSec === 'index' ? './' : targetSec + '.html') + anchor.hash;
+        } else if (linkIsPathRelative(anchor)) {
+          anchor.href = path.relative('multipage', pathFromRelativeLink(anchor));
         }
       }
-      // @ts-ignore
+
+      for (const link of allClones.flatMap(e => [...e.querySelectorAll('link')])) {
+        if (!linkIsAbsolute(link) && linkIsPathRelative(link)) {
+          link.href = path.relative('multipage', pathFromRelativeLink(link));
+        }
+      }
+
       for (const img of allClones.flatMap(e => [...e.querySelectorAll('img')])) {
         if (!/^(http:|https:|:|\/)/.test(img.src)) {
-          img.src = '../' + img.src;
+          img.src = path.relative('multipage', img.src);
         }
       }
+
+      for (const script of allClones.flatMap(e => [...e.querySelectorAll('script')])) {
+        if (script.src != null && !/^(http:|https:|:|\/)/.test(script.src)) {
+          script.src = path.relative('multipage', script.src);
+        }
+      }
+
       // prettier-ignore
-      // @ts-ignore
-      for (const object of allClones.flatMap(e => [...e.querySelectorAll('object[data]')])) {
+      for (const object of allClones.flatMap(e => [...e.querySelectorAll('object[data]')]) as HTMLObjectElement[]) {
         if (!/^(http:|https:|:|\/)/.test(object.data)) {
-          object.data = '../' + object.data;
+          object.data = path.relative('multipage', object.data);
         }
       }
 
@@ -1144,9 +1234,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         headClone.appendChild(canonical);
       }
 
-      // @ts-ignore
+      // @ts-expect-error
       const commonHTML = commonClone.map(e => e.outerHTML).join('\n');
-      // @ts-ignore
+      // @ts-expect-error
       const clonesHTML = clones.map(e => e.outerHTML).join('\n');
       const content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${commonHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
 
@@ -1155,63 +1245,85 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
   }
 
   private async buildAssets(jsContents: string, jsSha: string) {
-    const cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
+    if (this.assets.type === 'none') return;
 
-    if (this.opts.jsOut) {
-      this.generatedFiles.set(this.opts.jsOut, jsContents);
+    // check for very old manual 'ecmarkup.js'/'ecmarkup.css'
+    const oldEles = this.doc.querySelectorAll(
+      "script[src='ecmarkup.js'],link[href='ecmarkup.css']"
+    );
+    for (const item of oldEles) {
+      this.warn({
+        type: 'attr',
+        ruleId: 'old-script-or-style',
+        node: item,
+        attr: item.tagName === 'SCRIPT' ? 'src' : 'href',
+        message:
+          'ecmarkup will insert its own js/css; the input document should not include tags for them',
+      });
     }
 
-    if (this.opts.cssOut) {
-      this.generatedFiles.set(this.opts.cssOut, cssContents);
-    }
+    let cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
 
-    if (this.opts.assets === 'none') return;
+    const FONT_FILE_CONTENTS = new Map(
+      zip(
+        FONT_FILES.values(),
+        await Promise.all(
+          Array.from(FONT_FILES.values()).map(fontFile =>
+            utils.readBinaryFile(path.join(__dirname, '..', 'fonts', fontFile))
+          )
+        )
+      )
+    );
 
-    const outDir = this.opts.outfile
-      ? this.opts.multipage
-        ? this.opts.outfile
-        : path.dirname(this.opts.outfile)
-      : process.cwd();
-
-    if (this.opts.jsOut) {
-      let skipJs = false;
-      const scripts = this.doc.querySelectorAll('script');
-      for (let i = 0; i < scripts.length; i++) {
-        const script = scripts[i];
-        const src = script.getAttribute('src');
-        if (src && path.normalize(path.join(outDir, src)) === path.normalize(this.opts.jsOut)) {
-          this.log(`Found existing js link to ${src}, skipping inlining...`);
-          skipJs = true;
+    cssContents = cssContents.replace(
+      /^([ \t]*)src: +local\(([^)]+)\), +local\(([^)]+)\);$/gm,
+      (match, indent, displayName, postScriptName) => {
+        const fontFile = FONT_FILES.get(postScriptName) ?? FONT_FILES.get(displayName);
+        if (fontFile == null) {
+          throw new Error(`Unrecognised font: ${JSON.stringify(postScriptName)}`);
         }
+        const fontType = path.extname(fontFile).slice(1);
+        const urlRef =
+          this.assets.type === 'inline'
+            ? // prettier-ignore
+              `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
+            : `./${fontFile}`;
+        return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
       }
-      if (!skipJs) {
-        const script = this.doc.createElement('script');
-        script.src = path.relative(outDir, this.opts.jsOut) + '?cache=' + jsSha;
-        script.setAttribute('defer', '');
-        this.doc.head.appendChild(script);
+    );
+
+    if (this.assets.type === 'external') {
+      const outDir = this.opts.outfile
+        ? this.opts.multipage
+          ? this.opts.outfile
+          : path.dirname(this.opts.outfile)
+        : process.cwd();
+
+      const scriptLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.js');
+      const styleLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.css');
+
+      this.generatedFiles.set(scriptLocationOnDisk, jsContents);
+      this.generatedFiles.set(styleLocationOnDisk, cssContents);
+      for (const [, fontFile] of FONT_FILES) {
+        this.generatedFiles.set(
+          path.join(this.assets.directory, fontFile),
+          FONT_FILE_CONTENTS.get(fontFile)!
+        );
       }
+
+      const script = this.doc.createElement('script');
+      script.src = path.relative(outDir, scriptLocationOnDisk) + '?cache=' + jsSha;
+      script.setAttribute('defer', '');
+      this.doc.head.appendChild(script);
+
+      this.addStyle(this.doc.head, path.relative(outDir, styleLocationOnDisk));
     } else {
+      // i.e. assets.type === 'inline'
       this.log('Inlining JavaScript assets...');
       const script = this.doc.createElement('script');
       script.textContent = jsContents;
       this.doc.head.appendChild(script);
-    }
 
-    if (this.opts.cssOut) {
-      let skipCss = false;
-      const links = this.doc.querySelectorAll('link[rel=stylesheet]');
-      for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        const href = link.getAttribute('href');
-        if (href && path.normalize(path.join(outDir, href)) === path.normalize(this.opts.cssOut)) {
-          this.log(`Found existing css link to ${href}, skipping inlining...`);
-          skipCss = true;
-        }
-      }
-      if (!skipCss) {
-        this.addStyle(this.doc.head, path.relative(outDir, this.opts.cssOut));
-      }
-    } else {
       this.log('Inlining CSS assets...');
       const style = this.doc.createElement('style');
       style.textContent = cssContents;
@@ -1323,6 +1435,13 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     );
     const biblios = biblioContents.flatMap(c => JSON.parse(c) as ExportedBiblio | ExportedBiblio[]);
     for (const biblio of biblios.concat(this.opts.extraBiblios ?? [])) {
+      if (biblio?.entries == null) {
+        let message = Object.keys(biblio ?? {}).some(k => k.startsWith('http'))
+          ? 'This is an old-style biblio.'
+          : 'Biblio does not appear to be in the correct format, are you using an old-style biblio?';
+        message += ' You will need to update it to work with versions of ecmarkup >= 12.0.0.';
+        throw new Error(message);
+      }
       this.biblio.addExternalBiblio(biblio);
       for (const entry of biblio.entries) {
         if (entry.type === 'op' && entry.effects?.length > 0) {
@@ -1418,14 +1537,14 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       this.doc.body.insertBefore(h1, this.doc.body.firstChild);
     }
 
-    // version string, ala 6th Edition July 2016 or Draft 10 / September 26, 2015
+    // version string, e.g. "6th Edition July 2016" or "Draft 10 / September 26, 2015"
     let versionText = '';
     let omitShortname = false;
     if (version) {
       versionText += version + ' / ';
     } else if (status === 'proposal' && stage) {
       versionText += 'Stage ' + stage + ' Draft / ';
-    } else if (shortname && status === 'draft') {
+    } else if (status === 'draft' && shortname) {
       versionText += 'Draft ' + shortname + ' / ';
       omitShortname = true;
     } else {
@@ -1538,32 +1657,20 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       mainGrammar.delete(annexEle);
     }
 
-    const productions: Map<String, Array<Element>> = new Map();
-    for (const grammar of mainGrammar) {
-      for (const production of grammar.querySelectorAll('emu-production')) {
-        if (!production.hasAttribute('name')) {
-          // I don't think this is possible, but we can at least be graceful about it
-          this.warn({
-            type: 'node',
-            // All of these elements are synthetic, and hence lack locations, so we point error messages to the containing emu-grammar
-            node: grammar,
-            ruleId: 'grammar-shape',
-            message: 'expected emu-production node to have name',
-          });
-          continue;
+    const mainProductions: Map<string, { rhs: RightHandSide | OneOfList; rhsEle: Element }[]> =
+      new Map();
+
+    for (const grammarEle of mainGrammar) {
+      if (!('grammarSource' in grammarEle)) {
+        // this should only happen if it failed to parse/emit, which we'll have already warned for
+        continue;
+      }
+      for (const [name, { rhses }] of this.getProductions(grammarEle as AugmentedGrammarEle)) {
+        if (mainProductions.has(name)) {
+          mainProductions.set(name, mainProductions.get(name)!.concat(rhses));
+        } else {
+          mainProductions.set(name, rhses);
         }
-        const name = production.getAttribute('name')!;
-        if (productions.has(name)) {
-          this.warn({
-            type: 'node',
-            node: grammar,
-            ruleId: 'grammar-shape',
-            message: `found duplicate definition for production ${name}`,
-          });
-          continue;
-        }
-        const rhses: Array<Element> = [...production.querySelectorAll('emu-rhs')];
-        productions.set(name, rhses);
       }
     }
 
@@ -1609,65 +1716,79 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         continue;
       }
       const sdoName = nameMatch[1];
-      for (const grammar of sdo.children) {
-        if (grammar.tagName !== 'EMU-GRAMMAR') {
+      for (const grammarEle of sdo.children) {
+        if (grammarEle.tagName !== 'EMU-GRAMMAR') {
           continue;
         }
-        for (const production of grammar.querySelectorAll('emu-production')) {
-          if (!production.hasAttribute('name')) {
-            // I don't think this is possible, but we can at least be graceful about it
-            this.warn({
-              type: 'node',
-              node: grammar,
-              ruleId: 'grammar-shape',
-              message: 'expected emu-production node to have name',
-            });
-            continue;
-          }
-          const name = production.getAttribute('name')!;
-          if (!productions.has(name)) {
+        if (!('grammarSource' in grammarEle)) {
+          // this should only happen if it failed to parse/emit, which we'll have already warned for
+          continue;
+        }
+
+        // prettier-ignore
+        for (const [name, { production, rhses }] of this.getProductions(grammarEle as AugmentedGrammarEle)) {
+          if (!mainProductions.has(name)) {
             if (this.biblio.byProductionName(name) != null) {
               // in an ideal world we'd keep the full grammar in the biblio so we could check for a matching RHS, not just a matching LHS
               // but, we're not in that world
               // https://github.com/tc39/ecmarkup/issues/431
               continue;
             }
+            const { line, column } = getLocationInGrammarFile(
+              (grammarEle as AugmentedGrammarEle).grammarSource,
+              production.pos
+            );
             this.warn({
-              type: 'node',
-              node: grammar,
+              type: 'contents',
+              node: grammarEle,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
               ruleId: 'grammar-shape',
               message: `could not find definition corresponding to production ${name}`,
             });
             continue;
           }
-          const mainRhses = productions.get(name)!;
-          for (const rhs of production.querySelectorAll('emu-rhs')) {
-            const matches = mainRhses.filter(r => rhsMatches(rhs, r));
+
+          const mainRhses = mainProductions.get(name)!;
+          for (const { rhs, rhsEle } of rhses) {
+            const matches = mainRhses.filter(p => rhsMatches(rhs, p.rhs));
             if (matches.length === 0) {
+              const { line, column } = getLocationInGrammarFile(
+                (grammarEle as AugmentedGrammarEle).grammarSource,
+                rhs.pos
+              );
               this.warn({
-                type: 'node',
-                node: grammar,
+                type: 'contents',
+                node: grammarEle,
+                nodeRelativeLine: line,
+                nodeRelativeColumn: column,
                 ruleId: 'grammar-shape',
-                message: `could not find definition for rhs ${rhs.textContent}`,
+                message: `could not find definition for rhs ${JSON.stringify(rhsEle.textContent)}`,
               });
               continue;
             }
             if (matches.length > 1) {
+              const { line, column } = getLocationInGrammarFile(
+                (grammarEle as AugmentedGrammarEle).grammarSource,
+                rhs.pos
+              );
               this.warn({
-                type: 'node',
-                node: grammar,
+                type: 'contents',
+                node: grammarEle,
+                nodeRelativeLine: line,
+                nodeRelativeColumn: column,
                 ruleId: 'grammar-shape',
-                message: `found multiple definitions for rhs ${rhs.textContent}`,
+                message: `found multiple definitions for rhs ${JSON.stringify(rhsEle.textContent)}`,
               });
               continue;
             }
-            const match = matches[0];
-            if (match.id == '') {
+            const match = matches[0].rhsEle;
+            if (match.id === '') {
               match.id = 'prod-' + sha(`${name} : ${match.textContent}`);
             }
             const mainId = match.id;
-            if (rhs.id == '') {
-              rhs.id = 'prod-' + sha(`[${sdoName}] ${name} ${rhs.textContent}`);
+            if (rhsEle.id === '') {
+              rhsEle.id = 'prod-' + sha(`[${sdoName}] ${name} ${rhsEle.textContent}`);
             }
             if (!{}.hasOwnProperty.call(sdoMap, mainId)) {
               sdoMap[mainId] = Object.create(null);
@@ -1678,12 +1799,12 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
             } else if (sdosForThisId[sdoName].clause !== clause) {
               this.warn({
                 type: 'node',
-                node: grammar,
+                node: grammarEle,
                 ruleId: 'grammar-shape',
                 message: `SDO ${sdoName} found in multiple clauses`,
               });
             }
-            sdosForThisId[sdoName].ids.push(rhs.id);
+            sdosForThisId[sdoName].ids.push(rhsEle.id);
           }
         }
       }
@@ -1691,6 +1812,67 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
     const json = JSON.stringify(sdoMap);
     return `let sdoMap = JSON.parse(\`${json.replace(/[\\`$]/g, '\\$&')}\`);`;
+  }
+
+  private getProductions(grammarEle: AugmentedGrammarEle) {
+    // unfortunately we need both the element and the grammarkdown node
+    // there is no immediate association between them
+    // so we are going to reconstruct the association by hand
+    const productions: Map<
+      string,
+      { production: GMDProduction; rhses: { rhs: RightHandSide | OneOfList; rhsEle: Element }[] }
+    > = new Map();
+
+    const productionEles: Map<string, Array<Element>> = new Map();
+    for (const productionEle of grammarEle.querySelectorAll('emu-production')) {
+      if (!productionEle.hasAttribute('name')) {
+        // I don't think this is possible, but we can at least be graceful about it
+        this.warn({
+          type: 'node',
+          // All of these elements are synthetic, and hence lack locations, so we point error messages to the containing emu-grammar
+          node: grammarEle,
+          ruleId: 'grammar-shape',
+          message: 'expected emu-production node to have name',
+        });
+        continue;
+      }
+      const name = productionEle.getAttribute('name')!;
+      const rhses = [...productionEle.querySelectorAll('emu-rhs')];
+      if (productionEles.has(name)) {
+        productionEles.set(name, productionEles.get(name)!.concat(rhses));
+      } else {
+        productionEles.set(name, rhses);
+      }
+    }
+
+    const sourceFile: SourceFile = grammarEle.grammarSource;
+
+    for (const [name, { production, rhses }] of getProductions([sourceFile])) {
+      if (!productionEles.has(name)) {
+        this.warn({
+          type: 'node',
+          node: grammarEle,
+          ruleId: 'rhs-consistency',
+          message: `failed to locate element for production ${name}. This is is a bug in ecmarkup; please report it.`,
+        });
+        continue;
+      }
+      const rhsEles = productionEles.get(name)!;
+      if (rhsEles.length !== rhses.length) {
+        this.warn({
+          type: 'node',
+          node: grammarEle,
+          ruleId: 'rhs-consistency',
+          message: `inconsistent RHS lengths for production ${name}. This is is a bug in ecmarkup; please report it.`,
+        });
+        continue;
+      }
+      productions.set(name, {
+        production,
+        rhses: rhses.map((rhs, i) => ({ rhs, rhsEle: rhsEles[i] })),
+      });
+    }
+    return productions;
   }
 
   private setReplacementAlgorithmOffsets() {
@@ -1853,9 +2035,7 @@ async function walk(walker: TreeWalker, context: Context) {
     previousInNoEmd = false;
   }
 
-  if (context.node.nodeType === 3) {
-    // walked to a text node
-
+  if (context.node.nodeType === 3 /* Node.TEXT_NODE */) {
     if (context.node.textContent!.trim().length === 0) return; // skip empty nodes; nothing to do!
 
     const clause = context.clauseStack[context.clauseStack.length - 1] || context.spec;
@@ -1864,13 +2044,19 @@ async function walk(walker: TreeWalker, context: Context) {
       // new nodes as a result of emd processing should be skipped
       context.inNoEmd = true;
       let node = context.node as Node | null;
-      while (node && !node.nextSibling) {
+      function nextRealSibling(node: Node | null) {
+        while (node?.nextSibling?.nodeType === 8 /* Node.COMMENT_NODE */) {
+          node = node.nextSibling;
+        }
+        return node?.nextSibling;
+      }
+      while (node && !nextRealSibling(node)) {
         node = node.parentNode;
       }
 
       if (node) {
         // inNoEmd will be set to false when we walk to this node
-        context.followingEmd = node.nextSibling;
+        context.followingEmd = nextRealSibling(node)!;
       }
       // else, there's no more nodes to process and inNoEmd does not need to be tracked
 
@@ -1900,7 +2086,7 @@ async function walk(walker: TreeWalker, context: Context) {
       throw new Error('oldids found on unsupported element: ' + context.node.nodeName);
     }
     oldids
-      .split(/,/g)
+      .split(',')
       .map(s => s.trim())
       .forEach(oid => {
         const s = spec.doc.createElement('span');
@@ -1958,75 +2144,6 @@ async function concatJs(...extras: string[]) {
   return dependencies.join('\n');
 }
 
-// todo move this to utils maybe
-// this is very similar to the identically-named method in lint/utils.ts, but operates on HTML elements rather than grammarkdown nodes
-function rhsMatches(aRhs: Element, bRhs: Element) {
-  const a = aRhs.firstElementChild;
-  const b = bRhs.firstElementChild;
-  if (a == null || b == null) {
-    throw new Error('RHS must have content');
-  }
-  return symbolSpanMatches(a, b);
-}
-
-function symbolSpanMatches(a: Element | null, b: Element | null): boolean {
-  if (a == null || a.textContent === '[empty]') {
-    return canBeEmpty(b);
-  }
-
-  if (b != null && symbolMatches(a, b)) {
-    return symbolSpanMatches(a.nextElementSibling, b.nextElementSibling);
-  }
-
-  // sometimes when there is an optional terminal or nonterminal we give distinct implementations for each case, rather than one implementation which represents both
-  // which means both `a b c` and `a c` must match `a b? c`
-  if (b != null && canSkipSymbol(b)) {
-    return symbolSpanMatches(a, b.nextElementSibling);
-  }
-
-  return false;
-}
-
-function canBeEmpty(b: Element | null): boolean {
-  return b == null || (canSkipSymbol(b) && canBeEmpty(b.nextElementSibling));
-}
-
-function canSkipSymbol(a: Element): boolean {
-  if (a.tagName === 'EMU-NT' && a.hasAttribute('optional')) {
-    return true;
-  }
-  // 'gmod' is prose assertions
-  // 'gann' is [empty], [nlth], and lookahead restrictions]
-  return ['EMU-CONSTRAINTS', 'EMU-GMOD', 'EMU-GANN'].includes(a.tagName);
-}
-
-function symbolMatches(a: Element, b: Element): boolean {
-  const aKind = a.tagName.toLowerCase();
-  const bKind = b.tagName.toLowerCase();
-  if (aKind !== bKind) {
-    return false;
-  }
-  switch (aKind) {
-    case 'emu-t': {
-      return a.textContent === b.textContent;
-    }
-    case 'emu-nt': {
-      if (a.childNodes.length > 1 || b.childNodes.length > 1) {
-        // NonTerminal.build() adds elements to represent parameters and "opt", but that happens after this phase
-        throw new Error('emu-nt nodes should not have other contents at this phase');
-      }
-      return a.textContent === b.textContent;
-    }
-    case 'emu-gmod':
-    case 'emu-gann': {
-      return a.textContent === b.textContent;
-    }
-    default: {
-      throw new Error('unimplemented: symbol matches ' + aKind);
-    }
-  }
-}
-
 function sha(str: string) {
   return crypto
     .createHash('sha256')
@@ -2039,74 +2156,132 @@ function sha(str: string) {
 
 // jsdom does not handle the `.hostname` (etc) parts correctly, so we have to look at the href directly
 // it also (some?) relative links as links to about:blank, for the purposes of testing the href
-function linkIsAbsolute(link: HTMLAnchorElement | HTMLLinkElement) {
-  return !link.href.startsWith('about:blank') && /^[a-z]+:/.test(link.href);
+function linkIsAbsolute(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement) {
+  const href = getHref(link);
+  return !href.startsWith('about:blank') && /^[a-z]+:/.test(href);
 }
 
-function linkIsInternal(link: HTMLAnchorElement | HTMLLinkElement) {
-  return link.href.startsWith('#') || link.href.startsWith('about:blank#');
+function linkIsInternal(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement) {
+  const href = getHref(link);
+  return href.startsWith('#') || href.startsWith('about:blank#');
 }
 
-function linkIsPathRelative(link: HTMLAnchorElement | HTMLLinkElement) {
-  return !link.href.startsWith('/') && !link.href.startsWith('about:blank/');
+function linkIsPathRelative(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement) {
+  const href = getHref(link);
+  return !href.startsWith('/') && !href.startsWith('about:blank/');
 }
 
-function pathFromRelativeLink(link: HTMLAnchorElement | HTMLLinkElement) {
-  return link.href.startsWith('about:blank') ? link.href.substring(11) : link.href;
+function pathFromRelativeLink(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement) {
+  const href = getHref(link);
+  return href.startsWith('about:blank') ? href.substring(11) : href;
 }
 
-function isFirstChild(node: Node) {
-  const p = node.parentElement!;
-  return (
-    p.childNodes[0] === node || (p.childNodes[0].textContent === '' && p.childNodes[1] === node)
-  );
-}
-
-// TODO factor some of this stuff out
-function isCalledAsPerform(xref: Xref, allowQuestion: boolean) {
-  let node = xref.node;
-  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
-    node = node.parentElement;
+function getHref(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement): string {
+  if (isScriptNode(link)) {
+    return link.src;
+  } else {
+    return link.href;
   }
-  const previousSibling = node.previousSibling;
-  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
+}
+
+function isScriptNode(
+  node: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement
+): node is HTMLScriptElement {
+  return node.nodeName.toLowerCase() === 'script';
+}
+
+function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null {
+  for (let pointer: Expr = expr, i = path.length - 1; i >= 0; pointer = path[i].parent, --i) {
+    const { parent } = path[i];
+    if (
+      parent.name === 'seq' &&
+      parent.items.every(
+        i => i === pointer || i.name === 'tag' || (i.name === 'text' && /^\s*$/.test(i.contents))
+      )
+    ) {
+      // if parent is just whitespace/tags around the call, walk up the tree further
+      continue;
+    }
+    return path[i];
+  }
+  return null;
+}
+
+function previousText(expr: Expr, path: PathItem[]): string | null {
+  const part = parentSkippingBlankSpace(expr, path);
+  if (part == null) {
+    return null;
+  }
+  const { parent, index } = part;
+  if (parent.name === 'seq') {
+    return textFromPreviousPart(parent, index);
+  }
+  return null;
+}
+
+function textFromPreviousPart(seq: Seq, index: number): string | null {
+  let prevIndex = index - 1;
+  let prev;
+  while (isProsePart((prev = seq.items[prevIndex]))) {
+    if (prev.name === 'text') {
+      return prev.contents;
+    } else if (prev.name === 'tag') {
+      --prevIndex;
+    } else {
+      break;
+    }
+  }
+  return null;
+}
+
+function isCalledAsPerform(expr: Expr, path: PathItem[], allowQuestion: boolean) {
+  const prev = previousText(expr, path);
+  return prev != null && (allowQuestion ? /\bperform ([?!]\s)?$/i : /\bperform $/i).test(prev);
+}
+
+function isAssertedToBeNormal(expr: Expr, path: PathItem[]) {
+  const prev = previousText(expr, path);
+  return prev != null && /\s!\s$/.test(prev);
+}
+
+function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
+  const part = parentSkippingBlankSpace(expr, path);
+  if (part == null) {
     return false;
   }
-  return (allowQuestion ? /\bperform ([?!]\s)?$/i : /\bperform $/i).test(
-    previousSibling.textContent!
-  );
-}
-
-function isAssertedToBeNormal(xref: Xref) {
-  let node = xref.node;
-  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
-    node = node.parentElement;
-  }
-  const previousSibling = node.previousSibling;
-  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
-    return false;
-  }
-  return /\s!\s$/.test(previousSibling.textContent!);
-}
-
-function isConsumedAsCompletion(xref: Xref) {
-  let node = xref.node;
-  if (node.parentElement?.tagName === 'EMU-META' && isFirstChild(node)) {
-    node = node.parentElement;
-  }
-  const previousSibling = node.previousSibling;
-  if (previousSibling?.nodeType !== 3 /* TEXT_NODE */) {
-    return false;
-  }
-  if (/[!?]\s$/.test(previousSibling.textContent!)) {
-    return true;
-  }
-  if (previousSibling.textContent! === '(') {
-    // check for Completion(
-    const previousPrevious = previousSibling.previousSibling;
-    if (previousPrevious?.textContent === 'Completion') {
+  const { parent, index } = part;
+  if (parent.name === 'seq') {
+    // if the previous text ends in `! ` or `? `, this is a completion
+    const text = textFromPreviousPart(parent, index);
+    if (text != null && /[!?]\s$/.test(text)) {
+      return true;
+    }
+  } else if (parent.name === 'call' && index === 0 && parent.arguments.length === 1) {
+    // if this is `Completion(Expr())`, this is a completion
+    const parts = parent.callee;
+    if (parts.length === 1 && parts[0].name === 'text' && parts[0].contents === 'Completion') {
       return true;
     }
   }
   return false;
+}
+
+function* zip<A, B>(as: Iterable<A>, bs: Iterable<B>): Iterable<[A, B]> {
+  const iterA = as[Symbol.iterator]();
+  const iterB = bs[Symbol.iterator]();
+
+  while (true) {
+    const iterResultA = iterA.next();
+    const iterResultB = iterB.next();
+
+    if (iterResultA.done !== iterResultB.done) {
+      throw new Error('zipping iterators which ended at different times');
+    }
+
+    if (iterResultA.done) {
+      break;
+    }
+
+    yield [iterResultA.value, iterResultB.value];
+  }
 }

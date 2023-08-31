@@ -38,9 +38,10 @@ export interface Options {
   oldToc?: boolean;
   markEffects?: boolean;
   lintSpec?: boolean;
-  cssOut?: string;
-  jsOut?: string;
+  cssOut?: never;
+  jsOut?: never;
   assets?: 'none' | 'inline' | 'external';
+  assetsDir?: string;
   outfile?: string;
   boilerplate?: Boilerplate;
   log?: (msg: string) => void;

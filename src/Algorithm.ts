@@ -1,8 +1,9 @@
 import type { Context } from './Context';
-import type { Node as EcmarkdownNode, OrderedListItemNode } from 'ecmarkdown';
+import type { Node as EcmarkdownNode, OrderedListItemNode, AlgorithmNode } from 'ecmarkdown';
 import type { PartialBiblioEntry, StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
+import { SPECIAL_KINDS_MAP, SPECIAL_KINDS } from './Clause';
 import { warnEmdFailure, wrapEmdFailure } from './utils';
 import { collectNonterminalsFromEmd } from './lint/utils';
 import * as emd from 'ecmarkdown';
@@ -19,36 +20,38 @@ function findLabeledSteps(root: EcmarkdownNode) {
   return steps;
 }
 
+const kindSelector = SPECIAL_KINDS.map(kind => `li[${kind}]`).join(',');
+
+export type AlgorithmElementWithTree = HTMLElement & {
+  // null means a failed parse
+  ecmarkdownTree: AlgorithmNode | null;
+  originalHtml: string;
+};
+
 /*@internal*/
 export default class Algorithm extends Builder {
   static async enter(context: Context) {
     context.inAlg = true;
     const { spec, node, clauseStack } = context;
 
-    // Mark all "the result of evaluation Foo" language as having the
-    // "user-code" effect. Do this before ecmarkdown, otherwise productions like
-    // |Foo| get turned into tags and the regexp gets complicated.
-    const innerHTML = node.innerHTML.replace(
-      /the result of evaluating ([a-zA-Z_|0-9]+)/g,
-      'the result of <emu-meta effects="user-code">evaluating $1</emu-meta>'
-    ); // TODO use original slice, forward this from linter
+    const innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
 
-    let emdTree;
-    try {
-      emdTree = emd.parseAlgorithm(innerHTML);
-    } catch (e: any) {
-      if (!('ecmarkdownTree' in node)) {
-        // if it is present, we've already warned earlier
-        warnEmdFailure(spec.warn, node, e);
+    let emdTree: AlgorithmNode | null = null;
+    if ('ecmarkdownTree' in node) {
+      emdTree = (node as AlgorithmElementWithTree).ecmarkdownTree;
+    } else {
+      try {
+        emdTree = emd.parseAlgorithm(innerHTML);
+        (node as AlgorithmElementWithTree).ecmarkdownTree = emdTree;
+        (node as AlgorithmElementWithTree).originalHtml = innerHTML;
+      } catch (e) {
+        warnEmdFailure(spec.warn, node, e as SyntaxError);
       }
     }
     if (emdTree == null) {
       node.innerHTML = wrapEmdFailure(innerHTML);
       return;
     }
-
-    // @ts-ignore
-    node.ecmarkdownTree = emdTree;
 
     if (spec.opts.lintSpec && spec.locate(node) != null && !node.hasAttribute('example')) {
       const clause = clauseStack[clauseStack.length - 1];
@@ -132,7 +135,9 @@ export default class Algorithm extends Builder {
     const rawHtml = emd.emit(emdTree);
 
     // replace spaces after !/? with &nbsp; to prevent bad line breaking
-    const html = rawHtml.replace(/((?:\s+|>)[!?])[ \t]+/g, '$1&nbsp;');
+    let html = rawHtml.replace(/((?:\s+|>)[!?])[ \t]+/g, '$1&nbsp;');
+    // replace spaces before »/} with &nbsp; to prevent bad line breaking
+    html = html.replace(/[ \t]+([»}])/g, '&nbsp;$1');
     node.innerHTML = html;
 
     const labeledStepEntries: StepBiblioEntry[] = [];
@@ -173,6 +178,32 @@ export default class Algorithm extends Builder {
         // The biblio entries for labeled steps in replacement algorithms will be modified in-place by a subsequent pass
         labeledStepEntries.push(entry as StepBiblioEntry);
         context.spec.labeledStepsToBeRectified.add(step.id);
+      }
+    }
+
+    for (const step of node.querySelectorAll(kindSelector)) {
+      // prettier-ignore
+      const attributes = SPECIAL_KINDS
+        .filter(kind => step.hasAttribute(kind))
+        .map(kind => SPECIAL_KINDS_MAP.get(kind));
+      const tag = spec.doc.createElement('div');
+      tag.className = 'attributes-tag';
+      const text = attributes.join(', ');
+      const contents = spec.doc.createTextNode(text);
+      tag.append(contents);
+      step.prepend(tag);
+
+      // we've already walked past the text node, so it won't get picked up by the usual process for autolinking
+      const clause = clauseStack[clauseStack.length - 1];
+      if (clause != null) {
+        // the `== null` case only happens if you put an algorithm at the top level of your document
+        spec._textNodes[clause.namespace] = spec._textNodes[clause.namespace] || [];
+        spec._textNodes[clause.namespace].push({
+          node: contents,
+          clause,
+          inAlg: true,
+          currentId: context.currentId,
+        });
       }
     }
   }

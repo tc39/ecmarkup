@@ -45,7 +45,10 @@ describe('spelling', () => {
   it('*0*', async () => {
     await assertLint(
       positioned`
-        <emu-alg>1. If _x_ is ${M}*0*<sub>𝔽</sub>, do foo.</emu-alg>
+        <emu-alg>
+          1. Let _x_ be a value.
+          1. If _x_ is ${M}*0*<sub>𝔽</sub>, do foo.
+        </emu-alg>
       `,
       {
         ruleId: 'spelling',
@@ -252,7 +255,7 @@ describe('spelling', () => {
       {
         ruleId: 'spelling',
         nodeType: 'html',
-        message: 'ECMA-262 uses Oxford spelling ("behaviour")',
+        message: 'ECMA-262 uses Oxford spelling ("behaviour", etc.)',
       }
     );
   });
@@ -279,6 +282,19 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "non-negative"',
+      }
+    );
+  });
+
+  it('nonempty', async () => {
+    await assertLint(
+      positioned`
+        <p>a ${M}nonempty List</p>
+      `,
+      {
+        ruleId: 'spelling',
+        nodeType: 'html',
+        message: 'prefer "non-empty"',
       }
     );
   });
@@ -312,8 +328,7 @@ describe('spelling', () => {
   it('trailing whitespace', async () => {
     await assertLint(
       positioned`
-        <p>something</p>${M} 
-      `,
+        <p>something</p>${M} \n`, // escaped linebreak so editors do not try to remove this
       {
         ruleId: 'spelling',
         nodeType: 'html',
@@ -553,6 +568,9 @@ windows:${M}\r
         *-0*<sub>𝔽</sub>
         *0*<sub>ℤ</sub>
         0
+        +000000-01-01T00:00:00Z
+        +275760-09-13T00:00:00Z
+        +00:00
         behaviour
         array indices
         a non-negative integer

@@ -158,6 +158,24 @@ describe('type parsing', () => {
         ],
       });
 
+      assert.deepStrictEqual(TypeParser.parse(`one of X, Y, or Z`), {
+        kind: 'union',
+        types: [
+          {
+            kind: 'opaque',
+            type: 'X',
+          },
+          {
+            kind: 'opaque',
+            type: 'Y',
+          },
+          {
+            kind: 'opaque',
+            type: 'Z',
+          },
+        ],
+      });
+
       assert.deepStrictEqual(TypeParser.parse(`a List`), {
         kind: 'list',
         elements: null,

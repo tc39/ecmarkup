@@ -1,22 +1,37 @@
 import type Note from './Note';
 import type Example from './Example';
 import type Spec from './Spec';
-import type { PartialBiblioEntry, Signature, Type } from './Biblio';
+import type { AlgorithmType, PartialBiblioEntry, Signature, Type } from './Biblio';
 import type { Context } from './Context';
 
 import { ParseError, TypeParser } from './type-parser';
 import Builder from './Builder';
-import {
-  formatPreamble,
-  parseStructuredHeaderDl,
-  formatHeader,
-  parseH1,
-  ParsedHeader,
-} from './header-parser';
-import { offsetToLineAndColumn } from './utils';
+import type { ParsedHeader } from './header-parser';
+import { formatPreamble, parseStructuredHeaderDl, formatHeader, parseH1 } from './header-parser';
+import { offsetToLineAndColumn, traverseWhile } from './utils';
+
+const aoidTypes = [
+  'abstract operation',
+  'sdo',
+  'syntax-directed operation',
+  'host-defined abstract operation',
+  'implementation-defined abstract operation',
+  'numeric method',
+];
+
+export const SPECIAL_KINDS_MAP = new Map([
+  ['normative-optional', 'Normative Optional'],
+  ['legacy', 'Legacy'],
+  ['deprecated', 'Deprecated'],
+]);
+export const SPECIAL_KINDS = [...SPECIAL_KINDS_MAP.keys()];
 
 export function extractStructuredHeader(header: Element): Element | null {
-  const dl = header.nextElementSibling;
+  const dl = traverseWhile(
+    header.nextElementSibling,
+    'nextElementSibling',
+    el => el.nodeName === 'DEL'
+  );
   if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
     return null;
   }
@@ -79,39 +94,43 @@ export default class Clause extends Builder {
     }
 
     this.signature = null;
-    let header = this.node.firstElementChild;
-    while (header != null && header.tagName === 'SPAN' && header.children.length === 0) {
-      // skip oldids
-      header = header.nextElementSibling;
-    }
-    if (header == null) {
+    const header = traverseWhile(
+      this.node.firstElementChild,
+      'nextElementSibling',
+      // skip <del> and oldids
+      el => el.nodeName === 'DEL' || (el.nodeName === 'SPAN' && el.children.length === 0)
+    );
+    let headerH1 = traverseWhile(header, 'firstElementChild', el => el.nodeName === 'INS', {
+      once: true,
+    });
+    if (headerH1 == null) {
       this.spec.warn({
         type: 'node',
         ruleId: 'missing-header',
         message: `could not locate header element`,
         node: this.node,
       });
-      header = null;
-    } else if (header.tagName !== 'H1') {
+      headerH1 = null;
+    } else if (headerH1.tagName !== 'H1') {
       this.spec.warn({
         type: 'node',
         ruleId: 'missing-header',
-        message: `could not locate header element; found <${header.tagName.toLowerCase()}> before any <h1>`,
-        node: header,
+        message: `could not locate header element; found <${header!.tagName.toLowerCase()}> before any <h1>`,
+        node: header!,
       });
-      header = null;
+      headerH1 = null;
     } else {
-      this.buildStructuredHeader(header);
+      this.buildStructuredHeader(headerH1, header!);
     }
-    this.header = header;
-    if (header == null) {
+    this.header = headerH1;
+    if (headerH1 == null) {
       this.title = 'UNKNOWN';
       this.titleHTML = 'UNKNOWN';
     }
   }
 
-  buildStructuredHeader(header: Element) {
-    const dl = extractStructuredHeader(header);
+  buildStructuredHeader(header: Element, headerSurrogate: Element = header) {
+    const dl = extractStructuredHeader(headerSurrogate);
     if (dl === null) {
       return;
     }
@@ -211,18 +230,7 @@ export default class Clause extends Builder {
           node: this.node,
           attr: 'aoid',
         });
-      } else if (
-        name != null &&
-        type != null &&
-        [
-          'abstract operation',
-          'sdo',
-          'syntax-directed operation',
-          'host-defined abstract operation',
-          'implementation-defined abstract operation',
-          'numeric method',
-        ].includes(type)
-      ) {
+      } else if (name != null && type != null && aoidTypes.includes(type)) {
         this.node.setAttribute('aoid', name);
         this.aoid = name;
       }
@@ -304,16 +312,13 @@ export default class Clause extends Builder {
     clause.buildExamples();
     clause.buildNotes();
 
-    const attributes = [];
-    if (node.hasAttribute('normative-optional')) {
-      attributes.push('Normative Optional');
-    }
-    if (node.hasAttribute('legacy')) {
-      attributes.push('Legacy');
-    }
+    // prettier-ignore
+    const attributes = SPECIAL_KINDS
+      .filter(kind => node.hasAttribute(kind))
+      .map(kind => SPECIAL_KINDS_MAP.get(kind));
     if (attributes.length > 0) {
       const tag = spec.doc.createElement('div');
-      tag.className = 'clause-attributes-tag';
+      tag.className = 'attributes-tag';
       const text = attributes.join(', ');
       const contents = spec.doc.createTextNode(text);
       tag.append(contents);
@@ -350,10 +355,19 @@ export default class Clause extends Builder {
         });
       } else {
         const signature = clause.signature;
+        let kind: AlgorithmType | undefined =
+          clause.type != null && aoidTypes.includes(clause.type)
+            ? (clause.type as AlgorithmType)
+            : undefined;
+        // @ts-ignore
+        if (kind === 'sdo') {
+          kind = 'syntax-directed operation';
+        }
         const op: PartialBiblioEntry = {
           type: 'op',
           aoid: clause.aoid,
           refId: clause.id,
+          kind,
           signature,
           effects: clause.effects,
           _node: clause.node,
@@ -395,14 +409,18 @@ function parseType(type: string, offset: number): Type {
 
 function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
   const ret = {
-    parameters: parsedHeader.params.map(p => ({
-      name: p.name,
-      type: p.type == null ? null : parseType(p.type, p.typeOffset),
-    })),
-    optionalParameters: parsedHeader.optionalParams.map(p => ({
-      name: p.name,
-      type: p.type == null ? null : parseType(p.type, p.typeOffset),
-    })),
+    parameters: parsedHeader.params
+      .filter(p => p.wrappingTag !== 'del')
+      .map(p => ({
+        name: p.name,
+        type: p.type == null ? null : parseType(p.type, p.typeOffset),
+      })),
+    optionalParameters: parsedHeader.optionalParams
+      .filter(p => p.wrappingTag !== 'del')
+      .map(p => ({
+        name: p.name,
+        type: p.type == null ? null : parseType(p.type, p.typeOffset),
+      })),
     return:
       parsedHeader.returnType == null
         ? null

@@ -1,19 +1,24 @@
 import type { Context } from './Context';
+import type { SourceFile, CompilerOptions } from 'grammarkdown';
 
 import Builder from './Builder';
 import { collectNonterminalsFromGrammar } from './lint/utils';
-import { CoreAsyncHost, CompilerOptions, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
+import { CoreAsyncHost, Grammar as GrammarFile, EmitFormat } from 'grammarkdown';
 
 const endTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/i;
 const globalEndTagRe = /<\/?(emu-\w+|h?\d|p|ul|table|pre|code)\b[^>]*>/gi;
+
+export type AugmentedGrammarEle = HTMLElement & {
+  grammarkdownOut: string;
+  grammarSource: SourceFile;
+};
 
 /*@internal*/
 export default class Grammar extends Builder {
   static async enter({ spec, node, clauseStack }: Context) {
     if ('grammarkdownOut' in node) {
       // i.e., we already parsed this during an earlier phase
-      // @ts-ignore
-      node.innerHTML = node.grammarkdownOut;
+      node.innerHTML = (node as AugmentedGrammarEle).grammarkdownOut;
       return;
     }
 
@@ -80,7 +85,14 @@ export default class Grammar extends Builder {
       spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
     }
     await grammar.emit(undefined, (file, source) => {
+      if (grammar.rootFiles.length !== 1) {
+        throw new Error(
+          `grammarkdown file count mismatch: ${grammar.rootFiles.length}. This is a bug in ecmarkup; please report it.`
+        );
+      }
       node.innerHTML = source;
+      (node as AugmentedGrammarEle).grammarkdownOut = source;
+      (node as AugmentedGrammarEle).grammarSource = grammar.rootFiles[0];
     });
   }
 

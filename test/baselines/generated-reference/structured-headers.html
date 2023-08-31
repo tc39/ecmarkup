@@ -17,6 +17,7 @@
   <emu-alg><ol><li>Algorithm steps go here.</li></ol></emu-alg>
 </emu-clause>
 
+<!-- EXPECT_WARNING { "ruleId": "duplicate-id", "message": "<emu-clause> has duplicate id \"sec-exampleao\"" } -->
 <emu-clause id="sec-exampleao" type="abstract operation">
   <h1><span class="secnum">2</span> ExampleAO ( )</h1>
   <p>The abstract operation ExampleAO takes no arguments. It redefines an existing algorithm. It performs the following steps when called:</p>
@@ -30,13 +31,24 @@
 </emu-clause>
 
 <emu-clause id="sec-exampleao3" type="abstract operation" aoid="ExampleAO3">
-  <h1><span class="secnum">4</span> ExampleAO3 ( <del>param</del> )</h1>
-  <p>The abstract operation ExampleAO3 takes argument <del>param (an <emu-xref href="#integer"><a href="https://tc39.es/ecma262/#integer">integer</a></emu-xref>)</del>. It performs the following steps when called:</p>
+  <h1><span class="secnum">4</span> ExampleAO3 ( <del><var>param</var></del> [ , <ins><var>newParam</var></ins> ] )</h1>
+  <p>The abstract operation ExampleAO3 takes argument <del><var>param</var> (an <emu-xref href="#integer"><a href="https://tc39.es/ecma262/#integer">integer</a></emu-xref>)</del> and optional argument <ins><var>newParam</var> (an <emu-xref href="#integer"><a href="https://tc39.es/ecma262/#integer">integer</a></emu-xref>)</ins>. It performs the following steps when called:</p>
   <emu-alg><ol><li>Algorithm steps go here.</li></ol></emu-alg>
 </emu-clause>
 
+<emu-clause id="sec-exampleao4" type="abstract operation" aoid="ExampleAO4">
+  <h1><span class="secnum">5</span> ExampleAO4 ( param )</h1>
+  <p>The abstract operation ExampleAO4 takes argument param (an <emu-xref href="#integer"><a href="https://tc39.es/ecma262/#integer">integer</a></emu-xref>). It performs the following steps when called:</p>
+  <del class="block">
+    <emu-alg><ol><li>Algorithm steps go here.</li></ol></emu-alg>
+  </del>
+  <ins class="block">
+    <emu-alg><ol><li>New algorithm steps go here.</li></ol></emu-alg>
+  </ins>
+</emu-clause>
+
 <emu-clause id="sec-example-grammar">
-  <h1><span class="secnum">5</span> This and That</h1>
+  <h1><span class="secnum">6</span> This and That</h1>
   <emu-grammar type="definition"><emu-production name="PrimaryExpression" id="prod-PrimaryExpression">
     <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-6iVAqhjf">
         <emu-t>this</emu-t>
@@ -47,7 +59,7 @@
 </emu-production>
 </emu-grammar>
   <emu-clause id="sec-isthis" type="sdo" aoid="IsThis">
-    <h1><span class="secnum">5.1</span> IsThis</h1>
+    <h1><span class="secnum">6.1</span> IsThis</h1>
     <p>The <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-syntax-directed-operations">syntax-directed operation</a></emu-xref> IsThis takes no arguments. It is an example. It is defined piecewise over the following productions:</p>
     <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
     <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-oDKnYE2s"><emu-t>this</emu-t></emu-rhs>
@@ -61,7 +73,7 @@
     <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
   </emu-clause>
   <emu-clause id="sec-isthat" type="sdo" aoid="IsThat">
-    <h1><span class="secnum">5.2</span> IsThat</h1>
+    <h1><span class="secnum">6.2</span> IsThat</h1>
     <p>The <emu-xref href="#sec-algorithm-conventions-syntax-directed-operations"><a href="https://tc39.es/ecma262/#sec-algorithm-conventions-syntax-directed-operations">syntax-directed operation</a></emu-xref> IsThat takes argument <var>ignored</var> (an example). It is defined piecewise over the following productions:</p>
     <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
     <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-QDgm4qgx"><emu-t>this</emu-t></emu-rhs>
@@ -76,14 +88,14 @@
   </emu-clause>
 </emu-clause>
 
-<emu-clause id="sec-example-return-type" type="abstract operation" aoid="ExampleAO3">
-  <h1><span class="secnum">6</span> ExampleAO3 ( param )</h1>
-  <p>The abstract operation <emu-xref aoid="ExampleAO3" id="_ref_0"><a href="#sec-exampleao3">ExampleAO3</a></emu-xref> takes argument param (an <emu-xref href="#integer"><a href="https://tc39.es/ecma262/#integer">integer</a></emu-xref>) and returns the return type. It performs the following steps when called:</p>
+<emu-clause id="sec-example-return-type" type="abstract operation" aoid="ExampleAO5">
+  <h1><span class="secnum">7</span> ExampleAO5 ( param )</h1>
+  <p>The abstract operation ExampleAO5 takes argument param (an <emu-xref href="#integer"><a href="https://tc39.es/ecma262/#integer">integer</a></emu-xref>) and returns the return type. It performs the following steps when called:</p>
   <emu-alg><ol><li>Algorithm steps go here.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-example-single-line-return-type" type="abstract operation" aoid="ExampleA4">
-  <h1><span class="secnum">7</span> ExampleA4 ( )</h1>
+  <h1><span class="secnum">8</span> ExampleA4 ( )</h1>
   <p>The abstract operation ExampleA4 takes no arguments and returns <emu-val>false</emu-val>. It performs the following steps when called:</p>
   <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
 </emu-clause>

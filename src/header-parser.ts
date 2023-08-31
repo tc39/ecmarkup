@@ -237,7 +237,7 @@ export function parseH1(headerText: string): ParsedHeaderOrFailure {
   if (match) {
     offset += match[0].length;
     returnOffset = offset;
-    ({ match, text } = eat(text, /^(.*)(?!<\/(ins|del|mark)>)/i));
+    ({ match, text } = eat(text, /^(.*?)(?=<\/(ins|del|mark)>|$)/im));
     if (match) {
       returnType = match[1].trim();
       if (returnType === '') {
@@ -316,7 +316,7 @@ export function printSimpleParamList(params: Param[], optionalParams: Param[]) {
   let result = '(' + params.map(p => ' ' + printParam(p)).join(',');
   if (optionalParams.length > 0) {
     const formattedOptionalParams = optionalParams
-      .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + p.name)
+      .map((p, i) => ' [ ' + (i > 0 || params.length > 0 ? ', ' : '') + printParam(p))
       .join('');
     result += formattedOptionalParams + optionalParams.map(() => ' ]').join('');
   }
@@ -614,13 +614,19 @@ export function formatPreamble(
   const lastSentence = isSdo
     ? 'It is defined piecewise over the following productions:'
     : 'It performs the following steps when called:';
+  const getRelevantElement = (el: Element): Element =>
+    el.tagName === 'INS' || el.tagName === 'DEL' ? el.firstElementChild ?? el : el;
   let next = dl.nextElementSibling;
-  while (next != null && next.tagName === 'EMU-NOTE') {
+  while (next != null && getRelevantElement(next)?.tagName === 'EMU-NOTE') {
     next = next.nextElementSibling;
   }
+  const relevant = next != null ? getRelevantElement(next) : null;
   if (
-    (isSdo && next?.tagName === 'EMU-GRAMMAR') ||
-    (!isSdo && next?.tagName === 'EMU-ALG' && !next.hasAttribute('replaces-step'))
+    (isSdo && next != null && relevant?.tagName === 'EMU-GRAMMAR') ||
+    (!isSdo &&
+      next != null &&
+      relevant?.tagName === 'EMU-ALG' &&
+      !relevant?.hasAttribute('replaces-step'))
   ) {
     if (paras.length > 1 || next !== dl.nextElementSibling) {
       const whitespace = next.previousSibling;
@@ -639,7 +645,7 @@ export function formatPreamble(
   return paras;
 }
 
-function formatEnglishList(list: Array<string>) {
+export function formatEnglishList(list: Array<string>, conjuction = 'and') {
   if (list.length === 0) {
     throw new Error('formatEnglishList should not be called with an empty list');
   }
@@ -647,9 +653,9 @@ function formatEnglishList(list: Array<string>) {
     return list[0];
   }
   if (list.length === 2) {
-    return `${list[0]} and ${list[1]}`;
+    return `${list[0]} ${conjuction} ${list[1]}`;
   }
-  return `${list.slice(0, -1).join(', ')}, and ${list[list.length - 1]}`;
+  return `${list.slice(0, -1).join(', ')}, ${conjuction} ${list[list.length - 1]}`;
 }
 
 function eat(text: string, regex: RegExp) {

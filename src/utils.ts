@@ -118,6 +118,21 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
 }
 
 /*@internal*/
+export function traverseWhile<P extends string, T extends Record<P, T | null>>(
+  node: T | null,
+  relationship: P,
+  predicate: (node: T) => boolean,
+  options?: { once?: boolean }
+): T | null {
+  const once = options?.once ?? false;
+  while (node != null && predicate(node)) {
+    node = node[relationship];
+    if (once) break;
+  }
+  return node;
+}
+
+/*@internal*/
 export function logVerbose(str: string) {
   const dateString = new Date().toISOString();
   console.error(chalk.gray('[' + dateString + '] ') + str);
@@ -129,25 +144,19 @@ export function logWarning(str: string) {
   console.error(chalk.gray('[' + dateString + '] ') + chalk.red(str));
 }
 
+const CLAUSE_LIKE = ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'];
 /*@internal*/
 export function shouldInline(node: Node) {
-  let parent = node.parentNode;
+  const surrogateParentTags = ['EMU-GRAMMAR', 'EMU-IMPORT', 'INS', 'DEL'];
+  const parent = traverseWhile(node.parentNode, 'parentNode', node =>
+    surrogateParentTags.includes(node?.nodeName ?? '')
+  );
   if (!parent) return false;
 
-  while (
-    parent &&
-    parent.parentNode &&
-    (parent.nodeName === 'EMU-GRAMMAR' ||
-      parent.nodeName === 'EMU-IMPORT' ||
-      parent.nodeName === 'INS' ||
-      parent.nodeName === 'DEL')
-  ) {
-    parent = parent.parentNode;
-  }
-
-  return (
-    ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'].indexOf(parent.nodeName) === -1
-  );
+  const clauseLikeParent =
+    CLAUSE_LIKE.includes(parent.nodeName) ||
+    CLAUSE_LIKE.includes((parent as Element).getAttribute('data-simulate-tagname')?.toUpperCase()!);
+  return !clauseLikeParent;
 }
 
 /*@internal*/
@@ -158,12 +167,23 @@ export function readFile(file: string) {
 }
 
 /*@internal*/
-export function writeFile(file: string, content: string) {
+export function readBinaryFile(file: string) {
+  return new Promise<Buffer>((resolve, reject) => {
+    fs.readFile(file, (err, data) => (err ? reject(err) : resolve(data)));
+  });
+}
+
+/*@internal*/
+export function writeFile(file: string, content: string | Buffer) {
   return new Promise<void>((resolve, reject) => {
     // we could do this async, but it's not worth worrying about
     fs.mkdirSync(path.dirname(file), { recursive: true });
 
-    fs.writeFile(file, content, { encoding: 'utf8' }, err => (err ? reject(err) : resolve()));
+    if (typeof content === 'string') {
+      content = Buffer.from(content, 'utf8');
+    }
+
+    fs.writeFile(file, content, err => (err ? reject(err) : resolve()));
   });
 }
 
@@ -253,7 +273,10 @@ export function doesEffectPropagateToParent(node: Element, effect: string) {
     // This is super hacky. It's checking the output of ecmarkdown.
     if (parent.tagName !== 'LI') continue;
 
-    if (effect === 'user-code' && parent.textContent?.includes('be a new Abstract Closure')) {
+    if (
+      effect === 'user-code' &&
+      /be a new (\w+ )*Abstract Closure/.test(parent.textContent ?? '')
+    ) {
       return false;
     }
 

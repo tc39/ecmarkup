@@ -11,6 +11,8 @@ const escape: (_: string) => string = require('html-escape');
 export const NO_CLAUSE_AUTOLINK = new Set([
   'PRE',
   'CODE',
+  'SCRIPT',
+  'STYLE',
   'EMU-CONST',
   'EMU-PRODUCTION',
   'EMU-GRAMMAR',
@@ -139,19 +141,17 @@ export interface AutoLinkMap {
 }
 
 function isCommonAbstractOp(op: string) {
-  return (
-    op === 'Call' || op === 'Set' || op === 'Type' || op === 'UTC' || op === 'min' || op === 'max'
-  );
+  return op === 'Call' || op === 'Set' || op === 'Type' || op === 'UTC' || op === 'remainder';
 }
 
 function lookAheadBeyond(key: string, entry: BiblioEntry) {
   if (isCommonAbstractOp(key)) {
     // must be followed by parentheses
-    return '\\b(?=\\()';
+    return '(?=\\()';
   }
   if (entry.type !== 'term' || /^\w/.test(key)) {
-    // must not be followed by `.word` or `%%` or `]]`
-    return '\\b(?!\\.\\w|%%|\\]\\])';
+    // must not be followed by a letter, `.word`, `%%`, `]]`
+    return '(?!\\w|\\.\\w|%%|\\]\\])';
   }
   return '';
 }

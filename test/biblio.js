@@ -91,6 +91,7 @@ describe('Biblio', () => {
       `,
       {
         copyright: false,
+        assets: 'none',
         location: 'https://example.com/spec/',
         warn: e => {
           console.error('Error:', e);
@@ -142,6 +143,7 @@ describe('Biblio', () => {
       `,
       {
         copyright: false,
+        assets: 'none',
         location: 'https://example.com/spec/',
         warn: e => {
           console.error('Error:', e);

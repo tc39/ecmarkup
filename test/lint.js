@@ -364,6 +364,9 @@ describe('linting whole program', () => {
           <emu-clause id="i9">
             <h1>Object.prototype.__defineGetter__ ( )</h1>
           </emu-clause>
+          <emu-clause id="i10">
+            <h1>_NativeError_ [ @@baz ] ( )</h1>
+          </emu-clause>
       `);
     });
 
@@ -389,6 +392,9 @@ describe('linting whole program', () => {
           </emu-clause>
           <emu-clause id="i7">
             <h1>Function ( _p1_, _p2_, &hellip; , _pn_, _body_ )</h1>
+          </emu-clause>
+          <emu-clause id="i7-a">
+            <h1>Function ( ..._parameterArgs_, _bodyArg_ )</h1>
           </emu-clause>
           <emu-clause id="i8">
             <h1>Example ( _a_, <del>_b_</del><ins>_c_</ins> )</h1>
@@ -479,6 +485,7 @@ describe('linting whole program', () => {
         positioned`
           <emu-alg>
             1. Let _s_ be |${M}Example|.
+            1. Return _s_.
           </emu-alg>
         `,
         {
@@ -500,6 +507,7 @@ describe('linting whole program', () => {
             <emu-grammar>Statement: \`;\`</emu-grammar>
             <emu-alg>
               1. Let _s_ be |${M}Statements|.
+              1. Return _s_.
             </emu-alg>
           </emu-clause>
         `,
@@ -551,6 +559,7 @@ describe('linting whole program', () => {
         </emu-grammar>
         <emu-alg>
           1. Let _s_ be |Example1|.
+          1. Return _s_.
         </emu-alg>
         <p>Discuss: |Example1|.</p>
         <p>Discuss: <emu-nt>Example1</emu-nt>.</p>

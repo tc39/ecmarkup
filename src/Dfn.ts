@@ -1,4 +1,5 @@
-import { getKeys, PartialBiblioEntry, TermBiblioEntry } from './Biblio';
+import type { PartialBiblioEntry, TermBiblioEntry } from './Biblio';
+import { getKeys } from './Biblio';
 import type { Context } from './Context';
 
 import Builder from './Builder';

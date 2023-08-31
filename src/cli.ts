@@ -24,7 +24,7 @@ function usage() {
       },
       {
         header: 'Options',
-        hide: ['files'],
+        hide: ['files', 'js-out', 'css-out'],
         optionList: options as unknown as commandLineUsage.OptionDefinition[],
       },
     ])
@@ -64,18 +64,21 @@ if (args.strict && args.watch) {
   fail('Cannot use --strict with --watch');
 }
 
-if (!['none', 'inline', 'external'].includes(args.assets)) {
-  fail('--assets requires "none", "inline", or "external"');
+if (args['js-out'] || args['css-out']) {
+  fail('--js-out and --css-out have been removed; specify --assets-dir instead');
 }
 
-// TODO just drop these
-if (!outfile && (args['js-out'] || args['css-out'])) {
-  fail('When using --js-out or --css-out you must specify an output file');
+if (args.assets != null && !['none', 'inline', 'external'].includes(args.assets)) {
+  fail('--assets must be "none", "inline", or "external"');
+}
+
+if (args.assets != null && args.assets !== 'external' && args['assets-dir'] != null) {
+  fail(`--assets=${args.assets} cannot be used --assets-dir"`);
 }
 
 if (args.multipage) {
-  if (args['js-out'] || args['css-out']) {
-    fail('Cannot use --multipage with --js-out or --css-out');
+  if (args.assets != null && !['none', 'inline'].includes(args.assets)) {
+    fail('--multipage implies --assets=external');
   }
 
   if (!outfile) {
@@ -97,13 +100,8 @@ const build = debounce(async function build() {
     const opts: Options = {
       multipage: args.multipage,
       outfile,
-      jsOut: args['js-out'],
-      cssOut: args['css-out'],
       extraBiblios: [],
-      toc: !args['no-toc'],
-      oldToc: !!args['old-toc'],
       lintSpec: !!args['lint-spec'],
-      assets: args.assets as 'none' | 'inline' | 'external',
     };
     if (args.verbose) {
       opts.log = utils.logVerbose;
@@ -111,6 +109,20 @@ const build = debounce(async function build() {
     if (args['mark-effects']) {
       opts.markEffects = true;
     }
+    if (args['no-toc'] != null) {
+      opts.toc = !args['no-toc'];
+    }
+    if (args['old-toc'] != null) {
+      opts.oldToc = args['old-toc'];
+    }
+
+    if (args.assets != null) {
+      opts.assets = args.assets as 'none' | 'inline' | 'external';
+    }
+    if (args['assets-dir'] != null) {
+      opts.assetsDir = args['assets-dir'];
+    }
+
     let warned = false;
 
     for (let toResolve of args['load-biblio'] ?? []) {
@@ -150,9 +162,11 @@ const build = debounce(async function build() {
       warnings.push(err);
     };
 
+    // Respect a reproducible build timestamp.
+    // https://reproducible-builds.org/specs/source-date-epoch/
     if (process.env.SOURCE_DATE_EPOCH) {
       const sde = process.env.SOURCE_DATE_EPOCH.trim();
-      if (!/^[0-9]+/.test(sde)) {
+      if (!/^[0-9]+$/.test(sde)) {
         fail(`SOURCE_DATE_EPOCH value ${sde} is not valid`);
       }
       const ts = +sde;

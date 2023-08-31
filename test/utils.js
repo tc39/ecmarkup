@@ -34,8 +34,8 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
   let rootFile = 'test-example.emu';
   if (opts?.asImport !== 'only') {
     await emu.build(rootFile, async () => html, {
-      ecma262Biblio: false,
       copyright: false,
+      assets: 'none',
       warn: e =>
         warnings.push({
           ruleId: e.ruleId,
@@ -72,8 +72,8 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
   let importWrapper = `<emu-import href="./import.emu"></emu-import>`;
   let fetch = name => (name === rootFile ? importWrapper : html);
   await emu.build(rootFile, fetch, {
-    ecma262Biblio: false,
     copyright: false,
+    assets: 'none',
     warn: e =>
       warnings.push({
         ruleId: e.ruleId,
@@ -113,8 +113,8 @@ async function assertErrorFree(html, opts) {
   let warnings = [];
 
   await emu.build('test-example.emu', async () => html, {
-    ecma262Biblio: false,
     copyright: false,
+    assets: 'none',
     warn: e => warnings.push(e),
     ...opts,
   });
@@ -122,8 +122,8 @@ async function assertErrorFree(html, opts) {
   assert.deepStrictEqual(warnings, []);
 }
 
-async function assertLint(a, b) {
-  await assertError(a, b, { lintSpec: true });
+async function assertLint(a, b, opts = {}) {
+  await assertError(a, b, { lintSpec: true, ...opts });
 }
 
 async function assertLintFree(html, opts = {}) {
@@ -132,6 +132,7 @@ async function assertLintFree(html, opts = {}) {
 
 async function getBiblio(html) {
   let upstream = await emu.build('root.html', () => html, {
+    assets: 'none',
     location: 'https://example.com/spec/',
   });
   return upstream.exportBiblio();

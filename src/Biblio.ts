@@ -109,6 +109,19 @@ export default class Biblio {
     return this.lookup(ns, env => env._byAoid[aoid]);
   }
 
+  getOpNames(ns: string): Set<string> {
+    const out = new Set<string>();
+    let current = this._nsToEnvRec[ns];
+    while (current) {
+      const entries = current._byType['op'] || [];
+      for (const entry of entries) {
+        out.add(entry.aoid);
+      }
+      current = current._parent;
+    }
+    return out;
+  }
+
   getDefinedWords(ns: string): Record<string, AlgorithmBiblioEntry | TermBiblioEntry> {
     const result = Object.create(null);
 
@@ -316,9 +329,16 @@ export type Signature = {
   optionalParameters: Parameter[];
   return: null | Type;
 };
+export type AlgorithmType =
+  | 'abstract operation'
+  | 'host-defined abstract operation'
+  | 'implementation-defined abstract operation'
+  | 'syntax-directed operation'
+  | 'numeric method';
 export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   type: 'op';
   aoid: string;
+  kind?: AlgorithmType;
   signature: null | Signature;
   effects: string[];
   /*@internal*/ _node?: Element;

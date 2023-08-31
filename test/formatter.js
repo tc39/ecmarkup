@@ -473,7 +473,8 @@ describe('algorithm formatting', () => {
       1.  Step.
       1. Another   step.
             1. A substep.
-            1. [ x =  "a",y="b"  ] A step with attributes.
+            1. [ x =  "a",y="b" ,c="",d ] A step with attributes.
+            1. A step with _vars_, numbers like **10<sup>x</sup>**, records like {  [[A]]: 0  }, and fields like _o_.[[field]].
       </emu-alg>
       `,
       dedentKeepingTrailingNewline`
@@ -481,7 +482,8 @@ describe('algorithm formatting', () => {
         1. Step.
         1. Another step.
           1. A substep.
-          1. [x="a", y="b"] A step with attributes.
+          1. [x="a", y="b", c, d] A step with attributes.
+          1. A step with _vars_, numbers like **10<sup>x</sup>**, records like { [[A]]: 0 }, and fields like _o_.[[field]].
       </emu-alg>
       `
     );
@@ -546,32 +548,32 @@ describe('equation formatting', () => {
       `
       <emu-eqn id="eqn-DaysInYear" aoid="DaysInYear">
       DaysInYear(_y_)
-      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) &ne; 0
-        = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) &ne; 0
-    = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) &ne; 0
+      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) ≠ 0
+        = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) ≠ 0
+    = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
       = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0
       </emu-eqn>
 
       <emu-eqn id="eqn-DaysInYear" aoid="DaysInYear">DaysInYear(_y_)
-      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) &ne; 0
-      = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) &ne; 0
-      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) &ne; 0
+      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) ≠ 0
+      = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) ≠ 0
+      = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
       = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0 </emu-eqn>
       `,
       dedentKeepingTrailingNewline`
       <emu-eqn id="eqn-DaysInYear" aoid="DaysInYear">
         DaysInYear(_y_)
-          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) &ne; 0
-          = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) &ne; 0
-          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) &ne; 0
+          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) ≠ 0
+          = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) ≠ 0
+          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
           = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0
       </emu-eqn>
 
       <emu-eqn id="eqn-DaysInYear" aoid="DaysInYear">
         DaysInYear(_y_)
-          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) &ne; 0
-          = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) &ne; 0
-          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) &ne; 0
+          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) ≠ 0
+          = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 4) = 0 and (ℝ(_y_) modulo 100) ≠ 0
+          = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
           = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0
       </emu-eqn>
       `
@@ -647,6 +649,35 @@ describe('structured header formatting', () => {
         <dl class="header">
         </dl>
       </emu-clause>
+      `
+    );
+  });
+});
+
+describe('entities', () => {
+  it('entities are transformed or not as appropriate', async () => {
+    await assertDocFormatsAs(
+      `
+      <div>
+        some named entities are transformed: &AMP; &AMP &LT &frac12; &frac12 &fjlig; &CapitalDifferentialD;
+        others are preserved: &amp; &lt; &nbsp; &nbsp &NotAnEntity;
+        numeric entities are transformed too: &#x26; &#38; &#x3C; &#60; &#X1d306;
+        unless they're whitespace etc: &#xA0;
+      </div>
+      <emu-alg>
+        1. This also works in algorithms, as in &laquo; 0, 1 &raquo;.
+      </emu-alg>
+      `,
+      dedentKeepingTrailingNewline`
+      <div>
+        some named entities are transformed: &amp; &amp; &lt; ½ ½ fj ⅅ
+        others are preserved: &amp; &lt; &nbsp; &nbsp &NotAnEntity;
+        numeric entities are transformed too: &amp; &amp; &lt; &lt; 𝌆
+        unless they're whitespace etc: &#xA0;
+      </div>
+      <emu-alg>
+        1. This also works in algorithms, as in « 0, 1 ».
+      </emu-alg>
       `
     );
   });

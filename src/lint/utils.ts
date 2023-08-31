@@ -10,16 +10,18 @@ import type {
   ButNotSymbol,
   OneOfSymbol,
   ArgumentList,
+  SourceFile,
+  Grammar as GrammarFile,
 } from 'grammarkdown';
 import type { Node as EcmarkdownNode } from 'ecmarkdown';
 
-import { Grammar as GrammarFile, SyntaxKind, skipTrivia, NodeVisitor } from 'grammarkdown';
+import { SyntaxKind, skipTrivia, NodeVisitor } from 'grammarkdown';
 import * as emd from 'ecmarkdown';
 
-export function getProductions(grammar: GrammarFile) {
+export function getProductions(sourceFiles: readonly SourceFile[]) {
   const productions: Map<string, { production: Production; rhses: (RightHandSide | OneOfList)[] }> =
     new Map();
-  grammar.rootFiles.forEach(f =>
+  sourceFiles.forEach(f =>
     f.elements.forEach(e => {
       if (e.kind !== SyntaxKind.Production) {
         // The alternatives supported by Grammarkdown are imports and defines, which ecma-262 does not use.
@@ -45,7 +47,7 @@ function productionBodies(body: ProductionBody) {
     case SyntaxKind.RightHandSide:
       return [body];
     default:
-      // @ts-ignore
+      // @ts-expect-error
       throw new Error('unknown production body type ' + body.constructor.name);
   }
 }
@@ -170,8 +172,7 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
 }
 
 // this is only for use with single-file grammars
-export function getLocationInGrammar(grammar: GrammarFile, pos: number) {
-  const file = grammar.sourceFiles[0];
+export function getLocationInGrammarFile(file: SourceFile, pos: number) {
   const posWithoutWhitespace = skipTrivia(file.text, pos, file.text.length);
   const { line: gmdLine, character: gmdCharacter } = file.lineMap.positionAt(posWithoutWhitespace);
   // grammarkdown use 0-based line and column, we want 1-based
@@ -189,7 +190,7 @@ class CollectNonterminalsFromGrammar extends NodeVisitor {
   visitProduction(node: Production): Production {
     this.results.push({
       name: node.name.text!,
-      loc: getLocationInGrammar(this.grammar, node.name.pos),
+      loc: getLocationInGrammarFile(this.grammar.sourceFiles[0], node.name.pos),
     });
     return super.visitProduction(node);
   }
@@ -197,7 +198,7 @@ class CollectNonterminalsFromGrammar extends NodeVisitor {
   visitNonterminal(node: Nonterminal): Nonterminal {
     this.results.push({
       name: node.name.text!,
-      loc: getLocationInGrammar(this.grammar, node.name.pos),
+      loc: getLocationInGrammarFile(this.grammar.sourceFiles[0], node.name.pos),
     });
     return super.visitNonterminal(node);
   }

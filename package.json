@@ -1,14 +1,15 @@
 {
 	"name": "ecmarkup",
-	"version": "12.0.3",
+	"version": "17.1.1",
 	"description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
 	"main": "lib/ecmarkup.js",
 	"typings": "lib/ecmarkup.d.ts",
 	"scripts": {
 		"build": "tsc -sourceMap",
 		"build-release": "tsc",
-		"build-spec": "mkdir -p docs && node bin/ecmarkup.js spec/index.html docs/index.html --css-out docs/elements.css --js-out docs/ecmarkup.js",
+		"build-spec": "mkdir -p docs && node bin/ecmarkup.js spec/index.html docs/index.html --assets-dir=docs",
 		"prepack": "safe-publish-latest && npm run build-release",
+		"format-spec": "node bin/emu-format.js --write spec/index.html",
 		"test": "mocha",
 		"test-baselines": "mocha test/baselines.js",
 		"update-baselines": "npm --update-baselines run test-baselines",
@@ -27,7 +28,9 @@
 		"/lib",
 		"/js",
 		"/css",
-		"/boilerplate"
+		"/fonts",
+		"/boilerplate",
+		"/entities-processed.json"
 	],
 	"repository": "tc39/ecmarkup",
 	"keywords": [
@@ -47,7 +50,7 @@
 		"command-line-args": "^5.2.0",
 		"command-line-usage": "^6.1.1",
 		"dedent-js": "^1.0.1",
-		"ecmarkdown": "^7.0.0",
+		"ecmarkdown": "^8.1.0",
 		"eslint-formatter-codeframe": "^7.32.1",
 		"fast-glob": "^3.2.7",
 		"grammarkdown": "^3.2.0",
@@ -55,6 +58,7 @@
 		"html-escape": "^1.0.2",
 		"js-yaml": "^3.13.1",
 		"jsdom": "^19.0.0",
+		"nwsapi": "2.2.0",
 		"parse5": "^6.0.1",
 		"prex": "^0.4.7",
 		"promise-debounce": "^1.0.1"
@@ -66,15 +70,15 @@
 		"@types/jsdom": "^16.2.13",
 		"@types/node": "^13.1.8",
 		"@types/parse5": "^6.0.2",
-		"@typescript-eslint/eslint-plugin": "^5.12.0",
-		"@typescript-eslint/parser": "^5.12.0",
+		"@typescript-eslint/eslint-plugin": "^6.3.0",
+		"@typescript-eslint/parser": "^6.3.0",
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^6.10.1",
 		"eslint-plugin-prettier": "^3.1.2",
 		"mocha": "^5.2.0",
 		"prettier": "^2.0.4",
 		"safe-publish-latest": "^1.1.4",
-		"typescript": "^4.5.5"
+		"typescript": "^5.1.6"
 	},
 	"prettier": {
 		"singleQuote": true,
