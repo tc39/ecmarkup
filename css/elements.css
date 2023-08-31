@@ -769,7 +769,7 @@ table.lightweight-table th {
   vertical-align: baseline;
 }
 
-/* anchor target highlighting */
+/* animation for temporarily highlighting link targets */
 @keyframes highlight-target-bg {
   0% {
     background-color: rgba(249, 241, 172, 0)
@@ -781,10 +781,22 @@ table.lightweight-table th {
     background-color: rgba(249, 241, 172, 0)
   }
 }
+
 /* for emu-clause nodes that contain other emu-clause nodes, only highlight the heading */
 :target:not(emu-clause:has(> emu-clause), emu-annex),
 :target:is(emu-clause:has(> emu-clause), emu-annex) > :is(h1,h2,h3,h4,h5,h6):first-child {
   animation: highlight-target-bg 2s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* add a more subtle persistent indicator to link targets */
+emu-clause:target, emu-annex:target, emu-table:target figure {
+  border-left: 0.5em solid #FFC107;
+  padding-left: 1em;
+  margin-left: -1em;
+}
+dfn:target, emu-xref:target {
+  text-decoration: wavy underline;
+  text-decoration-color: #FF9800;
 }
 
 /* diff styles */
