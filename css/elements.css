@@ -789,12 +789,12 @@ table.lightweight-table th {
 }
 
 /* add a more subtle persistent indicator to link targets */
-emu-clause:target, emu-annex:target, emu-table:target figure {
+emu-clause:target, emu-annex:target, emu-table:target figure, emu-production:target {
   border-left: 0.5em solid #FFC107;
   padding-left: 1em;
   margin-left: -1em;
 }
-:not(emu-clause, emu-annex, emu-table):target {
+:not(emu-clause, emu-annex, emu-table, emu-production):target {
   text-decoration: wavy underline;
   text-decoration-color: #FF9800;
 }
