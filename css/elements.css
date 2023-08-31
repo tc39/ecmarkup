@@ -777,6 +777,7 @@ emu-clause:target, emu-annex:target, emu-table:target figure, emu-production:tar
 }
 :not(emu-clause, emu-annex, emu-table, emu-production):target {
   text-decoration: wavy underline #FF9800;
+  text-decoration-skip-ink: none;
 }
 
 /* diff styles */
