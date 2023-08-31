@@ -781,7 +781,7 @@ table.lightweight-table th {
     background-color: rgba(249, 241, 172, 0)
   }
 }
-:target {
+:target:not(emu-clause:has(> emu-clause), emu-annex) {
   animation: highlight-target-bg 2s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
