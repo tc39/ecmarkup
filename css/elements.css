@@ -668,9 +668,19 @@ table.lightweight-table th {
 }
 
 /* anchor target highlighting */
+@keyframes highlight-target-bg {
+  0% {
+    background-color: rgba(249, 241, 172, 0)
+  }
+  20% {
+    background-color: rgba(249, 241, 172, 1);
+  }
+  100%{
+    background-color: rgba(249, 241, 172, 0)
+  }
+}
 :target {
-  outline: thin dashed red;
-  background-color: #ffffe5;
+  animation: highlight-target-bg 2s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 /* diff styles */
