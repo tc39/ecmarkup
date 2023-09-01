@@ -35,7 +35,8 @@ function makeExponentPlainTextSafe(sup) {
   // Add wrapping parentheses unless they are already present
   // or this is a simple (possibly signed) integer or single-variable exponent.
   const skipParens =
-    /^\(.*\)$/s.test(text.trim()) || /^[±+−-]?(?:[0-9]+|\p{ID_Start}\p{ID_Continue}*)$/u.test(text);
+    /^\(.*\)$/s.test(text.trim()) ||
+    /^[±+\u2212-]?(?:[0-9]+|\p{ID_Start}\p{ID_Continue}*)$/u.test(text);
   if (!skipParens) {
     prefix += '(';
     suffix += ')';
