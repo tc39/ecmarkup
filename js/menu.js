@@ -875,6 +875,21 @@ let referencePane = {
   },
 };
 
+function getAbsoluteOffset(el, offsetName) {
+  // "offsetTop" => "borderTopWidth", "offsetLeft" => "borderLeftWidth"
+  const borderWidthName = offsetName.replace(/offset(.*)/, 'border$1Width');
+  let d = el[offsetName];
+  for (let parent = el.offsetParent; parent; parent = parent.offsetParent) {
+    if (!parent.offsetParent) {
+      break;
+    }
+    const parentStyle = getComputedStyle(parent);
+    const parentBorderWidth = parentStyle[borderWidthName];
+    d += (parseFloat(parentBorderWidth) || 0) + parent[offsetName];
+  }
+  return d;
+}
+
 let Toolbox = {
   init() {
     this.$outer = document.createElement('div');
@@ -914,8 +929,8 @@ let Toolbox = {
     this.entry = entry;
     this.$pinLink.textContent = menu._pinnedIds[entry.id] ? 'Unpin' : 'Pin';
     this.$outer.classList.add('active');
-    this.top = el.offsetTop - this.$outer.offsetHeight;
-    this.left = el.offsetLeft - 10;
+    this.top = getAbsoluteOffset(el, 'offsetTop') - this.$outer.offsetHeight;
+    this.left = getAbsoluteOffset(el, 'offsetLeft') - 10;
     this.$outer.setAttribute('style', 'left: ' + this.left + 'px; top: ' + this.top + 'px');
     this.updatePermalink();
     this.updateReferences();
