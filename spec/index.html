@@ -362,7 +362,8 @@ markEffects: true
     &lt;p>The following is an alernative definition of step &lt;emu-xref href="#step-example-label">&lt;/emu-xref>.&lt;/p>
     &lt;emu-alg replaces-step="step-example-label">
       1. Set _length_ to _length_ + 1.
-      1. If _length_ = 10&lt;sup>9&lt;/sup>, then
+      1. Let _weight_ be GetWeight of _node_.
+      1. If _length_ = 10&lt;sup>9&lt;/sup> or _weight_ &gt; 2&lt;sup>_length_ + 1&lt;/sup>, then
         1. Throw a *RangeError* exception.
     &lt;/emu-alg>
   </code></pre>
@@ -380,7 +381,8 @@ markEffects: true
     <p>The following is an alernative definition of step <emu-xref href="#step-example-label"></emu-xref>.</p>
     <emu-alg replaces-step="step-example-label">
       1. Set _length_ to _length_ + 1.
-      1. If _length_ = 10<sup>9</sup>, then
+      1. Let _weight_ be GetWeight of _node_.
+      1. If _length_ = 10<sup>9</sup> or _weight_ > 2<sup>_length_ + 1</sup>, then
         1. Throw a *RangeError* exception.
     </emu-alg>
   </aside>
