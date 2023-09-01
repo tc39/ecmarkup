@@ -20,7 +20,7 @@ function makeExponentPlainTextSafe(sup) {
   const isText = [...sup.childNodes].every(node => node.nodeType === 3);
   const text = sup.textContent;
   if (isText) {
-    if (!/^[0-9. 𝔽ℝℤ()=*×/÷±+−-]+$/u.test(text)) {
+    if (!/^[0-9. 𝔽ℝℤ()=*×/÷±+\u2212-]+$/u.test(text)) {
       return;
     }
   } else {
