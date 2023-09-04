@@ -1204,13 +1204,14 @@ li.menu-search-result-term:before {
   background: #ddd;
   border: 1px solid #aaa;
   color: #eee;
-  padding: 5px;
+  padding: 5px 7px;
   border-radius: 3px;
 }
 
 .toolbox a {
   text-decoration: none;
-  padding: 0 5px;
+  padding: 0 3px;
+  white-space: nowrap;
 }
 
 .toolbox a:hover {
