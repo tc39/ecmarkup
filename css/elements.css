@@ -773,17 +773,14 @@ table.lightweight-table th {
    and a persistent focus-associated highlight */
 @keyframes highlight-target-bg {
   0% {
-    background-color: rgba(249, 241, 172, 0)
-  }
-  20% {
     background-color: rgba(249, 241, 172, 1);
   }
-  100%{
+  100% {
     background-color: rgba(249, 241, 172, 0)
   }
 }
 #spec-container :target:not(emu-annex, emu-clause, emu-intro, emu-note, body) {
-  animation: highlight-target-bg 2s cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation: highlight-target-bg 2.5s ease-out;
 }
 #spec-container :target:focus-within:not(:has(:not(a))) {
   animation: none;
