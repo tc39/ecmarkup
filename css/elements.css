@@ -769,7 +769,7 @@ table.lightweight-table th {
   vertical-align: baseline;
 }
 
-/* animation for temporarily highlighting link targets */
+/* apply a fading highlight to non-clause-like link targets */
 @keyframes highlight-target-bg {
   0% {
     background-color: rgba(249, 241, 172, 0)
@@ -781,10 +781,7 @@ table.lightweight-table th {
     background-color: rgba(249, 241, 172, 0)
   }
 }
-
-/* for emu-clause nodes that contain other emu-clause nodes, only highlight the heading */
-:target:not(emu-clause:has(> emu-clause), emu-annex),
-:target:is(emu-clause:has(> emu-clause), emu-annex) > :is(h1,h2,h3,h4,h5,h6):first-child {
+#spec-container :target:not(emu-annex, emu-clause, emu-intro, emu-note, body) {
   animation: highlight-target-bg 2s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
