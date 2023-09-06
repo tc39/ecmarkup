@@ -35,8 +35,24 @@ function makeExponentPlainTextSafe(sup) {
   // Add wrapping parentheses unless they are already present
   // or this is a simple (possibly signed) integer or single-variable exponent.
   const skipParens =
-    /^\(.*\)$/s.test(text.trim()) ||
-    /^[±+\u2212-]?(?:[0-9]+|\p{ID_Start}\p{ID_Continue}*)$/u.test(text);
+    /^[±+\u2212-]?(?:[0-9]+|\p{ID_Start}\p{ID_Continue}*)$/u.test(text) ||
+    // Split on parentheses and remember them; the resulting parts must
+    // start and end empty (i.e., with open/close parentheses)
+    // and increase depth to 1 only at the first parenthesis
+    // to e.g. wrap `(a+1)*(b+1)` but not `((a+1)*(b+1))`.
+    text
+      .trim()
+      .split(/([()])/g)
+      .reduce((depth, s, i, parts) => {
+        if (s === '(') {
+          return depth > 0 || i === 1 ? depth + 1 : NaN;
+        } else if (s === ')') {
+          return depth > 0 ? depth - 1 : NaN;
+        } else if (s === '' || (i > 0 && i < parts.length - 1)) {
+          return depth;
+        }
+        return NaN;
+      }, 0) === 0;
   if (!skipParens) {
     prefix += '(';
     suffix += ')';
