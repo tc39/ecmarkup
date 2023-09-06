@@ -7,6 +7,10 @@ import Builder from './Builder';
 /*@internal*/
 export default class Dfn extends Builder {
   static async enter({ spec, node, clauseStack }: Context) {
+    if (!node.hasAttribute('tabindex')) {
+      node.setAttribute('tabindex', '-1');
+    }
+
     const parentClause = clauseStack[clauseStack.length - 1];
     if (!parentClause) return;
 
