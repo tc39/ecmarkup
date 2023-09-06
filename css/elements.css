@@ -769,6 +769,17 @@ table.lightweight-table th {
   vertical-align: baseline;
 }
 
+/* add a more subtle persistent indicator to link targets */
+emu-clause:target, emu-annex:target, emu-table:target figure, emu-production:target {
+  border-left: 0.5em solid #FFC107;
+  padding-left: 1em;
+  margin-left: -1em;
+}
+:not(emu-clause, emu-annex, emu-table, emu-production):target {
+  text-decoration: wavy underline #FF9800;
+  text-decoration-skip-ink: none;
+}
+
 /* diff styles */
 ins {
   background-color: #e0f8e0;
