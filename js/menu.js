@@ -902,7 +902,9 @@ let Toolbox = {
       referencePane.showReferencesFor(this.entry);
     });
     this.$container.appendChild(this.$permalink);
+    this.$container.appendChild(document.createTextNode(' '));
     this.$container.appendChild(this.$pinLink);
+    this.$container.appendChild(document.createTextNode(' '));
     this.$container.appendChild(this.$refsLink);
     document.body.appendChild(this.$outer);
   },
