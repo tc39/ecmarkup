@@ -769,6 +769,24 @@ table.lightweight-table th {
   vertical-align: baseline;
 }
 
+/* for non-clause-like link targets, apply a fading highlight
+   and a persistent focus-associated highlight */
+@keyframes highlight-target-bg {
+  0% {
+    background-color: rgba(249, 241, 172, 1);
+  }
+  100% {
+    background-color: rgba(249, 241, 172, 0)
+  }
+}
+#spec-container :target:not(emu-annex, emu-clause, emu-intro, emu-note, body) {
+  animation: highlight-target-bg 2.5s ease-out;
+}
+#spec-container :target:focus-within:not(:has(:not(a))) {
+  animation: none;
+  background-color: rgba(249, 241, 172, 1);
+}
+
 /* diff styles */
 ins {
   background-color: #e0f8e0;
