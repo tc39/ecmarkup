@@ -57,6 +57,7 @@ export default class Clause extends Builder {
   examples: Example[];
   readonly effects: string[]; // this is held by identity and mutated by Spec.ts
   signature: Signature | null;
+  calledExternally: boolean;
 
   constructor(spec: Spec, node: HTMLElement, parent: Clause, number: string) {
     super(spec, node);
@@ -68,6 +69,7 @@ export default class Clause extends Builder {
     this.editorNotes = [];
     this.examples = [];
     this.effects = [];
+    this.calledExternally = false;
 
     // namespace is either the entire spec or the parent clause's namespace.
     let parentNamespace = spec.namespace;
@@ -206,6 +208,7 @@ export default class Clause extends Builder {
       for: _for,
       effects,
       redefinition,
+      calledExternally,
     } = parseStructuredHeaderDl(this.spec, type, dl);
 
     const paras = formatPreamble(
@@ -235,6 +238,8 @@ export default class Clause extends Builder {
         this.aoid = name;
       }
     }
+
+    this.calledExternally = calledExternally;
 
     this.effects.push(...effects);
     for (const effect of effects) {
@@ -372,6 +377,9 @@ export default class Clause extends Builder {
           effects: clause.effects,
           _node: clause.node,
         };
+        if (clause.calledExternally) {
+          op.calledExternally = true;
+        }
         if (
           signature?.return?.kind === 'union' &&
           signature.return.types.some(e => e.kind === 'completion') &&

@@ -401,11 +401,18 @@ export function parseStructuredHeaderDl(
   spec: Spec,
   type: string | null,
   dl: Element
-): { description: Element | null; for: Element | null; effects: string[]; redefinition: boolean } {
+): {
+  description: Element | null;
+  for: Element | null;
+  effects: string[];
+  redefinition: boolean;
+  calledExternally: boolean;
+} {
   let description = null;
   let _for = null;
   let redefinition: boolean | null = null;
   let effects: string[] = [];
+  let calledExternally: boolean | null = null;
   for (let i = 0; i < dl.children.length; ++i) {
     const dt = dl.children[i];
     if (dt.tagName !== 'DT') {
@@ -503,6 +510,34 @@ export function parseStructuredHeaderDl(
         }
         break;
       }
+      case 'called externally': {
+        if (calledExternally != null) {
+          spec.warn({
+            type: 'node',
+            ruleId: 'header-format',
+            message: `duplicate "called externally" attribute`,
+            node: dt,
+          });
+        }
+        const contents = (dd.textContent ?? '').trim();
+        if (contents === 'true') {
+          calledExternally = true;
+        } else if (contents === 'false') {
+          calledExternally = false;
+        } else {
+          spec.warn({
+            type: 'contents',
+            ruleId: 'header-format',
+            message: `unknown value for "called externally" attribute (expected "true" or "false", got ${JSON.stringify(
+              contents
+            )})`,
+            node: dd,
+            nodeRelativeLine: 1,
+            nodeRelativeColumn: 1,
+          });
+        }
+        break;
+      }
       case '': {
         spec.warn({
           type: 'node',
@@ -523,7 +558,13 @@ export function parseStructuredHeaderDl(
       }
     }
   }
-  return { description, for: _for, effects, redefinition: redefinition ?? false };
+  return {
+    description,
+    for: _for,
+    effects,
+    redefinition: redefinition ?? false,
+    calledExternally: calledExternally ?? false,
+  };
 }
 
 export function formatPreamble(
