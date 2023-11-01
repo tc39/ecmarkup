@@ -254,7 +254,50 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
-          1. ${M}Throw a new TypeError.
+          1. ${M}Throw a *TypeError* exception.
+        </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          nodeType: 'emu-alg',
+          message:
+            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+        }
+      );
+
+      await assertLint(
+        positioned`
+        <emu-clause id="example" type="abstract operation">
+        <h1>
+          ExampleAlg (): a Number
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. If some condition is met, ${M}throw a *TypeError* exception.
+        </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          nodeType: 'emu-alg',
+          message:
+            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+        }
+      );
+
+      await assertLint(
+        positioned`
+        <emu-clause id="example" type="abstract operation">
+        <h1>
+          ExampleAlg (): a Number
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Let _foo_ be a thing.
+          1. ${M}Throw _foo_.
         </emu-alg>
         </emu-clause>
         `,
@@ -290,6 +333,28 @@ describe('typechecking completions', () => {
           extraBiblios: [biblio],
         }
       );
+
+      await assertLint(
+        positioned`
+        <emu-clause id="example" type="abstract operation">
+        <h1>
+          ExampleAlg (): a Number
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. ${M}Return Completion Record { [[Type]]: ~return~, [[Value]]: _x_, [[Target]]: ~empty~ }.
+        </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          nodeType: 'emu-alg',
+          message:
+            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+        }
+      );
     });
 
     it('negative', async () => {
@@ -307,6 +372,26 @@ describe('typechecking completions', () => {
             1. Return ? _foo_.
             1. Return Completion(_x_).
             1. Throw a new TypeError.
+          </emu-alg>
+          </emu-clause>
+        `,
+        {
+          extraBiblios: [biblio],
+        }
+      );
+
+      await assertLintFree(
+        `
+          <emu-clause id="example" type="abstract operation">
+          <h1>
+            ExampleAlg (): a Number
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Do something with Completion(0).
+            1. NOTE: This will not throw a *TypeError* exception.
+            1. Consider whether something is a return completion.
           </emu-alg>
           </emu-clause>
         `,
@@ -507,7 +592,7 @@ describe('typechecking completions', () => {
         <dl class="header">
         </dl>
         <emu-alg>
-          1. Throw something.
+          1. Throw a *TypeError* exception.
         </emu-alg>
         </emu-clause>
 
