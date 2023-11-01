@@ -92,8 +92,7 @@ export default class Algorithm extends Builder {
               if (completionyThing != null) {
                 if (returnType?.kind === 'completion') {
                   containsAnyCompletionyThings = true;
-                } else if (clause.aoid !== 'GeneratorStart') {
-                  // TODO: remove above exception when the spec is more coherent (https://github.com/tc39/ecma262/pull/2429)
+                } else {
                   spec.warn({
                     type: 'contents',
                     ruleId: 'completiony-thing-in-non-completion-algorithm',
