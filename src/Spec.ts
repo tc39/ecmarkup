@@ -703,18 +703,7 @@ export default class Spec {
 
         const biblioEntry = this.biblio.byAoid(calleeName);
         if (biblioEntry == null) {
-          if (
-            ![
-              'thisTimeValue',
-              'thisStringValue',
-              'thisBigIntValue',
-              'thisNumberValue',
-              'thisSymbolValue',
-              'thisBooleanValue',
-              'toUppercase',
-              'toLowercase',
-            ].includes(calleeName)
-          ) {
+          if (!['toUppercase', 'toLowercase'].includes(calleeName)) {
             // TODO make the spec not do this
             warn(`could not find definition for ${calleeName}`);
           }
