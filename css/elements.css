@@ -900,20 +900,54 @@ tr.del > td {
   counter-reset: pins-counter;
 }
 
+#menu-pins-list > li {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  margin: 4px 1px;
+  border-radius: 4px;
+}
+/*
+#menu-pins-list > li:hover {
+  background-color: #ccc;
+}
+*/
+
+#menu-pins-list > li > a {
+  flex-grow: 1;
+  align-self: center;
+}
+
+#menu-pins-list > li:before,
+#menu-pins-list > li > button {
+  flex-shrink: 0;
+  flex-grow: 0;
+  text-align: center;
+  border: 1px solid #bbb;
+  padding: 1px 3px;
+  background: #ccc;
+  border-radius: 4px;
+}
+
+/*
+#menu-pins-list > li:hover:before,
+#menu-pins-list > li:hover > button {
+  background-color: #ddd;
+}
+*/
+#menu-pins-list > li > button:hover {
+  color: #bb1212;
+}
+
 #menu-pins-list > li:before {
   content: counter(pins-counter);
   counter-increment: pins-counter;
-  display: inline-block;
-  width: 25px;
-  text-align: center;
-  border: 1px solid #bbb;
-  padding: 2px;
-  margin: 4px;
-  box-sizing: border-box;
-  line-height: 1em;
-  background-color: #ccc;
-  border-radius: 4px;
+  font-size: 16px;
 }
+#menu-pins-list > li > button {
+  cursor: pointer;
+}
+
 #menu-toc > ol {
   padding: 0;
   flex-grow: 1;
@@ -1010,7 +1044,6 @@ tr.del > td {
   flex-grow: 0;
   flex-shrink: 0;
   font-size: 80%;
-  cursor: row-resize;
   user-select: none;
 }
 
@@ -1285,12 +1318,16 @@ li.menu-search-result-term:before {
   flex-direction: column;
 }
 
+#references-pane > .menu-pane-header {
+  cursor: row-resize;
+}
+
 #references-pane-container.active {
   display: flex;
 }
 
 #references-pane-close:after {
-  content: '✖';
+  content: '\2716';
   float: right;
   cursor: pointer;
 }

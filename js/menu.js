@@ -479,6 +479,7 @@ Menu.prototype.addPinEntry = function (id) {
     return;
   }
 
+  let text;
   if (entry.type === 'clause') {
     let prefix;
     if (entry.number) {
@@ -487,10 +488,12 @@ Menu.prototype.addPinEntry = function (id) {
       prefix = '';
     }
     // prettier-ignore
-    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${prefix}${entry.titleHTML}</a></li>`;
+    text = `${prefix}${entry.titleHTML}`;
   } else {
-    this.$pinList.innerHTML += `<li><a href="${makeLinkToId(entry.id)}">${getKey(entry)}</a></li>`;
+    text = getKey(entry);
   }
+
+  this.$pinList.innerHTML += `<li data-section-id="${id}"><a href="${makeLinkToId(entry.id)}">${text}</a><button>\u{2716}</button></li>`;
 
   if (Object.keys(this._pinnedIds).length === 0) {
     this.showPins();
