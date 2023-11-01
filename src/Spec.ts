@@ -705,12 +705,6 @@ export default class Spec {
         if (biblioEntry == null) {
           if (
             ![
-              'thisTimeValue',
-              'thisStringValue',
-              'thisBigIntValue',
-              'thisNumberValue',
-              'thisSymbolValue',
-              'thisBooleanValue',
               'toUppercase',
               'toLowercase',
             ].includes(calleeName)
