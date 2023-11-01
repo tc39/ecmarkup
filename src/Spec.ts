@@ -660,6 +660,7 @@ export default class Spec {
         .filter(e => e.signature!.return!.kind === 'completion' && !e.calledExternally)
         .map(a => [a.aoid, null])
     );
+    const neverCalled = new Set(AOs.map(a => a.aoid));
 
     // TODO strictly speaking this needs to be done in the namespace of the current algorithm
     const opNames = this.biblio.getOpNames(this.namespace);
@@ -703,12 +704,7 @@ export default class Spec {
 
         const biblioEntry = this.biblio.byAoid(calleeName);
         if (biblioEntry == null) {
-          if (
-            ![
-              'toUppercase',
-              'toLowercase',
-            ].includes(calleeName)
-          ) {
+          if (!['toUppercase', 'toLowercase'].includes(calleeName)) {
             // TODO make the spec not do this
             warn(`could not find definition for ${calleeName}`);
           }
@@ -726,6 +722,8 @@ export default class Spec {
         ) {
           warn(`${calleeName} is not a syntax-directed operation but here is being invoked as one`);
         }
+
+        neverCalled.delete(calleeName);
 
         if (biblioEntry.signature == null) {
           return;
@@ -847,6 +845,26 @@ export default class Spec {
       }
       const message = `every call site of ${aoid} asserts the return value is a normal completion; it should be refactored to not return a completion record at all. if this AO is called in other documents, add the "called externally" attribute to the header.`;
       const ruleId = 'always-asserted-normal';
+      const biblioEntry = this.biblio.byAoid(aoid)!;
+      if (biblioEntry._node) {
+        this.spec.warn({
+          type: 'node',
+          ruleId,
+          message,
+          node: biblioEntry._node,
+        });
+      } else {
+        this.spec.warn({
+          type: 'global',
+          ruleId,
+          message,
+        });
+      }
+    }
+
+    for (const aoid of neverCalled) {
+      const message = `${aoid} is never called. if this AO is called in other documents, add the "called externally" attribute to the header.`;
+      const ruleId = 'never-called';
       const biblioEntry = this.biblio.byAoid(aoid)!;
       if (biblioEntry._node) {
         this.spec.warn({
