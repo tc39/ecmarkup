@@ -87,7 +87,7 @@ export default class Algorithm extends Builder {
                 continue;
               }
               const completionyThing = part.contents.match(
-                /\b(ReturnIfAbrupt|throw|Return (Normal|Throw)?Completion|the result of evaluating)\b|(?<=[\s(])\?\s/i
+                /\b(ReturnIfAbrupt\b|(^|(?<=, ))[tT]hrow (a\b|the\b|$)|[rR]eturn (Normal|Throw|Return)?Completion\(|[rR]eturn( a| a new| the)? Completion Record\b|the result of evaluating\b)|(?<=[\s(])\?\s/
               );
               if (completionyThing != null) {
                 if (returnType?.kind === 'completion') {
