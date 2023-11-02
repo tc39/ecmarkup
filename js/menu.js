@@ -523,7 +523,7 @@ Menu.prototype.removePinEntry = function (id) {
 };
 
 Menu.prototype.unpinAll = function () {
-  for (let id in this._pinnedIds) {
+  for (let id of Object.keys(this._pinnedIds)) {
     this.removePinEntry(id);
   }
 };
