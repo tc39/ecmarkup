@@ -897,7 +897,6 @@ tr.del > td {
 #menu-pins .unpin-all {
   border: none;
   background: #ccc;
-  cursor: pointer;
   border-radius: 4px;
   height: 18px;
   font-size: 12px;
@@ -905,7 +904,6 @@ tr.del > td {
   font-family: IBM Plex Sans;
 }
 #menu-pins .unpin-all:hover {
-  color: #bb1212;
   background: #ddd;
 }
 
@@ -929,7 +927,7 @@ tr.del > td {
 }
 
 #menu-pins-list > li:before,
-#menu-pins-list > li > button {
+#menu-pins-list > li > .unpin {
   flex-shrink: 0;
   flex-grow: 0;
   text-align: center;
@@ -939,11 +937,16 @@ tr.del > td {
   border: none;
 }
 #menu-pins-list > li:before,
-#menu-pins-list > li > button:hover {
+#menu-pins-list > li > .unpin:hover {
   background: #ccc;
 }
 
-#menu-pins-list > li > button:hover {
+#menu-pins-list > li > .unpin,
+#menu-pins .unpin-all {
+  cursor: pointer;
+}
+#menu-pins-list > li > .unpin:hover,
+#menu-pins .unpin-all:hover {
   color: #bb1212;
 }
 
@@ -951,9 +954,6 @@ tr.del > td {
   content: counter(pins-counter);
   counter-increment: pins-counter;
   font-size: 16px;
-}
-#menu-pins-list > li > button {
-  cursor: pointer;
 }
 
 #menu-toc > ol {

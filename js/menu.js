@@ -502,7 +502,7 @@ Menu.prototype.addPinEntry = function (id) {
   }
 
   let link = `<a href="${makeLinkToId(entry.id)}">${text}</a>`;
-  this.$pinList.innerHTML += `<li data-section-id="${id}">${link}<button class="remove">\u{2716}</button></li>`;
+  this.$pinList.innerHTML += `<li data-section-id="${id}">${link}<button class="unpin">\u{2716}</button></li>`;
 
   if (Object.keys(this._pinnedIds).length === 0) {
     this.showPins();
@@ -529,7 +529,7 @@ Menu.prototype.unpinAll = function () {
 };
 
 Menu.prototype.pinListClick = function (event) {
-  if (event?.target?.classList.contains('remove')) {
+  if (event?.target?.classList.contains('unpin')) {
     let id = event.target.parentNode.dataset.sectionId;
     if (id) {
       this.removePinEntry(id);
