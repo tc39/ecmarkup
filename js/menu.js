@@ -268,7 +268,9 @@ function Menu() {
   this.loadPinEntries();
 
   // unpin all button
-  document.querySelector('#menu-pins .unpin-all').addEventListener('click', this.unpinAll.bind(this));
+  document
+    .querySelector('#menu-pins .unpin-all')
+    .addEventListener('click', this.unpinAll.bind(this));
 
   // individual unpinning buttons
   this.$pinList.addEventListener('click', this.pinListClick.bind(this));
@@ -499,7 +501,8 @@ Menu.prototype.addPinEntry = function (id) {
     text = getKey(entry);
   }
 
-  this.$pinList.innerHTML += `<li data-section-id="${id}"><a href="${makeLinkToId(entry.id)}">${text}</a><button class="remove">\u{2716}</button></li>`;
+  let link = `<a href="${makeLinkToId(entry.id)}">${text}</a>`;
+  this.$pinList.innerHTML += `<li data-section-id="${id}">${link}<button class="remove">\u{2716}</button></li>`;
 
   if (Object.keys(this._pinnedIds).length === 0) {
     this.showPins();
