@@ -267,6 +267,12 @@ function Menu() {
   this._pinnedIds = {};
   this.loadPinEntries();
 
+  // unpin all button
+  document.querySelector('#menu-pins .unpin-all').addEventListener('click', this.unpinAll.bind(this));
+
+  // individual unpinning buttons
+  this.$pinList.addEventListener('click', this.pinListClick.bind(this));
+
   // toggle menu
   this.$toggle.addEventListener('click', this.toggle.bind(this));
 
@@ -493,7 +499,7 @@ Menu.prototype.addPinEntry = function (id) {
     text = getKey(entry);
   }
 
-  this.$pinList.innerHTML += `<li data-section-id="${id}"><a href="${makeLinkToId(entry.id)}">${text}</a><button>\u{2716}</button></li>`;
+  this.$pinList.innerHTML += `<li data-section-id="${id}"><a href="${makeLinkToId(entry.id)}">${text}</a><button class="remove">\u{2716}</button></li>`;
 
   if (Object.keys(this._pinnedIds).length === 0) {
     this.showPins();
@@ -511,6 +517,21 @@ Menu.prototype.removePinEntry = function (id) {
   }
 
   this.persistPinEntries();
+};
+
+Menu.prototype.unpinAll = function () {
+  for (let id in this._pinnedIds) {
+    this.removePinEntry(id);
+  }
+};
+
+Menu.prototype.pinListClick = function (event) {
+  if (event?.target?.classList.contains('remove')) {
+    let id = event.target.parentNode.dataset.sectionId;
+    if (id) {
+      this.removePinEntry(id);
+    }
+  }
 };
 
 Menu.prototype.persistPinEntries = function () {

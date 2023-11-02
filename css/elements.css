@@ -894,6 +894,21 @@ tr.del > td {
   display: block;
 }
 
+#menu-pins .unpin-all {
+  border: none;
+  background: #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+  height: 18px;
+  font-size: 12px;
+  margin: 0 5px 0 10px;
+  font-family: IBM Plex Sans;
+}
+#menu-pins .unpin-all:hover {
+  color: #bb1212;
+  background: #ddd;
+}
+
 #menu-pins-list {
   margin: 0;
   padding: 0;
@@ -904,14 +919,9 @@ tr.del > td {
   display: flex;
   align-items: stretch;
   gap: 4px;
-  margin: 4px 1px;
+  margin: 3px 1px;
   border-radius: 4px;
 }
-/*
-#menu-pins-list > li:hover {
-  background-color: #ccc;
-}
-*/
 
 #menu-pins-list > li > a {
   flex-grow: 1;
@@ -923,18 +933,16 @@ tr.del > td {
   flex-shrink: 0;
   flex-grow: 0;
   text-align: center;
-  border: 1px solid #bbb;
   padding: 1px 3px;
-  background: #ccc;
   border-radius: 4px;
+  background: none;
+  border: none;
+}
+#menu-pins-list > li:before,
+#menu-pins-list > li > button:hover {
+  background: #ccc;
 }
 
-/*
-#menu-pins-list > li:hover:before,
-#menu-pins-list > li:hover > button {
-  background-color: #ddd;
-}
-*/
 #menu-pins-list > li > button:hover {
   color: #bb1212;
 }
