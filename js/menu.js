@@ -512,7 +512,7 @@ Menu.prototype.addPinEntry = function (id) {
 };
 
 Menu.prototype.removePinEntry = function (id) {
-  let item = this.$pinList.querySelector(`a[href="${makeLinkToId(id)}"]`).parentNode;
+  let item = this.$pinList.querySelector(`li[data-section-id="${id}"]`);
   this.$pinList.removeChild(item);
   delete this._pinnedIds[id];
   if (Object.keys(this._pinnedIds).length === 0) {
