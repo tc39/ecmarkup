@@ -10,6 +10,11 @@ export default function makeMenu(spec: Spec) {
   const pinHeader = spec.doc.createElement('div');
   pinHeader.textContent = 'Pins';
   pinHeader.setAttribute('class', 'menu-pane-header');
+  const unpinAll = spec.doc.createElement('button');
+  unpinAll.setAttribute('class', 'unpin-all');
+  unpinAll.textContent = 'clear';
+  pinHeader.appendChild(unpinAll);
+
   const pinList = spec.doc.createElement('ul');
   pinList.setAttribute('id', 'menu-pins-list');
 

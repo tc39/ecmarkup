@@ -642,7 +642,7 @@ describe('typechecking completions', () => {
           ruleId: 'always-asserted-normal',
           nodeType: 'emu-clause',
           message:
-            'every call site of ExampleAlg asserts the return value is a normal completion; it should be refactored to not return a completion record at all',
+            'every call site of ExampleAlg asserts the return value is a normal completion; it should be refactored to not return a completion record at all. if this AO is called in ways ecmarkup cannot analyze, add the "skip global checks" attribute to the header.',
         }
       );
     });
@@ -669,6 +669,34 @@ describe('typechecking completions', () => {
           </dl>
           <emu-alg>
             1. Let _x_ be ? ExampleAlg().
+            1. Return _x_.
+          </emu-alg>
+          </emu-clause>
+      `);
+
+      await assertLintFree(`
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            ExampleAlg (): either a normal completion containing Number or an abrupt completion
+          </h1>
+          <dl class="header">
+            <dt>skip global checks</dt>
+            <dd>true</dd>
+          </dl>
+          <emu-alg>
+            1. Let _foo_ be 0.
+            1. Return ? _foo_.
+          </emu-alg>
+          </emu-clause>
+
+          <emu-clause id="example2" type="abstract operation">
+          <h1>
+            Example2 ()
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Let _x_ be ! ExampleAlg().
             1. Return _x_.
           </emu-alg>
           </emu-clause>

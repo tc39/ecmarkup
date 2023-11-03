@@ -341,6 +341,7 @@ export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   kind?: AlgorithmType;
   signature: null | Signature;
   effects: string[];
+  skipGlobalChecks?: boolean;
   /*@internal*/ _node?: Element;
 }
 
