@@ -209,6 +209,7 @@ markEffects: true
             <li><b>effects:</b> A list of "effects" associated with the clause (and transitively with those referencing it), separated by commas with optional whitespace. The only currently-known effect is "user-code", which indicates that the operation or method can evaluate non-implementation code (such as custom getters).</li>
             <li><b>for:</b> The type of value to which a clause of type "concrete method" or "internal method" applies.</li>
             <li><b>redefinition:</b> If "true", the name of the operation will not automatically link (i.e., it will not automatically be given an aoid).</li>
+            <li><b>skip global checks:</b> If "true", disables consistency checks for this AO which require knowing every callsite.</li>
           </ul>
         </li>
       </ol>

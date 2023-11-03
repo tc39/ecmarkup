@@ -655,7 +655,10 @@ export default class Spec {
       AOs.filter(e => !isUnused(e.signature!.return!)).map(a => [a.aoid, null])
     );
     const alwaysAssertedToBeNormal: Map<string, null | 'always asserted normal' | 'top'> = new Map(
-      AOs.filter(e => e.signature!.return!.kind === 'completion').map(a => [a.aoid, null])
+      // prettier-ignore
+      AOs
+        .filter(e => e.signature!.return!.kind === 'completion' && !e.skipGlobalChecks)
+        .map(a => [a.aoid, null])
     );
 
     // TODO strictly speaking this needs to be done in the namespace of the current algorithm
@@ -700,18 +703,7 @@ export default class Spec {
 
         const biblioEntry = this.biblio.byAoid(calleeName);
         if (biblioEntry == null) {
-          if (
-            ![
-              'thisTimeValue',
-              'thisStringValue',
-              'thisBigIntValue',
-              'thisNumberValue',
-              'thisSymbolValue',
-              'thisBooleanValue',
-              'toUppercase',
-              'toLowercase',
-            ].includes(calleeName)
-          ) {
+          if (!['toUppercase', 'toLowercase'].includes(calleeName)) {
             // TODO make the spec not do this
             warn(`could not find definition for ${calleeName}`);
           }
@@ -848,7 +840,7 @@ export default class Spec {
         // TODO remove this when https://github.com/tc39/ecma262/issues/2412 is fixed
         continue;
       }
-      const message = `every call site of ${aoid} asserts the return value is a normal completion; it should be refactored to not return a completion record at all`;
+      const message = `every call site of ${aoid} asserts the return value is a normal completion; it should be refactored to not return a completion record at all. if this AO is called in ways ecmarkup cannot analyze, add the "skip global checks" attribute to the header.`;
       const ruleId = 'always-asserted-normal';
       const biblioEntry = this.biblio.byAoid(aoid)!;
       if (biblioEntry._node) {
