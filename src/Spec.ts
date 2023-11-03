@@ -1366,6 +1366,8 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
   <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
 ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</code></li>` : ''}
   <li><span>Jump to search box</span><code>/</code></li>
+  <li><span>Toggle pinning of the current clause</span><code>p</code></li>
+  <li><span>Jump to <i>n</i>th pin</span><code>1-9</code></li>
 </ul>`;
     return shortcutsHelp;
   }
