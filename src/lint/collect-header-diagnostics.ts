@@ -49,11 +49,17 @@ export function collectHeaderDiagnostics(
 
       // CreateForInIterator
       // Object.fromEntries
-      // _NativeError_ [ @@whatever ]
       // Array.prototype [ @@iterator ]
-      // %ForInIteratorPrototype%.next
       // Object.prototype.__defineGetter__
-      /^([%_]?)[A-Za-z][A-Za-z0-9/]*\1(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ @@[a-z][a-zA-Z]+ \])*\s*$/,
+      /^[A-Za-z][A-Za-z0-9/]*(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ @@[a-z][a-zA-Z]+ \])*\s*$/,
+
+      // _TypedArray_.prototype
+      // _NativeError_ [ @@whatever ]
+      /^_[A-Za-z][A-Za-z0-9/]*_(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ @@[a-z][a-zA-Z]+ \])*\s*$/,
+
+      // %ForInIteratorPrototype%.next
+      // %GeneratorFunction.prototype.prototype% [ @@toStringTag ]
+      /^%[A-Za-z][A-Za-z0-9/]*(\.[A-Za-z][A-Za-z0-9]*)*%(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ @@[a-z][a-zA-Z]+ \])*\s*$/,
     ].some(r => r.test(name));
 
     if (!nameMatches) {
