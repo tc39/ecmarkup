@@ -17,7 +17,7 @@ export const options = [
     lazyMultiple: true,
     typeLabel: '{underline path}',
     description:
-      'An external biblio.json to load; either a path prefixed with "." or "./", or package name, of an installed eslint compatible formatter',
+      'An external biblio.json to load; either a path prefixed with "." or "./", or a package name of an installed package that exports a biblio',
   },
   {
     name: 'write-biblio',
