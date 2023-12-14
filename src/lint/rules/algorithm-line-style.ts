@@ -157,7 +157,7 @@ export default function (
     if (!/^Repeat, (?:while|until) /.test(initialText)) {
       report({
         ruleId,
-        message: `expected "Repeat" look like "Repeat _n_ times:", "Repeat, while ..." or "Repeat, until ..."`,
+        message: `expected "Repeat" to look like "Repeat _n_ times:", "Repeat, while ..." or "Repeat, until ..."`,
         ...locate(first.location.start.offset),
       });
     }
