@@ -151,10 +151,13 @@ export default function (
     if (stepSeq.items.length === 1 && initialText === 'Repeat,') {
       return;
     }
+    if (/ times:$/.test(finalText)) {
+      return;
+    }
     if (!/^Repeat, (?:while|until) /.test(initialText)) {
       report({
         ruleId,
-        message: `expected "Repeat" to start with "Repeat, while " or "Repeat, until "`,
+        message: `expected "Repeat" look like "Repeat _n_ times:", "Repeat, while ..." or "Repeat, until ..."`,
         ...locate(first.location.start.offset),
       });
     }

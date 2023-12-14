@@ -248,6 +248,8 @@ describe('linting algorithms', () => {
             1. Substep.
           1. Repeat,
             1. Substep.
+          1. Repeat _x_ times:
+            1. Substep.
           1. Repeat, while foo,
             1. Substep.
           1. Repeat, until foo,
