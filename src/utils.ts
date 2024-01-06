@@ -292,3 +292,23 @@ export function doesEffectPropagateToParent(node: Element, effect: string) {
   }
   return true;
 }
+
+export function* zip<A, B>(as: Iterable<A>, bs: Iterable<B>): Iterable<[A, B]> {
+  const iterA = as[Symbol.iterator]();
+  const iterB = bs[Symbol.iterator]();
+
+  while (true) {
+    const iterResultA = iterA.next();
+    const iterResultB = iterB.next();
+
+    if (iterResultA.done !== iterResultB.done) {
+      throw new Error('zipping iterators which ended at different times');
+    }
+
+    if (iterResultA.done) {
+      break;
+    }
+
+    yield [iterResultA.value, iterResultB.value];
+  }
+}
