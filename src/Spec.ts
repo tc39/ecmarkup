@@ -1964,4 +1964,3 @@ function isScriptNode(
 ): node is HTMLScriptElement {
   return node.nodeName.toLowerCase() === 'script';
 }
-

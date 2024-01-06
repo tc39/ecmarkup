@@ -1,13 +1,14 @@
-import { OrderedListNode } from 'ecmarkdown';
+import type { OrderedListNode } from 'ecmarkdown';
 import type { AlgorithmElementWithTree } from './Algorithm';
-import type { AlgorithmBiblioEntry, Type } from './Biblio';
+import type { AlgorithmBiblioEntry, Type as BiblioType } from './Biblio';
 import type Spec from './Spec';
-import type { Expr, PathItem } from './expr-parser';
-import { walk as walkExpr, parse as parseExpr, isProsePart, Seq } from './expr-parser';
-import { offsetToLineAndColumn } from './utils';
+import type { Expr, NonSeq, PathItem, Seq } from './expr-parser';
+import { walk as walkExpr, parse as parseExpr, isProsePart } from './expr-parser';
+import { offsetToLineAndColumn, zip } from './utils';
+import type Biblio from './Biblio';
 
 export function typecheck(spec: Spec) {
-  const isUnused = (t: Type) =>
+  const isUnused = (t: BiblioType) =>
     t.kind === 'unused' ||
     (t.kind === 'completion' &&
       (t.completionType === 'abrupt' || t.typeOfValueIfNormal?.kind === 'unused'));
@@ -88,16 +89,74 @@ export function typecheck(spec: Spec) {
       if (biblioEntry.signature == null) {
         return;
       }
-      const min = biblioEntry.signature.parameters.length;
-      const max = min + biblioEntry.signature.optionalParameters.length;
+      const { signature } = biblioEntry;
+      const min = signature.parameters.length;
+      const max = min + signature.optionalParameters.length;
       if (args.length < min || args.length > max) {
         const count = `${min}${min === max ? '' : `-${max}`}`;
         // prettier-ignore
         const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
         warn(message);
+      } else {
+        const params = signature.parameters.concat(signature.optionalParameters);
+        for (const [arg, param] of zip(args, params, true)) {
+          if (param.type == null) continue;
+          const argType = typeFromExpr(arg, spec.biblio);
+          const paramType = typeFromExprType(param.type);
+
+          // often we can't infer the argument precisely, so we check only that the intersection is nonempty rather than that the argument type is a subtype of the parameter type
+          const intersection = meet(argType, paramType);
+
+          if (
+            intersection.kind === 'never' ||
+            (intersection.kind === 'list' &&
+              intersection.of.kind === 'never' &&
+              // if the meet is list<never>, and we're passing a concrete list, it had better be empty
+              argType.kind === 'list' &&
+              argType.of.kind !== 'never')
+          ) {
+            const items = stripWhitespace(arg.items);
+            const { line, column } = offsetToLineAndColumn(
+              originalHtml,
+              items[0].location.start.offset
+            );
+            const argDescriptor =
+              argType.kind.startsWith('concrete') || argType.kind === 'enum value'
+                ? `(${serialize(argType)})`
+                : `type (${serialize(argType)})`;
+
+            let hint = '';
+            if (argType.kind === 'concrete number' && dominates({ kind: 'real' }, paramType)) {
+              hint =
+                '\nhint: you passed an ES number, but this position takes a mathematical value';
+            } else if (
+              argType.kind === 'concrete real' &&
+              dominates({ kind: 'number' }, paramType)
+            ) {
+              hint =
+                '\nhint: you passed a real number, but this position takes an ES language Number';
+            } else if (
+              argType.kind === 'concrete real' &&
+              dominates({ kind: 'bigint' }, paramType)
+            ) {
+              hint =
+                '\nhint: you passed a real number, but this position takes an ES language BigInt';
+            }
+
+            spec.warn({
+              type: 'contents',
+              ruleId: 'typecheck',
+              // prettier-ignore
+              message: `argument ${argDescriptor} does not look plausibly assignable to parameter type (${serialize(paramType)})${hint}`,
+              node,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
+            });
+          }
+        }
       }
 
-      const { return: returnType } = biblioEntry.signature;
+      const { return: returnType } = signature;
       if (returnType == null) {
         return;
       }
@@ -297,4 +356,398 @@ function textFromPreviousPart(seq: Seq, index: number): string | null {
     }
   }
   return null;
+}
+
+function stripWhitespace(items: NonSeq[]) {
+  items = [...items];
+  while (items[0]?.name === 'text' && /^\s+$/.test(items[0].contents)) {
+    items.shift();
+  }
+  while (
+    items[items.length - 1]?.name === 'text' &&
+    // @ts-expect-error
+    /^\s+$/.test(items[items.length - 1].contents)
+  ) {
+    items.pop();
+  }
+  return items;
+}
+
+type Type =
+  | { kind: 'unknown' } // top
+  | { kind: 'never' } // bottom
+  | { kind: 'union'; of: NonUnion[] } // constraint: nothing in the union dominates anything else in the union
+  | { kind: 'list'; of: Type }
+  | { kind: 'record' } // TODO more precision
+  | { kind: 'completion'; of: Type }
+  | { kind: 'real' }
+  | { kind: 'integer' }
+  | { kind: 'non-negative integer' }
+  | { kind: 'concrete real'; value: string }
+  | { kind: 'ES value' }
+  | { kind: 'string' }
+  | { kind: 'number' }
+  | { kind: 'integral number' }
+  | { kind: 'bigint' }
+  | { kind: 'null' }
+  | { kind: 'concrete string'; value: string }
+  | { kind: 'concrete number'; value: string }
+  | { kind: 'concrete bigint'; value: string }
+  | { kind: 'enum value'; value: string };
+
+type NonUnion = Exclude<Type, { kind: 'union' }>;
+
+const simpleKinds = new Set<Type['kind']>([
+  'unknown',
+  'never',
+  'record',
+  'real',
+  'integer',
+  'non-negative integer',
+  'ES value',
+  'string',
+  'number',
+  'integral number',
+  'bigint',
+]);
+
+const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
+  // @ts-expect-error TS does not know about __proto__
+  __proto__: null,
+  record: ['completion'],
+  real: ['integer', 'non-negative integer', 'concrete real'],
+  integer: ['non-negative integer'],
+  'ES value': [
+    'string',
+    'number',
+    'integral number',
+    'bigint',
+    'concrete string',
+    'concrete number',
+    'concrete bigint',
+  ],
+  string: ['concrete string'],
+  number: ['integral number', 'concrete number'],
+  bigint: ['concrete bigint'],
+};
+
+/*
+The type lattice used here is very simple (aside from explicit unions).
+As such we really only need to define the `dominates` relationship and apply trivial rules:
+if `x` dominates `y`, then `join(x,y) = x` and `meet(x,y) = y`; if neither dominates the other than the join is top and the meet is bottom.
+Unions take a little more work.
+*/
+
+function dominates(a: Type, b: Type): boolean {
+  if (a.kind === 'unknown' || b.kind === 'never') {
+    return true;
+  }
+  if (b.kind === 'union') {
+    return b.of.every(t => dominates(a, t));
+  }
+  if (a.kind === 'union') {
+    // not necessarily true for arbitrary lattices, but true for ours
+    return a.of.some(t => dominates(t, b));
+  }
+  if (
+    (a.kind === 'list' && b.kind === 'list') ||
+    (a.kind === 'completion' && b.kind === 'completion')
+  ) {
+    return dominates(a.of, b.of);
+  }
+  if (simpleKinds.has(a.kind) && simpleKinds.has(b.kind) && a.kind === b.kind) {
+    return true;
+  }
+  if (dominateGraph[a.kind]?.includes(b.kind) ?? false) {
+    return true;
+  }
+  if (
+    (a.kind === 'integer' && b.kind === 'concrete real') ||
+    (a.kind === 'integral number' && b.kind === 'concrete number')
+  ) {
+    return !b.value.includes('.');
+  }
+  if (a.kind === 'non-negative integer' && b.kind === 'concrete real') {
+    return !b.value.includes('.') && b.value[0] !== '-';
+  }
+  if (
+    a.kind === b.kind &&
+    ['concrete string', 'concrete number', 'concrete bigint', 'enum value'].includes(a.kind)
+  ) {
+    // @ts-expect-error TS is not quite smart enough for this
+    return a.value === b.value;
+  }
+  return false;
+}
+
+function addToUnion(types: NonUnion[], type: NonUnion): Type {
+  if (types.some(t => dominates(t, type))) {
+    return { kind: 'union', of: types };
+  }
+  const live = types.filter(t => !dominates(type, t));
+  if (live.length === 0) {
+    return type;
+  }
+  return { kind: 'union', of: [...live, type] };
+}
+
+export function join(a: Type, b: Type): Type {
+  if (dominates(a, b)) {
+    return a;
+  }
+  if (dominates(b, a)) {
+    return b;
+  }
+  if (b.kind === 'union') {
+    [a, b] = [b, a];
+  }
+  if (a.kind === 'union') {
+    if (b.kind === 'union') {
+      return b.of.reduce(
+        (acc: Type, t) => (acc.kind === 'union' ? addToUnion(acc.of, t) : join(acc, t)),
+        a
+      );
+    }
+    return addToUnion(a.of, b);
+  }
+  if (
+    (a.kind === 'list' && b.kind === 'list') ||
+    (a.kind === 'completion' && b.kind === 'completion')
+  ) {
+    return { kind: a.kind, of: join(a.of, b.of) };
+  }
+  return { kind: 'union', of: [a, b as NonUnion] };
+}
+
+export function meet(a: Type, b: Type): Type {
+  if (dominates(a, b)) {
+    return b;
+  }
+  if (dominates(b, a)) {
+    return a;
+  }
+  if (a.kind !== 'union' && b.kind === 'union') {
+    [a, b] = [b, a];
+  }
+  if (a.kind === 'union') {
+    // union is join. meet distributes over join.
+    return a.of.map(t => meet(t, b)).reduce(join);
+  }
+  if (
+    (a.kind === 'list' && b.kind === 'list') ||
+    (a.kind === 'completion' && b.kind === 'completion')
+  ) {
+    return { kind: a.kind, of: meet(a.of, b.of) };
+  }
+  return { kind: 'never' };
+}
+
+function serialize(type: Type): string {
+  switch (type.kind) {
+    case 'unknown': {
+      return 'unknown';
+    }
+    case 'never': {
+      return 'never';
+    }
+    case 'union': {
+      const parts = type.of.map(serialize);
+      if (parts.length > 2) {
+        return parts.slice(0, -1).join(', ') + ', or ' + parts[parts.length - 1];
+      }
+      return parts[0] + ' or ' + parts[1];
+    }
+    case 'list': {
+      if (type.of.kind === 'never') {
+        return 'empty List';
+      }
+      return 'List of ' + serialize(type.of);
+    }
+    case 'record': {
+      return 'Record';
+    }
+    case 'completion': {
+      if (type.of.kind === 'never') {
+        return 'an abrupt Completion Record';
+      } else if (type.of.kind === 'unknown') {
+        return 'a Completion Record';
+      }
+      return 'a Completion Record normally holding ' + serialize(type.of);
+    }
+    case 'real': {
+      return 'mathematical value';
+    }
+    case 'integer':
+    case 'non-negative integer':
+    case 'null':
+    case 'string': {
+      return type.kind;
+    }
+    case 'concrete string':
+    case 'concrete bigint':
+    case 'concrete real':
+    case 'enum value': {
+      return type.value;
+    }
+    case 'concrete number': {
+      return `*${type.value}*<sub>𝔽</sub>`;
+    }
+    case 'ES value': {
+      return 'ECMAScript language value';
+    }
+    case 'number': {
+      return 'Number';
+    }
+    case 'integral number': {
+      return 'integral Number';
+    }
+    case 'bigint': {
+      return 'BigInt';
+    }
+  }
+}
+
+export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
+  seq: if (expr.name === 'seq') {
+    const items = stripWhitespace(expr.items);
+    if (items.length === 1) {
+      expr = items[0];
+      break seq;
+    }
+
+    if (
+      items.length === 2 &&
+      items[0].name === 'star' &&
+      items[0].contents[0].name === 'text' &&
+      items[1].name === 'text'
+    ) {
+      switch (items[1].contents) {
+        case '𝔽':
+          return { kind: 'concrete number', value: items[0].contents[0].contents };
+        case 'ℤ':
+          return { kind: 'concrete bigint', value: items[0].contents[0].contents };
+      }
+    }
+
+    if (items[0]?.name === 'text' && ['!', '?'].includes(items[0].contents.trim())) {
+      const remaining = stripWhitespace(items.slice(1));
+      if (remaining.length === 1 && ['call', 'sdo-call'].includes(remaining[0].name)) {
+        const callType = typeFromExpr(remaining[0], biblio);
+        if (callType.kind === 'completion') {
+          return callType.of;
+        }
+      }
+    }
+  }
+
+  switch (expr.name) {
+    case 'text': {
+      const text = expr.contents.trim();
+      if (/^-?[0-9]+(\.[0-9]+)?$/.test(text)) {
+        return { kind: 'concrete real', value: text };
+      }
+      break;
+    }
+    case 'list': {
+      return {
+        kind: 'list',
+        of: expr.elements.map(t => typeFromExpr(t, biblio)).reduce(join, { kind: 'never' }),
+      };
+    }
+    case 'record': {
+      return { kind: 'record' };
+    }
+    case 'call':
+    case 'sdo-call': {
+      const { callee } = expr;
+      if (!(callee.length === 1 && callee[0].name === 'text')) {
+        break;
+      }
+      const calleeName = callee[0].contents;
+
+      const biblioEntry = biblio.byAoid(calleeName);
+      if (biblioEntry?.signature?.return == null) {
+        break;
+      }
+      return typeFromExprType(biblioEntry.signature.return);
+    }
+    case 'tilde': {
+      if (expr.contents.length === 1 && expr.contents[0].name === 'text') {
+        return { kind: 'enum value', value: `~${expr.contents[0].contents}~` };
+      }
+      break;
+    }
+    case 'star': {
+      if (expr.contents.length === 1 && expr.contents[0].name === 'text') {
+        const text = expr.contents[0].contents;
+        if (text === 'null') {
+          return { kind: 'null' };
+        } else if (text.startsWith('"') && text.endsWith('"')) {
+          return { kind: 'concrete string', value: text };
+        }
+      }
+
+      break;
+    }
+  }
+  return { kind: 'unknown' };
+}
+
+function typeFromExprType(type: BiblioType): Type {
+  switch (type.kind) {
+    case 'union': {
+      return type.types.map(typeFromExprType).reduce(join);
+    }
+    case 'list': {
+      return {
+        kind: 'list',
+        of: type.elements == null ? { kind: 'unknown' } : typeFromExprType(type.elements),
+      };
+    }
+    case 'completion': {
+      if (type.completionType === 'abrupt') {
+        return { kind: 'completion', of: { kind: 'never' } };
+      }
+      return {
+        kind: 'completion',
+        of:
+          type.typeOfValueIfNormal == null
+            ? { kind: 'unknown' }
+            : typeFromExprType(type.typeOfValueIfNormal),
+      };
+    }
+    case 'opaque': {
+      const text = type.type;
+      if (text.startsWith('"') && text.endsWith('"')) {
+        return { kind: 'concrete string', value: text.slice(1, -1) };
+      }
+      if (text.startsWith('~') && text.endsWith('~')) {
+        return { kind: 'enum value', value: text };
+      }
+      if (text === 'a string' || text === 'strings') {
+        return { kind: 'string' };
+      }
+      if (text === 'a Number' || text === 'Numbers') {
+        return { kind: 'number' };
+      }
+      if (text === 'an integral Number' || text === 'integral Numbers') {
+        return { kind: 'integral number' };
+      }
+      if (text === 'a mathematical value' || text === 'mathematical values') {
+        return { kind: 'real' };
+      }
+      if (text === 'an integer' || text === 'integers') {
+        return { kind: 'integer' };
+      }
+      if (text === 'a non-negative integer' || text === 'non-negative integers') {
+        return { kind: 'non-negative integer' };
+      }
+      break;
+    }
+    case 'unused': {
+      // this is really only a return type, but might as well handle it
+      return { kind: 'enum value', value: '~unused~' };
+    }
+  }
+  return { kind: 'unknown' };
 }
