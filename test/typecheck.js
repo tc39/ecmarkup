@@ -1433,16 +1433,16 @@ describe('type system', () => {
     `);
 
     await assertTypeError(
-      'a string',
+      'a String',
       'ReturnsNumber()',
-      'argument type (Number) does not look plausibly assignable to parameter type (string)',
+      'argument type (Number) does not look plausibly assignable to parameter type (String)',
       [biblio]
     );
 
     await assertTypeError(
-      'a string',
+      'a String',
       '! ReturnsCompletionOfNumber()',
-      'argument type (Number) does not look plausibly assignable to parameter type (string)',
+      'argument type (Number) does not look plausibly assignable to parameter type (String)',
       [biblio]
     );
 
@@ -1455,7 +1455,7 @@ describe('type system', () => {
     let biblio = await getBiblio(`
       <emu-clause id="sec-returns-number" type="abstract operation">
         <h1>
-          ReturnsListOfNumberOrString (): a List of either Numbers or strings
+          ReturnsListOfNumberOrString (): a List of either Numbers or Strings
         </h1>
         <dl class="header"></dl>
         <emu-alg>
@@ -1467,29 +1467,29 @@ describe('type system', () => {
     await assertTypeError(
       'an integer',
       'ReturnsListOfNumberOrString()',
-      'argument type (List of Number or string) does not look plausibly assignable to parameter type (integer)',
+      'argument type (List of Number or String) does not look plausibly assignable to parameter type (integer)',
       [biblio]
     );
 
-    await assertNoTypeError('List of strings', 'ReturnsListOfNumberOrString()', [biblio]);
+    await assertNoTypeError('List of Strings', 'ReturnsListOfNumberOrString()', [biblio]);
   });
 
   it('list', async () => {
     await assertTypeError(
-      'a string',
+      'a String',
       '« »',
-      'argument type (empty List) does not look plausibly assignable to parameter type (string)'
+      'argument type (empty List) does not look plausibly assignable to parameter type (String)'
     );
 
     await assertTypeError(
-      'a List of strings',
+      'a List of Strings',
       '« 0.5 »',
-      'argument type (List of 0.5) does not look plausibly assignable to parameter type (List of string)'
+      'argument type (List of 0.5) does not look plausibly assignable to parameter type (List of String)'
     );
 
-    await assertNoTypeError('a List of strings', '« "something" »');
+    await assertNoTypeError('a List of Strings', '« "something" »');
 
-    await assertNoTypeError('a List of strings', '« »');
+    await assertNoTypeError('a List of Strings', '« »');
   });
 
   it('unknown types', async () => {

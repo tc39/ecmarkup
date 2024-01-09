@@ -600,8 +600,7 @@ function serialize(type: Type): string {
     case 'integer':
     case 'non-negative integer':
     case 'null':
-    case 'undefined':
-    case 'string': {
+    case 'undefined': {
       return type.kind;
     }
     case 'concrete string':
@@ -623,6 +622,9 @@ function serialize(type: Type): string {
     }
     case 'boolean': {
       return 'Boolean';
+    }
+    case 'string': {
+      return 'String';
     }
     case 'number': {
       return 'Number';
