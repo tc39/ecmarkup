@@ -750,6 +750,9 @@ function typeFromExprType(type: BiblioType): Type {
       if (text.startsWith('~') && text.endsWith('~')) {
         return { kind: 'enum value', value: text.slice(1, -1) };
       }
+      if (text === 'an ECMAScript language value' || text === 'ECMAScript language values') {
+        return { kind: 'ES value' };
+      }
       if (text === 'a string' || text === 'strings') {
         return { kind: 'string' };
       }

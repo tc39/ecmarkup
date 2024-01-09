@@ -1183,7 +1183,7 @@ describe('type system', () => {
           <h1>
             Example (
               arg: ${paramType}
-            )
+            ): ~unused~
           </h1>
           <dl class="header"></dl>
         </emu-clause>
@@ -1220,6 +1220,39 @@ describe('type system', () => {
       { extraBiblios }
     );
   }
+
+  let completionBiblio;
+  before(async () => {
+    completionBiblio = await getBiblio(`
+      <emu-clause id="normal-completion" type="abstract operation">
+        <h1>
+          NormalCompletion ( _x_ ): a normal completion
+        </h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      <emu-clause id="sec-completion-ao" type="abstract operation">
+        <h1>
+          Completion (
+            _completionRecord_: a Completion Record,
+          ): a Completion Record
+        </h1>
+        <dl class="header"></dl>
+        <emu-alg>
+          1. Assert: _completionRecord_ is a Completion Record.
+          1. Return _completionRecord_.
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="throwy" type="abstract operation">
+        <h1>
+          Throwy (): either a normal completion containing a Boolean or an abrupt completion
+        </h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      `);
+  });
 
   it('enum', async () => {
     await assertTypeError(
@@ -1321,6 +1354,62 @@ describe('type system', () => {
       '5',
       'argument (5) does not look plausibly assignable to parameter type (integral Number)\n' +
         'hint: you passed a real number, but this position takes an ES language Number'
+    );
+  });
+
+  it('ES language value', async () => {
+    await assertTypeError(
+      'an ECMAScript language value',
+      '~enum-value~',
+      'argument (~enum-value~) does not look plausibly assignable to parameter type (ECMAScript language value)'
+    );
+
+    await assertTypeError(
+      'an ECMAScript language value',
+      '42',
+      'argument (42) does not look plausibly assignable to parameter type (ECMAScript language value)'
+    );
+
+    await assertTypeError(
+      'an ECMAScript language value',
+      'NormalCompletion(42)',
+      'argument type (a Completion Record) does not look plausibly assignable to parameter type (ECMAScript language value)',
+      [completionBiblio]
+    );
+
+    await assertNoTypeError('an ECMAScript language value', '*string*');
+    await assertNoTypeError('an ECMAScript language value', '*true*');
+    await assertNoTypeError('an ECMAScript language value', '*false*');
+    await assertNoTypeError('an ECMAScript language value', '*42*<sub>𝔽</sub>');
+    await assertNoTypeError('an ECMAScript language value', '*42*<sub>ℤ</sub>');
+    await assertNoTypeError('an ECMAScript language value', '*null*');
+    await assertNoTypeError('an ECMAScript language value', '*undefined*');
+  });
+
+  it('completion', async () => {
+    await assertTypeError(
+      'either a normal completion containing a Boolean or an abrupt completion',
+      '*false*',
+      'argument (false) does not look plausibly assignable to parameter type (a Completion Record normally holding Boolean)',
+      [completionBiblio]
+    );
+
+    await assertTypeError(
+      'a Boolean',
+      'NormalCompletion(*false*)',
+      'argument type (a Completion Record) does not look plausibly assignable to parameter type (Boolean)',
+      [completionBiblio]
+    );
+
+    await assertNoTypeError(
+      'either a normal completion containing a Boolean or an abrupt completion',
+      'NormalCompletion(*false*)',
+      [completionBiblio]
+    );
+    await assertNoTypeError(
+      'a Boolean',
+      '! Throwy()',
+      [completionBiblio]
     );
   });
 
