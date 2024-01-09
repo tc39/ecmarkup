@@ -1229,6 +1229,7 @@ describe('type system', () => {
     );
 
     await assertNoTypeError('~sync~ or ~async~', '~sync~');
+    await assertNoTypeError('~sync~ or ~async~', '~async~');
   });
 
   it('boolean', async () => {
