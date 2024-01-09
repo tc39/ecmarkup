@@ -1231,6 +1231,22 @@ describe('type system', () => {
     await assertNoTypeError('~sync~ or ~async~', '~sync~');
   });
 
+  it('boolean', async () => {
+    await assertTypeError(
+      'a Number',
+      '*false*',
+      'argument (false) does not look plausibly assignable to parameter type (Number)'
+    );
+
+    await assertTypeError(
+      'a Boolean',
+      '*1*<sub>𝔽</sub>',
+      'argument (*1*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (Boolean)'
+    );
+
+    await assertNoTypeError('a Boolean', '*false*');
+  });
+
   it('number', async () => {
     await assertTypeError(
       'an integer',

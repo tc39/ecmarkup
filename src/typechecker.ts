@@ -389,10 +389,12 @@ type Type =
   | { kind: 'number' }
   | { kind: 'integral number' }
   | { kind: 'bigint' }
+  | { kind: 'boolean' }
   | { kind: 'null' }
   | { kind: 'concrete string'; value: string }
   | { kind: 'concrete number'; value: string }
   | { kind: 'concrete bigint'; value: string }
+  | { kind: 'concrete boolean'; value: boolean }
   | { kind: 'enum value'; value: string };
 
 type NonUnion = Exclude<Type, { kind: 'union' }>;
@@ -409,6 +411,7 @@ const simpleKinds = new Set<Type['kind']>([
   'number',
   'integral number',
   'bigint',
+  'boolean',
 ]);
 
 const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
@@ -422,20 +425,23 @@ const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
     'number',
     'integral number',
     'bigint',
+    'boolean',
     'concrete string',
     'concrete number',
     'concrete bigint',
+    'concrete boolean',
   ],
   string: ['concrete string'],
   number: ['integral number', 'concrete number'],
   bigint: ['concrete bigint'],
+  boolean: ['concrete boolean'],
 };
 
 /*
 The type lattice used here is very simple (aside from explicit unions).
-As such we really only need to define the `dominates` relationship and apply trivial rules:
+As such we mostly only need to define the `dominates` relationship and apply trivial rules:
 if `x` dominates `y`, then `join(x,y) = x` and `meet(x,y) = y`; if neither dominates the other than the join is top and the meet is bottom.
-Unions take a little more work.
+Unions/lists/completions take a little more work.
 */
 
 function dominates(a: Type, b: Type): boolean {
@@ -472,7 +478,7 @@ function dominates(a: Type, b: Type): boolean {
   }
   if (
     a.kind === b.kind &&
-    ['concrete string', 'concrete number', 'concrete bigint', 'enum value'].includes(a.kind)
+    ['concrete string', 'concrete number', 'concrete bigint', 'concrete boolean', 'enum value'].includes(a.kind)
   ) {
     // @ts-expect-error TS is not quite smart enough for this
     return a.value === b.value;
@@ -588,6 +594,9 @@ function serialize(type: Type): string {
     case 'concrete real': {
       return type.value;
     }
+    case 'concrete boolean': {
+      return `${type.value}`;
+    }
     case 'enum value': {
       return `~${type.value}~`;
     }
@@ -596,6 +605,9 @@ function serialize(type: Type): string {
     }
     case 'ES value': {
       return 'ECMAScript language value';
+    }
+    case 'boolean': {
+      return 'Boolean';
     }
     case 'number': {
       return 'Number';
@@ -684,6 +696,10 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
         const text = expr.contents[0].contents;
         if (text === 'null') {
           return { kind: 'null' };
+        } else if (text === 'true') {
+          return { kind: 'concrete boolean', value: true };
+        } else if (text === 'false') {
+          return { kind: 'concrete boolean', value: false };
         } else if (text.startsWith('"') && text.endsWith('"')) {
           return { kind: 'concrete string', value: text };
         }
@@ -731,6 +747,9 @@ function typeFromExprType(type: BiblioType): Type {
       }
       if (text === 'a Number' || text === 'Numbers') {
         return { kind: 'number' };
+      }
+      if (text === 'a Boolean' || text === 'Booleans') {
+        return { kind: 'boolean' };
       }
       if (text === 'an integral Number' || text === 'integral Numbers') {
         return { kind: 'integral number' };
