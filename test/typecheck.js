@@ -1209,7 +1209,7 @@ describe('type system', () => {
           <h1>
             Example (
               arg: ${paramType}
-            )
+            ): ~unused~
           </h1>
           <dl class="header"></dl>
         </emu-clause>
