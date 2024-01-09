@@ -762,7 +762,7 @@ function typeFromExprType(type: BiblioType): Type {
       if (text === 'an ECMAScript language value' || text === 'ECMAScript language values') {
         return { kind: 'ES value' };
       }
-      if (text === 'a string' || text === 'strings') {
+      if (text === 'a String' || text === 'Strings') {
         return { kind: 'string' };
       }
       if (text === 'a Number' || text === 'Numbers') {
