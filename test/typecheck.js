@@ -1406,11 +1406,7 @@ describe('type system', () => {
       'NormalCompletion(*false*)',
       [completionBiblio]
     );
-    await assertNoTypeError(
-      'a Boolean',
-      '! Throwy()',
-      [completionBiblio]
-    );
+    await assertNoTypeError('a Boolean', '! Throwy()', [completionBiblio]);
   });
 
   it('call', async () => {

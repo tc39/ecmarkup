@@ -121,7 +121,10 @@ export function typecheck(spec: Spec) {
               items[0].location.start.offset
             );
             const argDescriptor =
-              argType.kind.startsWith('concrete') || argType.kind === 'enum value' || argType.kind === 'null' || argType.kind === 'undefined'
+              argType.kind.startsWith('concrete') ||
+              argType.kind === 'enum value' ||
+              argType.kind === 'null' ||
+              argType.kind === 'undefined'
                 ? `(${serialize(argType)})`
                 : `type (${serialize(argType)})`;
 
@@ -483,7 +486,13 @@ function dominates(a: Type, b: Type): boolean {
   }
   if (
     a.kind === b.kind &&
-    ['concrete string', 'concrete number', 'concrete bigint', 'concrete boolean', 'enum value'].includes(a.kind)
+    [
+      'concrete string',
+      'concrete number',
+      'concrete bigint',
+      'concrete boolean',
+      'enum value',
+    ].includes(a.kind)
   ) {
     // @ts-expect-error TS is not quite smart enough for this
     return a.value === b.value;
