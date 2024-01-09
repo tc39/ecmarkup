@@ -585,9 +585,11 @@ function serialize(type: Type): string {
     }
     case 'concrete string':
     case 'concrete bigint':
-    case 'concrete real':
-    case 'enum value': {
+    case 'concrete real': {
       return type.value;
+    }
+    case 'enum value': {
+      return `~${type.value}~`;
     }
     case 'concrete number': {
       return `*${type.value}*<sub>𝔽</sub>`;
@@ -673,7 +675,7 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
     }
     case 'tilde': {
       if (expr.contents.length === 1 && expr.contents[0].name === 'text') {
-        return { kind: 'enum value', value: `~${expr.contents[0].contents}~` };
+        return { kind: 'enum value', value: expr.contents[0].contents };
       }
       break;
     }
@@ -722,7 +724,7 @@ function typeFromExprType(type: BiblioType): Type {
         return { kind: 'concrete string', value: text.slice(1, -1) };
       }
       if (text.startsWith('~') && text.endsWith('~')) {
-        return { kind: 'enum value', value: text };
+        return { kind: 'enum value', value: text.slice(1, -1) };
       }
       if (text === 'a string' || text === 'strings') {
         return { kind: 'string' };
