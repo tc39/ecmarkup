@@ -604,7 +604,6 @@ function serialize(type: Type): string {
       return type.kind;
     }
     case 'concrete string':
-    case 'concrete bigint':
     case 'concrete real': {
       return type.value;
     }
@@ -616,6 +615,9 @@ function serialize(type: Type): string {
     }
     case 'concrete number': {
       return `*${type.value}*<sub>𝔽</sub>`;
+    }
+    case 'concrete bigint': {
+      return `*${type.value}*<sub>ℤ</sub>`;
     }
     case 'ES value': {
       return 'ECMAScript language value';
@@ -772,6 +774,9 @@ function typeFromExprType(type: BiblioType): Type {
       }
       if (text === 'a Boolean' || text === 'Booleans') {
         return { kind: 'boolean' };
+      }
+      if (text === 'a BigInt' || text === 'BigInts') {
+        return { kind: 'bigint' };
       }
       if (text === 'an integral Number' || text === 'integral Numbers') {
         return { kind: 'integral number' };

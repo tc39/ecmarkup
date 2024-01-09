@@ -1311,6 +1311,23 @@ describe('type system', () => {
     await assertNoTypeError('a Boolean or *undefined*', '*undefined*');
   });
 
+  it('bigint', async () => {
+    await assertTypeError(
+      'a BigInt',
+      '5',
+      'argument (5) does not look plausibly assignable to parameter type (BigInt)\n' +
+        'hint: you passed a real number, but this position takes an ES language BigInt'
+    );
+
+    await assertTypeError(
+      'an integer',
+      '*5*<sub>ℤ</sub>',
+      'argument (*5*<sub>ℤ</sub>) does not look plausibly assignable to parameter type (integer)'
+    );
+
+    await assertNoTypeError('a BigInt', '*5*<sub>ℤ</sub>');
+  });
+
   it('number', async () => {
     await assertTypeError(
       'an integer',
