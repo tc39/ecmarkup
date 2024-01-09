@@ -1491,6 +1491,12 @@ describe('type system', () => {
 
     await assertNoTypeError('a List of strings', '« »');
   });
+
+  it('unknown types', async () => {
+    await assertNoTypeError('a Foo', 'something');
+    await assertNoTypeError('a Foo', '42');
+    await assertNoTypeError('an integer', 'something');
+  });
 });
 
 describe('error location', () => {
