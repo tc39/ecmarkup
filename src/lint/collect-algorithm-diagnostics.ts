@@ -38,7 +38,7 @@ export function collectAlgorithmDiagnostics(
   report: (e: Warning) => void,
   spec: Spec,
   mainSource: string,
-  algorithms: { element: Element; tree?: EcmarkdownNode, source?: string }[]
+  algorithms: { element: Element; tree?: EcmarkdownNode; source?: string }[]
 ) {
   for (const algorithm of algorithms) {
     const element = algorithm.element;

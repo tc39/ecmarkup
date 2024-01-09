@@ -34,7 +34,6 @@ export default class Algorithm extends Builder {
     context.inAlg = true;
     const { spec, node, clauseStack } = context;
 
-
     let emdTree: AlgorithmNode | null = null;
     let innerHTML;
     if ('ecmarkdownTree' in node) {
