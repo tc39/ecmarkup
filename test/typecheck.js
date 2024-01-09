@@ -1247,6 +1247,36 @@ describe('type system', () => {
     await assertNoTypeError('a Boolean', '*false*');
   });
 
+  it('null/undefined', async () => {
+    await assertTypeError(
+      '*null*',
+      '*undefined*',
+      'argument (undefined) does not look plausibly assignable to parameter type (null)'
+    );
+    await assertTypeError(
+      'a Boolean or *null*',
+      '*undefined*',
+      'argument (undefined) does not look plausibly assignable to parameter type (Boolean or null)'
+    );
+    await assertTypeError(
+      '*undefined*',
+      '*null*',
+      'argument (null) does not look plausibly assignable to parameter type (undefined)'
+    );
+    await assertTypeError(
+      'a Boolean or *undefined*',
+      '*null*',
+      'argument (null) does not look plausibly assignable to parameter type (Boolean or undefined)'
+    );
+
+    await assertNoTypeError('an ECMAScript language value', '*null*');
+    await assertNoTypeError('an ECMAScript language value', '*undefined*');
+    await assertNoTypeError('*null* or *undefined*', '*null*');
+    await assertNoTypeError('*null* or *undefined*', '*undefined*');
+    await assertNoTypeError('a Boolean or *null*', '*null*');
+    await assertNoTypeError('a Boolean or *undefined*', '*undefined*');
+  });
+
   it('number', async () => {
     await assertTypeError(
       'an integer',

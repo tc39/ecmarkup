@@ -121,7 +121,7 @@ export function typecheck(spec: Spec) {
               items[0].location.start.offset
             );
             const argDescriptor =
-              argType.kind.startsWith('concrete') || argType.kind === 'enum value'
+              argType.kind.startsWith('concrete') || argType.kind === 'enum value' || argType.kind === 'null' || argType.kind === 'undefined'
                 ? `(${serialize(argType)})`
                 : `type (${serialize(argType)})`;
 
@@ -391,6 +391,7 @@ type Type =
   | { kind: 'bigint' }
   | { kind: 'boolean' }
   | { kind: 'null' }
+  | { kind: 'undefined' }
   | { kind: 'concrete string'; value: string }
   | { kind: 'concrete number'; value: string }
   | { kind: 'concrete bigint'; value: string }
@@ -412,6 +413,8 @@ const simpleKinds = new Set<Type['kind']>([
   'integral number',
   'bigint',
   'boolean',
+  'null',
+  'undefined',
 ]);
 
 const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
@@ -426,6 +429,8 @@ const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
     'integral number',
     'bigint',
     'boolean',
+    'null',
+    'undefined',
     'concrete string',
     'concrete number',
     'concrete bigint',
@@ -586,6 +591,7 @@ function serialize(type: Type): string {
     case 'integer':
     case 'non-negative integer':
     case 'null':
+    case 'undefined':
     case 'string': {
       return type.kind;
     }
@@ -696,6 +702,8 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
         const text = expr.contents[0].contents;
         if (text === 'null') {
           return { kind: 'null' };
+        } else if (text === 'undefined') {
+          return { kind: 'undefined' };
         } else if (text === 'true') {
           return { kind: 'concrete boolean', value: true };
         } else if (text === 'false') {
@@ -762,6 +770,12 @@ function typeFromExprType(type: BiblioType): Type {
       }
       if (text === 'a non-negative integer' || text === 'non-negative integers') {
         return { kind: 'non-negative integer' };
+      }
+      if (text === '*null*') {
+        return { kind: 'null' };
+      }
+      if (text === '*undefined*') {
+        return { kind: 'undefined' };
       }
       break;
     }
