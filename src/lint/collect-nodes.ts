@@ -9,7 +9,7 @@ type CollectNodesReturnType =
       mainGrammar: { element: Element; source: string }[];
       sdos: { grammar: Element; alg: Element }[];
       earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[];
-      algorithms: { element: Element; tree?: AlgorithmNode }[];
+      algorithms: { element: Element; tree?: AlgorithmNode, source?: string }[];
     }
   | {
       success: false;

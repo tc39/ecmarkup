@@ -86,7 +86,7 @@ export async function lint(
     if ('tree' in pair) {
       const element = pair.element as AlgorithmElementWithTree;
       element.ecmarkdownTree = pair.tree ?? null;
-      element.originalHtml = pair.element.innerHTML;
+      element.originalHtml = pair.source ?? pair.element.innerHTML;
     }
   }
 }

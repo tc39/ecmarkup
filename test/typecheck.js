@@ -1492,3 +1492,29 @@ describe('type system', () => {
     await assertNoTypeError('a List of strings', '« »');
   });
 });
+
+describe('error location', () => {
+  it('handles entities', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            Example (
+              _x_: a List of integers,
+              _y_: an integer,
+            ): ~unused~
+          </h1>
+          <dl class="header"></dl>
+        </emu-clause>
+        <emu-alg>
+          1. Perform Example(&laquo; 0 &raquo;, ${M}~enum~).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'argument (~enum~) does not look plausibly assignable to parameter type (integer)',
+      }
+    );
+  });
+});

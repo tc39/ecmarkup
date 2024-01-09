@@ -660,8 +660,7 @@ export default class Spec {
     if (!dom) {
       return;
     }
-    // the jsdom types are wrong
-    const loc = dom.nodeLocation(node) as unknown as ElementLocation;
+    const loc = dom.nodeLocation(node);
     if (loc) {
       // we can't just spread `loc` because not all properties are own/enumerable
       const out: ReturnType<Spec['locate']> = {
