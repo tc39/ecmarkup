@@ -1509,6 +1509,40 @@ describe('type system', () => {
     await assertNoTypeError('a List of Strings', '« »');
   });
 
+  it('integers', async () => {
+    await assertTypeError(
+      '0',
+      '1',
+      'argument (1) does not look plausibly assignable to parameter type (0)'
+    );
+    await assertTypeError(
+      'a positive integer',
+      '0',
+      'argument (0) does not look plausibly assignable to parameter type (positive integer)'
+    );
+    await assertTypeError(
+      'a non-negative integer',
+      '-1',
+      'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)'
+    );
+    await assertTypeError(
+      'a negative integer',
+      '0',
+      'argument (0) does not look plausibly assignable to parameter type (negative integer)'
+    );
+
+    await assertNoTypeError('a mathematical value', '0');
+    await assertNoTypeError('an integer', '0');
+    await assertNoTypeError('a non-negative integer', '0');
+    await assertNoTypeError('a positive integer', '1');
+    await assertNoTypeError('a negative integer', '-1');
+    await assertNoTypeError('0', '0');
+    await assertNoTypeError('1', '1');
+    await assertNoTypeError('-1', '-1');
+    await assertNoTypeError('0 or 1', '0');
+    await assertNoTypeError('0 or 1', '1');
+  });
+
   it('unknown types', async () => {
     await assertNoTypeError('a Foo', 'something');
     await assertNoTypeError('a Foo', '42');

@@ -386,6 +386,8 @@ type Type =
   | { kind: 'real' }
   | { kind: 'integer' }
   | { kind: 'non-negative integer' }
+  | { kind: 'negative integer' }
+  | { kind: 'positive integer' }
   | { kind: 'concrete real'; value: string }
   | { kind: 'ES value' }
   | { kind: 'string' }
@@ -410,6 +412,8 @@ const simpleKinds = new Set<Type['kind']>([
   'real',
   'integer',
   'non-negative integer',
+  'negative integer',
+  'positive integer',
   'ES value',
   'string',
   'number',
@@ -424,8 +428,9 @@ const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
   // @ts-expect-error TS does not know about __proto__
   __proto__: null,
   record: ['completion'],
-  real: ['integer', 'non-negative integer', 'concrete real'],
-  integer: ['non-negative integer'],
+  real: ['integer', 'non-negative integer', 'negative integer', 'positive integer', 'concrete real'],
+  integer: ['non-negative integer', 'negative integer', 'positive integer'],
+  'non-negative integer': ['positive integer'],
   'ES value': [
     'string',
     'number',
@@ -484,11 +489,18 @@ function dominates(a: Type, b: Type): boolean {
   if (a.kind === 'non-negative integer' && b.kind === 'concrete real') {
     return !b.value.includes('.') && b.value[0] !== '-';
   }
+  if (a.kind === 'negative integer' && b.kind === 'concrete real') {
+    return !b.value.includes('.') && b.value[0] === '-';
+  }
+  if (a.kind === 'positive integer' && b.kind === 'concrete real') {
+    return !b.value.includes('.') && b.value[0] !== '-' && b.value !== '0';
+  }
   if (
     a.kind === b.kind &&
     [
       'concrete string',
       'concrete number',
+      'concrete real',
       'concrete bigint',
       'concrete boolean',
       'enum value',
@@ -599,6 +611,8 @@ function serialize(type: Type): string {
     }
     case 'integer':
     case 'non-negative integer':
+    case 'negative integer':
+    case 'positive integer':
     case 'null':
     case 'undefined': {
       return type.kind;
@@ -763,6 +777,9 @@ function typeFromExprType(type: BiblioType): Type {
       if (text.startsWith('~') && text.endsWith('~')) {
         return { kind: 'enum value', value: text.slice(1, -1) };
       }
+      if (/^-?[0-9]+(\.[0-9]+)?$/.test(text)) {
+        return { kind: 'concrete real', value: text };
+      }
       if (text === 'an ECMAScript language value' || text === 'ECMAScript language values') {
         return { kind: 'ES value' };
       }
@@ -789,6 +806,12 @@ function typeFromExprType(type: BiblioType): Type {
       }
       if (text === 'a non-negative integer' || text === 'non-negative integers') {
         return { kind: 'non-negative integer' };
+      }
+      if (text === 'a negative integer' || text === 'negative integers') {
+        return { kind: 'negative integer' };
+      }
+      if (text === 'a positive integer' || text === 'positive integers') {
+        return { kind: 'positive integer' };
       }
       if (text === '*null*') {
         return { kind: 'null' };
