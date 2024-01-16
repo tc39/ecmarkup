@@ -131,19 +131,19 @@ export function typecheck(spec: Spec) {
             let hint = '';
             if (argType.kind === 'concrete number' && dominates({ kind: 'real' }, paramType)) {
               hint =
-                '\nhint: you passed an ES number, but this position takes a mathematical value';
+                '\nhint: you passed an ES language Number, but this position takes a mathematical value';
             } else if (
               argType.kind === 'concrete real' &&
               dominates({ kind: 'number' }, paramType)
             ) {
               hint =
-                '\nhint: you passed a real number, but this position takes an ES language Number';
+                '\nhint: you passed a mathematical value, but this position takes an ES language Number';
             } else if (
               argType.kind === 'concrete real' &&
               dominates({ kind: 'bigint' }, paramType)
             ) {
               hint =
-                '\nhint: you passed a real number, but this position takes an ES language BigInt';
+                '\nhint: you passed a mathematical value, but this position takes an ES language BigInt';
             }
 
             spec.warn({

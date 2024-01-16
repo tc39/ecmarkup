@@ -1316,7 +1316,7 @@ describe('type system', () => {
       'a BigInt',
       '5',
       'argument (5) does not look plausibly assignable to parameter type (BigInt)\n' +
-        'hint: you passed a real number, but this position takes an ES language BigInt'
+        'hint: you passed a mathematical value, but this position takes an ES language BigInt'
     );
 
     await assertTypeError(
@@ -1363,14 +1363,14 @@ describe('type system', () => {
       'a mathematical value',
       '*5*<sub>𝔽</sub>',
       'argument (*5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (mathematical value)\n' +
-        'hint: you passed an ES number, but this position takes a mathematical value'
+        'hint: you passed an ES language Number, but this position takes a mathematical value'
     );
 
     await assertTypeError(
       'an integral Number',
       '5',
       'argument (5) does not look plausibly assignable to parameter type (integral Number)\n' +
-        'hint: you passed a real number, but this position takes an ES language Number'
+        'hint: you passed a mathematical value, but this position takes an ES language Number'
     );
   });
 
