@@ -94,7 +94,6 @@ export function typecheck(spec: Spec) {
       const max = min + signature.optionalParameters.length;
       if (args.length < min || args.length > max) {
         const count = `${min}${min === max ? '' : `-${max}`}`;
-        // prettier-ignore
         const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
         warn(message);
       } else {
@@ -149,7 +148,6 @@ export function typecheck(spec: Spec) {
             spec.warn({
               type: 'contents',
               ruleId: 'typecheck',
-              // prettier-ignore
               message: `argument ${argDescriptor} does not look plausibly assignable to parameter type (${serialize(paramType)})${hint}`,
               node,
               nodeRelativeLine: line,

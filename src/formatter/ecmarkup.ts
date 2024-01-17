@@ -154,7 +154,6 @@ export async function printElement(
   // todo a switch, I guess
   // TODO handle script - w/ content vs not-with-content means block vs non-block
   if (RAW_CONTENT_ELEMENTS.has(node.tagName)) {
-    // prettier-ignore
     const contents = `${printStartTag(node)}${rawContent(src, node)}</${node.tagName}>`;
     if (block) {
       output.appendLine(contents, true);

@@ -153,7 +153,6 @@ export function checkVariableUsage(
 
   for (const [name, { kind, used, node }] of scope.vars) {
     if (!used && node != null && kind !== 'parameter' && kind !== 'abstract closure parameter') {
-      // prettier-ignore
       const message = `${JSON.stringify(name)} is declared here, but never referred to`;
       report({
         ruleId: 'unused-declaration',
@@ -210,7 +209,6 @@ function walkAlgorithm(
           2 + // '="'
           findDeclaredAttrOffset(extraDeclarations.value, name);
         if (scope.declared(name)) {
-          // prettier-ignore
           const message = `${JSON.stringify(name)} is already declared and does not need an explict annotation`;
           report({
             ruleId: 'unnecessary-declared-var',

@@ -1057,8 +1057,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         const fontType = path.extname(fontFile).slice(1);
         const urlRef =
           this.assets.type === 'inline'
-            ? // prettier-ignore
-              `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
+            ? `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
             : `./${fontFile}`;
         return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
       },
