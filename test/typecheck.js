@@ -1543,6 +1543,19 @@ describe('type system', () => {
     await assertNoTypeError('0 or 1', '1');
   });
 
+  it('strings', async () => {
+    await assertTypeError(
+      '"type"',
+      '*"value"*',
+      'argument ("value") does not look plausibly assignable to parameter type ("type")'
+    );
+
+    await assertNoTypeError('"a"', '*"a"*');
+    await assertNoTypeError('"b"', '*"b"*');
+    await assertNoTypeError('"a" or "b"', '*"a"*');
+    await assertNoTypeError('"a" or "b"', '*"b"*');
+  });
+
   it('unknown types', async () => {
     await assertNoTypeError('a Foo', 'something');
     await assertNoTypeError('a Foo', '42');

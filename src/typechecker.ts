@@ -617,7 +617,9 @@ function serialize(type: Type): string {
     case 'undefined': {
       return type.kind;
     }
-    case 'concrete string':
+    case 'concrete string': {
+      return `"${type.value}"`;
+    }
     case 'concrete real': {
       return type.value;
     }
@@ -737,7 +739,7 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
         } else if (text === 'false') {
           return { kind: 'concrete boolean', value: false };
         } else if (text.startsWith('"') && text.endsWith('"')) {
-          return { kind: 'concrete string', value: text };
+          return { kind: 'concrete string', value: text.slice(1, -1) };
         }
       }
 
