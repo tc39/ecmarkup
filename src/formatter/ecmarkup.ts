@@ -506,8 +506,8 @@ function bad(node: Element, msg: string): never {
     typeof node.sourceCodeLocation?.startTag?.startLine === 'number'
       ? node.sourceCodeLocation.startTag
       : typeof node.sourceCodeLocation?.startLine === 'number'
-      ? node.sourceCodeLocation
-      : null;
+        ? node.sourceCodeLocation
+        : null;
   if (loc != null) {
     msg += `:${loc.startLine}:${loc.startCol}`;
   }
