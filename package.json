@@ -83,7 +83,8 @@
 	"prettier": {
 		"singleQuote": true,
 		"arrowParens": "avoid",
-		"printWidth": 100
+		"printWidth": 100,
+		"trailingComma": "all"
 	},
 	"engines": {
 		"node": ">= 12 || ^11.10.1 || ^10.13 || ^8.10"
