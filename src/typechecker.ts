@@ -484,7 +484,7 @@ function dominates(a: Type, b: Type): boolean {
     return !b.value.includes('.');
   }
   if (a.kind === 'integral number' && b.kind === 'concrete number') {
-    return b.value === Math.round(b.value);
+    return Number.isFinite(b.value) && b.value === Math.round(b.value);
   }
   if (a.kind === 'non-negative integer' && b.kind === 'concrete real') {
     return !b.value.includes('.') && b.value[0] !== '-';
@@ -507,7 +507,7 @@ function dominates(a: Type, b: Type): boolean {
     ].includes(a.kind)
   ) {
     // @ts-expect-error TS is not quite smart enough for this
-    return a.value === b.value;
+    return Object.is(a.value, b.value);
   }
   return false;
 }
@@ -630,7 +630,23 @@ function serialize(type: Type): string {
       return `~${type.value}~`;
     }
     case 'concrete number': {
-      const repr = type.value > 4503599627370495.5 ? BigInt(type.value) : type.value;
+      if (Object.is(type.value, 0/0)) {
+        return '*NaN*';
+      }
+      let repr;
+      if (Object.is(type.value, -0)) {
+        repr = '-0';
+      } else if (type.value === 0) {
+        repr = '+0';
+      } else if (type.value === 2e308) {
+        repr = '+&infin;';
+      } else if (type.value === -2e308) {
+        repr = '-&infin;';
+      } else if (type.value > 4503599627370495.5) {
+        repr = String(BigInt(type.value));
+      } else {
+        repr = String(type.value);
+      }
       return `*${repr}*<sub>𝔽</sub>`;
     }
     case 'concrete bigint': {
@@ -672,10 +688,23 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
       items[1].name === 'text'
     ) {
       switch (items[1].contents) {
-        case '𝔽':
-          return { kind: 'concrete number', value: parseFloat(items[0].contents[0].contents) };
-        case 'ℤ':
+        case '𝔽': {
+          const text = items[0].contents[0].contents;
+          let value;
+          if (text === '-0') {
+            value = -0;
+          } else if (text === '+&infin;') {
+            value = 2e308;
+          } else if (text === '-&infin;') {
+            value = -2e308;
+          } else {
+            value = parseFloat(text);
+          }
+          return { kind: 'concrete number', value };
+        }
+        case 'ℤ': {
           return { kind: 'concrete bigint', value: BigInt(items[0].contents[0].contents) };
+        }
       }
     }
 
@@ -734,6 +763,8 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
           return { kind: 'null' };
         } else if (text === 'undefined') {
           return { kind: 'undefined' };
+        } else if (text === 'NaN') {
+          return { kind: 'concrete number', value: 0/0 };
         } else if (text === 'true') {
           return { kind: 'concrete boolean', value: true };
         } else if (text === 'false') {
@@ -782,6 +813,26 @@ function typeFromExprType(type: BiblioType): Type {
       }
       if (/^-?[0-9]+(\.[0-9]+)?$/.test(text)) {
         return { kind: 'concrete real', value: text };
+      }
+      if (text.startsWith('*') && text.endsWith('*<sub>𝔽</sub>')) {
+        const innerText = text.slice(1, -14);
+        let value;
+        if (innerText === '-0') {
+          value = -0;
+        } else if (innerText === '+&infin;') {
+          value = 2e308;
+        } else if (innerText === '-&infin;') {
+          value = -2e308;
+        } else {
+          value = parseFloat(innerText);
+        }
+        return { kind: 'concrete number', value };
+      }
+      if (text === '*NaN*') {
+        return { kind: 'concrete number', value: 0/0 };
+      }
+      if (text.startsWith('*') && text.endsWith('*<sub>ℤ</sub>')) {
+        return { kind: 'concrete bigint', value: BigInt(text.slice(1, -14)) };
       }
       if (text === 'an ECMAScript language value' || text === 'ECMAScript language values') {
         return { kind: 'ES value' };

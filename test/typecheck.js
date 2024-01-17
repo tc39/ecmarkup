@@ -1346,11 +1346,41 @@ describe('type system', () => {
     await assertNoTypeError('a non-negative integer', '3');
 
     await assertTypeError(
+      '*1*<sub>𝔽</sub>',
+      '*2*<sub>𝔽</sub>',
+      'argument (*2*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*1*<sub>𝔽</sub>)'
+    );
+
+    await assertTypeError(
+      '*+0*<sub>𝔽</sub>',
+      '*-0*<sub>𝔽</sub>',
+      'argument (*-0*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*+0*<sub>𝔽</sub>)'
+    );
+
+    await assertTypeError(
       'an integral Number',
       '*0.5*<sub>𝔽</sub>',
       'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)'
     );
 
+    await assertTypeError(
+      'an integral Number',
+      '*NaN*',
+      'argument (*NaN*) does not look plausibly assignable to parameter type (integral Number)'
+    );
+
+    await assertTypeError(
+      'an integral Number',
+      '*+&infin;*<sub>𝔽</sub>',
+      'argument (*+&infin;*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)'
+    );
+
+    await assertNoTypeError('*2*<sub>𝔽</sub>', '*2*<sub>𝔽</sub>');
+    await assertNoTypeError('a Number', '*2*<sub>𝔽</sub>');
+    await assertNoTypeError('a Number', '*+&infin;*<sub>𝔽</sub>');
+    await assertNoTypeError('a Number', '*-&infin;*<sub>𝔽</sub>');
+    await assertNoTypeError('a Number', '*NaN*');
+    await assertNoTypeError('*NaN*', '*NaN*');
     await assertNoTypeError('an integral Number', '*2*<sub>𝔽</sub>');
 
     await assertTypeError(
