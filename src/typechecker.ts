@@ -428,7 +428,13 @@ const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
   // @ts-expect-error TS does not know about __proto__
   __proto__: null,
   record: ['completion'],
-  real: ['integer', 'non-negative integer', 'negative integer', 'positive integer', 'concrete real'],
+  real: [
+    'integer',
+    'non-negative integer',
+    'negative integer',
+    'positive integer',
+    'concrete real',
+  ],
   integer: ['non-negative integer', 'negative integer', 'positive integer'],
   'non-negative integer': ['positive integer'],
   'ES value': [
@@ -630,7 +636,7 @@ function serialize(type: Type): string {
       return `~${type.value}~`;
     }
     case 'concrete number': {
-      if (Object.is(type.value, 0/0)) {
+      if (Object.is(type.value, 0 / 0)) {
         return '*NaN*';
       }
       let repr;
@@ -764,7 +770,7 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
         } else if (text === 'undefined') {
           return { kind: 'undefined' };
         } else if (text === 'NaN') {
-          return { kind: 'concrete number', value: 0/0 };
+          return { kind: 'concrete number', value: 0 / 0 };
         } else if (text === 'true') {
           return { kind: 'concrete boolean', value: true };
         } else if (text === 'false') {
@@ -829,7 +835,7 @@ function typeFromExprType(type: BiblioType): Type {
         return { kind: 'concrete number', value };
       }
       if (text === '*NaN*') {
-        return { kind: 'concrete number', value: 0/0 };
+        return { kind: 'concrete number', value: 0 / 0 };
       }
       if (text.startsWith('*') && text.endsWith('*<sub>ℤ</sub>')) {
         return { kind: 'concrete bigint', value: BigInt(text.slice(1, -14)) };
@@ -868,7 +874,10 @@ function typeFromExprType(type: BiblioType): Type {
         return { kind: 'positive integer' };
       }
       if (text === 'a time value' || text === 'time values') {
-        return { kind: 'union', of: [ { kind: 'integral number' }, { kind: 'concrete number', value: 0/0 } ] };
+        return {
+          kind: 'union',
+          of: [{ kind: 'integral number' }, { kind: 'concrete number', value: 0 / 0 }],
+        };
       }
       if (text === '*null*') {
         return { kind: 'null' };
