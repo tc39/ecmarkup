@@ -141,7 +141,7 @@ const build = debounce(async function build() {
       }
     }
 
-    const errorFormatter = args['error-formatter']!;
+    const errorFormatter = args['error-formatter'];
     let toResolve = errorFormatter;
     if (LOOKS_LIKE_FILE_REGEX.test(errorFormatter)) {
       toResolve = path.resolve(process.cwd(), errorFormatter);
