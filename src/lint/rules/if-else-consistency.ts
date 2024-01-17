@@ -13,7 +13,7 @@ export default function (
   step: OrderedListItemNode,
   algorithmSource: string,
   parsedSteps: Map<OrderedListItemNode, Seq>,
-  parent: OrderedListNode
+  parent: OrderedListNode,
 ) {
   const stepSeq = parsedSteps.get(step);
   if (stepSeq == null) {

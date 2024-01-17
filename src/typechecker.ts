@@ -16,13 +16,13 @@ export function typecheck(spec: Spec) {
     .localEntries()
     .filter(e => e.type === 'op' && e.signature?.return != null) as AlgorithmBiblioEntry[];
   const onlyPerformed: Map<string, null | 'only performed' | 'top'> = new Map(
-    AOs.filter(e => !isUnused(e.signature!.return!)).map(a => [a.aoid, null])
+    AOs.filter(e => !isUnused(e.signature!.return!)).map(a => [a.aoid, null]),
   );
   const alwaysAssertedToBeNormal: Map<string, null | 'always asserted normal' | 'top'> = new Map(
     // prettier-ignore
     AOs
       .filter(e => e.signature!.return!.kind === 'completion' && !e.skipGlobalChecks)
-      .map(a => [a.aoid, null])
+      .map(a => [a.aoid, null]),
   );
 
   // TODO strictly speaking this needs to be done in the namespace of the current algorithm
@@ -53,7 +53,7 @@ export function typecheck(spec: Spec) {
       const warn = (message: string) => {
         const { line, column } = offsetToLineAndColumn(
           originalHtml,
-          callee[0].location.start.offset
+          callee[0].location.start.offset,
         );
         spec.warn({
           type: 'contents',
@@ -76,7 +76,7 @@ export function typecheck(spec: Spec) {
 
       if (biblioEntry.kind === 'syntax-directed operation' && expr.name === 'call') {
         warn(
-          `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`
+          `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`,
         );
       } else if (
         biblioEntry.kind != null &&
@@ -118,7 +118,7 @@ export function typecheck(spec: Spec) {
             const items = stripWhitespace(arg.items);
             const { line, column } = offsetToLineAndColumn(
               originalHtml,
-              items[0].location.start.offset
+              items[0].location.start.offset,
             );
             const argDescriptor =
               argType.kind.startsWith('concrete') ||
@@ -174,7 +174,7 @@ export function typecheck(spec: Spec) {
       if (['Completion', 'ThrowCompletion', 'NormalCompletion'].includes(calleeName)) {
         if (consumedAsCompletion) {
           warn(
-            `${calleeName} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`
+            `${calleeName} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`,
           );
         }
       } else if (isCompletion && !consumedAsCompletion) {
@@ -184,7 +184,7 @@ export function typecheck(spec: Spec) {
       }
       if (returnType.kind === 'unused' && !isCalledAsPerform(expr, path, false)) {
         warn(
-          `${calleeName} does not return a meaningful value and should only be invoked as \`Perform ${calleeName}(...).\``
+          `${calleeName} does not return a meaningful value and should only be invoked as \`Perform ${calleeName}(...).\``,
         );
       }
 
@@ -323,7 +323,7 @@ function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null
     if (
       parent.name === 'seq' &&
       parent.items.every(
-        i => i === pointer || i.name === 'tag' || (i.name === 'text' && /^\s*$/.test(i.contents))
+        i => i === pointer || i.name === 'tag' || (i.name === 'text' && /^\s*$/.test(i.contents)),
       )
     ) {
       // if parent is just whitespace/tags around the call, walk up the tree further
@@ -543,7 +543,7 @@ export function join(a: Type, b: Type): Type {
     if (b.kind === 'union') {
       return b.of.reduce(
         (acc: Type, t) => (acc.kind === 'union' ? addToUnion(acc.of, t) : join(acc, t)),
-        a
+        a,
       );
     }
     return addToUnion(a.of, b);

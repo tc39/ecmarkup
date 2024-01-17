@@ -52,7 +52,7 @@ function usage() {
         hide: ['patterns'],
         optionList: options as unknown as commandLineUsage.OptionDefinition[],
       },
-    ])
+    ]),
   );
 }
 
@@ -76,7 +76,7 @@ function usage() {
 
   if (files.length === 0) {
     console.error(
-      `Did not find any files matching ${patterns.map(p => JSON.stringify(p)).join(', ')}`
+      `Did not find any files matching ${patterns.map(p => JSON.stringify(p)).join(', ')}`,
     );
     process.exit(1);
   }
@@ -87,7 +87,7 @@ function usage() {
     (patterns.length > 1 || files.length > 1 || files[0] !== patterns[0])
   ) {
     console.error(
-      `When processing multiple files or a glob pattern you must specify --write, --expand-glob, or --check`
+      `When processing multiple files or a glob pattern you must specify --write, --expand-glob, or --check`,
     );
     process.exit(1);
   }

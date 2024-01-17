@@ -186,7 +186,7 @@ function emptyThingHasNewline(s: Seq) {
 }
 
 function getTagName(
-  tok: ProsePart
+  tok: ProsePart,
 ): 'open-del' | 'close-del' | 'open-figure' | 'close-figure' | null {
   if (tok.name !== 'tag') {
     return null;
@@ -359,7 +359,7 @@ class ExprParser {
           if (items.length === 0) {
             throw new ParseFailure(
               `unexpected ${next.name} (expected some content for element/argument)`,
-              next.offset
+              next.offset,
             );
           }
           return { name: 'seq', items };
@@ -389,7 +389,7 @@ class ExprParser {
             } else {
               throw new ParseFailure(
                 `unexpected list close (expected some content for element)`,
-                (this.peek() as { offset: number }).offset
+                (this.peek() as { offset: number }).offset,
               );
             }
           }
@@ -408,7 +408,7 @@ class ExprParser {
           if (!close.includes('clist')) {
             throw new ParseFailure(
               'unexpected list close without corresponding list open',
-              next.offset
+              next.offset,
             );
           }
           return { name: 'seq', items };
@@ -497,7 +497,7 @@ class ExprParser {
               } else {
                 throw new ParseFailure(
                   `unexpected close parenthesis (expected some content for argument)`,
-                  (this.peek() as { offset: number }).offset
+                  (this.peek() as { offset: number }).offset,
                 );
               }
             }
@@ -530,7 +530,7 @@ class ExprParser {
           if (!close.includes('cparen')) {
             throw new ParseFailure(
               'unexpected close parenthesis without corresponding open parenthesis',
-              next.offset
+              next.offset,
             );
           }
           return { name: 'seq', items };
@@ -549,7 +549,7 @@ class ExprParser {
                   members.length > 0
                     ? 'trailing commas are only allowed when followed by a newline'
                     : 'records cannot be empty',
-                  nextTok.offset
+                  nextTok.offset,
                 );
               }
               break;
@@ -562,14 +562,14 @@ class ExprParser {
                 nextTok.name === 'text' ? nextTok.contents.match(/^\s*/)![0].length : 0;
               throw new ParseFailure(
                 'expected to find record field name',
-                nextTok.location.start.offset + skipWs
+                nextTok.location.start.offset + skipWs,
               );
             }
             const { contents: name } = nextTok;
             if (members.find(x => x.name === name)) {
               throw new ParseFailure(
                 `duplicate record field name ${name}`,
-                nextTok.location.start.offset + 2
+                nextTok.location.start.offset + 2,
               );
             }
             this.next.shift();
@@ -595,7 +595,7 @@ class ExprParser {
               } else if (type === 'record-spec') {
                 throw new ParseFailure(
                   'record field has value but preceding field does not',
-                  offset - 1
+                  offset - 1,
                 );
               }
               const value = this.parseSeq(['crec', 'comma']);
@@ -609,7 +609,7 @@ class ExprParser {
               } else if (type === 'record') {
                 throw new ParseFailure(
                   'expected record field to have value',
-                  nextTok.location.end.offset
+                  nextTok.location.end.offset,
                 );
               }
               members.push({ name });
@@ -617,7 +617,7 @@ class ExprParser {
               if (!['crec', 'comma'].includes(this.peek().name)) {
                 throw new ParseFailure(
                   `expected ${formatClose(['crec', 'comma'])}`,
-                  nextTok.location.end.offset
+                  nextTok.location.end.offset,
                 );
               }
             }
@@ -642,7 +642,7 @@ class ExprParser {
           if (!close.includes('crec')) {
             throw new ParseFailure(
               'unexpected end of record without corresponding start of record',
-              next.offset
+              next.offset,
             );
           }
           return { name: 'seq', items };
@@ -678,7 +678,7 @@ class ExprParser {
                   'clist',
                   'crec',
                   'with_args',
-                ])
+                ]),
               );
               if (!['and', 'comma'].includes(this.peek().name)) {
                 break;
@@ -758,7 +758,7 @@ export type PathItem =
 export function walk(
   f: (expr: Expr, path: PathItem[]) => void,
   current: Expr,
-  path: PathItem[] = []
+  path: PathItem[] = [],
 ) {
   f(current, path);
   switch (current.name) {

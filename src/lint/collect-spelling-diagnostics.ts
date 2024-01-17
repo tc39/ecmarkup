@@ -159,12 +159,12 @@ const matchers = [
 export function collectSpellingDiagnostics(
   report: (e: Warning) => void,
   mainSource: string,
-  imports: Import[]
+  imports: Import[],
 ) {
   const composed = new RegExp(matchers.map(m => `(?:${m.pattern.source})`).join('|'), 'u');
 
   const toTest: { source: string; importLocation?: string }[] = [{ source: mainSource }].concat(
-    imports
+    imports,
   );
   for (const { source, importLocation } of toTest) {
     // The usual case will be to have no errors, so we have a fast path for that case.
@@ -190,7 +190,7 @@ export function collectSpellingDiagnostics(
       }
       if (!reported) {
         throw new Error(
-          'Ecmarkup has a bug: the spell checker reported an error, but could not find one. Please report this at https://github.com/tc39/ecmarkup/issues/new.'
+          'Ecmarkup has a bug: the spell checker reported an error, but could not find one. Please report this at https://github.com/tc39/ecmarkup/issues/new.',
         );
       }
     }

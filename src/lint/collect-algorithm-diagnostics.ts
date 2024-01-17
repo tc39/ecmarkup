@@ -22,7 +22,7 @@ type LineRule = (
   step: OrderedListItemNode,
   algorithmSource: string,
   parsedSteps: Map<OrderedListItemNode, Seq>,
-  parent: OrderedListNode
+  parent: OrderedListNode,
 ) => void;
 const stepRules: LineRule[] = [
   lintAlgorithmLineStyle,
@@ -38,7 +38,7 @@ export function collectAlgorithmDiagnostics(
   report: (e: Warning) => void,
   spec: Spec,
   mainSource: string,
-  algorithms: { element: Element; tree?: EcmarkdownNode; source?: string }[]
+  algorithms: { element: Element; tree?: EcmarkdownNode; source?: string }[],
 ) {
   for (const algorithm of algorithms) {
     const element = algorithm.element;
@@ -66,7 +66,7 @@ export function collectAlgorithmDiagnostics(
 
     const algorithmSource = (importSource ?? mainSource).slice(
       location.startTag.endOffset,
-      location.endTag.startOffset
+      location.endTag.startOffset,
     );
     algorithm.source = algorithmSource;
 
@@ -118,7 +118,7 @@ export function collectAlgorithmDiagnostics(
           algorithm.element,
           tree.contents,
           parsedSteps,
-          reporter
+          reporter,
         );
       }
     }

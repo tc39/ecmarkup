@@ -20,12 +20,12 @@ function build(file, options) {
     file,
     file =>
       new Promise((resolve, reject) =>
-        fs.readFile(file, 'utf-8', (err, data) => (err ? reject(err) : resolve(data)))
+        fs.readFile(file, 'utf-8', (err, data) => (err ? reject(err) : resolve(data))),
       ),
     {
       extraBiblios: [ecma262biblio],
       ...options,
-    }
+    },
   );
 }
 
@@ -85,7 +85,7 @@ describe('baselines', () => {
 
       let contents = fs.readFileSync(sourcePath, 'utf8');
       let expectedWarnings = [...contents.matchAll(/<!--\s+EXPECT_WARNING(.*?)-->/g)].map(m =>
-        JSON.parse(m[1])
+        JSON.parse(m[1]),
       );
       let warningProps = new Set(expectedWarnings.flatMap(obj => Object.keys(obj)));
       function pickFromWarning(warning) {
@@ -108,12 +108,12 @@ describe('baselines', () => {
         assert.deepStrictEqual(
           actualFiles,
           expectedFiles,
-          `output differed when using option ${JSON.stringify(options)}`
+          `output differed when using option ${JSON.stringify(options)}`,
         );
         assert.deepStrictEqual(
           warnings.map(warning => pickFromWarning(warning)),
           expectedWarnings,
-          `warnings differed when using option ${JSON.stringify(options)}`
+          `warnings differed when using option ${JSON.stringify(options)}`,
         );
       }
     });

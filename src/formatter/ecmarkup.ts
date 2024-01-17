@@ -106,7 +106,7 @@ export async function printDocument(src: string): Promise<string> {
   if (lastBody?.nodeName === '#text') {
     const lastBodySource = src.substring(
       lastBody.sourceCodeLocation!.startOffset,
-      lastBody.sourceCodeLocation!.endOffset
+      lastBody.sourceCodeLocation!.endOffset,
     );
     const bugMatch = lastBodySource.match(/<\/body>\s*(<\/html>\s*)?$/i);
     if (bugMatch) {
@@ -137,7 +137,7 @@ export async function printDocument(src: string): Promise<string> {
 export async function printElement(
   src: string,
   node: Element,
-  indent: number
+  indent: number,
 ): Promise<LineBuilder> {
   const block = isBlockElement(node);
   const output = new LineBuilder(indent);
@@ -280,7 +280,7 @@ export async function printElement(
       childNodes[maybeH1Index]?.nodeName === 'h1' &&
       childNodes[maybeDLIndex]?.nodeName === 'dl' &&
       (childNodes[maybeDLIndex] as Element).attrs.some(
-        a => a.name === 'class' && a.value === 'header'
+        a => a.name === 'class' && a.value === 'header',
       )
     ) {
       const h1 = childNodes[maybeH1Index] as Element;
@@ -289,7 +289,7 @@ export async function printElement(
         const type = node.attrs.find(a => a.name === 'type')?.value ?? null;
         const printedHeader = printHeader(parseResult, type, indent + 2);
         output.append(
-          await printChildNodes(src, childNodes.slice(0, maybeH1Index), true, true, indent + 1)
+          await printChildNodes(src, childNodes.slice(0, maybeH1Index), true, true, indent + 1),
         );
         if (output.last !== '') {
           output.linebreak();
@@ -361,7 +361,7 @@ async function printChildNodes(
   nodes: Node[],
   dropLeadingLinebreaks: boolean,
   dropTrailingLinebreaks: boolean,
-  indent: number
+  indent: number,
 ): Promise<LineBuilder> {
   const output = new LineBuilder(indent);
   let skipNextElement = false;
@@ -419,7 +419,7 @@ async function printChildNodes(
         skipNextElement = false;
         output.appendText(
           src.substring(ele.sourceCodeLocation!.startOffset, ele.sourceCodeLocation!.endOffset),
-          true
+          true,
         );
       } else if (ele.tagName === 'br') {
         if (ele.attrs.length > 0) {

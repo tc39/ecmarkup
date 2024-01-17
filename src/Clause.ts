@@ -30,7 +30,7 @@ export function extractStructuredHeader(header: Element): Element | null {
   const dl = traverseWhile(
     header.nextElementSibling,
     'nextElementSibling',
-    el => el.nodeName === 'DEL'
+    el => el.nodeName === 'DEL',
   );
   if (dl == null || dl.tagName !== 'DL' || !dl.classList.contains('header')) {
     return null;
@@ -100,7 +100,7 @@ export default class Clause extends Builder {
       this.node.firstElementChild,
       'nextElementSibling',
       // skip <del> and oldids
-      el => el.nodeName === 'DEL' || (el.nodeName === 'SPAN' && el.children.length === 0)
+      el => el.nodeName === 'DEL' || (el.nodeName === 'SPAN' && el.children.length === 0),
     );
     let headerH1 = traverseWhile(header, 'firstElementChild', el => el.nodeName === 'INS', {
       once: true,
@@ -145,7 +145,7 @@ export default class Clause extends Builder {
     if (headerLocation != null) {
       headerSource = headerLocation.source.slice(
         headerLocation.startTag.endOffset,
-        headerLocation.endTag.startOffset
+        headerLocation.endTag.startOffset,
       );
     } else {
       headerSource = header.innerHTML;
@@ -174,7 +174,7 @@ export default class Clause extends Builder {
     const { name, formattedHeader, formattedParams, formattedReturnType } = formatHeader(
       this.spec,
       header,
-      parseResult
+      parseResult,
     );
     if (type === 'numeric method' && name != null && !name.includes('::')) {
       this.spec.warn({
@@ -220,7 +220,7 @@ export default class Clause extends Builder {
       formattedParams ?? 'UNPARSEABLE ARGUMENTS',
       formattedReturnType,
       _for,
-      description
+      description,
     );
     dl.replaceWith(...paras);
 

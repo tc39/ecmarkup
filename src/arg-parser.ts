@@ -8,7 +8,7 @@ function fail(msg: string): never {
 
 export function parse<T extends readonly OptionDefinition[]>(
   options: T,
-  printHelp: () => void
+  printHelp: () => void,
 ): ArgsFromOptions<T> {
   const def = options.find(o => o.defaultOption);
   if (!def?.multiple) {
@@ -98,6 +98,6 @@ type ArgsFromOptions<T extends readonly OptionDefinition[]> = Spread<
     },
     {
       [key in Optional<T[number]>['name']]?: ArgTypeForKey<T, key>;
-    }
+    },
   ]
 >;

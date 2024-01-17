@@ -17,7 +17,7 @@ export async function collectGrammarDiagnostics(
   mainSource: string,
   mainGrammar: { element: Element; source: string }[],
   sdos: { grammar: Element; alg: Element }[],
-  earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[]
+  earlyErrors: { grammar: Element; lists: HTMLUListElement[] }[],
 ) {
   // *******************
   // Parse the grammar with Grammarkdown and collect its diagnostics, if any
@@ -110,13 +110,13 @@ export async function collectGrammarDiagnostics(
     const grammarHost = CoreAsyncHost.forFile(
       (importSource ?? mainSource).slice(
         grammarLoc.startTag.endOffset,
-        grammarLoc.endTag.startOffset
-      )
+        grammarLoc.endTag.startOffset,
+      ),
     );
     const grammar = new GrammarFile(
       [grammarHost.file],
       { format: EmitFormat.ecmarkup, noChecks: true },
-      grammarHost
+      grammarHost,
     );
     await grammar.parse();
     oneOffGrammars.push({ grammarEle, grammar });
@@ -163,7 +163,7 @@ export async function collectGrammarDiagnostics(
             if (s.symbol.kind === SyntaxKind.NoSymbolHereAssertion) {
               const { line, column } = getLocationInGrammarFile(
                 grammar.sourceFiles[0],
-                s.symbol.pos
+                s.symbol.pos,
               );
               report({
                 type: 'contents',
@@ -182,7 +182,7 @@ export async function collectGrammarDiagnostics(
           if (rhs.constraints !== undefined) {
             const { line, column } = getLocationInGrammarFile(
               grammar.sourceFiles[0],
-              rhs.constraints.pos
+              rhs.constraints.pos,
             );
             report({
               type: 'contents',

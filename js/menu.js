@@ -11,11 +11,11 @@ function Search(menu) {
 
   this.$searchBox.addEventListener(
     'keydown',
-    debounce(this.searchBoxKeydown.bind(this), { stopPropagation: true })
+    debounce(this.searchBoxKeydown.bind(this), { stopPropagation: true }),
   );
   this.$searchBox.addEventListener(
     'keyup',
-    debounce(this.searchBoxKeyup.bind(this), { stopPropagation: true })
+    debounce(this.searchBoxKeyup.bind(this), { stopPropagation: true }),
   );
 
   // Perform an initial search if the box is not empty.
@@ -397,7 +397,7 @@ function findActiveClause(root, path) {
     let marginTop = Math.max(
       0,
       parseInt(clauseStyles['margin-top']),
-      parseInt(getComputedStyle($header)['margin-top'])
+      parseInt(getComputedStyle($header)['margin-top']),
     );
     let marginBottom = Math.max(0, parseInt(clauseStyles['margin-bottom']));
     let crossesMidpoint =
@@ -1115,7 +1115,7 @@ function init() {
     'mouseover',
     debounce(e => {
       Toolbox.activateIfMouseOver(e);
-    })
+    }),
   );
   document.addEventListener(
     'keydown',
@@ -1126,7 +1126,7 @@ function init() {
         }
         document.getElementById('shortcuts-help').classList.remove('active');
       }
-    })
+    }),
   );
 }
 

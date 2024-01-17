@@ -87,7 +87,7 @@ export default class Grammar extends Builder {
     await grammar.emit(undefined, (file, source) => {
       if (grammar.rootFiles.length !== 1) {
         throw new Error(
-          `grammarkdown file count mismatch: ${grammar.rootFiles.length}. This is a bug in ecmarkup; please report it.`
+          `grammarkdown file count mismatch: ${grammar.rootFiles.length}. This is a bug in ecmarkup; please report it.`,
         );
       }
       node.innerHTML = source;

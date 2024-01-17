@@ -18,7 +18,7 @@ export default class Meta extends Builder {
           .getAttribute('effects')!
           .split(',')
           .map(e => e.trim()),
-        node
+        node,
       );
       for (const effect of effects) {
         if (!doesEffectPropagateToParent(node, effect)) {

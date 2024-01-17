@@ -65,7 +65,7 @@ describe('typechecking completions', () => {
         },
         {
           extraBiblios: [biblio],
-        }
+        },
       );
 
       await assertLint(
@@ -96,7 +96,7 @@ describe('typechecking completions', () => {
         },
         {
           extraBiblios: [biblio],
-        }
+        },
       );
     });
 
@@ -155,7 +155,7 @@ describe('typechecking completions', () => {
         `,
         {
           extraBiblios: [biblio],
-        }
+        },
       );
     });
   });
@@ -190,7 +190,7 @@ describe('typechecking completions', () => {
           ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message: 'ExampleAlg does not return a Completion Record, but is consumed as if it does',
-        }
+        },
       );
     });
 
@@ -242,7 +242,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-alg',
           message:
             'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
-        }
+        },
       );
 
       await assertLint(
@@ -263,7 +263,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-alg',
           message:
             'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
-        }
+        },
       );
 
       await assertLint(
@@ -284,7 +284,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-alg',
           message:
             'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
-        }
+        },
       );
 
       await assertLint(
@@ -306,7 +306,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-alg',
           message:
             'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
-        }
+        },
       );
 
       await assertLint(
@@ -331,7 +331,7 @@ describe('typechecking completions', () => {
         },
         {
           extraBiblios: [biblio],
-        }
+        },
       );
 
       await assertLint(
@@ -353,7 +353,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-alg',
           message:
             'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
-        }
+        },
       );
     });
 
@@ -377,7 +377,7 @@ describe('typechecking completions', () => {
         `,
         {
           extraBiblios: [biblio],
-        }
+        },
       );
 
       await assertLintFree(
@@ -397,7 +397,7 @@ describe('typechecking completions', () => {
         `,
         {
           extraBiblios: [biblio],
-        }
+        },
       );
     });
   });
@@ -423,7 +423,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-alg',
           message:
             'this algorithm is declared as returning a Completion Record, but there is no step which might plausibly return an abrupt completion',
-        }
+        },
       );
     });
 
@@ -491,7 +491,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-alg',
           message:
             'ExampleAlg does not return a meaningful value and should only be invoked as `Perform ExampleAlg(...).`',
-        }
+        },
       );
     });
 
@@ -554,7 +554,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-clause',
           message:
             'ExampleAlg is only ever invoked with Perform, so it should return ~unused~ or a Completion Record which, if normal, contains ~unused~',
-        }
+        },
       );
     });
 
@@ -643,7 +643,7 @@ describe('typechecking completions', () => {
           nodeType: 'emu-clause',
           message:
             'every call site of ExampleAlg asserts the return value is a normal completion; it should be refactored to not return a completion record at all. if this AO is called in ways ecmarkup cannot analyze, add the "skip global checks" attribute to the header.',
-        }
+        },
       );
     });
 
@@ -724,7 +724,7 @@ describe('typechecking completions', () => {
           nodeType: 'h1',
           message:
             'algorithms should return either completions or things which are not completions, never both',
-        }
+        },
       );
     });
 
@@ -744,7 +744,7 @@ describe('typechecking completions', () => {
         `,
         {
           extraBiblios: [biblio],
-        }
+        },
       );
     });
   });
@@ -800,7 +800,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
 
     await assertLint(
@@ -816,7 +816,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
 
     await assertLint(
@@ -832,7 +832,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -851,7 +851,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
 
     await assertLint(
@@ -868,7 +868,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
 
     await assertLint(
@@ -885,7 +885,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -903,7 +903,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
 
     await assertLint(
@@ -919,7 +919,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -938,7 +938,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
 
     await assertLint(
@@ -955,7 +955,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -987,7 +987,7 @@ describe('signature agreement', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
 
     await assertLintFree(
@@ -998,7 +998,7 @@ describe('signature agreement', async () => {
       `,
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -1021,7 +1021,7 @@ describe('signature agreement', async () => {
       `,
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 });
@@ -1056,7 +1056,7 @@ describe('invocation kind', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -1075,7 +1075,7 @@ describe('invocation kind', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -1096,7 +1096,7 @@ describe('invocation kind', async () => {
       `,
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 });
@@ -1126,7 +1126,7 @@ describe('negation', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -1144,7 +1144,7 @@ describe('negation', async () => {
       },
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -1157,7 +1157,7 @@ describe('negation', async () => {
       `,
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 
@@ -1170,7 +1170,7 @@ describe('negation', async () => {
       `,
       {
         extraBiblios: [biblio],
-      }
+      },
     );
   });
 });
@@ -1198,7 +1198,7 @@ describe('type system', () => {
       },
       {
         extraBiblios,
-      }
+      },
     );
   }
 
@@ -1217,7 +1217,7 @@ describe('type system', () => {
           1. Perform Example(${arg}).
         </emu-alg>
       `,
-      { extraBiblios }
+      { extraBiblios },
     );
   }
 
@@ -1258,7 +1258,7 @@ describe('type system', () => {
     await assertTypeError(
       '~sync~ or ~async~',
       '~iterate-strings~',
-      'argument (~iterate-strings~) does not look plausibly assignable to parameter type (~sync~ or ~async~)'
+      'argument (~iterate-strings~) does not look plausibly assignable to parameter type (~sync~ or ~async~)',
     );
 
     await assertNoTypeError('~sync~ or ~async~', '~sync~');
@@ -1269,13 +1269,13 @@ describe('type system', () => {
     await assertTypeError(
       'a Number',
       '*false*',
-      'argument (false) does not look plausibly assignable to parameter type (Number)'
+      'argument (false) does not look plausibly assignable to parameter type (Number)',
     );
 
     await assertTypeError(
       'a Boolean',
       '*1*<sub>𝔽</sub>',
-      'argument (*1*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (Boolean)'
+      'argument (*1*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (Boolean)',
     );
 
     await assertNoTypeError('a Boolean', '*false*');
@@ -1285,22 +1285,22 @@ describe('type system', () => {
     await assertTypeError(
       '*null*',
       '*undefined*',
-      'argument (undefined) does not look plausibly assignable to parameter type (null)'
+      'argument (undefined) does not look plausibly assignable to parameter type (null)',
     );
     await assertTypeError(
       'a Boolean or *null*',
       '*undefined*',
-      'argument (undefined) does not look plausibly assignable to parameter type (Boolean or null)'
+      'argument (undefined) does not look plausibly assignable to parameter type (Boolean or null)',
     );
     await assertTypeError(
       '*undefined*',
       '*null*',
-      'argument (null) does not look plausibly assignable to parameter type (undefined)'
+      'argument (null) does not look plausibly assignable to parameter type (undefined)',
     );
     await assertTypeError(
       'a Boolean or *undefined*',
       '*null*',
-      'argument (null) does not look plausibly assignable to parameter type (Boolean or undefined)'
+      'argument (null) does not look plausibly assignable to parameter type (Boolean or undefined)',
     );
 
     await assertNoTypeError('an ECMAScript language value', '*null*');
@@ -1316,13 +1316,13 @@ describe('type system', () => {
       'a BigInt',
       '5',
       'argument (5) does not look plausibly assignable to parameter type (BigInt)\n' +
-        'hint: you passed a mathematical value, but this position takes an ES language BigInt'
+        'hint: you passed a mathematical value, but this position takes an ES language BigInt',
     );
 
     await assertTypeError(
       'an integer',
       '*5*<sub>ℤ</sub>',
-      'argument (*5*<sub>ℤ</sub>) does not look plausibly assignable to parameter type (integer)'
+      'argument (*5*<sub>ℤ</sub>) does not look plausibly assignable to parameter type (integer)',
     );
 
     await assertNoTypeError('a BigInt', '*5*<sub>ℤ</sub>');
@@ -1332,7 +1332,7 @@ describe('type system', () => {
     await assertTypeError(
       'an integer',
       '0.5',
-      'argument (0.5) does not look plausibly assignable to parameter type (integer)'
+      'argument (0.5) does not look plausibly assignable to parameter type (integer)',
     );
 
     await assertNoTypeError('an integer', '2');
@@ -1340,7 +1340,7 @@ describe('type system', () => {
     await assertTypeError(
       'a non-negative integer',
       '-1',
-      'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)'
+      'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)',
     );
 
     await assertNoTypeError('a non-negative integer', '3');
@@ -1348,31 +1348,31 @@ describe('type system', () => {
     await assertTypeError(
       '*1*<sub>𝔽</sub>',
       '*2*<sub>𝔽</sub>',
-      'argument (*2*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*1*<sub>𝔽</sub>)'
+      'argument (*2*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*1*<sub>𝔽</sub>)',
     );
 
     await assertTypeError(
       '*+0*<sub>𝔽</sub>',
       '*-0*<sub>𝔽</sub>',
-      'argument (*-0*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*+0*<sub>𝔽</sub>)'
+      'argument (*-0*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*+0*<sub>𝔽</sub>)',
     );
 
     await assertTypeError(
       'an integral Number',
       '*0.5*<sub>𝔽</sub>',
-      'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)'
+      'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)',
     );
 
     await assertTypeError(
       'an integral Number',
       '*NaN*',
-      'argument (*NaN*) does not look plausibly assignable to parameter type (integral Number)'
+      'argument (*NaN*) does not look plausibly assignable to parameter type (integral Number)',
     );
 
     await assertTypeError(
       'an integral Number',
       '*+&infin;*<sub>𝔽</sub>',
-      'argument (*+&infin;*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)'
+      'argument (*+&infin;*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)',
     );
 
     await assertNoTypeError('*2*<sub>𝔽</sub>', '*2*<sub>𝔽</sub>');
@@ -1386,21 +1386,21 @@ describe('type system', () => {
     await assertTypeError(
       'an integral Number',
       '*0.5*<sub>𝔽</sub>',
-      'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)'
+      'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)',
     );
 
     await assertTypeError(
       'a mathematical value',
       '*5*<sub>𝔽</sub>',
       'argument (*5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (mathematical value)\n' +
-        'hint: you passed an ES language Number, but this position takes a mathematical value'
+        'hint: you passed an ES language Number, but this position takes a mathematical value',
     );
 
     await assertTypeError(
       'an integral Number',
       '5',
       'argument (5) does not look plausibly assignable to parameter type (integral Number)\n' +
-        'hint: you passed a mathematical value, but this position takes an ES language Number'
+        'hint: you passed a mathematical value, but this position takes an ES language Number',
     );
   });
 
@@ -1408,14 +1408,14 @@ describe('type system', () => {
     await assertTypeError(
       'a time value',
       '~enum-value~',
-      'argument (~enum-value~) does not look plausibly assignable to parameter type (integral Number or *NaN*)'
+      'argument (~enum-value~) does not look plausibly assignable to parameter type (integral Number or *NaN*)',
     );
 
     await assertTypeError(
       'a time value',
       '5',
       'argument (5) does not look plausibly assignable to parameter type (integral Number or *NaN*)\n' +
-        'hint: you passed a mathematical value, but this position takes an ES language Number'
+        'hint: you passed a mathematical value, but this position takes an ES language Number',
     );
 
     await assertNoTypeError('a time value', '*2*<sub>𝔽</sub>');
@@ -1427,20 +1427,20 @@ describe('type system', () => {
     await assertTypeError(
       'an ECMAScript language value',
       '~enum-value~',
-      'argument (~enum-value~) does not look plausibly assignable to parameter type (ECMAScript language value)'
+      'argument (~enum-value~) does not look plausibly assignable to parameter type (ECMAScript language value)',
     );
 
     await assertTypeError(
       'an ECMAScript language value',
       '42',
-      'argument (42) does not look plausibly assignable to parameter type (ECMAScript language value)'
+      'argument (42) does not look plausibly assignable to parameter type (ECMAScript language value)',
     );
 
     await assertTypeError(
       'an ECMAScript language value',
       'NormalCompletion(42)',
       'argument type (a Completion Record) does not look plausibly assignable to parameter type (ECMAScript language value)',
-      [completionBiblio]
+      [completionBiblio],
     );
 
     await assertNoTypeError('an ECMAScript language value', '*string*');
@@ -1457,20 +1457,20 @@ describe('type system', () => {
       'either a normal completion containing a Boolean or an abrupt completion',
       '*false*',
       'argument (false) does not look plausibly assignable to parameter type (a Completion Record normally holding Boolean)',
-      [completionBiblio]
+      [completionBiblio],
     );
 
     await assertTypeError(
       'a Boolean',
       'NormalCompletion(*false*)',
       'argument type (a Completion Record) does not look plausibly assignable to parameter type (Boolean)',
-      [completionBiblio]
+      [completionBiblio],
     );
 
     await assertNoTypeError(
       'either a normal completion containing a Boolean or an abrupt completion',
       'NormalCompletion(*false*)',
-      [completionBiblio]
+      [completionBiblio],
     );
     await assertNoTypeError('a Boolean', '! Throwy()', [completionBiblio]);
   });
@@ -1502,14 +1502,14 @@ describe('type system', () => {
       'a String',
       'ReturnsNumber()',
       'argument type (Number) does not look plausibly assignable to parameter type (String)',
-      [biblio]
+      [biblio],
     );
 
     await assertTypeError(
       'a String',
       '! ReturnsCompletionOfNumber()',
       'argument type (Number) does not look plausibly assignable to parameter type (String)',
-      [biblio]
+      [biblio],
     );
 
     await assertNoTypeError('a Number', 'ReturnsNumber()', [biblio]);
@@ -1534,7 +1534,7 @@ describe('type system', () => {
       'an integer',
       'ReturnsListOfNumberOrString()',
       'argument type (List of Number or String) does not look plausibly assignable to parameter type (integer)',
-      [biblio]
+      [biblio],
     );
 
     await assertNoTypeError('List of Strings', 'ReturnsListOfNumberOrString()', [biblio]);
@@ -1544,13 +1544,13 @@ describe('type system', () => {
     await assertTypeError(
       'a String',
       '« »',
-      'argument type (empty List) does not look plausibly assignable to parameter type (String)'
+      'argument type (empty List) does not look plausibly assignable to parameter type (String)',
     );
 
     await assertTypeError(
       'a List of Strings',
       '« 0.5 »',
-      'argument type (List of 0.5) does not look plausibly assignable to parameter type (List of String)'
+      'argument type (List of 0.5) does not look plausibly assignable to parameter type (List of String)',
     );
 
     await assertNoTypeError('a List of Strings', '« "something" »');
@@ -1562,22 +1562,22 @@ describe('type system', () => {
     await assertTypeError(
       '0',
       '1',
-      'argument (1) does not look plausibly assignable to parameter type (0)'
+      'argument (1) does not look plausibly assignable to parameter type (0)',
     );
     await assertTypeError(
       'a positive integer',
       '0',
-      'argument (0) does not look plausibly assignable to parameter type (positive integer)'
+      'argument (0) does not look plausibly assignable to parameter type (positive integer)',
     );
     await assertTypeError(
       'a non-negative integer',
       '-1',
-      'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)'
+      'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)',
     );
     await assertTypeError(
       'a negative integer',
       '0',
-      'argument (0) does not look plausibly assignable to parameter type (negative integer)'
+      'argument (0) does not look plausibly assignable to parameter type (negative integer)',
     );
 
     await assertNoTypeError('a mathematical value', '0');
@@ -1596,7 +1596,7 @@ describe('type system', () => {
     await assertTypeError(
       '"type"',
       '*"value"*',
-      'argument ("value") does not look plausibly assignable to parameter type ("type")'
+      'argument ("value") does not look plausibly assignable to parameter type ("type")',
     );
 
     await assertNoTypeError('"a"', '*"a"*');
@@ -1633,7 +1633,7 @@ describe('error location', () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'argument (~enum~) does not look plausibly assignable to parameter type (integer)',
-      }
+      },
     );
   });
 });

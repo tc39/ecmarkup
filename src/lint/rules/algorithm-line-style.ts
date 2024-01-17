@@ -30,7 +30,7 @@ export default function (
   report: Reporter,
   node: OrderedListItemNode,
   algorithmSource: string,
-  parsedSteps: Map<OrderedListItemNode, Seq>
+  parsedSteps: Map<OrderedListItemNode, Seq>,
 ) {
   const stepSeq = parsedSteps.get(node);
   if (stepSeq == null || stepSeq.items.length === 0) {
@@ -93,7 +93,7 @@ export default function (
     } else {
       const lineSource = algorithmSource.slice(
         first.location.start.offset,
-        last.location.end.offset
+        last.location.end.offset,
       );
       const ifThenMatch = lineSource.match(/^If[^,\n]+, then /);
       if (ifThenMatch != null) {

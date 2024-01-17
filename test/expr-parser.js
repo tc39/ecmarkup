@@ -120,7 +120,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'unexpected eof (expected close parenthesis)',
-        }
+        },
       );
     });
 
@@ -135,7 +135,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'unexpected close parenthesis without corresponding open parenthesis',
-        }
+        },
       );
     });
 
@@ -152,7 +152,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'unexpected list close without corresponding list open',
-        }
+        },
       );
     });
 
@@ -168,7 +168,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'unexpected comma (expected some content for element/argument)',
-        }
+        },
       );
 
       await assertLint(
@@ -181,7 +181,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'unexpected list close (expected some content for element)',
-        }
+        },
       );
     });
 
@@ -198,7 +198,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'unexpected comma (expected some content for element/argument)',
-        }
+        },
       );
 
       await assertLint(
@@ -213,7 +213,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'unexpected close parenthesis (expected some content for argument)',
-        }
+        },
       );
     });
 
@@ -229,7 +229,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'records cannot be empty',
-        }
+        },
       );
     });
 
@@ -245,7 +245,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'expected to find record field name',
-        }
+        },
       );
     });
 
@@ -261,7 +261,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'duplicate record field name A',
-        }
+        },
       );
     });
 
@@ -277,7 +277,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'record field has value but preceding field does not',
-        }
+        },
       );
 
       await assertLint(
@@ -291,7 +291,7 @@ describe('expression parsing', () => {
           ruleId: 'expression-parsing',
           nodeType: 'emu-alg',
           message: 'expected record field to have value',
-        }
+        },
       );
     });
   });
@@ -326,7 +326,7 @@ describe('expression parsing', () => {
         },
         {
           extraBiblios: [biblio],
-        }
+        },
       );
 
       await assertLintFree(
@@ -337,7 +337,7 @@ describe('expression parsing', () => {
         `,
         {
           extraBiblios: [biblio],
-        }
+        },
       );
 
       await assertLintFree(
@@ -348,7 +348,7 @@ describe('expression parsing', () => {
         `,
         {
           extraBiblios: [biblio],
-        }
+        },
       );
     });
   });

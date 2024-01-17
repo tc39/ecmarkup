@@ -100,14 +100,14 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
         source: line == null ? undefined : html,
       },
     ],
-    'error information inside of import'
+    'error information inside of import',
   );
 }
 
 async function assertErrorFree(html, opts) {
   if (typeof html !== 'string') {
     throw new Error(
-      "assertErrorFree expects a string; did you forget to remove the 'positioned' tag?"
+      "assertErrorFree expects a string; did you forget to remove the 'positioned' tag?",
     );
   }
   let warnings = [];

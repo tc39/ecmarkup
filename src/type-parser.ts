@@ -30,7 +30,7 @@ export class TypeParser {
       if (this.remainder.startsWith('or ')) {
         throw new ParseError(
           `could not determine how to associate "or"; try adding "either"`,
-          this.offset
+          this.offset,
         );
       }
       throw new ParseError(`type was nonempty after parsing`, this.offset);
@@ -70,12 +70,12 @@ export class TypeParser {
             t.kind === 'union' ||
             (t.kind === 'completion' &&
               t.completionType !== 'abrupt' &&
-              t.typeOfValueIfNormal !== null)
+              t.typeOfValueIfNormal !== null),
         )
     ) {
       throw new ParseError(
         `type is ambiguous; can't tell where the "or" attaches (add "either" to disambiguate)`,
-        orOffset
+        orOffset,
       );
     }
     return squashUnionTypes(unionTypes);
@@ -92,7 +92,7 @@ export class TypeParser {
     }
     {
       const match = this.eat(
-        /^an? (Completion Record|(normal|abrupt|throw|break|return|continue) completion)/i
+        /^an? (Completion Record|(normal|abrupt|throw|break|return|continue) completion)/i,
       );
       if (match != null) {
         switch (match[1].toLowerCase()) {

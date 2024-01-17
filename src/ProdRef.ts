@@ -52,7 +52,7 @@ export default class ProdRef extends Builder {
           'Could not find alternative ' +
             this.node.getAttribute('a') +
             ' of production ' +
-            prod.name
+            prod.name,
         );
         return;
       }

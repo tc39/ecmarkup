@@ -104,7 +104,7 @@ class EmitterWithComments extends GrammarkdownEmitter {
             element.name,
             element.parameterList,
             element.colonToken,
-            newList
+            newList,
           );
           elements.push(newProd);
           this.commentsMap.set(newProd, allComments);
@@ -117,7 +117,7 @@ class EmitterWithComments extends GrammarkdownEmitter {
     this.root = sourceFile;
 
     this.forceExpandRhs = sourceFile.elements.some(
-      e => !(e.kind === SyntaxKind.Production) || e.body?.kind === SyntaxKind.RightHandSideList
+      e => !(e.kind === SyntaxKind.Production) || e.body?.kind === SyntaxKind.RightHandSideList,
     );
   }
 
@@ -170,7 +170,7 @@ class EmitterWithComments extends GrammarkdownEmitter {
         if (node.kind !== SyntaxKind.Production) {
           // TODO location information
           throw new Error(
-            `"emu-format ignore" comments are only supported on full productions right now; if you need it elsewhere, open an issue on ecmarkup`
+            `"emu-format ignore" comments are only supported on full productions right now; if you need it elsewhere, open an issue on ecmarkup`,
           );
         }
         // the source includes all comments and any leading HTML tags

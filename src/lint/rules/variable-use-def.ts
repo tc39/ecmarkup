@@ -66,7 +66,7 @@ class Scope {
     name: string,
     nameNode: HasLocation | null,
     kind: VarKind = 'variable',
-    mayBeShadowed: boolean = false
+    mayBeShadowed: boolean = false,
   ): void {
     if (this.declared(name)) {
       for (const scope of this.strictScopes) {
@@ -112,7 +112,7 @@ export function checkVariableUsage(
   containingAlgorithm: Element,
   steps: OrderedListNode,
   parsed: Map<OrderedListItemNode, Seq>,
-  report: Reporter
+  report: Reporter,
 ) {
   if (containingAlgorithm.hasAttribute('replaces-step')) {
     // TODO someday lint these by doing the rewrite (conceptually)
@@ -170,7 +170,7 @@ function walkAlgorithm(
   steps: OrderedListNode | UnorderedListNode,
   parsed: Map<OrderedListItemNode, Seq>,
   scope: Scope,
-  report: Reporter
+  report: Reporter,
 ) {
   if (steps.name === 'ul') {
     // unordered lists can refer to variables, but only that
@@ -223,7 +223,7 @@ function walkAlgorithm(
             name,
             { location: { start: { line, column } } },
             'attribute declaration',
-            true
+            true,
           );
         }
       }
@@ -254,7 +254,7 @@ function walkAlgorithm(
       // everything in an AC needs to be captured explicitly
       const acScope = new Scope(report);
       const paramsIndex = expr.items.findIndex(
-        p => p.name === 'text' && p.contents.endsWith(' with parameters ')
+        p => p.name === 'text' && p.contents.endsWith(' with parameters '),
       );
       if (paramsIndex !== -1 && paramsIndex < expr.items.length - 1) {
         const paramList = expr.items[paramsIndex + 1];
@@ -293,7 +293,7 @@ function walkAlgorithm(
       }
 
       let capturesIndex = expr.items.findIndex(
-        p => p.name === 'text' && p.contents.endsWith(' that captures ')
+        p => p.name === 'text' && p.contents.endsWith(' that captures '),
       );
 
       if (capturesIndex !== -1) {

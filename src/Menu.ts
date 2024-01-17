@@ -63,7 +63,7 @@ export default function makeMenu(spec: Spec) {
 
   const json = JSON.stringify(
     { refsByClause: spec.refsByClause, entries: spec.biblio.localEntries() },
-    biblioReplacer
+    biblioReplacer,
   );
 
   return {

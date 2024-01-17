@@ -19,7 +19,7 @@ export function collectNodes(
   report: (e: Warning) => void,
   mainSource: string,
   spec: Spec,
-  document: Document
+  document: Document,
 ): CollectNodesReturnType {
   const headers: { element: Element; contents: string }[] = [];
   const mainGrammar: { element: Element; source: string }[] = [];

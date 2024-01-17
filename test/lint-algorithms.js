@@ -17,7 +17,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected freeform line to end with "."',
-        }
+        },
       );
     });
 
@@ -30,7 +30,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected freeform line to end with "."',
-        }
+        },
       );
     });
 
@@ -53,7 +53,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected "Repeat" to end with ","',
-        }
+        },
       );
     });
 
@@ -67,7 +67,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected "If" without substeps to end with "." or ":"',
-        }
+        },
       );
     });
 
@@ -81,7 +81,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'single-line "If" steps should not have a "then"',
-        }
+        },
       );
     });
 
@@ -96,7 +96,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected "If" with substeps to end with ", then"',
-        }
+        },
       );
 
       await assertLint(
@@ -110,7 +110,7 @@ describe('linting algorithms', () => {
           nodeType,
           message:
             'expected "If" with substeps to end with ", then" rather than "; then" when there are no other commas',
-        }
+        },
       );
     });
 
@@ -125,7 +125,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'prefer "Else if" over "Else, if"',
-        }
+        },
       );
     });
 
@@ -138,7 +138,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'the clause after "NOTE:" should begin with a capital letter',
-        }
+        },
       );
 
       await assertLint(
@@ -149,7 +149,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: '"NOTE:" should be fully capitalized',
-        }
+        },
       );
 
       await assertLint(
@@ -160,7 +160,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected freeform line to end with "."',
-        }
+        },
       );
     });
 
@@ -173,7 +173,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'the clause after "Assert:" should begin with a capital letter',
-        }
+        },
       );
 
       await assertLint(
@@ -184,7 +184,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: '"Assert:" should be capitalized',
-        }
+        },
       );
 
       await assertLint(
@@ -195,7 +195,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected freeform line to end with "."',
-        }
+        },
       );
     });
 
@@ -219,7 +219,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected "If" with substeps to end with ", then"',
-        }
+        },
       );
       await assertLintFree(`
         <emu-alg>
@@ -294,7 +294,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected step number to be "1." (found "2.")',
-        }
+        },
       );
       await assertLint(
         positioned`<emu-alg>
@@ -305,7 +305,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected step number to be "1." (found "2.")',
-        }
+        },
       );
       await assertLint(
         positioned`<emu-alg>
@@ -317,7 +317,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected step number to be "1." (found "2.")',
-        }
+        },
       );
     });
 
@@ -331,7 +331,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected step number to be "1." (found "2.")',
-        }
+        },
       );
 
       await assertLint(
@@ -343,7 +343,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected step number to be "1." (found "2.")',
-        }
+        },
       );
 
       await assertLint(
@@ -356,7 +356,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected step number to be "1." (found "2.")',
-        }
+        },
       );
     });
 
@@ -370,7 +370,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected step number to be "1." (found "10.")',
-        }
+        },
       );
     });
 
@@ -396,7 +396,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'step labels should start with "step-"',
-        }
+        },
       );
     });
 
@@ -422,7 +422,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'unknown step attribute "unknown"',
-        }
+        },
       );
     });
 
@@ -435,7 +435,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'step attribute "legacy" should not have a value',
-        }
+        },
       );
     });
   });
@@ -452,7 +452,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'enum values should be lowercase and kebab-cased',
-        }
+        },
       );
 
       await assertLint(
@@ -464,7 +464,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'enum values should be lowercase and kebab-cased',
-        }
+        },
       );
 
       await assertLint(
@@ -476,7 +476,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'enum values should be lowercase and kebab-cased',
-        }
+        },
       );
     });
 
@@ -508,7 +508,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: 'expected "for each" to have a type name or "element" before the loop variable',
-        }
+        },
       );
     });
 
@@ -539,7 +539,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: '"If" steps should be multiline whenever their corresponding "Else" is',
-        }
+        },
       );
     });
 
@@ -557,7 +557,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: '"If" steps should be multiline whenever their corresponding "Else" is',
-        }
+        },
       );
     });
 
@@ -574,7 +574,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: '"If" steps should be multiline whenever their corresponding "Else" is',
-        }
+        },
       );
     });
 
@@ -590,7 +590,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: '"Else" steps should be multiline whenever their corresponding "If" is',
-        }
+        },
       );
     });
 
@@ -607,7 +607,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: '"Else" steps should be multiline whenever their corresponding "If" is',
-        }
+        },
       );
     });
 
@@ -625,7 +625,7 @@ describe('linting algorithms', () => {
           ruleId,
           nodeType,
           message: '"Else" steps should be multiline whenever their corresponding "If" is',
-        }
+        },
       );
     });
 

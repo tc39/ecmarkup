@@ -11,7 +11,7 @@ export default function (report: Reporter, node: OrderedListItemNode, algorithmS
   if (idAttr != null && !/^step-/.test(idAttr.value)) {
     const itemSource = algorithmSource.slice(
       idAttr.location.start.offset,
-      idAttr.location.end.offset
+      idAttr.location.end.offset,
     );
     const offset = itemSource.match(/^id *= *"/)![0].length;
     report({

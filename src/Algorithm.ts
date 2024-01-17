@@ -83,7 +83,7 @@ export default class Algorithm extends Builder {
             }
             if (
               step.contents.some(
-                c => c.name === 'text' && /a new (\w+ )?Abstract Closure/i.test(c.contents)
+                c => c.name === 'text' && /a new (\w+ )?Abstract Closure/i.test(c.contents),
               )
             ) {
               continue;
@@ -93,7 +93,7 @@ export default class Algorithm extends Builder {
                 continue;
               }
               const completionyThing = part.contents.match(
-                /\b(ReturnIfAbrupt\b|(^|(?<=, ))[tT]hrow (a\b|the\b|$)|[rR]eturn (Normal|Throw|Return)?Completion\(|[rR]eturn( a| a new| the)? Completion Record\b|the result of evaluating\b)|(?<=[\s(])\?\s/
+                /\b(ReturnIfAbrupt\b|(^|(?<=, ))[tT]hrow (a\b|the\b|$)|[rR]eturn (Normal|Throw|Return)?Completion\(|[rR]eturn( a| a new| the)? Completion Record\b|the result of evaluating\b)|(?<=[\s(])\?\s/,
               );
               if (completionyThing != null) {
                 if (returnType?.kind === 'completion') {

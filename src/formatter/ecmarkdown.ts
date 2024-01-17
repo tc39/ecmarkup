@@ -17,7 +17,7 @@ import { printText } from './text';
 export async function printAlgorithm(
   source: string,
   alg: AlgorithmNode,
-  indent: number
+  indent: number,
 ): Promise<LineBuilder> {
   return await printListNode(source, alg.contents, indent);
 }
@@ -25,7 +25,7 @@ export async function printAlgorithm(
 async function printListNode(
   source: string,
   node: OrderedListNode | UnorderedListNode,
-  indent: number
+  indent: number,
 ): Promise<LineBuilder> {
   const output = new LineBuilder(indent);
   for (const item of node.contents) {
@@ -37,7 +37,7 @@ async function printListNode(
 async function printStep(
   source: string,
   item: OrderedListItemNode | UnorderedListItemNode,
-  indent: number
+  indent: number,
 ): Promise<LineBuilder> {
   const output = new LineBuilder(indent);
   output.firstLineIsPartial = false;
@@ -68,7 +68,7 @@ async function printStep(
 export async function printFragments(
   source: string,
   contents: FragmentNode[],
-  indent: number
+  indent: number,
 ): Promise<LineBuilder> {
   const output = new LineBuilder(indent);
   let skipNextElement = false;
@@ -133,7 +133,7 @@ export async function printFragments(
                 if (depth === 0) {
                   htmlBits = source.substring(
                     node.location.start.offset,
-                    otherNode.location.end.offset
+                    otherNode.location.end.offset,
                   );
                   i = j;
                   break;
@@ -154,7 +154,7 @@ export async function printFragments(
           const fragment = parseFragment(htmlBits, { sourceCodeLocationInfo: true });
           if (fragment.childNodes.length !== 1) {
             throw new Error(
-              'confusing parse - this should not be possible; please report it to ecmarkup'
+              'confusing parse - this should not be possible; please report it to ecmarkup',
             );
           }
           const element = fragment.childNodes[0];
@@ -197,7 +197,7 @@ export async function printFragments(
 async function printFormat(
   source: string,
   node: Exclude<FormatNode, PipeNode | UnderscoreNode>,
-  indent: number
+  indent: number,
 ): Promise<LineBuilder> {
   let tok: '*' | `\`` | '~' | '_' | '|';
   switch (node.name) {

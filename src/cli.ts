@@ -27,7 +27,7 @@ function usage() {
         hide: ['files', 'js-out', 'css-out'],
         optionList: options as unknown as commandLineUsage.OptionDefinition[],
       },
-    ])
+    ]),
   );
 }
 
@@ -248,7 +248,7 @@ const build = debounce(async function build() {
 
     if (args.strict && warned) {
       utils.logVerbose(
-        'Exiting with an error due to errors (omit --strict to write output anyway)'
+        'Exiting with an error due to errors (omit --strict to write output anyway)',
       );
       if (!args.verbose) {
         utils.logVerbose('Rerun with --verbose to see detailed error information');
