@@ -867,6 +867,9 @@ function typeFromExprType(type: BiblioType): Type {
       if (text === 'a positive integer' || text === 'positive integers') {
         return { kind: 'positive integer' };
       }
+      if (text === 'a time value' || text === 'time values') {
+        return { kind: 'union', of: [ { kind: 'integral number' }, { kind: 'concrete number', value: 0/0 } ] };
+      }
       if (text === '*null*') {
         return { kind: 'null' };
       }

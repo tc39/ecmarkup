@@ -1404,6 +1404,25 @@ describe('type system', () => {
     );
   });
 
+  it('time value', async () => {
+    await assertTypeError(
+      'a time value',
+      '~enum-value~',
+      'argument (~enum-value~) does not look plausibly assignable to parameter type (integral Number or *NaN*)'
+    );
+
+    await assertTypeError(
+      'a time value',
+      '5',
+      'argument (5) does not look plausibly assignable to parameter type (integral Number or *NaN*)\n' +
+        'hint: you passed a mathematical value, but this position takes an ES language Number'
+    );
+
+    await assertNoTypeError('a time value', '*2*<sub>𝔽</sub>');
+    await assertNoTypeError('a time value', '*-2*<sub>𝔽</sub>');
+    await assertNoTypeError('a time value', '*NaN*');
+  });
+
   it('ES language value', async () => {
     await assertTypeError(
       'an ECMAScript language value',
