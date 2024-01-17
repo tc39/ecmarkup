@@ -21,7 +21,7 @@ describe('linting whole program', () => {
           ruleId: 'grammarkdown:2008',
           nodeType: 'emu-grammar',
           message: "Parameter 'a' is unused.",
-        }
+        },
       );
     });
 
@@ -57,7 +57,7 @@ describe('linting whole program', () => {
           ruleId: 'grammarkdown:2007',
           nodeType: 'emu-grammar',
           message: "There is no argument given for parameter 'a'.",
-        }
+        },
       );
     });
 
@@ -70,7 +70,7 @@ describe('linting whole program', () => {
           ruleId: 'grammarkdown:2008',
           nodeType: 'emu-grammar',
           message: "Parameter 'a' is unused.",
-        }
+        },
       );
     });
 
@@ -85,7 +85,7 @@ describe('linting whole program', () => {
           ruleId: 'grammarkdown:2000',
           nodeType: 'emu-grammar',
           message: "Cannot find name: 'Bar'.",
-        }
+        },
       );
     });
 
@@ -104,7 +104,7 @@ describe('linting whole program', () => {
         `,
         {
           extraBiblios: [upstream],
-        }
+        },
       );
     });
   });
@@ -127,7 +127,7 @@ describe('linting whole program', () => {
           ruleId: 'early-error-shape',
           nodeType: 'ul',
           message: 'unrecognized structure for early errors: <ul> without preceding <emu-grammar>',
-        }
+        },
       );
     });
 
@@ -149,7 +149,7 @@ describe('linting whole program', () => {
           ruleId: 'early-error-shape',
           nodeType: 'emu-clause',
           message: 'unrecognized structure for early errors: no <ul> of errors',
-        }
+        },
       );
     });
 
@@ -170,7 +170,7 @@ describe('linting whole program', () => {
           nodeType: 'emu-grammar',
           message:
             'unrecognized structure for early errors: multiple consecutive <emu-grammar>s without intervening <ul> of errors',
-        }
+        },
       );
     });
 
@@ -188,7 +188,7 @@ describe('linting whole program', () => {
           ruleId: 'early-error-shape',
           nodeType: 'emu-clause',
           message: 'unrecognized structure for early errors: no <emu-grammar>',
-        }
+        },
       );
     });
   });
@@ -208,7 +208,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-grammar',
           message: 'Could not find a definition for LHS in syntax-directed operation',
-        }
+        },
       );
     });
 
@@ -224,7 +224,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-grammar',
           message: 'Could not find a definition for LHS in syntax-directed operation',
-        }
+        },
       );
     });
 
@@ -247,7 +247,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-grammar',
           message: 'Could not find a production matching RHS in syntax-directed operation',
-        }
+        },
       );
     });
 
@@ -269,7 +269,7 @@ describe('linting whole program', () => {
         `,
         {
           extraBiblios: [upstream],
-        }
+        },
       );
     });
   });
@@ -287,7 +287,7 @@ describe('linting whole program', () => {
           nodeType: 'h1',
           message:
             "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"something: \"",
-        }
+        },
       );
     });
 
@@ -302,7 +302,7 @@ describe('linting whole program', () => {
           ruleId: 'header-format',
           nodeType: 'h1',
           message: 'expected header to have a single space before the argument list',
-        }
+        },
       );
     });
 
@@ -318,7 +318,7 @@ describe('linting whole program', () => {
           nodeType: 'h1',
           message:
             "expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'",
-        }
+        },
       );
       await assertLint(
         positioned`
@@ -331,7 +331,7 @@ describe('linting whole program', () => {
           nodeType: 'h1',
           message:
             "expected parameter list to look like '( _a_ [ , _b_ ] )', '( _foo_, _bar_, ..._baz_ )', '( _foo_, … , _bar_ )', or '( . . . )'",
-        }
+        },
       );
     });
 
@@ -426,7 +426,7 @@ describe('linting whole program', () => {
           ruleId: 'missing-closing-tag',
           nodeType: 'emu-grammar',
           message: 'element <emu-grammar> is missing its closing tag',
-        }
+        },
       );
     });
 
@@ -441,7 +441,7 @@ describe('linting whole program', () => {
           ruleId: 'missing-closing-tag',
           nodeType: 'emu-alg',
           message: 'element <emu-alg> is missing its closing tag',
-        }
+        },
       );
     });
   });
@@ -458,7 +458,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-grammar',
           message: 'could not find a definition for nonterminal Example',
-        }
+        },
       );
     });
 
@@ -476,7 +476,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-grammar',
           message: 'could not find a definition for nonterminal Undefined',
-        }
+        },
       );
     });
 
@@ -492,7 +492,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-alg',
           message: 'could not find a definition for nonterminal Example',
-        }
+        },
       );
     });
 
@@ -515,7 +515,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-alg',
           message: 'could not find a definition for nonterminal Statements',
-        }
+        },
       );
     });
 
@@ -528,7 +528,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'text',
           message: 'could not find a definition for nonterminal Example',
-        }
+        },
       );
     });
 
@@ -541,7 +541,7 @@ describe('linting whole program', () => {
           ruleId: 'undefined-nonterminal',
           nodeType: 'emu-nt',
           message: 'could not find a definition for nonterminal Example',
-        }
+        },
       );
     });
 
@@ -580,7 +580,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'dfn',
           message: '"Foo" is defined more than once in this definition',
-        }
+        },
       );
 
       await assertLint(
@@ -594,7 +594,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'dfn',
           message: '"Foo" is defined more than once in this definition',
-        }
+        },
       );
     });
 
@@ -611,7 +611,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'dfn',
           message: 'duplicate definition "Foo"',
-        }
+        },
       );
 
       await assertLint(
@@ -626,7 +626,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'dfn',
           message: 'duplicate definition "Foo"',
-        }
+        },
       );
 
       await assertLint(
@@ -641,7 +641,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'dfn',
           message: 'duplicate definition "Foo"',
-        }
+        },
       );
 
       await assertLint(
@@ -656,7 +656,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'dfn',
           message: 'duplicate definition "Foo"',
-        }
+        },
       );
     });
 
@@ -675,7 +675,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'emu-clause',
           message: 'duplicate definition "Foo"',
-        }
+        },
       );
 
       await assertLint(
@@ -698,7 +698,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'emu-clause',
           message: 'duplicate definition "Foo"',
-        }
+        },
       );
     });
 
@@ -715,7 +715,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'emu-eqn',
           message: 'duplicate definition "Foo"',
-        }
+        },
       );
     });
 
@@ -742,7 +742,7 @@ describe('linting whole program', () => {
           ruleId: 'duplicate-definition',
           nodeType: 'emu-clause',
           message: 'duplicate definition "Foo"',
-        }
+        },
       );
     });
 

@@ -327,7 +327,7 @@ export function printSimpleParamList(params: Param[], optionalParams: Param[]) {
 export function formatHeader(
   spec: Spec,
   header: Element,
-  parseResult: ParsedHeaderOrFailure
+  parseResult: ParsedHeaderOrFailure,
 ): {
   name: string | null;
   formattedHeader: string | null;
@@ -337,7 +337,7 @@ export function formatHeader(
   for (const { message, offset } of parseResult.errors) {
     const { line: nodeRelativeLine, column: nodeRelativeColumn } = offsetToLineAndColumn(
       header.innerHTML,
-      offset
+      offset,
     );
     spec.warn({
       type: 'contents',
@@ -400,7 +400,7 @@ export function formatHeader(
 export function parseStructuredHeaderDl(
   spec: Spec,
   type: string | null,
-  dl: Element
+  dl: Element,
 ): {
   description: Element | null;
   for: Element | null;
@@ -477,7 +477,7 @@ export function parseStructuredHeaderDl(
           effects = validateEffects(
             spec,
             dd.textContent.split(',').map(c => c.trim()),
-            dd
+            dd,
           );
         }
         break;
@@ -501,7 +501,7 @@ export function parseStructuredHeaderDl(
             type: 'contents',
             ruleId: 'header-format',
             message: `unknown value for "redefinition" attribute (expected "true" or "false", got ${JSON.stringify(
-              contents
+              contents,
             )})`,
             node: dd,
             nodeRelativeLine: 1,
@@ -529,7 +529,7 @@ export function parseStructuredHeaderDl(
             type: 'contents',
             ruleId: 'header-format',
             message: `unknown value for "skip global checks" attribute (expected "true" or "false", got ${JSON.stringify(
-              contents
+              contents,
             )})`,
             node: dd,
             nodeRelativeLine: 1,
@@ -576,7 +576,7 @@ export function formatPreamble(
   formattedParams: string,
   formattedReturnType: string | null,
   _for: Element | null,
-  description: Element | null
+  description: Element | null,
 ): Array<Element> {
   const para = spec.doc.createElement('p');
   const paras = [para];
@@ -643,7 +643,7 @@ export function formatPreamble(
   para.innerHTML += '.';
   if (description != null) {
     const isJustElements = [...description.childNodes].every(
-      n => n.nodeType === 1 || (n.nodeType === 3 && n.textContent?.trim() === '')
+      n => n.nodeType === 1 || (n.nodeType === 3 && n.textContent?.trim() === ''),
     );
     if (isJustElements) {
       paras.push(...(description.childNodes as Iterable<HTMLParagraphElement>));

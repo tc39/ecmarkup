@@ -12,7 +12,7 @@ import { collectNonterminalsFromEmd } from './lint/utils';
 export function warnEmdFailure(
   report: Spec['warn'],
   node: Element | Text,
-  e: SyntaxError & { line?: number; column?: number }
+  e: SyntaxError & { line?: number; column?: number },
 ) {
   if (typeof e.line === 'number' && typeof e.column === 'number') {
     report({
@@ -122,7 +122,7 @@ export function traverseWhile<P extends string, T extends Record<P, T | null>>(
   node: T | null,
   relationship: P,
   predicate: (node: T) => boolean,
-  options?: { once?: boolean }
+  options?: { once?: boolean },
 ): T | null {
   const once = options?.once ?? false;
   while (node != null && predicate(node)) {
@@ -149,7 +149,7 @@ const CLAUSE_LIKE = ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY']
 export function shouldInline(node: Node) {
   const surrogateParentTags = ['EMU-GRAMMAR', 'EMU-IMPORT', 'INS', 'DEL'];
   const parent = traverseWhile(node.parentNode, 'parentNode', node =>
-    surrogateParentTags.includes(node?.nodeName ?? '')
+    surrogateParentTags.includes(node?.nodeName ?? ''),
   );
   if (!parent) return false;
 
@@ -296,7 +296,7 @@ export function doesEffectPropagateToParent(node: Element, effect: string) {
 export function* zip<A, B>(
   as: Iterable<A>,
   bs: Iterable<B>,
-  allowMismatchedLengths = false
+  allowMismatchedLengths = false,
 ): Iterable<[A, B]> {
   const iterA = as[Symbol.iterator]();
   const iterB = bs[Symbol.iterator]();

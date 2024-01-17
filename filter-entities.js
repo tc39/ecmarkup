@@ -20,6 +20,6 @@ let transformed = Object.fromEntries(
       return [k, null];
     }
     return [k, v.characters];
-  })
+  }),
 );
 fs.writeFileSync('./entities-processed.json', JSON.stringify(transformed), 'utf8');

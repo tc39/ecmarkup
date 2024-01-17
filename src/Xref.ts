@@ -26,7 +26,7 @@ export default class Xref extends Builder {
     clause: Clause | null,
     namespace: string,
     href: string,
-    aoid: string
+    aoid: string,
   ) {
     super(spec, node);
     this.namespace = namespace;
@@ -169,7 +169,7 @@ export default class Xref extends Builder {
           attr: 'href',
           ruleId: 'invalid-xref',
           message: `xref to anything other than a fragment id is not supported (is ${JSON.stringify(
-            href
+            href,
           )}). try href="#sec-id" instead`,
           node: this.node,
         });
@@ -315,7 +315,7 @@ function buildFigureLink(
   parentClause: Clause | null,
   xref: Element,
   entry: Biblio.FigureBiblioEntry,
-  type: string
+  type: string,
 ) {
   if (xref.textContent!.trim() === '') {
     if (entry.clauseId) {
@@ -323,7 +323,7 @@ function buildFigureLink(
       const clauseEntry = spec.biblio.byId(entry.clauseId);
       if (clauseEntry?.type !== 'clause') {
         throw new Error(
-          `${type} with id ${entry.id} has a \`clauseId\` which does not correspond to a clause - this should be impossible; please file an issue on ecmarkup`
+          `${type} with id ${entry.id} has a \`clauseId\` which does not correspond to a clause - this should be impossible; please file an issue on ecmarkup`,
         );
       }
 
@@ -333,12 +333,12 @@ function buildFigureLink(
         if (xref.hasAttribute('title')) {
           xref.innerHTML = buildXrefLink(
             entry,
-            clauseEntry.title + ' ' + type + ' ' + entry.number
+            clauseEntry.title + ' ' + type + ' ' + entry.number,
           );
         } else {
           xref.innerHTML = buildXrefLink(
             entry,
-            clauseEntry.number + ' ' + type + ' ' + entry.number
+            clauseEntry.number + ' ' + type + ' ' + entry.number,
           );
         }
       }
@@ -352,7 +352,7 @@ function buildFigureLink(
 
 const decimalBullet = Array.from({ length: 100 }).map((a, i) => '' + (i + 1));
 const alphaBullet = Array.from({ length: 26 }).map((a, i) =>
-  String.fromCharCode('a'.charCodeAt(0) + i)
+  String.fromCharCode('a'.charCodeAt(0) + i),
 );
 // prettier-ignore
 const romanBullet = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii', 'xiii', 'xiv', 'xv', 'xvi', 'xvii', 'xviii', 'xix', 'xx', 'xxi', 'xxii', 'xxiii', 'xxiv', 'xxv'];
@@ -391,7 +391,7 @@ function buildStepLink(spec: Spec, xref: Element, entry: Biblio.StepBiblioEntry)
 function buildXrefLink(
   entry: Biblio.BiblioEntry,
   contents: string | number | undefined | null,
-  classNames: string | null = null
+  classNames: string | null = null,
 ) {
   const classSnippet = classNames == null ? '' : ' class="' + classNames + '"';
   return `<a href="${entry.location}#${entry.id || entry.refId}"${classSnippet}>${contents}</a>`;

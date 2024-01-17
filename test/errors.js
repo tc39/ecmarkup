@@ -23,7 +23,7 @@ describe('errors', () => {
       },
       {
         copyright: true,
-      }
+      },
     );
   });
 
@@ -42,7 +42,7 @@ ${M}      </pre>
       },
       {
         asImport: false,
-      }
+      },
     );
   });
 
@@ -57,7 +57,7 @@ ${M}      </pre>
         ruleId: 'invalid-replacement',
         nodeType: 'emu-alg',
         message: 'could not find step "missing"',
-      }
+      },
     );
   });
 
@@ -76,7 +76,7 @@ ${M}      </pre>
         ruleId: 'invalid-replacement',
         nodeType: 'emu-alg',
         message: 'expected algorithm to replace a step, not a clause',
-      }
+      },
     );
   });
 
@@ -92,7 +92,7 @@ ${M}      </pre>
         nodeType: 'html',
         message:
           'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
-      }
+      },
     );
   });
 
@@ -116,7 +116,7 @@ ${M}      </pre>
         nodeType: 'html',
         message:
           'could not unambiguously determine replacement algorithm offsets - do you have a cycle in your replacement algorithms?',
-      }
+      },
     );
   });
 
@@ -136,7 +136,7 @@ ${M}      </pre>
         nodeType: 'emu-alg',
         message:
           'labeling a step in a replacement algorithm which has multiple top-level steps is unsupported because the resulting step number would be ambiguous',
-      }
+      },
     );
   });
 
@@ -152,7 +152,7 @@ ${M}      </pre>
         ruleId: 'invalid-note',
         nodeType: 'emu-note',
         message: 'unknown note type "unknown"',
-      }
+      },
     );
   });
 
@@ -173,7 +173,7 @@ ${M}      </pre>
         ruleId: 'duplicate-id',
         nodeType: 'emu-table',
         message: '<emu-table> has duplicate id "example"',
-      }
+      },
     );
   });
 
@@ -188,7 +188,7 @@ ${M}      </pre>
         ruleId: 'missing-id',
         nodeType: 'emu-clause',
         message: "clause doesn't have an id",
-      }
+      },
     );
   });
 
@@ -201,7 +201,7 @@ ${M}      </pre>
         ruleId: 'invalid-xref',
         nodeType: 'emu-xref',
         message: 'xref has neither href nor aoid',
-      }
+      },
     );
   });
 
@@ -215,7 +215,7 @@ ${M}      </pre>
         ruleId: 'invalid-xref',
         nodeType: 'emu-xref',
         message: "xref can't have both href and aoid",
-      }
+      },
     );
   });
 
@@ -229,7 +229,7 @@ ${M}      </pre>
         nodeType: 'emu-xref',
         message:
           'xref to anything other than a fragment id is not supported (is "http://example.com"). try href="#sec-id" instead',
-      }
+      },
     );
   });
 
@@ -242,7 +242,7 @@ ${M}      </pre>
         ruleId: 'xref-not-found',
         nodeType: 'emu-xref',
         message: 'can\'t find clause, production, note or example with id "foo"',
-      }
+      },
     );
   });
 
@@ -255,7 +255,7 @@ ${M}      </pre>
         ruleId: 'xref-not-found',
         nodeType: 'emu-xref',
         message: 'can\'t find abstract op with aoid "Foo"',
-      }
+      },
     );
   });
 
@@ -271,7 +271,7 @@ ${M}      </pre>
         ruleId: 'step-xref-contents',
         nodeType: 'emu-xref',
         message: 'the contents of emu-xrefs to steps are ignored',
-      }
+      },
     );
   });
 
@@ -289,7 +289,7 @@ ${M}      </pre>
         ruleId: 'step-xref-contents',
         nodeType: 'emu-xref',
         message: 'the contents of emu-xrefs to steps are ignored',
-      }
+      },
     );
   });
 
@@ -335,7 +335,7 @@ ${M}      </pre>
         nodeType: 'emu-xref',
         message:
           'ecmarkup does not know how to deal with step numbers as high as 29; if you need this, open an issue on ecmarkup',
-      }
+      },
     );
   });
 
@@ -352,7 +352,7 @@ ${M}      </pre>
         ruleId: 'invalid-emd',
         nodeType: 'text',
         message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
-      }
+      },
     );
   });
 
@@ -375,7 +375,7 @@ ${M}      </pre>
         ruleId: 'invalid-emd',
         nodeType: 'text',
         message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
-      }
+      },
     );
   });
 
@@ -392,7 +392,7 @@ ${M}      </pre>
         ruleId: 'invalid-emd',
         nodeType: 'text',
         message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
-      }
+      },
     );
   });
 
@@ -407,7 +407,7 @@ ${M}      </pre>
         ruleId: 'invalid-emd',
         nodeType: 'emu-eqn',
         message: 'ecmarkdown failed to parse: Unexpected token parabreak; expected EOF',
-      }
+      },
     );
   });
 
@@ -420,7 +420,7 @@ ${M}      </pre>
         ruleId: 'invalid-emd',
         nodeType: 'emu-alg',
         message: 'ecmarkdown failed to parse: Unexpected token text; expected ol',
-      }
+      },
     );
   });
 
@@ -434,7 +434,7 @@ ${M}      </pre>
         nodeType: 'emu-alg',
         message: 'ecmarkdown failed to parse: Unexpected token text; expected ol',
       },
-      { lintSpec: true }
+      { lintSpec: true },
     );
   });
 
@@ -502,7 +502,7 @@ ${M}      </pre>
         nodeType: 'emu-clause',
         message: 'could not locate header element',
       },
-      { lintSpec: true }
+      { lintSpec: true },
     );
 
     await assertError(
@@ -516,7 +516,7 @@ ${M}      </pre>
         nodeType: 'p',
         message: 'could not locate header element; found <p> before any <h1>',
       },
-      { lintSpec: true }
+      { lintSpec: true },
     );
   });
 
@@ -534,7 +534,7 @@ ${M}      </pre>
         nodeType: 'h1',
         message: 'numeric methods should be of the form `Type::operation`',
       },
-      { lintSpec: true }
+      { lintSpec: true },
     );
   });
 
@@ -556,7 +556,7 @@ ${M}      </pre>
           nodeType: 'h1',
           message: 'expected `(`',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -580,7 +580,7 @@ ${M}      </pre>
           nodeType: 'h1',
           message: 'expected `:`',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -603,7 +603,7 @@ ${M}      </pre>
           nodeType: 'h1',
           message: 'required parameters should not follow optional parameters',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -622,7 +622,7 @@ ${M}      </pre>
           nodeType: 'p',
           message: 'expecting header to have DT, but found P',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -644,7 +644,7 @@ ${M}      </pre>
           nodeType: 'dt',
           message: 'duplicate "description" attribute',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
 
       await assertError(
@@ -664,7 +664,7 @@ ${M}      </pre>
           nodeType: 'dt',
           message: 'duplicate "for" attribute',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
 
       await assertError(
@@ -684,7 +684,7 @@ ${M}      </pre>
           nodeType: 'dt',
           message: 'duplicate "redefinition" attribute',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -704,7 +704,7 @@ ${M}      </pre>
           nodeType: 'dt',
           message: '"for" attributes only apply to concrete or internal methods',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -722,7 +722,7 @@ ${M}      </pre>
           nodeType: 'dl',
           message: 'expected concrete method to have a "for"',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -743,7 +743,7 @@ ${M}      </pre>
           message:
             'unknown value for "redefinition" attribute (expected "true" or "false", got "not true")',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -763,7 +763,7 @@ ${M}      </pre>
           nodeType: 'dt',
           message: 'missing value for structured header attribute',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -783,7 +783,7 @@ ${M}      </pre>
           nodeType: 'dt',
           message: 'unknown structured header entry type "unknown"',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -801,7 +801,7 @@ ${M}      </pre>
           nodeType: 'emu-clause',
           message: 'clauses with structured headers should have a type',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -819,7 +819,7 @@ ${M}      </pre>
           nodeType: 'emu-clause',
           message: 'unknown clause type "unknown"',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
 
@@ -837,7 +837,7 @@ ${M}      </pre>
           nodeType: 'emu-clause',
           message: 'nodes with structured headers should not include an AOID',
         },
-        { lintSpec: true }
+        { lintSpec: true },
       );
     });
   });
@@ -856,7 +856,7 @@ ${M}      </pre>
         nodeType: 'h1',
         message: 'if a return type is given, it must not be empty',
       },
-      { lintSpec: true }
+      { lintSpec: true },
     );
   });
 
@@ -874,7 +874,7 @@ ${M}      </pre>
         ruleId: 'clause-after-annex',
         nodeType: 'emu-clause',
         message: 'clauses cannot follow annexes',
-      }
+      },
     );
   });
 
@@ -892,7 +892,7 @@ ${M}      </pre>
         ruleId: 'annex-depth',
         nodeType: 'emu-annex',
         message: 'first annex must be at depth 0',
-      }
+      },
     );
   });
 
@@ -907,7 +907,7 @@ ${M}      </pre>
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
         message: 'clause numbers must be positive integers or dotted lists of positive integers',
-      }
+      },
     );
 
     await assertError(
@@ -920,7 +920,7 @@ ${M}      </pre>
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
         message: 'clause numbers must be positive integers or dotted lists of positive integers',
-      }
+      },
     );
 
     await assertError(
@@ -933,7 +933,7 @@ ${M}      </pre>
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
         message: 'clause numbers must be positive integers or dotted lists of positive integers',
-      }
+      },
     );
 
     await assertError(
@@ -950,7 +950,7 @@ ${M}      </pre>
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
         message: 'clause numbers should be strictly increasing',
-      }
+      },
     );
 
     await assertError(
@@ -967,7 +967,7 @@ ${M}      </pre>
         ruleId: 'invalid-clause-number',
         nodeType: 'emu-clause',
         message: 'clause numbers should be strictly increasing',
-      }
+      },
     );
 
     await assertError(
@@ -985,7 +985,7 @@ ${M}      </pre>
         nodeType: 'emu-clause',
         message:
           'multi-step explicit clause numbers should not be mixed with single-step clause numbers in the same parent clause',
-      }
+      },
     );
 
     await assertError(
@@ -999,7 +999,7 @@ ${M}      </pre>
         nodeType: 'emu-annex',
         message:
           'top-level annexes do not support explicit numbers; if you need this, open a bug on ecmarkup',
-      }
+      },
     );
   });
 
@@ -1013,7 +1013,7 @@ ${M}      </pre>
         nodeType: 'emu-biblio',
         message: 'emu-biblio elements must have an href attribute',
       },
-      { asImport: false }
+      { asImport: false },
     );
   });
 
@@ -1027,7 +1027,7 @@ ${M}      </pre>
         nodeType: 'emu-biblio',
         message: 'emu-biblio elements cannot be used within emu-imports',
       },
-      { asImport: 'only' }
+      { asImport: 'only' },
     );
 
     await assertError(
@@ -1042,7 +1042,7 @@ ${M}      </pre>
         nodeType: 'emu-biblio',
         message: 'emu-biblio elements cannot be used within emu-imports',
       },
-      { asImport: 'only' }
+      { asImport: 'only' },
     );
   });
 
@@ -1076,7 +1076,7 @@ ${M}      </pre>
           ruleId: 'grammar-shape',
           nodeType: 'emu-grammar',
           message: 'could not find definition corresponding to production Foo',
-        }
+        },
       );
     });
 
@@ -1102,7 +1102,7 @@ ${M}      </pre>
           ruleId: 'grammar-shape',
           nodeType: 'emu-grammar',
           message: 'could not find definition for rhs "a"',
-        }
+        },
       );
     });
 
@@ -1164,7 +1164,7 @@ ${M}      </pre>
         `,
         {
           extraBiblios: [upstream],
-        }
+        },
       );
     });
   });

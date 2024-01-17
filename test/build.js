@@ -21,7 +21,7 @@ describe('ecmarkup#build', () => {
       file =>
         new Promise(res => {
           process.nextTick(() => res(fetch(file)));
-        })
+        }),
     );
     let result = spec.toHTML();
     assert.equal(typeof result, 'string');

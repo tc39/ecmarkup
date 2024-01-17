@@ -22,7 +22,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'use-before-def',
           nodeType: 'emu-alg',
           message: 'could not find a preceding declaration for "y"',
-        }
+        },
       );
     });
 
@@ -39,7 +39,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'use-before-def',
           nodeType: 'emu-alg',
           message: 'could not find a preceding declaration for "k"',
-        }
+        },
       );
     });
 
@@ -57,7 +57,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'use-before-def',
           nodeType: 'emu-alg',
           message: 'could not find a preceding declaration for "undeclared"',
-        }
+        },
       );
     });
 
@@ -77,7 +77,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'use-before-def',
           nodeType: 'emu-alg',
           message: 'could not find a preceding declaration for "v"',
-        }
+        },
       );
     });
 
@@ -95,7 +95,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'unused-capture',
           nodeType: 'emu-alg',
           message: 'closure captures "outer", but never uses it',
-        }
+        },
       );
     });
 
@@ -111,7 +111,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'use-before-def',
           nodeType: 'emu-alg',
           message: 'could not find a preceding declaration for "y"',
-        }
+        },
       );
     });
 
@@ -127,7 +127,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'use-before-def',
           nodeType: 'emu-alg',
           message: 'could not find a preceding declaration for "x"',
-        }
+        },
       );
     });
 
@@ -144,7 +144,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'use-before-def',
           nodeType: 'emu-alg',
           message: 'could not find a preceding declaration for "b"',
-        }
+        },
       );
 
       await assertLint(
@@ -159,7 +159,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'use-before-def',
           nodeType: 'emu-alg',
           message: 'could not find a preceding declaration for "c"',
-        }
+        },
       );
     });
 
@@ -175,7 +175,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'unnecessary-declared-var',
           nodeType: 'emu-alg',
           message: '"y" is already declared and does not need an explict annotation',
-        }
+        },
       );
     });
   });
@@ -194,7 +194,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'unused-declaration',
           nodeType: 'emu-alg',
           message: '"y" is declared here, but never referred to',
-        }
+        },
       );
     });
   });
@@ -207,7 +207,7 @@ describe('variables are declared and used appropriately', () => {
             1. Let _x_ be 0.
             1. Return _x_.
           </emu-alg>
-        `
+        `,
       );
     });
 
@@ -219,7 +219,7 @@ describe('variables are declared and used appropriately', () => {
             1. Else, let _result_ be 1.
             1. Return _result_.
           </emu-alg>
-        `
+        `,
       );
 
       await assertLintFree(
@@ -231,7 +231,7 @@ describe('variables are declared and used appropriately', () => {
               1. Let _result_ be 1.
             1. Return _result_.
           </emu-alg>
-        `
+        `,
       );
     });
 
@@ -246,7 +246,7 @@ describe('variables are declared and used appropriately', () => {
               1. Do something with _argCount_.
             </emu-alg>
           </emu-clause>
-        `
+        `,
       );
     });
 
@@ -261,7 +261,7 @@ describe('variables are declared and used appropriately', () => {
               1. Return *false*.
             </emu-alg>
           </emu-clause>
-        `
+        `,
       );
     });
 
@@ -288,7 +288,7 @@ describe('variables are declared and used appropriately', () => {
               </tr>
             </table>
           </emu-clause>
-        `
+        `,
       );
     });
 
@@ -306,7 +306,7 @@ describe('variables are declared and used appropriately', () => {
               1. Return *false*.
             </emu-alg>
           </emu-clause>
-        `
+        `,
       );
     });
 
@@ -327,7 +327,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'bad-ac',
           nodeType: 'emu-alg',
           message: 'expected to find a parenthesized list of parameter names here',
-        }
+        },
       );
 
       await assertLint(
@@ -346,7 +346,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'bad-ac',
           nodeType: 'emu-alg',
           message: 'expected to find a parameter name here',
-        }
+        },
       );
 
       await assertLint(
@@ -365,7 +365,7 @@ describe('variables are declared and used appropriately', () => {
           ruleId: 'bad-ac',
           nodeType: 'emu-alg',
           message: 'expected to find ", " here',
-        }
+        },
       );
     });
 
@@ -381,7 +381,7 @@ describe('variables are declared and used appropriately', () => {
             1. Return _closure_.
           </emu-alg>
         </emu-clause>
-        `
+        `,
       );
     });
 
@@ -397,7 +397,7 @@ describe('variables are declared and used appropriately', () => {
             1. Return _closure_.
           </emu-alg>
         </emu-clause>
-        `
+        `,
       );
     });
 
@@ -408,7 +408,7 @@ describe('variables are declared and used appropriately', () => {
             1. Let _x_, _y_, and _z_ be some values.
             1. Return _x_ + _y_ + _z_.
           </emu-alg>
-        `
+        `,
       );
     });
 
@@ -419,7 +419,7 @@ describe('variables are declared and used appropriately', () => {
             1. If there is an integer _x_ such that _x_ < 10, return *true*.
             1. Return *false*.
           </emu-alg>
-        `
+        `,
       );
 
       await assertLintFree(
@@ -428,7 +428,7 @@ describe('variables are declared and used appropriately', () => {
             1. If there are integers _x_ and _y_ such that _x_ < _y_, return *true*.
             1. Return *false*.
           </emu-alg>
-        `
+        `,
       );
     });
 
@@ -439,7 +439,7 @@ describe('variables are declared and used appropriately', () => {
             1. If there exists an integer _x_ between 0 and 10, return _x_.
             1. Return -1.
           </emu-alg>
-        `
+        `,
       );
     });
 
@@ -450,7 +450,7 @@ describe('variables are declared and used appropriately', () => {
             1. If some property of _i_ holds for some integer _i_ in the interval from 0 to 10, return _i_.
             1. Return -1.
           </emu-alg>
-        `
+        `,
       );
     });
 
@@ -464,7 +464,7 @@ describe('variables are declared and used appropriately', () => {
               1. [declared="x,y"] Do something with _x_ and _y_.
             </emu-alg>
           </emu-clause>
-        `
+        `,
       );
     });
 
@@ -482,7 +482,7 @@ describe('variables are declared and used appropriately', () => {
               1. Something with _c_.
           </emu-alg>
         `,
-        { extraBiblios: [biblio] }
+        { extraBiblios: [biblio] },
       );
 
       await assertLintFree(
@@ -492,7 +492,7 @@ describe('variables are declared and used appropriately', () => {
               1. Something with _c_.
           </emu-alg>
         `,
-        { extraBiblios: [biblio] }
+        { extraBiblios: [biblio] },
       );
     });
   });
@@ -513,7 +513,7 @@ describe('variables cannot be redeclared', () => {
         ruleId: 're-declaration',
         nodeType: 'emu-alg',
         message: '"x" is already declared',
-      }
+      },
     );
   });
 
@@ -532,7 +532,7 @@ describe('variables cannot be redeclared', () => {
         ruleId: 're-declaration',
         nodeType: 'emu-alg',
         message: '"x" is already declared',
-      }
+      },
     );
   });
 
@@ -546,7 +546,7 @@ describe('variables cannot be redeclared', () => {
           1. Let _result_ be 1.
         1. Return _result_.
       </emu-alg>
-      `
+      `,
     );
   });
 
@@ -558,7 +558,7 @@ describe('variables cannot be redeclared', () => {
         1. Else, let _result_ be 1.
         1. Return _result_.
       </emu-alg>
-      `
+      `,
     );
   });
 
@@ -570,7 +570,7 @@ describe('variables cannot be redeclared', () => {
         1. Let _var_ be 0.
         1. Return _var_.
       </emu-alg>
-      `
+      `,
     );
   });
 
@@ -585,7 +585,7 @@ describe('variables cannot be redeclared', () => {
           1. Return _var_.
         </emu-alg>
       </emu-clause>
-      `
+      `,
     );
   });
 });

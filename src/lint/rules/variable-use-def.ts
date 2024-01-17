@@ -66,7 +66,7 @@ class Scope {
     name: string,
     nameNode: HasLocation | null,
     kind: VarKind = 'variable',
-    mayBeShadowed: boolean = false
+    mayBeShadowed: boolean = false,
   ): void {
     if (this.declared(name)) {
       for (const scope of this.strictScopes) {
@@ -112,7 +112,7 @@ export function checkVariableUsage(
   containingAlgorithm: Element,
   steps: OrderedListNode,
   parsed: Map<OrderedListItemNode, Seq>,
-  report: Reporter
+  report: Reporter,
 ) {
   if (containingAlgorithm.hasAttribute('replaces-step')) {
     // TODO someday lint these by doing the rewrite (conceptually)
@@ -153,7 +153,6 @@ export function checkVariableUsage(
 
   for (const [name, { kind, used, node }] of scope.vars) {
     if (!used && node != null && kind !== 'parameter' && kind !== 'abstract closure parameter') {
-      // prettier-ignore
       const message = `${JSON.stringify(name)} is declared here, but never referred to`;
       report({
         ruleId: 'unused-declaration',
@@ -170,7 +169,7 @@ function walkAlgorithm(
   steps: OrderedListNode | UnorderedListNode,
   parsed: Map<OrderedListItemNode, Seq>,
   scope: Scope,
-  report: Reporter
+  report: Reporter,
 ) {
   if (steps.name === 'ul') {
     // unordered lists can refer to variables, but only that
@@ -210,7 +209,6 @@ function walkAlgorithm(
           2 + // '="'
           findDeclaredAttrOffset(extraDeclarations.value, name);
         if (scope.declared(name)) {
-          // prettier-ignore
           const message = `${JSON.stringify(name)} is already declared and does not need an explict annotation`;
           report({
             ruleId: 'unnecessary-declared-var',
@@ -223,7 +221,7 @@ function walkAlgorithm(
             name,
             { location: { start: { line, column } } },
             'attribute declaration',
-            true
+            true,
           );
         }
       }
@@ -254,7 +252,7 @@ function walkAlgorithm(
       // everything in an AC needs to be captured explicitly
       const acScope = new Scope(report);
       const paramsIndex = expr.items.findIndex(
-        p => p.name === 'text' && p.contents.endsWith(' with parameters ')
+        p => p.name === 'text' && p.contents.endsWith(' with parameters '),
       );
       if (paramsIndex !== -1 && paramsIndex < expr.items.length - 1) {
         const paramList = expr.items[paramsIndex + 1];
@@ -293,7 +291,7 @@ function walkAlgorithm(
       }
 
       let capturesIndex = expr.items.findIndex(
-        p => p.name === 'text' && p.contents.endsWith(' that captures ')
+        p => p.name === 'text' && p.contents.endsWith(' that captures '),
       );
 
       if (capturesIndex !== -1) {

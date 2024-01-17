@@ -24,7 +24,7 @@ describe('type parsing', () => {
           ruleId: 'type-parsing',
           nodeType: 'h1',
           message: 'expected to find a type, got empty string',
-        }
+        },
       );
     });
 
@@ -46,7 +46,7 @@ describe('type parsing', () => {
           ruleId: 'type-parsing',
           nodeType: 'h1',
           message: 'duplicate field name "[[A]]"',
-        }
+        },
       );
     });
 
@@ -69,7 +69,7 @@ describe('type parsing', () => {
           nodeType: 'h1',
           message:
             'type is ambiguous; can\'t tell where the "or" attaches (add "either" to disambiguate)',
-        }
+        },
       );
 
       await assertError(
@@ -89,7 +89,7 @@ describe('type parsing', () => {
           ruleId: 'type-parsing',
           nodeType: 'h1',
           message: 'could not determine how to associate "or"; try adding "either"',
-        }
+        },
       );
     });
 
@@ -114,7 +114,7 @@ describe('type parsing', () => {
           ruleId: 'type-parsing',
           nodeType: 'h1',
           message: 'expected to find a type, got empty string',
-        }
+        },
       );
     });
   });
@@ -256,7 +256,7 @@ describe('type parsing', () => {
               type: '~empty~',
             },
           ],
-        }
+        },
       );
     });
 
@@ -270,7 +270,7 @@ describe('type parsing', () => {
             kind: 'opaque',
             type: 'a Boolean',
           },
-        }
+        },
       );
     });
   });

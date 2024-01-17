@@ -34,7 +34,7 @@ export function getProductions(sourceFiles: readonly SourceFile[]) {
         productions.set(e.name.text!, { production: e, rhses: [] });
       }
       productions.get(e.name.text!)!.rhses.push(...productionBodies(e.body));
-    })
+    }),
   );
   return productions;
 }
@@ -213,7 +213,7 @@ export function collectNonterminalsFromGrammar(grammar: GrammarFile) {
 }
 
 export function collectNonterminalsFromEmd(
-  emdNode: EcmarkdownNode | EcmarkdownNode[]
+  emdNode: EcmarkdownNode | EcmarkdownNode[],
 ): { name: string; loc: { line: number; column: number } }[] {
   if (Array.isArray(emdNode)) {
     return emdNode.flatMap(collectNonterminalsFromEmd);

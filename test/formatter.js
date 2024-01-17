@@ -40,7 +40,7 @@ describe('document formatting', () => {
         some text
         <p>more <em>text</em></p>
       </div>
-      `
+      `,
     );
   });
 
@@ -51,7 +51,7 @@ describe('document formatting', () => {
       `,
       dedentKeepingTrailingNewline`
       <b>this is some text</b> and some more text
-      `
+      `,
     );
   });
 
@@ -78,7 +78,7 @@ describe('document formatting', () => {
             but still account for indentation level
         -->
       </div>
-      `
+      `,
     );
   });
 
@@ -131,7 +131,7 @@ describe('document formatting', () => {
 
         but again at the end
       </emu-clause>
-      `
+      `,
     );
   });
 
@@ -142,7 +142,7 @@ describe('document formatting', () => {
       `,
       dedentKeepingTrailingNewline`
       <a href="SOMETHING" attr="other" empty>tags get normalized</a>
-      `
+      `,
     );
   });
 
@@ -159,7 +159,7 @@ describe('document formatting', () => {
       <emu-clause>
         <h1>stuff</h1>
       </emu-clause>
-  `
+  `,
     );
   });
 
@@ -181,7 +181,7 @@ describe('document formatting', () => {
           <h1>stuff</h1>
         </emu-clause>
       </body>
-  `
+  `,
     );
   });
 
@@ -201,7 +201,7 @@ describe('document formatting', () => {
       or like this:<br>
       and certainly<br>
       not like this
-      `
+      `,
     );
   });
 
@@ -258,7 +258,7 @@ describe('document formatting', () => {
           <tr><td>cell</td></tr>
         </tbody>
       </table>
-      `
+      `,
     );
   });
 
@@ -273,7 +273,7 @@ describe('document formatting', () => {
 <pre>
     content
 </pre>
-`
+`,
     );
   });
 
@@ -295,7 +295,7 @@ describe('document formatting', () => {
         sometimes they put explicit linebreaks:<br>
         inside of the paragraph
       </p>
-      `
+      `,
     );
   });
 
@@ -306,7 +306,7 @@ describe('document formatting', () => {
       `,
       dedentKeepingTrailingNewline`
       <p>Here is a nonterminal written two ways: |Foo?| and |Foo?|.</p>
-      `
+      `,
     );
   });
 
@@ -322,7 +322,7 @@ describe('document formatting', () => {
 <!-- emu-format ignore -->
 <P> this   does   not </P>
 <p>this also gets formatted</p>
-`
+`,
     );
   });
 });
@@ -352,7 +352,7 @@ describe('grammar formatting', () => {
           B
           C #prod2
       </emu-grammar>
-      `
+      `,
     );
   });
 
@@ -377,7 +377,7 @@ describe('grammar formatting', () => {
           Z
           W
       </emu-grammar>
-        `
+        `,
     );
   });
 
@@ -400,7 +400,7 @@ describe('grammar formatting', () => {
             D
             E
         </emu-grammar>
-          `
+          `,
     );
   });
 
@@ -411,7 +411,7 @@ describe('grammar formatting', () => {
       `,
       dedentKeepingTrailingNewline`
       <p>Some fact about the production <emu-grammar>X : Y</emu-grammar>.</p>
-      `
+      `,
     );
   });
 
@@ -433,7 +433,7 @@ describe('grammar formatting', () => {
 
   A3 : B3
 </emu-grammar>
-`
+`,
     );
   });
 
@@ -460,7 +460,7 @@ describe('grammar formatting', () => {
           B [lookahead &notin; { \`x\` }]
           B [lookahead &notin; { \`x\` }]
       </emu-grammar>
-      `
+      `,
     );
   });
 });
@@ -485,7 +485,7 @@ describe('algorithm formatting', () => {
           1. [x="a", y="b", c, d] A step with attributes.
           1. A step with _vars_, numbers like **10<sup>x</sup>**, records like { [[A]]: 0 }, and fields like _o_.[[field]].
       </emu-alg>
-      `
+      `,
     );
   });
 
@@ -504,7 +504,7 @@ describe('algorithm formatting', () => {
             <tr><td>like this!</td></tr>
           </table>
       </emu-alg>
-      `
+      `,
     );
   });
 
@@ -515,7 +515,7 @@ describe('algorithm formatting', () => {
     <!-- emu-format ignore -->
     <table><tbody><tr><td>like this!</tr></tbody></table>
 </emu-alg>
-`
+`,
     );
   });
 
@@ -526,7 +526,7 @@ describe('algorithm formatting', () => {
       `,
       dedentKeepingTrailingNewline`
       <p>__proto__, \`\\u{50}\`, \`**\`</p>
-      `
+      `,
     );
   });
 });
@@ -539,7 +539,7 @@ describe('equation formatting', () => {
       `,
       dedentKeepingTrailingNewline`
       <emu-eqn>abs(x) = x if x > 0 else -x</emu-eqn>
-      `
+      `,
     );
   });
 
@@ -576,7 +576,7 @@ describe('equation formatting', () => {
           = *365*<sub>𝔽</sub> if (ℝ(_y_) modulo 100) = 0 and (ℝ(_y_) modulo 400) ≠ 0
           = *366*<sub>𝔽</sub> if (ℝ(_y_) modulo 400) = 0
       </emu-eqn>
-      `
+      `,
     );
   });
 });
@@ -599,7 +599,7 @@ describe('structured header formatting', () => {
         <dl class="header">
         </dl>
       </emu-clause>
-      `
+      `,
     );
   });
 
@@ -628,7 +628,7 @@ describe('structured header formatting', () => {
         <dl class="header">
         </dl>
       </emu-clause>
-      `
+      `,
     );
   });
 
@@ -649,7 +649,7 @@ describe('structured header formatting', () => {
         <dl class="header">
         </dl>
       </emu-clause>
-      `
+      `,
     );
   });
 });
@@ -678,7 +678,7 @@ describe('entities', () => {
       <emu-alg>
         1. This also works in algorithms, as in « 0, 1 ».
       </emu-alg>
-      `
+      `,
     );
   });
 });

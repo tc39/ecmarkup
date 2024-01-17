@@ -12,7 +12,7 @@ describe('tags', () => {
         ruleId: 'valid-tags',
         nodeType: 'emu-not-a-thing',
         message: 'unknown "emu-" tag "emu-not-a-thing"',
-      }
+      },
     );
   });
 
@@ -27,7 +27,7 @@ describe('tags', () => {
         ruleId: 'valid-tags',
         nodeType: 'emu-clause',
         message: '"oldid" isn\'t a thing; did you mean "oldids"?',
-      }
+      },
     );
   });
 
@@ -44,7 +44,7 @@ describe('tags', () => {
         ruleId: 'missing-closing-tag',
         nodeType: 'p',
         message: 'element <p> is missing its closing tag',
-      }
+      },
     );
   });
 

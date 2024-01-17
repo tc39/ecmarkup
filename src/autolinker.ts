@@ -39,7 +39,7 @@ export function autolink(
   autolinkmap: AutoLinkMap,
   clause: Clause | Spec,
   currentId: string | null,
-  allowSameId: boolean
+  allowSameId: boolean,
 ) {
   const spec = clause.spec;
   const template = spec.doc.createElement('template');
@@ -115,8 +115,8 @@ export function autolink(
           clause as Clause,
           clause.namespace,
           node.getAttribute('href')!,
-          node.getAttribute('aoid')!
-        )
+          node.getAttribute('aoid')!,
+        ),
     );
     spec._xrefs = spec._xrefs.concat(newXrefs);
   }
@@ -124,13 +124,13 @@ export function autolink(
 
 export function replacerForNamespace(
   namespace: string,
-  biblio: Biblio
+  biblio: Biblio,
 ): { replacer: RegExp; autolinkmap: AutoLinkMap } {
   const autolinkmap: AutoLinkMap = biblio.getDefinedWords(namespace);
 
   const replacer = new RegExp(
     regexpPatternForAutolinkKeys(autolinkmap, Object.keys(autolinkmap), 0),
-    'g'
+    'g',
   );
 
   return { replacer, autolinkmap };
@@ -197,7 +197,7 @@ function longestCommonPrefix(items: string[], beginIndex: number = 0) {
 function regexpPatternForAutolinkKeys(
   autolinkmap: AutoLinkMap,
   subsetKeys: string[],
-  initialCommonLength: number
+  initialCommonLength: number,
 ) {
   const resultAlternatives: string[] = [];
   const wordStartAlternatives: string[] = [];
@@ -232,7 +232,7 @@ function regexpPatternForAutolinkKeys(
         groupItems.map(k => {
           const item = widenSpace(regexpEscape(k.slice(suffixPos)));
           return item + lookAheadBeyond(k, autolinkmap[k]);
-        })
+        }),
       );
     }
     if (initialCommonLength === 0 && /^\w/.test(prefix)) {

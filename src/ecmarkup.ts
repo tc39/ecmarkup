@@ -52,7 +52,7 @@ export async function build(
   path: string,
   fetch: (path: string, token: CancellationToken) => PromiseLike<string>,
   opts?: Options,
-  token = CancellationToken.none
+  token = CancellationToken.none,
 ): Promise<Spec> {
   const html = await fetch(path, token);
   const dom = utils.htmlToDom(html);

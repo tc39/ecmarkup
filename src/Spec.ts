@@ -290,7 +290,7 @@ export type WorklistItem = { aoid: string | null; effects: string[] };
 export function maybeAddClauseToEffectWorklist(
   effectName: string,
   clause: Clause,
-  worklist: WorklistItem[]
+  worklist: WorklistItem[],
 ) {
   if (
     !worklist.some(i => i.aoid === clause.aoid) &&
@@ -351,7 +351,7 @@ export default class Spec {
     dom: JSDOM,
     opts: Options = {},
     sourceText: string,
-    token = CancellationToken.none
+    token = CancellationToken.none,
   ) {
     this.spec = this;
     this.opts = {};
@@ -647,7 +647,7 @@ export default class Spec {
   }
 
   public locate(
-    node: Element | Node
+    node: Element | Node,
   ): ({ file?: string; source: string } & ElementLocation) | undefined {
     let pointer: Element | Node | null = node;
     while (pointer != null) {
@@ -914,7 +914,7 @@ export default class Spec {
 
     const containedMap = JSON.stringify(Object.fromEntries(sectionToContainedIds)).replace(
       /[\\`$]/g,
-      '\\$&'
+      '\\$&',
     );
     if (this.assets.type !== 'none') {
       const multipageJsContents = `'use strict';
@@ -1021,7 +1021,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
     // check for very old manual 'ecmarkup.js'/'ecmarkup.css'
     const oldEles = this.doc.querySelectorAll(
-      "script[src='ecmarkup.js'],link[href='ecmarkup.css']"
+      "script[src='ecmarkup.js'],link[href='ecmarkup.css']",
     );
     for (const item of oldEles) {
       this.warn({
@@ -1041,10 +1041,10 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         FONT_FILES.values(),
         await Promise.all(
           Array.from(FONT_FILES.values()).map(fontFile =>
-            utils.readBinaryFile(path.join(__dirname, '..', 'fonts', fontFile))
-          )
-        )
-      )
+            utils.readBinaryFile(path.join(__dirname, '..', 'fonts', fontFile)),
+          ),
+        ),
+      ),
     );
 
     cssContents = cssContents.replace(
@@ -1057,11 +1057,10 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         const fontType = path.extname(fontFile).slice(1);
         const urlRef =
           this.assets.type === 'inline'
-            ? // prettier-ignore
-              `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
+            ? `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
             : `./${fontFile}`;
         return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
-      }
+      },
     );
 
     if (this.assets.type === 'external') {
@@ -1079,7 +1078,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       for (const [, fontFile] of FONT_FILES) {
         this.generatedFiles.set(
           path.join(this.assets.directory, fontFile),
-          FONT_FILE_CONTENTS.get(fontFile)!
+          FONT_FILE_CONTENTS.get(fontFile)!,
         );
       }
 
@@ -1105,7 +1104,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       this.doc.head,
       `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
         (hljs as any).versionString
-      }/styles/base16/solarized-light.min.css`
+      }/styles/base16/solarized-light.min.css`,
     );
   }
 
@@ -1205,7 +1204,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       }
     }
     const biblioContents = await Promise.all(
-      biblioPaths.map(p => this.fetch(path.join(this.rootDir, p)))
+      biblioPaths.map(p => this.fetch(path.join(this.rootDir, p))),
     );
     const biblios = biblioContents.flatMap(c => JSON.parse(c) as ExportedBiblio | ExportedBiblio[]);
     for (const biblio of biblios.concat(this.opts.extraBiblios ?? [])) {
@@ -1423,7 +1422,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     this.log('Building SDO map...');
 
     const mainGrammar: Set<Element> = new Set(
-      this.doc.querySelectorAll('emu-grammar[type=definition]:not([example])')
+      this.doc.querySelectorAll('emu-grammar[type=definition]:not([example])'),
     );
 
     // we can't just do `:not(emu-annex emu-grammar)` because that selector is too complicated for this version of jsdom
@@ -1449,7 +1448,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     }
 
     const sdos = this.doc.querySelectorAll(
-      'emu-clause[type=sdo],emu-clause[type="syntax-directed operation"]'
+      'emu-clause[type=sdo],emu-clause[type="syntax-directed operation"]',
     );
     outer: for (const sdo of sdos) {
       let header: Element | undefined;
@@ -1912,7 +1911,7 @@ async function walk(walker: TreeWalker, context: Context) {
 const jsDependencies = ['sdoMap.js', 'menu.js', 'listNumbers.js', 'superscripts.js'];
 async function concatJs(...extras: string[]) {
   let dependencies = await Promise.all(
-    jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency)))
+    jsDependencies.map(dependency => utils.readFile(path.join(__dirname, '../js/' + dependency))),
   );
   dependencies = dependencies.concat(extras);
   return dependencies.join('\n');
@@ -1959,7 +1958,7 @@ function getHref(link: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement):
 }
 
 function isScriptNode(
-  node: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement
+  node: HTMLAnchorElement | HTMLLinkElement | HTMLScriptElement,
 ): node is HTMLScriptElement {
   return node.nodeName.toLowerCase() === 'script';
 }

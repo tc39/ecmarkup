@@ -7,7 +7,7 @@ const ruleId = 'header-format';
 
 export function collectHeaderDiagnostics(
   report: (e: Warning) => void,
-  headers: { element: Element; contents: string }[]
+  headers: { element: Element; contents: string }[],
 ) {
   for (const { element, contents } of headers) {
     if (extractStructuredHeader(element) !== null) {
@@ -62,7 +62,7 @@ export function collectHeaderDiagnostics(
         type: 'contents',
         ruleId,
         message: `expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found ${JSON.stringify(
-          name
+          name,
         )}`,
         node: element,
         nodeRelativeLine: line,

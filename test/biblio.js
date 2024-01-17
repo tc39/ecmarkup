@@ -97,7 +97,7 @@ describe('Biblio', () => {
           console.error('Error:', e);
           throw new Error(e.message);
         },
-      }
+      },
     );
     let spec1Biblio = spec1.exportBiblio();
 
@@ -119,12 +119,12 @@ describe('Biblio', () => {
           console.error('Error:', e);
           throw new Error(e.message);
         },
-      }
+      },
     );
     let renderedSpec2 = new JSDOM(spec2.toHTML()).window;
     assert.equal(
       renderedSpec2.document.querySelector('p').innerHTML,
-      'Terms like <emu-xref href="#c"><a href="https://example.com/spec/#c">example</a></emu-xref> or <emu-xref href="#c"><a href="https://example.com/spec/#c">examples</a></emu-xref> are crosslinked.'
+      'Terms like <emu-xref href="#c"><a href="https://example.com/spec/#c">example</a></emu-xref> or <emu-xref href="#c"><a href="https://example.com/spec/#c">examples</a></emu-xref> are crosslinked.',
     );
   });
 
@@ -149,7 +149,7 @@ describe('Biblio', () => {
           console.error('Error:', e);
           throw new Error(e.message);
         },
-      }
+      },
     );
     let spec1Biblio = spec1.exportBiblio();
 
@@ -182,16 +182,16 @@ describe('Biblio', () => {
           console.error('Error:', e);
           throw new Error(e.message);
         },
-      }
+      },
     );
     let renderedSpec2 = new JSDOM(spec2.toHTML()).window;
     assert.equal(
       renderedSpec2.document.querySelector('emu-alg').innerHTML,
-      '<ol><li><emu-xref aoid="UserCode"><a href="https://example.com/spec/#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol>'
+      '<ol><li><emu-xref aoid="UserCode"><a href="https://example.com/spec/#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol>',
     );
     assert.equal(
       renderedSpec2.document.querySelector('#calls-foo').innerHTML,
-      '<ol><li><emu-xref aoid="Foo" id="_ref_0"><a href="#foo" class="e-user-code">Foo</a></emu-xref>().</li></ol>'
+      '<ol><li><emu-xref aoid="Foo" id="_ref_0"><a href="#foo" class="e-user-code">Foo</a></emu-xref>().</li></ol>',
     );
   });
 });

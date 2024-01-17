@@ -23,7 +23,7 @@ function ensureUnderscores(param: Param) {
 export function printHeader(
   parseResult: ParsedHeaderOrFailure & { type: 'single-line' | 'multi-line' },
   clauseType: string | null,
-  indent: number
+  indent: number,
 ): LineBuilder {
   /* eslint-disable prefer-const */
   let {

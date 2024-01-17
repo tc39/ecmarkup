@@ -11,7 +11,7 @@ export default function (
   report: Reporter,
   step: OrderedListItemNode,
   algorithmSource: string,
-  parsedSteps: Map<OrderedListItemNode, Seq>
+  parsedSteps: Map<OrderedListItemNode, Seq>,
 ) {
   const stepSeq = parsedSteps.get(step);
   if (stepSeq == null || stepSeq.items.length < 2) {

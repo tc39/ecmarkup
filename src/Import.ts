@@ -16,7 +16,7 @@ export default class Import extends Builder {
     node: HTMLElement,
     importLocation: string,
     relativeRoot: string,
-    source: string
+    source: string,
   ) {
     super(spec, node);
     this.importLocation = importLocation;

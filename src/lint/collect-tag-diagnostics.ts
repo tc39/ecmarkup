@@ -51,7 +51,7 @@ const voidElements = new Set([
 export function collectTagDiagnostics(
   report: (e: Warning) => void,
   spec: Spec,
-  document: Document
+  document: Document,
 ) {
   const lintWalker = document.createTreeWalker(document.body, 1 /* elements */);
   function visit() {

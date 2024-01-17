@@ -25,7 +25,7 @@ export async function lint(
   report: (err: Warning) => void,
   sourceText: string,
   spec: Spec,
-  document: Document
+  document: Document,
 ) {
   collectSpellingDiagnostics(report, sourceText, spec.imports);
 
@@ -43,7 +43,7 @@ export async function lint(
     sourceText,
     mainGrammar,
     sdos,
-    earlyErrors
+    earlyErrors,
   );
 
   collectAlgorithmDiagnostics(report, spec, sourceText, algorithms);
@@ -61,7 +61,7 @@ export async function lint(
     }
     if (name !== +grammar.sourceFiles[name].filename) {
       throw new Error(
-        `grammarkdown file mismatch: ${name} vs ${grammar.sourceFiles[name].filename}. This is a bug in ecmarkup; please report it.`
+        `grammarkdown file mismatch: ${name} vs ${grammar.sourceFiles[name].filename}. This is a bug in ecmarkup; please report it.`,
       );
     }
     (node as AugmentedGrammarEle).grammarkdownOut = source;
@@ -74,7 +74,7 @@ export async function lint(
       }
       if (grammar.rootFiles.length !== 1) {
         throw new Error(
-          `grammarkdown file count mismatch: ${grammar.rootFiles.length}. This is a bug in ecmarkup; please report it.`
+          `grammarkdown file count mismatch: ${grammar.rootFiles.length}. This is a bug in ecmarkup; please report it.`,
         );
       }
       (grammarEle as AugmentedGrammarEle).grammarkdownOut = source;

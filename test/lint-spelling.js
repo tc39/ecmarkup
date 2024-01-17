@@ -12,7 +12,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "*this* value"',
-      }
+      },
     );
   });
 
@@ -25,7 +25,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "one\'s complement"',
-      }
+      },
     );
   });
 
@@ -38,7 +38,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "two\'s complement"',
-      }
+      },
     );
   });
 
@@ -54,7 +54,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'the Number value 0 should be written "*+0*", to unambiguously exclude "*-0*"',
-      }
+      },
     );
   });
 
@@ -67,7 +67,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'literal Number values should be bolded',
-      }
+      },
     );
 
     await assertLint(
@@ -78,7 +78,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'literal Number values should be bolded',
-      }
+      },
     );
 
     await assertLint(
@@ -89,7 +89,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'literal Number values should be bolded',
-      }
+      },
     );
 
     await assertLint(
@@ -100,7 +100,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'literal BigInt values should be bolded',
-      }
+      },
     );
   });
 
@@ -114,7 +114,7 @@ describe('spelling', () => {
         nodeType: 'html',
         message:
           'literal Number or BigInt values should be followed by <sub>𝔽</sub> or <sub>ℤ</sub> respectively',
-      }
+      },
     );
 
     await assertLint(
@@ -126,7 +126,7 @@ describe('spelling', () => {
         nodeType: 'html',
         message:
           'literal Number or BigInt values should be followed by <sub>𝔽</sub> or <sub>ℤ</sub> respectively',
-      }
+      },
     );
 
     await assertLint(
@@ -138,7 +138,7 @@ describe('spelling', () => {
         nodeType: 'html',
         message:
           'literal Number or BigInt values should be followed by <sub>𝔽</sub> or <sub>ℤ</sub> respectively',
-      }
+      },
     );
   });
 
@@ -151,7 +151,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'positive numeric values other than 0 should not have a leading plus sign (+)',
-      }
+      },
     );
 
     await assertLint(
@@ -162,7 +162,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'positive numeric values other than 0 should not have a leading plus sign (+)',
-      }
+      },
     );
 
     await assertLint(
@@ -173,7 +173,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'positive real numbers should not have a leading plus sign (+)',
-      }
+      },
     );
 
     await assertLint(
@@ -184,7 +184,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'the sign character for a numeric literal should be within the `*`s',
-      }
+      },
     );
 
     await assertLint(
@@ -195,7 +195,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'the sign character for a numeric literal should be within the `*`s',
-      }
+      },
     );
   });
 
@@ -208,7 +208,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: '&infin; should always be written with a leading + or -',
-      }
+      },
     );
   });
 
@@ -221,7 +221,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'the mathematical value "of", not "for"',
-      }
+      },
     );
 
     await assertLint(
@@ -232,7 +232,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'the Number value "for", not "of"',
-      }
+      },
     );
 
     await assertLint(
@@ -243,7 +243,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: '"Number value", not "number value"',
-      }
+      },
     );
   });
 
@@ -256,7 +256,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'ECMA-262 uses Oxford spelling ("behaviour", etc.)',
-      }
+      },
     );
   });
 
@@ -269,7 +269,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "indices"',
-      }
+      },
     );
   });
 
@@ -282,7 +282,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "non-negative"',
-      }
+      },
     );
   });
 
@@ -295,7 +295,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "non-empty"',
-      }
+      },
     );
   });
 
@@ -308,7 +308,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "non-zero"',
-      }
+      },
     );
   });
 
@@ -321,7 +321,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer "the empty String"',
-      }
+      },
     );
   });
 
@@ -333,7 +333,7 @@ describe('spelling', () => {
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'trailing spaces are not allowed',
-      }
+      },
     );
   });
 
@@ -349,7 +349,7 @@ ${M}
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'no more than one blank line is allowed',
-      }
+      },
     );
 
     await assertLint(
@@ -364,7 +364,7 @@ ${M}
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'no more than one blank line is allowed',
-      }
+      },
     );
   });
 
@@ -380,7 +380,7 @@ ${M}
         ruleId: 'spelling',
         nodeType: 'html',
         message: "there should not be a blank line between a clause's opening tag and its header",
-      }
+      },
     );
   });
 
@@ -397,7 +397,7 @@ ${M}
         nodeType: 'html',
         message:
           'there should not be a blank line between the last line of a clause and its closing tag',
-      }
+      },
     );
   });
 
@@ -410,7 +410,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'only Unix-style (LF) linebreaks are allowed',
-      }
+      },
     );
   });
 
@@ -423,7 +423,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'prefer using labeled steps and <emu-xref> tags over hardcoding step numbers',
-      }
+      },
     );
   });
 
@@ -437,7 +437,7 @@ windows:${M}\r
         nodeType: 'html',
         message:
           'clauses should be referenced using <emu-xref> tags rather than hardcoding clause numbers',
-      }
+      },
     );
   });
 
@@ -450,7 +450,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'multiple consecutive spaces are not allowed',
-      }
+      },
     );
   });
 
@@ -463,7 +463,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'tags should not contain leading whitespace',
-      }
+      },
     );
   });
 
@@ -476,7 +476,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'tags should not contain trailing whitespace',
-      }
+      },
     );
   });
 
@@ -489,7 +489,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: '"less than" comparisons against floating-point zero should use negative zero',
-      }
+      },
     );
 
     await assertLint(
@@ -500,7 +500,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: '"greater than" comparisons against floating-point zero should use positive zero',
-      }
+      },
     );
 
     await assertLint(
@@ -512,7 +512,7 @@ windows:${M}\r
         nodeType: 'html',
         message:
           'comparisons against floating-point zero should use strict comparisons (< or >); guard the equals case with "is"',
-      }
+      },
     );
 
     await assertLint(
@@ -524,7 +524,7 @@ windows:${M}\r
         nodeType: 'html',
         message:
           'comparisons against floating-point zero should use strict comparisons (< or >); guard the equals case with "is"',
-      }
+      },
     );
   });
 
@@ -537,7 +537,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'division should be written as "/", not "÷", per ISO 80000-2',
-      }
+      },
     );
 
     await assertLint(
@@ -548,7 +548,7 @@ windows:${M}\r
         ruleId: 'spelling',
         nodeType: 'html',
         message: 'division should be written as "/", not "÷", per ISO 80000-2',
-      }
+      },
     );
   });
 
