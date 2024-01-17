@@ -398,8 +398,8 @@ type Type =
   | { kind: 'null' }
   | { kind: 'undefined' }
   | { kind: 'concrete string'; value: string }
-  | { kind: 'concrete number'; value: string }
-  | { kind: 'concrete bigint'; value: string }
+  | { kind: 'concrete number'; value: number }
+  | { kind: 'concrete bigint'; value: bigint }
   | { kind: 'concrete boolean'; value: boolean }
   | { kind: 'enum value'; value: string };
 
@@ -480,11 +480,11 @@ function dominates(a: Type, b: Type): boolean {
   if (dominateGraph[a.kind]?.includes(b.kind) ?? false) {
     return true;
   }
-  if (
-    (a.kind === 'integer' && b.kind === 'concrete real') ||
-    (a.kind === 'integral number' && b.kind === 'concrete number')
-  ) {
+  if (a.kind === 'integer' && b.kind === 'concrete real') {
     return !b.value.includes('.');
+  }
+  if (a.kind === 'integral number' && b.kind === 'concrete number') {
+    return b.value === Math.round(b.value);
   }
   if (a.kind === 'non-negative integer' && b.kind === 'concrete real') {
     return !b.value.includes('.') && b.value[0] !== '-';
@@ -628,7 +628,8 @@ function serialize(type: Type): string {
       return `~${type.value}~`;
     }
     case 'concrete number': {
-      return `*${type.value}*<sub>𝔽</sub>`;
+      const repr = type.value > 4503599627370495.5 ? BigInt(type.value) : type.value;
+      return `*${repr}*<sub>𝔽</sub>`;
     }
     case 'concrete bigint': {
       return `*${type.value}*<sub>ℤ</sub>`;
@@ -670,9 +671,9 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
     ) {
       switch (items[1].contents) {
         case '𝔽':
-          return { kind: 'concrete number', value: items[0].contents[0].contents };
+          return { kind: 'concrete number', value: parseFloat(items[0].contents[0].contents) };
         case 'ℤ':
-          return { kind: 'concrete bigint', value: items[0].contents[0].contents };
+          return { kind: 'concrete bigint', value: BigInt(items[0].contents[0].contents) };
       }
     }
 
