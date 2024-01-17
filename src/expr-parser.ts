@@ -54,7 +54,7 @@ export type Seq = {
   name: 'seq';
   items: NonSeq[];
 };
-type NonSeq = ProsePart | List | Record | RecordSpec | Call | SDOCall | Paren | Figure;
+export type NonSeq = ProsePart | List | Record | RecordSpec | Call | SDOCall | Paren | Figure;
 export type Expr = NonSeq | Seq;
 type Failure = { name: 'failure'; message: string; offset: number };
 

@@ -776,7 +776,7 @@ table.lightweight-table th {
     background-color: rgba(249, 241, 172, 1);
   }
   100% {
-    background-color: rgba(249, 241, 172, 0)
+    background-color: rgba(249, 241, 172, 0);
   }
 }
 #spec-container :target:not(emu-annex, emu-clause, emu-intro, emu-note, body) {

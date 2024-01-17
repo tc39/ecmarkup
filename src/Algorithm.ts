@@ -34,16 +34,22 @@ export default class Algorithm extends Builder {
     context.inAlg = true;
     const { spec, node, clauseStack } = context;
 
-    const innerHTML = node.innerHTML; // TODO use original slice, forward this from linter
-
     let emdTree: AlgorithmNode | null = null;
+    let innerHTML;
     if ('ecmarkdownTree' in node) {
       emdTree = (node as AlgorithmElementWithTree).ecmarkdownTree;
+      innerHTML = (node as AlgorithmElementWithTree).originalHtml;
     } else {
+      const location = spec.locate(node);
+      const source =
+        location?.source == null || location.endTag == null
+          ? node.innerHTML
+          : location.source.slice(location.startTag.endOffset, location.endTag.startOffset);
+      innerHTML = source;
       try {
-        emdTree = emd.parseAlgorithm(innerHTML);
+        emdTree = emd.parseAlgorithm(source);
         (node as AlgorithmElementWithTree).ecmarkdownTree = emdTree;
-        (node as AlgorithmElementWithTree).originalHtml = innerHTML;
+        (node as AlgorithmElementWithTree).originalHtml = source;
       } catch (e) {
         warnEmdFailure(spec.warn, node, e as SyntaxError);
       }

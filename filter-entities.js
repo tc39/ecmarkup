@@ -9,11 +9,17 @@
 let fs = require('fs');
 let entities = require('./entities.json');
 
-let transformed = Object.fromEntries(Object.entries(entities).map(([k, v]) => {
-  // whitespace, default-ignorable, combining characters, control characters
-  if (v.characters === '&' || v.characters === '<' || /\p{White_Space}|\p{DI}|\p{gc=M}|\p{gc=C}/u.test(v.characters)) {
-    return [k, null];
-  }
-  return [k, v.characters];
-}));
+let transformed = Object.fromEntries(
+  Object.entries(entities).map(([k, v]) => {
+    // whitespace, default-ignorable, combining characters, control characters
+    if (
+      v.characters === '&' ||
+      v.characters === '<' ||
+      /\p{White_Space}|\p{DI}|\p{gc=M}|\p{gc=C}/u.test(v.characters)
+    ) {
+      return [k, null];
+    }
+    return [k, v.characters];
+  })
+);
 fs.writeFileSync('./entities-processed.json', JSON.stringify(transformed), 'utf8');

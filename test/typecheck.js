@@ -389,7 +389,7 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
-            1. Do something with Completion(0).
+            1. Do something with Completion(NormalCompletion(0)).
             1. NOTE: This will not throw a *TypeError* exception.
             1. Consider whether something is a return completion.
           </emu-alg>
@@ -1170,6 +1170,469 @@ describe('negation', async () => {
       `,
       {
         extraBiblios: [biblio],
+      }
+    );
+  });
+});
+
+describe('type system', () => {
+  async function assertTypeError(paramType, arg, message, extraBiblios = []) {
+    await assertLint(
+      positioned`
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            Example (
+              arg: ${paramType}
+            ): ~unused~
+          </h1>
+          <dl class="header"></dl>
+        </emu-clause>
+        <emu-alg>
+          1. Perform Example(${M}${arg}).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message,
+      },
+      {
+        extraBiblios,
+      }
+    );
+  }
+
+  async function assertNoTypeError(paramType, arg, extraBiblios = []) {
+    await assertLintFree(
+      `
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            Example (
+              arg: ${paramType}
+            ): ~unused~
+          </h1>
+          <dl class="header"></dl>
+        </emu-clause>
+        <emu-alg>
+          1. Perform Example(${arg}).
+        </emu-alg>
+      `,
+      { extraBiblios }
+    );
+  }
+
+  let completionBiblio;
+  before(async () => {
+    completionBiblio = await getBiblio(`
+      <emu-clause id="normal-completion" type="abstract operation">
+        <h1>
+          NormalCompletion ( _x_ ): a normal completion
+        </h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      <emu-clause id="sec-completion-ao" type="abstract operation">
+        <h1>
+          Completion (
+            _completionRecord_: a Completion Record,
+          ): a Completion Record
+        </h1>
+        <dl class="header"></dl>
+        <emu-alg>
+          1. Assert: _completionRecord_ is a Completion Record.
+          1. Return _completionRecord_.
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="throwy" type="abstract operation">
+        <h1>
+          Throwy (): either a normal completion containing a Boolean or an abrupt completion
+        </h1>
+        <dl class="header"></dl>
+      </emu-clause>
+
+      `);
+  });
+
+  it('enum', async () => {
+    await assertTypeError(
+      '~sync~ or ~async~',
+      '~iterate-strings~',
+      'argument (~iterate-strings~) does not look plausibly assignable to parameter type (~sync~ or ~async~)'
+    );
+
+    await assertNoTypeError('~sync~ or ~async~', '~sync~');
+    await assertNoTypeError('~sync~ or ~async~', '~async~');
+  });
+
+  it('boolean', async () => {
+    await assertTypeError(
+      'a Number',
+      '*false*',
+      'argument (false) does not look plausibly assignable to parameter type (Number)'
+    );
+
+    await assertTypeError(
+      'a Boolean',
+      '*1*<sub>𝔽</sub>',
+      'argument (*1*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (Boolean)'
+    );
+
+    await assertNoTypeError('a Boolean', '*false*');
+  });
+
+  it('null/undefined', async () => {
+    await assertTypeError(
+      '*null*',
+      '*undefined*',
+      'argument (undefined) does not look plausibly assignable to parameter type (null)'
+    );
+    await assertTypeError(
+      'a Boolean or *null*',
+      '*undefined*',
+      'argument (undefined) does not look plausibly assignable to parameter type (Boolean or null)'
+    );
+    await assertTypeError(
+      '*undefined*',
+      '*null*',
+      'argument (null) does not look plausibly assignable to parameter type (undefined)'
+    );
+    await assertTypeError(
+      'a Boolean or *undefined*',
+      '*null*',
+      'argument (null) does not look plausibly assignable to parameter type (Boolean or undefined)'
+    );
+
+    await assertNoTypeError('an ECMAScript language value', '*null*');
+    await assertNoTypeError('an ECMAScript language value', '*undefined*');
+    await assertNoTypeError('*null* or *undefined*', '*null*');
+    await assertNoTypeError('*null* or *undefined*', '*undefined*');
+    await assertNoTypeError('a Boolean or *null*', '*null*');
+    await assertNoTypeError('a Boolean or *undefined*', '*undefined*');
+  });
+
+  it('bigint', async () => {
+    await assertTypeError(
+      'a BigInt',
+      '5',
+      'argument (5) does not look plausibly assignable to parameter type (BigInt)\n' +
+        'hint: you passed a mathematical value, but this position takes an ES language BigInt'
+    );
+
+    await assertTypeError(
+      'an integer',
+      '*5*<sub>ℤ</sub>',
+      'argument (*5*<sub>ℤ</sub>) does not look plausibly assignable to parameter type (integer)'
+    );
+
+    await assertNoTypeError('a BigInt', '*5*<sub>ℤ</sub>');
+  });
+
+  it('number', async () => {
+    await assertTypeError(
+      'an integer',
+      '0.5',
+      'argument (0.5) does not look plausibly assignable to parameter type (integer)'
+    );
+
+    await assertNoTypeError('an integer', '2');
+
+    await assertTypeError(
+      'a non-negative integer',
+      '-1',
+      'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)'
+    );
+
+    await assertNoTypeError('a non-negative integer', '3');
+
+    await assertTypeError(
+      '*1*<sub>𝔽</sub>',
+      '*2*<sub>𝔽</sub>',
+      'argument (*2*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*1*<sub>𝔽</sub>)'
+    );
+
+    await assertTypeError(
+      '*+0*<sub>𝔽</sub>',
+      '*-0*<sub>𝔽</sub>',
+      'argument (*-0*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*+0*<sub>𝔽</sub>)'
+    );
+
+    await assertTypeError(
+      'an integral Number',
+      '*0.5*<sub>𝔽</sub>',
+      'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)'
+    );
+
+    await assertTypeError(
+      'an integral Number',
+      '*NaN*',
+      'argument (*NaN*) does not look plausibly assignable to parameter type (integral Number)'
+    );
+
+    await assertTypeError(
+      'an integral Number',
+      '*+&infin;*<sub>𝔽</sub>',
+      'argument (*+&infin;*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)'
+    );
+
+    await assertNoTypeError('*2*<sub>𝔽</sub>', '*2*<sub>𝔽</sub>');
+    await assertNoTypeError('a Number', '*2*<sub>𝔽</sub>');
+    await assertNoTypeError('a Number', '*+&infin;*<sub>𝔽</sub>');
+    await assertNoTypeError('a Number', '*-&infin;*<sub>𝔽</sub>');
+    await assertNoTypeError('a Number', '*NaN*');
+    await assertNoTypeError('*NaN*', '*NaN*');
+    await assertNoTypeError('an integral Number', '*2*<sub>𝔽</sub>');
+
+    await assertTypeError(
+      'an integral Number',
+      '*0.5*<sub>𝔽</sub>',
+      'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)'
+    );
+
+    await assertTypeError(
+      'a mathematical value',
+      '*5*<sub>𝔽</sub>',
+      'argument (*5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (mathematical value)\n' +
+        'hint: you passed an ES language Number, but this position takes a mathematical value'
+    );
+
+    await assertTypeError(
+      'an integral Number',
+      '5',
+      'argument (5) does not look plausibly assignable to parameter type (integral Number)\n' +
+        'hint: you passed a mathematical value, but this position takes an ES language Number'
+    );
+  });
+
+  it('time value', async () => {
+    await assertTypeError(
+      'a time value',
+      '~enum-value~',
+      'argument (~enum-value~) does not look plausibly assignable to parameter type (integral Number or *NaN*)'
+    );
+
+    await assertTypeError(
+      'a time value',
+      '5',
+      'argument (5) does not look plausibly assignable to parameter type (integral Number or *NaN*)\n' +
+        'hint: you passed a mathematical value, but this position takes an ES language Number'
+    );
+
+    await assertNoTypeError('a time value', '*2*<sub>𝔽</sub>');
+    await assertNoTypeError('a time value', '*-2*<sub>𝔽</sub>');
+    await assertNoTypeError('a time value', '*NaN*');
+  });
+
+  it('ES language value', async () => {
+    await assertTypeError(
+      'an ECMAScript language value',
+      '~enum-value~',
+      'argument (~enum-value~) does not look plausibly assignable to parameter type (ECMAScript language value)'
+    );
+
+    await assertTypeError(
+      'an ECMAScript language value',
+      '42',
+      'argument (42) does not look plausibly assignable to parameter type (ECMAScript language value)'
+    );
+
+    await assertTypeError(
+      'an ECMAScript language value',
+      'NormalCompletion(42)',
+      'argument type (a Completion Record) does not look plausibly assignable to parameter type (ECMAScript language value)',
+      [completionBiblio]
+    );
+
+    await assertNoTypeError('an ECMAScript language value', '*string*');
+    await assertNoTypeError('an ECMAScript language value', '*true*');
+    await assertNoTypeError('an ECMAScript language value', '*false*');
+    await assertNoTypeError('an ECMAScript language value', '*42*<sub>𝔽</sub>');
+    await assertNoTypeError('an ECMAScript language value', '*42*<sub>ℤ</sub>');
+    await assertNoTypeError('an ECMAScript language value', '*null*');
+    await assertNoTypeError('an ECMAScript language value', '*undefined*');
+  });
+
+  it('completion', async () => {
+    await assertTypeError(
+      'either a normal completion containing a Boolean or an abrupt completion',
+      '*false*',
+      'argument (false) does not look plausibly assignable to parameter type (a Completion Record normally holding Boolean)',
+      [completionBiblio]
+    );
+
+    await assertTypeError(
+      'a Boolean',
+      'NormalCompletion(*false*)',
+      'argument type (a Completion Record) does not look plausibly assignable to parameter type (Boolean)',
+      [completionBiblio]
+    );
+
+    await assertNoTypeError(
+      'either a normal completion containing a Boolean or an abrupt completion',
+      'NormalCompletion(*false*)',
+      [completionBiblio]
+    );
+    await assertNoTypeError('a Boolean', '! Throwy()', [completionBiblio]);
+  });
+
+  it('call', async () => {
+    let biblio = await getBiblio(`
+      <emu-clause id="sec-returns-number" type="abstract operation">
+        <h1>
+          ReturnsNumber (): a Number
+        </h1>
+        <dl class="header"></dl>
+        <emu-alg>
+          1. Return *1*<sub>𝔽</sub>.
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-returns-completion-number" type="abstract operation">
+        <h1>
+          ReturnsCompletionOfNumber (): either a normal completion containing a Number or a throw completion
+        </h1>
+        <dl class="header"></dl>
+        <emu-alg>
+          1. Return NormalCompletion(*1*<sub>𝔽</sub>).
+        </emu-alg>
+      </emu-clause>
+    `);
+
+    await assertTypeError(
+      'a String',
+      'ReturnsNumber()',
+      'argument type (Number) does not look plausibly assignable to parameter type (String)',
+      [biblio]
+    );
+
+    await assertTypeError(
+      'a String',
+      '! ReturnsCompletionOfNumber()',
+      'argument type (Number) does not look plausibly assignable to parameter type (String)',
+      [biblio]
+    );
+
+    await assertNoTypeError('a Number', 'ReturnsNumber()', [biblio]);
+
+    await assertNoTypeError('a Number', '? ReturnsCompletionOfNumber()', [biblio]);
+  });
+
+  it('non-strict type overlap', async () => {
+    let biblio = await getBiblio(`
+      <emu-clause id="sec-returns-number" type="abstract operation">
+        <h1>
+          ReturnsListOfNumberOrString (): a List of either Numbers or Strings
+        </h1>
+        <dl class="header"></dl>
+        <emu-alg>
+          1. Return *1*<sub>𝔽</sub>.
+        </emu-alg>
+      </emu-clause>
+    `);
+
+    await assertTypeError(
+      'an integer',
+      'ReturnsListOfNumberOrString()',
+      'argument type (List of Number or String) does not look plausibly assignable to parameter type (integer)',
+      [biblio]
+    );
+
+    await assertNoTypeError('List of Strings', 'ReturnsListOfNumberOrString()', [biblio]);
+  });
+
+  it('list', async () => {
+    await assertTypeError(
+      'a String',
+      '« »',
+      'argument type (empty List) does not look plausibly assignable to parameter type (String)'
+    );
+
+    await assertTypeError(
+      'a List of Strings',
+      '« 0.5 »',
+      'argument type (List of 0.5) does not look plausibly assignable to parameter type (List of String)'
+    );
+
+    await assertNoTypeError('a List of Strings', '« "something" »');
+
+    await assertNoTypeError('a List of Strings', '« »');
+  });
+
+  it('integers', async () => {
+    await assertTypeError(
+      '0',
+      '1',
+      'argument (1) does not look plausibly assignable to parameter type (0)'
+    );
+    await assertTypeError(
+      'a positive integer',
+      '0',
+      'argument (0) does not look plausibly assignable to parameter type (positive integer)'
+    );
+    await assertTypeError(
+      'a non-negative integer',
+      '-1',
+      'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)'
+    );
+    await assertTypeError(
+      'a negative integer',
+      '0',
+      'argument (0) does not look plausibly assignable to parameter type (negative integer)'
+    );
+
+    await assertNoTypeError('a mathematical value', '0');
+    await assertNoTypeError('an integer', '0');
+    await assertNoTypeError('a non-negative integer', '0');
+    await assertNoTypeError('a positive integer', '1');
+    await assertNoTypeError('a negative integer', '-1');
+    await assertNoTypeError('0', '0');
+    await assertNoTypeError('1', '1');
+    await assertNoTypeError('-1', '-1');
+    await assertNoTypeError('0 or 1', '0');
+    await assertNoTypeError('0 or 1', '1');
+  });
+
+  it('strings', async () => {
+    await assertTypeError(
+      '"type"',
+      '*"value"*',
+      'argument ("value") does not look plausibly assignable to parameter type ("type")'
+    );
+
+    await assertNoTypeError('"a"', '*"a"*');
+    await assertNoTypeError('"b"', '*"b"*');
+    await assertNoTypeError('"a" or "b"', '*"a"*');
+    await assertNoTypeError('"a" or "b"', '*"b"*');
+  });
+
+  it('unknown types', async () => {
+    await assertNoTypeError('a Foo', 'something');
+    await assertNoTypeError('a Foo', '42');
+    await assertNoTypeError('an integer', 'something');
+  });
+});
+
+describe('error location', () => {
+  it('handles entities', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            Example (
+              _x_: a List of integers,
+              _y_: an integer,
+            ): ~unused~
+          </h1>
+          <dl class="header"></dl>
+        </emu-clause>
+        <emu-alg>
+          1. Perform Example(&laquo; 0 &raquo;, ${M}~enum~).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'argument (~enum~) does not look plausibly assignable to parameter type (integer)',
       }
     );
   });
