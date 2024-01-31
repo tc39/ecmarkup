@@ -110,7 +110,7 @@ body {
 
 #spec-container {
   padding: 0 20px;
-  max-width: max(50rem, 50%);
+  max-width: 80rem;
   margin: 0 auto;
   flex-grow: 1;
   flex-basis: 66%;
