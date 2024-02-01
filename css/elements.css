@@ -119,10 +119,6 @@ body {
   padding-bottom: 1em;
 }
 
-p {
-  text-align: justify;
-}
-
 body.oldtoc {
   margin: 0 auto;
 }
