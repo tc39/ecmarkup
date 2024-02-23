@@ -265,9 +265,21 @@ function walkAlgorithm(
           continue;
         }
         // TODO this kind of parsing should really be factored out
+        let varName = true;
         for (let i = 0; i < paramList.items.length; ++i) {
           const item = paramList.items[i];
-          if (i % 2 === 0) {
+          if (varName) {
+            if (item.name === 'text' && item.contents === '...') {
+              if (i < paramList.items.length - 2) {
+                report({
+                  ruleId: 'bad-ac',
+                  message: `expected rest param to come last`,
+                  ...offsetToLineAndColumn(algorithmSource, item.location.start.offset),
+                });
+                continue stepLoop;
+              }
+              continue;
+            }
             if (item.name !== 'underscore') {
               report({
                 ruleId: 'bad-ac',
@@ -287,6 +299,7 @@ function walkAlgorithm(
               continue stepLoop;
             }
           }
+          varName = !varName;
         }
       }
 
