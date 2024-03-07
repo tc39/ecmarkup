@@ -1090,7 +1090,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       script.setAttribute('defer', '');
       this.doc.head.appendChild(script);
 
-      this.addStyle(this.doc.head, path.relative(outDir, printStyleLocationOnDisk), true);
+      this.addStyle(this.doc.head, path.relative(outDir, printStyleLocationOnDisk), 'print');
       this.addStyle(this.doc.head, path.relative(outDir, styleLocationOnDisk));
     } else {
       // i.e. assets.type === 'inline'
@@ -1115,12 +1115,12 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     );
   }
 
-  private addStyle(head: HTMLHeadElement, href: string, print: boolean = false) {
+  private addStyle(head: HTMLHeadElement, href: string, media?: 'all' | 'print' | 'screen') {
     const style = this.doc.createElement('link');
     style.setAttribute('rel', 'stylesheet');
     style.setAttribute('href', href);
-    if (print) {
-      style.setAttribute('media', 'print');
+    if (media != null) {
+      style.setAttribute('media', media);
     }
 
     // insert early so that the document's own stylesheets can override
