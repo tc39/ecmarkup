@@ -1368,12 +1368,6 @@ li.menu-search-result-term:before {
   padding-right: 5px;
 }
 
-@media print {
-  #menu-toggle {
-    display: none;
-  }
-}
-
 [normative-optional],
 [deprecated],
 [legacy] {
