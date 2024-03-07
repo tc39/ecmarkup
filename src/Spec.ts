@@ -1035,6 +1035,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     }
 
     let cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
+    const printCssContents = await utils.readFile(path.join(__dirname, '../css/print.css'));
 
     const FONT_FILE_CONTENTS = new Map(
       zip(
@@ -1072,9 +1073,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
       const scriptLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.js');
       const styleLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.css');
+      const printStyleLocationOnDisk = path.join(this.assets.directory, 'print.css');
 
       this.generatedFiles.set(scriptLocationOnDisk, jsContents);
       this.generatedFiles.set(styleLocationOnDisk, cssContents);
+      this.generatedFiles.set(printStyleLocationOnDisk, printCssContents);
       for (const [, fontFile] of FONT_FILES) {
         this.generatedFiles.set(
           path.join(this.assets.directory, fontFile),
@@ -1087,6 +1090,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       script.setAttribute('defer', '');
       this.doc.head.appendChild(script);
 
+      this.addStyle(this.doc.head, path.relative(outDir, printStyleLocationOnDisk), 'print');
       this.addStyle(this.doc.head, path.relative(outDir, styleLocationOnDisk));
     } else {
       // i.e. assets.type === 'inline'
@@ -1099,6 +1103,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const style = this.doc.createElement('style');
       style.textContent = cssContents;
       this.doc.head.appendChild(style);
+      const printStyle = this.doc.createElement('style');
+      printStyle.textContent = `@media print {\n${printCssContents}\n}`;
+      this.doc.head.appendChild(printStyle);
     }
     this.addStyle(
       this.doc.head,
@@ -1108,10 +1115,13 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     );
   }
 
-  private addStyle(head: HTMLHeadElement, href: string) {
+  private addStyle(head: HTMLHeadElement, href: string, media?: 'all' | 'print' | 'screen') {
     const style = this.doc.createElement('link');
     style.setAttribute('rel', 'stylesheet');
     style.setAttribute('href', href);
+    if (media != null) {
+      style.setAttribute('media', media);
+    }
 
     // insert early so that the document's own stylesheets can override
     const firstLink = head.querySelector('link[rel=stylesheet], style');
