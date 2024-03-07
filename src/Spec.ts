@@ -1035,7 +1035,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     }
 
     let cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
-    let printCssContents = await utils.readFile(path.join(__dirname, '../css/print.css'));
+    const printCssContents = await utils.readFile(path.join(__dirname, '../css/print.css'));
 
     const FONT_FILE_CONTENTS = new Map(
       zip(
