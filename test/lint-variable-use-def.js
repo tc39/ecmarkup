@@ -401,6 +401,102 @@ describe('variables are declared and used appropriately', () => {
       );
     });
 
+    it('abstract closure rest parameters must be last', async () => {
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( _obj_ )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters (${M}..._x_, _y_) that captures nothing and performs the following steps when called:
+              1. Do something with _x_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'bad-ac',
+          nodeType: 'emu-alg',
+          message: 'expected rest param to come last',
+        },
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( _obj_ )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters (${M}..._x_,) that captures nothing and performs the following steps when called:
+              1. Do something with _x_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'bad-ac',
+          nodeType: 'emu-alg',
+          message: 'expected rest param to come last',
+        },
+      );
+    });
+
+    it('abstract closure rest parameters must be variables', async () => {
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( _obj_ )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters (${M}...x) that captures nothing and performs the following steps when called:
+              1. Do something with _x_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'bad-ac',
+          nodeType: 'emu-alg',
+          message: 'expected to find a parameter name here',
+        },
+      );
+
+      await assertLint(
+        positioned`
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( _obj_ )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters (${M}..._x_,) that captures nothing and performs the following steps when called:
+              1. Do something with _x_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'bad-ac',
+          nodeType: 'emu-alg',
+          message: 'expected rest param to come last',
+        },
+      );
+    });
+
+    it('abstract closure rest parameters are visible', async () => {
+      await assertLintFree(
+        `
+          <emu-clause id="sec-object.fromentries">
+          <h1>Object.fromEntries ( _obj_ )</h1>
+          <emu-alg>
+            1. Let _closure_ be a new Abstract Closure with parameters (..._x_) that captures nothing and performs the following steps when called:
+              1. Do something with _x_.
+              1. Return *undefined*.
+            1. Return _closure_.
+          </emu-alg>
+        </emu-clause>
+        `,
+      );
+    });
+
     it('multiple declarations are visible', async () => {
       await assertLintFree(
         `
