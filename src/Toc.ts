@@ -15,6 +15,7 @@ export default class Toc {
 
     const html = Toc.build(this.spec);
     const tocContainer = this.spec.doc.createElement('div');
+    tocContainer.setAttribute('id', 'toc');
     tocContainer.innerHTML = '<h2>Table of Contents</h2>' + html;
     const intro = this.spec.doc.querySelector('emu-intro, emu-clause, emu-annex');
     if (intro && intro.parentNode) {
