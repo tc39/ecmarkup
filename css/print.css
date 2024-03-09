@@ -26,3 +26,8 @@ p {
 #spec-container > emu-annex {
   page-break-before: always;
 }
+
+a[data-print-href]::after {
+  content: ' <' attr(href) '>';
+  color: initial;
+}
