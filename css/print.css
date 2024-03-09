@@ -16,6 +16,15 @@ p {
   max-width: none;
 }
 
+#toc a[href]::after {
+  content: target-counter(attr(href), page);
+  float: right;
+}
+
+#toc ol ol ol {
+  display: none;
+}
+
 #toc,
 #spec-container > emu-intro,
 #spec-container > emu-clause,
