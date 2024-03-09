@@ -1107,6 +1107,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       printStyle.textContent = `@media print {\n${printCssContents}\n}`;
       this.doc.head.appendChild(printStyle);
     }
+    const currentYearStyle = this.doc.createElement('style');
+    currentYearStyle.textContent = `:root { --current-year: ${new Date().getFullYear()}; }`;
+    this.doc.head.appendChild(currentYearStyle);
     this.addStyle(
       this.doc.head,
       `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
