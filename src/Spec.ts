@@ -535,6 +535,8 @@ export default class Spec {
     }
     this.log('Propagating effect annotations...');
     this.propagateEffects();
+    this.log('Annotating external links...');
+    this.annotateExternalLinks();
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');
@@ -812,6 +814,14 @@ export default class Spec {
       return this._effectfulAOs.get(aoid)!;
     }
     return null;
+  }
+
+  private annotateExternalLinks(): void {
+    for (const a of this.doc.getElementsByTagName('a')) {
+      if (a.hostname !== '' && a.href !== a.textContent && a.protocol !== 'mailto:') {
+        a.setAttribute('data-print-href', '');
+      }
+    }
   }
 
   private async buildMultipage(wrapper: Element, commonEles: Element[]) {

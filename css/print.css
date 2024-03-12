@@ -27,6 +27,11 @@ p {
   page-break-before: always;
 }
 
+a[data-print-href]::after {
+  content: ' <' attr(href) '>';
+  color: initial;
+}
+
 @page {
   size: A4;
 }
