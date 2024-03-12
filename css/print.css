@@ -1,3 +1,28 @@
-#menu-toggle {
-  display: none;
+#toc {
+  page-break-before: always;
+  page-break-after: always;
+}
+
+body {
+  font-family: Arial;
+  font-size: 10pt;
+  color: #000;
+}
+
+.title {
+  font-family: Verdana;
+}
+
+p {
+  text-align: justify;
+}
+
+#spec-container {
+  max-width: none;
+}
+
+#spec-container > emu-clause,
+#spec-container > emu-intro,
+#spec-container > emu-annex {
+  page-break-before: always;
 }
