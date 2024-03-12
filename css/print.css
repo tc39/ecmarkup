@@ -39,6 +39,16 @@ p {
   }
 }
 
+:root {
+  counter-reset: page;
+  counter-set: page 1;
+  --page-number-style: lower-roman;
+}
+
+@page {
+  counter-increment: page 1;
+}
+
 emu-clause:first {
   counter-set: page 1;
   --page-number-style: decimal;
