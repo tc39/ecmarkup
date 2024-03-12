@@ -39,18 +39,8 @@ p {
   }
 }
 
-:root {
-  counter-reset: pageNumber;
-  counter-set: pageNumber 1;
-  --page-number-style: lower-roman;
-}
-
-@page {
-  counter-increment: pageNumber 1;
-}
-
 emu-clause:first {
-  counter-set: pageNumber 1;
+  counter-set: page 1;
   --page-number-style: decimal;
 }
 
@@ -60,7 +50,7 @@ emu-clause:first {
   }
 
   @bottom-left {
-    content: counter(pageNumber, var(--page-number-style));
+    content: counter(page, var(--page-number-style));
   }
 }
 
@@ -70,7 +60,7 @@ emu-clause:first {
   }
 
   @bottom-right {
-    content: counter(pageNumber, var(--page-number-style));
+    content: counter(page, var(--page-number-style));
   }
 }
 
