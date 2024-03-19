@@ -26,13 +26,10 @@ export default class Toc {
     this.spec.doc.body.setAttribute('class', bodyClass + ' oldtoc');
   }
 
-  static build(level: Spec | Clause, options: { maxDepth?: number, expandy?: boolean } = {}) {
-    let maxDepth = options.maxDepth ?? Infinity;
+  static build(level: Spec | Clause, { maxDepth = Infinity, expandy = false } = {}) {
     if (maxDepth <= 0) {
       return '';
     }
-
-    let expandy = options.expandy ?? false;
 
     let html = '<ol class="toc">';
 
@@ -52,7 +49,7 @@ export default class Toc {
         html += '<span class="secnum">' + sub.number + '</span> ';
       }
       html += shorten(sub.titleHTML) + '</a>';
-      if (sub.subclauses.length > 0) html += Toc.build(sub, Object.assign({}, options, { maxDepth: maxDepth - 1 }));
+      if (sub.subclauses.length > 0) html += Toc.build(sub, { maxDepth: maxDepth - 1, expandy });
       html += '</li>';
     });
 
