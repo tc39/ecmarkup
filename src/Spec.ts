@@ -582,7 +582,7 @@ export default class Spec {
       this.log('Building table of contents...');
 
       if (this.opts.oldToc) {
-        new Toc(this).build();
+        new Toc(this).build(2);
       } else {
         ({ js: tocJs, eles: commonEles } = makeMenu(this));
       }
