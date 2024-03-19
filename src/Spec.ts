@@ -1117,6 +1117,30 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       printStyle.textContent = `@media print {\n${printCssContents}\n}`;
       this.doc.head.appendChild(printStyle);
     }
+    const currentYearStyle = this.doc.createElement('style');
+    currentYearStyle.textContent = `
+    @media print {
+      @page :left {
+        @bottom-right {
+          content: '© Ecma International ${this.opts.date!.getFullYear()}';
+        }
+      }
+      @page :right {
+        @bottom-left {
+          content: '© Ecma International ${this.opts.date!.getFullYear()}';
+        }
+      }
+      @page :first {
+        @bottom-left {
+          content: '';
+        }
+        @bottom-right {
+          content: '';
+        }
+      }
+    }
+    `;
+    this.doc.head.appendChild(currentYearStyle);
     this.addStyle(
       this.doc.head,
       `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
