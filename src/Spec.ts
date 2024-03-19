@@ -1068,9 +1068,14 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       ),
     );
 
-    const assetsType = this.assets.type;
-    function inlineCssAssets(cssInput: string) {
-      return cssInput
+    const [cssContents, printCssContents] = (
+      await Promise.all(
+        ['../css/elements.css', '../css/print.css'].map(f =>
+          utils.readFile(path.join(__dirname, f)),
+        ),
+      )
+    ).map(css =>
+      css
         .replace(
           /^([ \t]*)src: +local\(([^)]+)\), +local\(([^)]+)\);$/gm,
           (match, indent, displayName, postScriptName) => {
@@ -1080,7 +1085,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
             }
             const fontType = path.extname(fontFile).slice(1);
             const urlRef =
-              assetsType === 'inline'
+              this.assets.type === 'inline'
                 ? `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
                 : `./${fontFile}`;
             return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
@@ -1092,18 +1097,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           }
           const imageType = path.extname(url).slice(1);
           const urlRef =
-            assetsType === 'inline'
+            this.assets.type === 'inline'
               ? `data:image/${imageType};base64,${IMG_FILE_CONTENTS.get(url)!.toString('base64')}`
               : `./${url}`;
           return `${indent}content: url(${urlRef});`;
-        });
-    }
-
-    const cssContents = inlineCssAssets(
-      await utils.readFile(path.join(__dirname, '../css/elements.css')),
-    );
-    const printCssContents = inlineCssAssets(
-      await utils.readFile(path.join(__dirname, '../css/print.css')),
+        }),
     );
 
     if (this.assets.type === 'external') {
