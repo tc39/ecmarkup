@@ -50,7 +50,6 @@ a[data-print-href]::after {
 
 :root {
   counter-reset: page;
-  --current-year: 0;
   --page-number-style: decimal;
 }
 
@@ -87,15 +86,8 @@ emu-intro {
   @bottom-left {
     content: counter(page, var(--page-number-style));
   }
-  @bottom-right {
-    /* NOTE: the variable here is commented out because of a paged.js bug */
-    content: '© Ecma International ' /* var(--current-year) */;
-  }
 }
 @page :right {
-  @bottom-left {
-    content: '© Ecma International ' /* var(--current-year) */;
-  }
   @bottom-right {
     content: counter(page, var(--page-number-style));
   }

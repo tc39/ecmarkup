@@ -1118,7 +1118,28 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       this.doc.head.appendChild(printStyle);
     }
     const currentYearStyle = this.doc.createElement('style');
-    currentYearStyle.textContent = `:root { --current-year: ${this.opts.date!.getFullYear()}; }`;
+    currentYearStyle.textContent = `
+    @media print {
+      @page :left {
+        @bottom-right {
+          content: '© Ecma International ${this.opts.date!.getFullYear()}';
+        }
+      }
+      @page :right {
+        @bottom-left {
+          content: '© Ecma International ${this.opts.date!.getFullYear()}';
+        }
+      }
+      @page :first {
+        @bottom-left {
+          content: '';
+        }
+        @bottom-right {
+          content: '';
+        }
+      }
+    }
+    `;
     this.doc.head.appendChild(currentYearStyle);
     this.addStyle(
       this.doc.head,
