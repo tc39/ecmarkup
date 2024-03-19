@@ -90,9 +90,7 @@ const FONT_FILES = new Map([
   ['IBMPlexMono-BoldItalic', 'IBMPlexMono-BoldItalic-SlashedZero.woff2'],
 ]);
 
-const IMG_FILES = new Set([
-  'ecma-header.png',
-]);
+const IMG_FILES = new Set(['ecma-header.png']);
 
 interface VisitorMap {
   [k: string]: BuilderInterface;
@@ -1048,9 +1046,6 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       });
     }
 
-    let cssContents = await utils.readFile(path.join(__dirname, '../css/elements.css'));
-    let printCssContents = await utils.readFile(path.join(__dirname, '../css/print.css'));
-
     const FONT_FILE_CONTENTS = new Map(
       zip(
         FONT_FILES.values(),
@@ -1060,22 +1055,6 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           ),
         ),
       ),
-    );
-
-    cssContents = cssContents.replace(
-      /^([ \t]*)src: +local\(([^)]+)\), +local\(([^)]+)\);$/gm,
-      (match, indent, displayName, postScriptName) => {
-        const fontFile = FONT_FILES.get(postScriptName) ?? FONT_FILES.get(displayName);
-        if (fontFile == null) {
-          throw new Error(`Unrecognised font: ${JSON.stringify(postScriptName)}`);
-        }
-        const fontType = path.extname(fontFile).slice(1);
-        const urlRef =
-          this.assets.type === 'inline'
-            ? `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
-            : `./${fontFile}`;
-        return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
-      },
     );
 
     const IMG_FILE_CONTENTS = new Map(
@@ -1089,19 +1068,42 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       ),
     );
 
-    printCssContents = printCssContents.replace(
-      /^([ \t]*)content: +url\(img\/([^)]+)\);$/gm,
-      (match, indent, url) => {
-        if (!IMG_FILES.has(url)) {
-          throw new Error(`Unrecognised image: ${JSON.stringify(url)}`);
-        }
-        const imageType = path.extname(url).slice(1);
-        const urlRef =
-          this.assets.type === 'inline'
-            ? `data:image/${imageType};base64,${IMG_FILE_CONTENTS.get(url)!.toString('base64')}`
-            : `./${url}`;
-        return `${indent}content: url(${urlRef});`;
-      },
+    const assetsType = this.assets.type;
+    function inlineCssAssets(cssInput: string) {
+      return cssInput
+        .replace(
+          /^([ \t]*)src: +local\(([^)]+)\), +local\(([^)]+)\);$/gm,
+          (match, indent, displayName, postScriptName) => {
+            const fontFile = FONT_FILES.get(postScriptName) ?? FONT_FILES.get(displayName);
+            if (fontFile == null) {
+              throw new Error(`Unrecognised font: ${JSON.stringify(postScriptName)}`);
+            }
+            const fontType = path.extname(fontFile).slice(1);
+            const urlRef =
+              assetsType === 'inline'
+                ? `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
+                : `./${fontFile}`;
+            return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
+          },
+        )
+        .replace(/^([ \t]*)content: +url\(img\/([^)]+)\);$/gm, (match, indent, url) => {
+          if (!IMG_FILES.has(url)) {
+            throw new Error(`Unrecognised image: ${JSON.stringify(url)}`);
+          }
+          const imageType = path.extname(url).slice(1);
+          const urlRef =
+            assetsType === 'inline'
+              ? `data:image/${imageType};base64,${IMG_FILE_CONTENTS.get(url)!.toString('base64')}`
+              : `./${url}`;
+          return `${indent}content: url(${urlRef});`;
+        });
+    }
+
+    const cssContents = inlineCssAssets(
+      await utils.readFile(path.join(__dirname, '../css/elements.css')),
+    );
+    const printCssContents = inlineCssAssets(
+      await utils.readFile(path.join(__dirname, '../css/print.css')),
     );
 
     if (this.assets.type === 'external') {
