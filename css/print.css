@@ -20,8 +20,12 @@ p {
 #spec-container > emu-intro,
 #spec-container > emu-clause,
 #spec-container > emu-annex {
-  page-break-before: always;
-  /* page-break-after: always; */
+  break-before: always;
+  break-after: always;
+}
+
+emu-note, emu-table {
+  break-inside: avoid;
 }
 
 a[data-print-href]::after {
