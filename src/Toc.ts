@@ -8,12 +8,12 @@ export default class Toc {
     this.spec = spec;
   }
 
-  build() {
+  build(maxDepth: number = Infinity) {
     if (this.spec.subclauses.length === 0) {
       return;
     }
 
-    const html = Toc.build(this.spec);
+    const html = Toc.build(this.spec, { maxDepth });
     const tocContainer = this.spec.doc.createElement('div');
     tocContainer.setAttribute('id', 'toc');
     tocContainer.innerHTML = '<h2>Table of Contents</h2>' + html;
@@ -26,7 +26,14 @@ export default class Toc {
     this.spec.doc.body.setAttribute('class', bodyClass + ' oldtoc');
   }
 
-  static build(level: Spec | Clause, expandy?: boolean) {
+  static build(level: Spec | Clause, options: { maxDepth?: number, expandy?: boolean } = {}) {
+    let maxDepth = options.maxDepth ?? Infinity;
+    if (maxDepth <= 0) {
+      return '';
+    }
+
+    let expandy = options.expandy ?? false;
+
     let html = '<ol class="toc">';
 
     level.subclauses.forEach(sub => {
@@ -45,7 +52,7 @@ export default class Toc {
         html += '<span class="secnum">' + sub.number + '</span> ';
       }
       html += shorten(sub.titleHTML) + '</a>';
-      if (sub.subclauses.length > 0) html += Toc.build(sub, expandy);
+      if (sub.subclauses.length > 0) html += Toc.build(sub, Object.assign({}, options, { maxDepth: maxDepth - 1 }));
       html += '</li>';
     });
 

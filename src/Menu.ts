@@ -21,7 +21,7 @@ export default function makeMenu(spec: Spec) {
   pinContainer.appendChild(pinHeader);
   pinContainer.appendChild(pinList);
 
-  const toc = Toc.build(spec, true);
+  const toc = Toc.build(spec, { expandy: true });
 
   const tocContainer = spec.doc.createElement('div');
   tocContainer.setAttribute('id', 'menu-toc');

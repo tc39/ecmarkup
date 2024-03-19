@@ -1,6 +1,7 @@
 body {
   font-family: Arial;
   font-size: 10pt;
+  background: #FFF;
   color: #000;
 }
 
@@ -16,13 +17,30 @@ p {
   max-width: none;
 }
 
-#toc a[href]::after {
-  content: target-counter(attr(href), page);
-  float: right;
+#toc a[href] {
+  background: #FFF;
+  padding-right: 0.5em;
 }
-
-#toc ol ol ol {
-  display: none;
+#toc a[href]::after {
+  content: /* leader(dotted) */ target-counter(attr(href), page);
+  float: right;
+  padding-left: 0.5em;
+  background: #FFF;
+}
+/* NOTE: hacks because paged.js doesn't support leader() in content directives */
+#toc ol {
+  overflow-x: hidden;
+}
+#toc ol li:before {
+  float: left;
+  width: 0;
+  white-space: nowrap;
+  content:
+    ". . . . . . . . . . . . . . . . . . . . "
+    ". . . . . . . . . . . . . . . . . . . . "
+    ". . . . . . . . . . . . . . . . . . . . "
+    ". . . . . . . . . . . . . . . . . . . . "
+    ". . . . . . . . . . . . . . . . . . . . "
 }
 
 #toc,
