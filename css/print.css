@@ -11,6 +11,34 @@ body {
 
 p {
   text-align: justify;
+  text-rendering: optimizeLegibility;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  orphans: 2;
+  widows: 2;
+}
+
+emu-note p,
+emu-table td p {
+  text-align: left;
+  hyphens: manual;
+  overflow: hidden;
+}
+
+emu-table td,
+emu-table th {
+  overflow-wrap: break-word;
+}
+
+emu-table table {
+  table-layout: auto;
+  width: 100%;
+}
+
+emu-figure img {
+  max-width: 100%;
+  height: auto;
 }
 
 #spec-container {
@@ -44,18 +72,43 @@ p {
 #spec-container > emu-intro,
 #spec-container > emu-clause,
 #spec-container > emu-annex {
-  break-before: always;
+  break-before: recto;
   break-after: always;
 }
 
 emu-note,
-emu-table {
+emu-note p,
+emu-table tr,
+emu-table th,
+emu-table td,
+emu-alg li {
   break-inside: avoid;
+}
+
+emu-table thead,
+h1,
+figcaption,
+emu-alg > ol > li:first-child {
+  break-after: avoid;
+}
+
+emu-grammar + emu-alg,
+figcaption + emu-table,
+figcaption + span[id] + emu-table,
+emu-alg > ol > li:last-child {
+  break-before: avoid;
 }
 
 a[data-print-href]::after {
   content: ' <' attr(href) '>';
   color: initial;
+}
+
+emu-table thead {
+  display: table-header-group;
+}
+emu-table tfoot {
+  display: table-footer-group;
 }
 
 @page {
