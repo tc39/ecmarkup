@@ -19,6 +19,10 @@ p {
   widows: 2;
 }
 
+h1 {
+  text-wrap: balance;
+}
+
 emu-note p,
 emu-table td p {
   text-align: left;
