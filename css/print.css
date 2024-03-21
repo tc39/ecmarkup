@@ -82,7 +82,8 @@ emu-table tr,
 emu-table th,
 emu-table td,
 emu-alg li,
-pre {
+pre,
+h1 {
   break-inside: avoid;
 }
 
