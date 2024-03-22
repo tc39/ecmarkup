@@ -1030,6 +1030,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
   private async buildAssets(jsContents: string, jsSha: string) {
     if (this.assets.type === 'none') return;
+    this.log('Building assets...');
 
     // check for very old manual 'ecmarkup.js'/'ecmarkup.css'
     const oldEles = this.doc.querySelectorAll(
