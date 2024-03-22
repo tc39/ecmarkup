@@ -1174,6 +1174,14 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           content: '';
         }
       }
+      @page :blank {
+        @bottom-left {
+          content: '';
+        }
+        @bottom-right {
+          content: '';
+        }
+      }
     }
     `;
     this.doc.head.appendChild(currentYearStyle);

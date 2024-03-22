@@ -59,7 +59,7 @@ emu-figure img {
   padding-left: 0.5em;
   background: #fff;
 }
-/* NOTE: hacks because paged.js doesn't support leader() in content directives */
+/* NOTE: hacks because Paged.js doesn't support leader() in content directives */
 #toc ol {
   overflow-x: hidden;
 }
@@ -72,12 +72,26 @@ emu-figure img {
     '. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .';
 }
 
+/* skip the Introduction since it's before the first emu-clause (and therefore doesn't have a proper page number) */
+#toc > ol > li:first-child {
+  display: none;
+}
+
 #toc,
 #spec-container > emu-intro,
-#spec-container > emu-clause,
 #spec-container > emu-annex {
   break-before: recto;
   break-after: always;
+}
+
+/* according to Ecma guidelines, we're actually not supposed to break before every clause (only the first), but Paged.js fails if we do that */
+/* so instead, just break before any of the clauses that have sub-clauses */
+#spec-container > emu-clause:has(emu-clause:not([example])) {
+  break-before: always;
+}
+
+#spec-container > emu-clause:first-of-type {
+  break-before: recto;
 }
 
 emu-note,
@@ -133,12 +147,7 @@ emu-table tfoot {
 }
 
 :root {
-  counter-reset: page;
   --page-number-style: decimal;
-}
-
-@page {
-  counter-increment: page 1;
 }
 
 #toc {
@@ -154,16 +163,11 @@ emu-intro {
   --page-number-style: lower-roman;
 }
 
-@page :first {
-  counter-set: page 0;
+#toc {
+  counter-reset: page 1;
 }
-/* NOTE: we kind of rely on this section being a single page since the "page" directive doesn't just name a page, it also forces a page break */
 #spec-container > emu-clause:first-of-type {
-  page: first-clause;
-}
-/* NOTE: we can only reset the counter and have it take effect on the same page in a @page rule */
-@page first-clause {
-  counter-set: page 1;
+  counter-reset: page 1;
 }
 
 @page :left {
