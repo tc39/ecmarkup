@@ -819,7 +819,7 @@ export default class Spec {
   }
 
   private annotateExternalLinks(): void {
-    for (const a of this.doc.getElementsByTagName('a')) {
+    for (const a of [...this.doc.getElementsByTagName('a')]) {
       if (a.hostname !== '' && a.href !== a.textContent && a.protocol !== 'mailto:') {
         a.setAttribute('data-print-href', '');
       }
