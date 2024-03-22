@@ -21,6 +21,7 @@ p {
 
 h1 {
   text-wrap: balance;
+  line-height: 1.4;
 }
 
 emu-note p,
