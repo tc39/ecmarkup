@@ -75,7 +75,11 @@ export function emdTextNode(spec: Spec, node: Text, namespace: string) {
 
 /*@internal*/
 export function htmlToDom(html: string) {
-  return new jsdom.JSDOM(html, { includeNodeLocations: true });
+  const virtualConsole = new jsdom.VirtualConsole();
+  virtualConsole.on('error', () => {
+    // Suppress warnings from e.g. CSS features not supported by JSDOM
+  });
+  return new jsdom.JSDOM(html, { includeNodeLocations: true, virtualConsole });
 }
 
 /*@internal*/
