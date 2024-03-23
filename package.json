@@ -54,7 +54,7 @@
 		"ecmarkdown": "^8.1.0",
 		"eslint-formatter-codeframe": "^7.32.1",
 		"fast-glob": "^3.2.7",
-		"grammarkdown": "^3.2.0",
+		"grammarkdown": "^3.3.2",
 		"highlight.js": "11.0.1",
 		"html-escape": "^1.0.2",
 		"js-yaml": "^3.13.1",

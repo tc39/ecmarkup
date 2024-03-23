@@ -339,6 +339,8 @@ describe('grammar formatting', () => {
       A :
             B
             C#prod2
+            &lt;ASCII&gt;
+            U+2000
       </emu-grammar>
       `,
       dedentKeepingTrailingNewline`
@@ -351,6 +353,8 @@ describe('grammar formatting', () => {
         A :
           B
           C #prod2
+          &lt;ASCII&gt;
+          U+2000
       </emu-grammar>
       `,
     );

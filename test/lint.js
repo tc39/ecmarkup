@@ -20,7 +20,7 @@ describe('linting whole program', () => {
         {
           ruleId: 'grammarkdown:2008',
           nodeType: 'emu-grammar',
-          message: "Parameter 'a' is unused.",
+          message: "Parameter 'a' is unused",
         },
       );
     });
@@ -56,7 +56,7 @@ describe('linting whole program', () => {
         {
           ruleId: 'grammarkdown:2007',
           nodeType: 'emu-grammar',
-          message: "There is no argument given for parameter 'a'.",
+          message: "There is no argument given for parameter 'a'",
         },
       );
     });
@@ -69,7 +69,7 @@ describe('linting whole program', () => {
         {
           ruleId: 'grammarkdown:2008',
           nodeType: 'emu-grammar',
-          message: "Parameter 'a' is unused.",
+          message: "Parameter 'a' is unused",
         },
       );
     });
@@ -84,7 +84,7 @@ describe('linting whole program', () => {
         {
           ruleId: 'grammarkdown:2000',
           nodeType: 'emu-grammar',
-          message: "Cannot find name: 'Bar'.",
+          message: "Cannot find name: 'Bar'",
         },
       );
     });

@@ -6,6 +6,7 @@ import type {
   OneOfList,
   ParameterList,
   Trivia,
+  UnicodeCharacterLiteral,
 } from 'grammarkdown';
 import {
   NewLineKind,
@@ -248,6 +249,20 @@ class EmitterWithComments extends GrammarkdownEmitter {
   emitProse(node: Prose) {
     this.writer.write('&gt; ');
     node.fragments && this.emitNodes(node.fragments);
+  }
+
+  emitUnicodeCharacterLiteral(node: UnicodeCharacterLiteral) {
+    if (node.text?.startsWith('U+')) {
+      return super.emitUnicodeCharacterLiteral(node);
+    }
+    if (!(node.text?.startsWith('<') && node.text?.endsWith('>'))) {
+      throw new Error(
+        `unreachable: unicode character literal is not wrapped in <>: ${JSON.stringify(node.text)}`,
+      );
+    }
+    this.writer.write('&lt;');
+    this.writer.write(node.text.slice(1, -1));
+    this.writer.write('&gt;');
   }
 }
 
