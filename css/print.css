@@ -83,6 +83,10 @@ emu-figure img {
   display: none;
 }
 
+#toc > ol > li {
+  margin-top: 1ex;
+}
+
 #toc,
 #spec-container > emu-intro,
 #spec-container > emu-annex {
