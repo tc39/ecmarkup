@@ -33,3 +33,6 @@ jobs:
 
       - name: Test published files
         run: npm run test-published-files
+
+      - name: Test declarations
+        run: npm run test-declarations
