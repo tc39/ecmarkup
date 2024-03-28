@@ -5,7 +5,7 @@
 	"main": "lib/ecmarkup.js",
 	"typings": "lib/ecmarkup.d.ts",
 	"scripts": {
-		"build": "tsc -sourceMap",
+		"build": "tsc -sourceMap -declarationMap",
 		"build-release": "tsc",
 		"build-spec": "mkdir -p docs && node bin/ecmarkup.js spec/index.html docs/index.html --assets-dir=docs",
 		"prepack": "safe-publish-latest && npm run build-release",

@@ -8,20 +8,19 @@ import Terminal from './Terminal';
 import Builder from './Builder';
 import * as utils from './utils';
 
-/*@internal*/
 export default class Production extends Builder {
-  static byName = {};
+  /** @internal */ static byName = {};
 
-  type: string | null;
-  name: string;
-  params: string | null;
-  optional: boolean;
-  oneOf: boolean;
-  rhses: RHS[];
-  rhsesById: { [id: string]: RHS };
-  namespace: string;
-  primary: boolean;
-  id: string | undefined;
+  /** @internal */ type: string | null;
+  /** @internal */ name: string;
+  /** @internal */ params: string | null;
+  /** @internal */ optional: boolean;
+  /** @internal */ oneOf: boolean;
+  /** @internal */ rhses: RHS[];
+  /** @internal */ rhsesById: { [id: string]: RHS };
+  /** @internal */ namespace: string;
+  /** @internal */ primary: boolean;
+  /** @internal */ id: string | undefined;
 
   constructor(spec: Spec, node: HTMLElement, namespace: string) {
     super(spec, node);
@@ -147,5 +146,5 @@ export default class Production extends Builder {
     }
   }
 
-  static elements = ['EMU-PRODUCTION'];
+  static readonly elements = ['EMU-PRODUCTION'] as const;
 }

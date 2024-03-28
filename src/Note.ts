@@ -4,12 +4,11 @@ import type { Context } from './Context';
 
 import Builder from './Builder';
 
-/*@internal*/
 export default class Note extends Builder {
-  clause: Clause;
-  id?: string;
-  type: string; // normal, editor
-  static elements = ['EMU-NOTE'];
+  /** @internal */ clause: Clause;
+  /** @internal */ id?: string;
+  /** @internal */ type: string; // normal, editor
+  static readonly elements = ['EMU-NOTE'] as const;
 
   constructor(spec: Spec, node: HTMLElement, clause: Clause) {
     super(spec, node);

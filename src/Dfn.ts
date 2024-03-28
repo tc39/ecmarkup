@@ -4,7 +4,6 @@ import type { Context } from './Context';
 
 import Builder from './Builder';
 
-/*@internal*/
 export default class Dfn extends Builder {
   static async enter({ spec, node, clauseStack }: Context) {
     if (!node.hasAttribute('tabindex')) {

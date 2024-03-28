@@ -37,7 +37,7 @@ export function wrapEmdFailure(src: string) {
   return `#### ECMARKDOWN PARSE FAILED ####<pre>${src}</pre>`;
 }
 
-/*@internal*/
+/** @internal */
 export function emdTextNode(spec: Spec, node: Text, namespace: string) {
   const loc = spec.locate(node);
   let c;
@@ -73,7 +73,7 @@ export function emdTextNode(spec: Spec, node: Text, namespace: string) {
   replaceTextNode(node, template.content);
 }
 
-/*@internal*/
+/** @internal */
 export function htmlToDom(html: string) {
   const virtualConsole = new jsdom.VirtualConsole();
   virtualConsole.on('error', () => {
@@ -82,7 +82,7 @@ export function htmlToDom(html: string) {
   return new jsdom.JSDOM(html, { includeNodeLocations: true, virtualConsole });
 }
 
-/*@internal*/
+/** @internal */
 export function domWalkBackward(root: Node, cb: (node: Element) => boolean | undefined) {
   const childNodes = root.childNodes;
   const childLen = childNodes.length;
@@ -98,7 +98,7 @@ export function domWalkBackward(root: Node, cb: (node: Element) => boolean | und
   }
 }
 
-/*@internal*/
+/** @internal */
 export function replaceTextNode(node: Node, frag: DocumentFragment) {
   // Append all the nodes
   const parent = node.parentNode;
@@ -121,7 +121,7 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
   return newXrefNodes;
 }
 
-/*@internal*/
+/** @internal */
 export function traverseWhile<P extends string, T extends Record<P, T | null>>(
   node: T | null,
   relationship: P,
@@ -136,20 +136,20 @@ export function traverseWhile<P extends string, T extends Record<P, T | null>>(
   return node;
 }
 
-/*@internal*/
+/** @internal */
 export function logVerbose(str: string) {
   const dateString = new Date().toISOString();
   console.error(chalk.gray('[' + dateString + '] ') + str);
 }
 
-/*@internal*/
+/** @internal */
 export function logWarning(str: string) {
   const dateString = new Date().toISOString();
   console.error(chalk.gray('[' + dateString + '] ') + chalk.red(str));
 }
 
 const CLAUSE_LIKE = ['EMU-ANNEX', 'EMU-CLAUSE', 'EMU-INTRO', 'EMU-NOTE', 'BODY'];
-/*@internal*/
+/** @internal */
 export function shouldInline(node: Node) {
   const surrogateParentTags = ['EMU-GRAMMAR', 'EMU-IMPORT', 'INS', 'DEL'];
   const parent = traverseWhile(node.parentNode, 'parentNode', node =>
@@ -163,21 +163,21 @@ export function shouldInline(node: Node) {
   return !clauseLikeParent;
 }
 
-/*@internal*/
+/** @internal */
 export function readFile(file: string) {
   return new Promise<string>((resolve, reject) => {
     fs.readFile(file, 'utf8', (err, data) => (err ? reject(err) : resolve(data)));
   });
 }
 
-/*@internal*/
+/** @internal */
 export function readBinaryFile(file: string) {
   return new Promise<Buffer>((resolve, reject) => {
     fs.readFile(file, (err, data) => (err ? reject(err) : resolve(data)));
   });
 }
 
-/*@internal*/
+/** @internal */
 export function writeFile(file: string, content: string | Buffer) {
   return new Promise<void>((resolve, reject) => {
     // we could do this async, but it's not worth worrying about
@@ -191,7 +191,7 @@ export function writeFile(file: string, content: string | Buffer) {
   });
 }
 
-/*@internal*/
+/** @internal */
 export async function copyFile(src: string, dest: string) {
   const content = await readFile(src);
   await writeFile(dest, content);

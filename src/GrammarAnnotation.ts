@@ -3,9 +3,8 @@ import type Production from './Production';
 
 import Builder from './Builder';
 
-/*@internal*/
 export default class GrammarAnnotation extends Builder {
-  production: Production;
+  /** @internal */ production: Production;
 
   constructor(spec: Spec, prod: Production, node: HTMLElement) {
     super(spec, node);

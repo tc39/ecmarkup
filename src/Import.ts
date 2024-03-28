@@ -5,11 +5,10 @@ import * as utils from './utils';
 import * as path from 'path';
 import type { JSDOM } from 'jsdom';
 
-/*@internal*/
 export default class Import extends Builder {
-  public importLocation: string;
-  public relativeRoot: string;
-  public source: string;
+  /** @internal */ public importLocation: string;
+  /** @internal */ public relativeRoot: string;
+  /** @internal */ public source: string;
 
   constructor(
     spec: Spec,
@@ -77,7 +76,6 @@ export default class Import extends Builder {
   }
 }
 
-/*@internal*/
 export interface EmuImportElement extends HTMLElement {
   href: string;
   dom?: JSDOM;

@@ -1,13 +1,13 @@
 import type Spec from './Spec';
 import type Clause from './Clause';
 
-/*@internal*/
 export default class Toc {
-  spec: Spec;
+  /** @internal */ spec: Spec;
   constructor(spec: Spec) {
     this.spec = spec;
   }
 
+  /** @internal */
   build(maxDepth: number = Infinity) {
     if (this.spec.subclauses.length === 0) {
       return;

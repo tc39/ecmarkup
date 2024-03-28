@@ -4,14 +4,13 @@ import type { BiblioEntry } from './Biblio';
 
 import Builder from './Builder';
 
-/*@internal*/
 export default class NonTerminal extends Builder {
-  params: string | null;
-  optional: boolean;
-  namespace: string;
-  entry?: BiblioEntry;
+  /** @internal */ params: string | null;
+  /** @internal */ optional: boolean;
+  /** @internal */ namespace: string;
+  /** @internal */ entry?: BiblioEntry;
 
-  static elements = ['EMU-NT'];
+  static readonly elements = ['EMU-NT'] as const;
 
   constructor(spec: Spec, node: HTMLElement, namespace: string) {
     super(spec, node);

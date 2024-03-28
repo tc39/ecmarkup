@@ -3,10 +3,9 @@ import type Production from './Production';
 
 import Builder from './Builder';
 
-/*@internal*/
 export default class Terminal extends Builder {
-  production: Production;
-  optional: boolean;
+  /** @internal */ production: Production;
+  /** @internal */ optional: boolean;
 
   constructor(spec: Spec, prod: Production, node: HTMLElement) {
     super(spec, node);

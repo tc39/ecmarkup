@@ -13,7 +13,6 @@ export type AugmentedGrammarEle = HTMLElement & {
   grammarSource: SourceFile;
 };
 
-/*@internal*/
 export default class Grammar extends Builder {
   static async enter({ spec, node, clauseStack }: Context) {
     if ('grammarkdownOut' in node) {
@@ -96,5 +95,5 @@ export default class Grammar extends Builder {
     });
   }
 
-  static elements = ['EMU-GRAMMAR'];
+  static readonly elements = ['EMU-GRAMMAR'] as const;
 }
