@@ -12,6 +12,7 @@
 		"format-spec": "node bin/emu-format.js --write spec/index.html",
 		"test": "mocha",
 		"test-baselines": "mocha test/baselines.js",
+		"test-declarations": "tsc -p tsconfig.test.json",
 		"update-baselines": "npm --update-baselines run test-baselines",
 		"pretest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
 		"test-published-files": "npm pack && tar zxvf \"ecmarkup-$npm_package_version.tgz\" && cp -r test package/test && cd package && npm test && cd ..",
