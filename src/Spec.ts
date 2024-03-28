@@ -300,7 +300,10 @@ export default class Spec {
   rootDir: string;
   namespace: string;
   generatedFiles: Map<string | null, string | Buffer>;
-  /** @internal */ assets: { type: 'none' } | { type: 'inline' } | { type: 'external'; directory: string };
+  /** @internal */ assets:
+    | { type: 'none' }
+    | { type: 'inline' }
+    | { type: 'external'; directory: string };
   /** @internal */ sourceText: string;
   /** @internal */ biblio: Biblio;
   /** @internal */ dom: JSDOM;
@@ -309,7 +312,10 @@ export default class Spec {
   /** @internal */ node: HTMLElement;
   /** @internal */ nodeIds: Set<string>;
   /** @internal */ subclauses: Clause[];
-  /** @internal */ replacementAlgorithmToContainedLabeledStepEntries: Map<Element, StepBiblioEntry[]>; // map from re to its labeled nodes
+  /** @internal */ replacementAlgorithmToContainedLabeledStepEntries: Map<
+    Element,
+    StepBiblioEntry[]
+  >; // map from re to its labeled nodes
   /** @internal */ labeledStepsToBeRectified: Set<string>;
   /** @internal */ replacementAlgorithms: { element: Element; target: string }[];
   /** @internal */ cancellationToken: CancellationToken;
