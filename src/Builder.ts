@@ -2,14 +2,8 @@ import type Spec from './Spec';
 import type { Context } from './Context';
 
 // We use this instead of `typeof Builder` because using the class as the type also requires derived constructors to be subtypes of the base constructor, which is irritating.
-/*@internal*/
-export interface BuilderInterface {
-  elements: string[];
-  enter(context: Context): void;
-  exit(context: Context): void;
-}
+export type BuilderInterface = Omit<typeof Builder, never>;
 
-/*@internal*/
 export default class Builder {
   public spec: Spec;
   public node: HTMLElement;
@@ -40,5 +34,5 @@ export default class Builder {
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static exit(context: Context): void {}
-  static elements: string[] = [];
+  static readonly elements: readonly string[] = [];
 }

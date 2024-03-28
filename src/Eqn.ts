@@ -4,10 +4,9 @@ import Builder from './Builder';
 import * as emd from 'ecmarkdown';
 import * as utils from './utils';
 
-/*@internal*/
 export default class Eqn extends Builder {
   // @ts-ignore
-  constructor() {
+  private constructor() {
     throw new Error('not actually constructible');
   }
 

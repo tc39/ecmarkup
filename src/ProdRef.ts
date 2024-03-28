@@ -4,12 +4,11 @@ import type Spec from './Spec';
 import Builder from './Builder';
 import { shouldInline } from './utils';
 
-/*@internal*/
 export default class ProdRef extends Builder {
-  public namespace: string;
-  public name: string;
+  /** @internal */ public namespace: string;
+  /** @internal */ public name: string;
 
-  static elements = ['EMU-PRODREF'];
+  static readonly elements = ['EMU-PRODREF'] as const;
 
   constructor(spec: Spec, node: HTMLElement, namespace: string) {
     super(spec, node);

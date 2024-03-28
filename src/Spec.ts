@@ -125,17 +125,6 @@ const visitorMap = builders.reduce((map, T) => {
   return map;
 }, {} as VisitorMap);
 
-// NOTE: This is the public API for spec as used in the types. Do not remove.
-export default interface Spec {
-  spec: this;
-  opts: Options;
-  rootPath: string;
-  rootDir: string;
-  namespace: string;
-  exportBiblio(): any;
-  generatedFiles: Map<string | null, string | Buffer>;
-}
-
 export type Warning =
   | {
       type: 'global';
@@ -304,46 +293,52 @@ export function maybeAddClauseToEffectWorklist(
   }
 }
 
-/*@internal*/
 export default class Spec {
   spec: this;
   opts: Options;
-  assets: { type: 'none' } | { type: 'inline' } | { type: 'external'; directory: string };
   rootPath: string;
   rootDir: string;
-  sourceText: string;
   namespace: string;
-  biblio: Biblio;
-  dom: JSDOM;
-  doc: Document;
-  imports: Import[];
-  node: HTMLElement;
-  nodeIds: Set<string>;
-  subclauses: Clause[];
-  replacementAlgorithmToContainedLabeledStepEntries: Map<Element, StepBiblioEntry[]>; // map from re to its labeled nodes
-  labeledStepsToBeRectified: Set<string>;
-  replacementAlgorithms: { element: Element; target: string }[];
-  cancellationToken: CancellationToken;
   generatedFiles: Map<string | null, string | Buffer>;
-  log: (msg: string) => void;
-  warn: (err: Warning) => void | undefined;
+  /** @internal */ assets:
+    | { type: 'none' }
+    | { type: 'inline' }
+    | { type: 'external'; directory: string };
+  /** @internal */ sourceText: string;
+  /** @internal */ biblio: Biblio;
+  /** @internal */ dom: JSDOM;
+  /** @internal */ doc: Document;
+  /** @internal */ imports: Import[];
+  /** @internal */ node: HTMLElement;
+  /** @internal */ nodeIds: Set<string>;
+  /** @internal */ subclauses: Clause[];
+  /** @internal */ replacementAlgorithmToContainedLabeledStepEntries: Map<
+    Element,
+    StepBiblioEntry[]
+  >; // map from re to its labeled nodes
+  /** @internal */ labeledStepsToBeRectified: Set<string>;
+  /** @internal */ replacementAlgorithms: { element: Element; target: string }[];
+  /** @internal */ cancellationToken: CancellationToken;
 
-  _figureCounts: { [type: string]: number };
-  _xrefs: Xref[];
-  _ntRefs: NonTerminal[];
-  _ntStringRefs: {
+  readonly log: (msg: string) => void;
+  readonly warn: (err: Warning) => void | undefined;
+
+  /** @internal */ _figureCounts: { [type: string]: number };
+  /** @internal */ _xrefs: Xref[];
+  /** @internal */ _ntRefs: NonTerminal[];
+  /** @internal */ _ntStringRefs: {
     name: string;
     loc: { line: number; column: number };
     node: Element | Text;
     namespace: string;
   }[];
-  _prodRefs: ProdRef[];
-  _textNodes: { [s: string]: [TextNodeContext] };
-  _effectWorklist: Map<string, WorklistItem[]>;
-  _effectfulAOs: Map<string, string[]>;
-  _emuMetasToRender: Set<HTMLElement>;
-  _emuMetasToRemove: Set<HTMLElement>;
-  refsByClause: { [refId: string]: [string] };
+  /** @internal */ _prodRefs: ProdRef[];
+  /** @internal */ _textNodes: { [s: string]: [TextNodeContext] };
+  /** @internal */ _effectWorklist: Map<string, WorklistItem[]>;
+  /** @internal */ _effectfulAOs: Map<string, string[]>;
+  /** @internal */ _emuMetasToRender: Set<HTMLElement>;
+  /** @internal */ _emuMetasToRemove: Set<HTMLElement>;
+  /** @internal */ refsByClause: { [refId: string]: [string] };
 
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
 
@@ -464,10 +459,12 @@ export default class Spec {
     this.biblio = new Biblio(this.opts.location);
   }
 
+  /** @internal */
   public fetch(file: string) {
     return this._fetch(file, this.cancellationToken);
   }
 
+  /** @internal */
   public async build() {
     /*
     The Ecmarkup build process proceeds as follows:
@@ -650,6 +647,7 @@ export default class Spec {
     return '<!doctype html>\n' + (htmlEle.hasAttributes() ? htmlEle.outerHTML : htmlEle.innerHTML);
   }
 
+  /** @internal */
   public locate(
     node: Element | Node,
   ): ({ file?: string; source: string } & ElementLocation) | undefined {
@@ -811,6 +809,7 @@ export default class Spec {
     }
   }
 
+  /** @internal */
   public getEffectsByAoid(aoid: string): string[] | null {
     if (this._effectfulAOs.has(aoid)) {
       return this._effectfulAOs.get(aoid)!;
@@ -1817,6 +1816,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     }
   }
 
+  /** @internal */
   public autolink() {
     this.log('Autolinking terms and abstract ops...');
     const namespaces = Object.keys(this._textNodes);
@@ -1832,6 +1832,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     }
   }
 
+  /** @internal */
   public setCharset() {
     let current = this.spec.doc.querySelector('meta[charset]');
 

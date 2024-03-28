@@ -1,12 +1,10 @@
 import type Clause from './Clause';
 import type { Spec } from './ecmarkup';
 
-/*@internal*/
 export interface ClauseNumberIterator {
   next(clauseStack: Clause[], node: HTMLElement): string;
 }
 
-/*@internal*/
 export default function iterator(spec: Spec): ClauseNumberIterator {
   const ids: (string | number[])[] = [];
   let inAnnex = false;

@@ -3,11 +3,10 @@ import type Production from './Production';
 
 import Builder from './Builder';
 
-/*@internal*/
 export default class RHS extends Builder {
-  production: Production;
-  constraints: string | null;
-  alternativeId: string | null;
+  /** @internal */ production: Production;
+  /** @internal */ constraints: string | null;
+  /** @internal */ alternativeId: string | null;
 
   constructor(spec: Spec, prod: Production, node: HTMLElement) {
     super(spec, node);

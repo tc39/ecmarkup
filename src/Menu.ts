@@ -3,7 +3,6 @@ import type Spec from './Spec';
 
 import Toc from './Toc';
 
-/*@internal*/
 export default function makeMenu(spec: Spec) {
   const pinContainer = spec.doc.createElement('div');
   pinContainer.setAttribute('id', 'menu-pins');

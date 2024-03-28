@@ -28,7 +28,6 @@ export type AlgorithmElementWithTree = HTMLElement & {
   originalHtml: string;
 };
 
-/*@internal*/
 export default class Algorithm extends Builder {
   static async enter(context: Context) {
     context.inAlg = true;
@@ -216,7 +215,8 @@ export default class Algorithm extends Builder {
   static exit(context: Context) {
     context.inAlg = false;
   }
-  static elements = ['EMU-ALG'];
+
+  static readonly elements = ['EMU-ALG'] as const;
 }
 
 function getStepNumbers(item: Element) {

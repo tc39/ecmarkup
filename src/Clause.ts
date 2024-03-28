@@ -38,26 +38,23 @@ export function extractStructuredHeader(header: Element): Element | null {
   return dl;
 }
 
-/*@internal*/
 export default class Clause extends Builder {
-  id: string;
-  namespace: string;
-  parentClause: Clause;
-  header: Element | null;
-  // @ts-ignore skipping the strictPropertyInitialization check
-  title: string | null;
-  // @ts-ignore skipping the strictPropertyInitialization check
-  titleHTML: string;
-  subclauses: Clause[];
-  number: string;
-  aoid: string | null;
-  type: string | null;
-  notes: Note[];
-  editorNotes: Note[];
-  examples: Example[];
-  readonly effects: string[]; // this is held by identity and mutated by Spec.ts
-  signature: Signature | null;
-  skipGlobalChecks: boolean;
+  /** @internal */ id: string;
+  /** @internal */ namespace: string;
+  /** @internal */ parentClause: Clause;
+  /** @internal */ header: Element | null;
+  /** @internal */ title!: string | null;
+  /** @internal */ titleHTML!: string;
+  /** @internal */ subclauses: Clause[];
+  /** @internal */ number: string;
+  /** @internal */ aoid: string | null;
+  /** @internal */ type: string | null;
+  /** @internal */ notes: Note[];
+  /** @internal */ editorNotes: Note[];
+  /** @internal */ examples: Example[];
+  /** @internal */ readonly effects: string[]; // this is held by identity and mutated by Spec.ts
+  /** @internal */ signature: Signature | null;
+  /** @internal */ skipGlobalChecks: boolean;
 
   constructor(spec: Spec, node: HTMLElement, parent: Clause, number: string) {
     super(spec, node);
@@ -131,7 +128,7 @@ export default class Clause extends Builder {
     }
   }
 
-  buildStructuredHeader(header: Element, headerSurrogate: Element = header) {
+  /** @internal */ buildStructuredHeader(header: Element, headerSurrogate: Element = header) {
     const dl = extractStructuredHeader(headerSurrogate);
     if (dl === null) {
       return;
@@ -250,7 +247,7 @@ export default class Clause extends Builder {
     }
   }
 
-  buildNotes() {
+  /** @internal */ buildNotes() {
     if (this.notes.length === 1) {
       this.notes[0].build();
     } else {
@@ -263,7 +260,7 @@ export default class Clause extends Builder {
     this.editorNotes.forEach(note => note.build());
   }
 
-  buildExamples() {
+  /** @internal */ buildExamples() {
     if (this.examples.length === 1) {
       this.examples[0].build();
     } else {

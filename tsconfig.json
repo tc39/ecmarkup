@@ -9,8 +9,5 @@
         "stripInternal": true,
         "outDir": "lib",
         "lib": ["es2020", "dom", "dom.iterable"],
-        "typeRoots": [
-            "node_modules/@types"
-        ]
     }
 }

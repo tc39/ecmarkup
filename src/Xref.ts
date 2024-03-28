@@ -6,19 +6,18 @@ import type Clause from './Clause';
 import Builder from './Builder';
 import { validateEffects, doesEffectPropagateToParent } from './utils';
 
-/*@internal*/
 export default class Xref extends Builder {
-  namespace: string;
-  href: string;
-  aoid: string;
-  isInvocation: boolean;
-  clause: Clause | null;
-  id: string;
-  entry: Biblio.BiblioEntry | undefined;
-  addEffects: string[] | null;
-  suppressEffects: string[] | null;
+  /** @internal */ namespace: string;
+  /** @internal */ href: string;
+  /** @internal */ aoid: string;
+  /** @internal */ isInvocation: boolean;
+  /** @internal */ clause: Clause | null;
+  /** @internal */ id: string;
+  /** @internal */ entry: Biblio.BiblioEntry | undefined;
+  /** @internal */ addEffects: string[] | null;
+  /** @internal */ suppressEffects: string[] | null;
 
-  static elements = ['EMU-XREF'];
+  static readonly elements = ['EMU-XREF'] as const;
 
   constructor(
     spec: Spec,
@@ -155,6 +154,7 @@ export default class Xref extends Builder {
     spec._xrefs.push(xref);
   }
 
+  /** @internal */
   build() {
     const spec = this.spec;
     const href = this.href;

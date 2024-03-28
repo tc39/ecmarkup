@@ -65,7 +65,6 @@ class EnvRec {
   }
 }
 
-/*@internal*/
 export default class Biblio {
   private _byId: { [id: string]: BiblioEntry };
   private _location: string;
@@ -185,6 +184,7 @@ export default class Biblio {
     return undefined;
   }
 
+  /** @internal*/
   add(entry: PartialBiblioEntry & { location?: string }, ns?: string | null) {
     ns = ns || this._location;
     const env = this._nsToEnvRec[ns]!;
@@ -209,6 +209,7 @@ export default class Biblio {
     }
   }
 
+  /** @internal*/
   createNamespace(ns: string, parent: string) {
     const existingNs = this._nsToEnvRec[ns];
     if (existingNs) {
@@ -252,6 +253,7 @@ export default class Biblio {
     return root;
   }
 
+  /** @internal*/
   addExternalBiblio(biblio: ExportedBiblio) {
     for (const item of biblio.entries) {
       this.add({ location: biblio.location, ...item }, 'external');
@@ -342,13 +344,13 @@ export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   signature: null | Signature;
   effects: string[];
   skipGlobalChecks?: boolean;
-  /*@internal*/ _node?: Element;
+  /** @internal*/ _node?: Element;
 }
 
 export interface ProductionBiblioEntry extends BiblioEntryBase {
   type: 'production';
   name: string;
-  /*@internal*/ _instance?: Production;
+  /** @internal*/ _instance?: Production;
 }
 
 export interface ClauseBiblioEntry extends BiblioEntryBase {
