@@ -289,6 +289,19 @@ describe('linting whole program', () => {
             "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"something: \"",
         },
       );
+      await assertLint(
+        positioned`
+          <emu-clause id="foo">
+            <h1>${M}Example [ @@baz ] ( )</h1>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'h1',
+          message:
+            "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"Example [ @@baz ] \"",
+        },
+      );
     });
 
     it('spacing', async () => {
@@ -356,7 +369,7 @@ describe('linting whole program', () => {
             <h1>_Example_ ( )</h1>
           </emu-clause>
           <emu-clause id="i7">
-            <h1>%Foo%.bar [ @@iterator ] ( )</h1>
+            <h1>%Foo%.bar [ %Symbol.iterator% ] ( )</h1>
           </emu-clause>
           <emu-clause id="i8">
             <h1>ForIn/OfHeadEvaluation ( )</h1>
@@ -365,7 +378,7 @@ describe('linting whole program', () => {
             <h1>Object.prototype.__defineGetter__ ( )</h1>
           </emu-clause>
           <emu-clause id="i10">
-            <h1>_NativeError_ [ @@baz ] ( )</h1>
+            <h1>_NativeError_ [ %baz% ] ( )</h1>
           </emu-clause>
       `);
     });

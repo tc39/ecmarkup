@@ -49,11 +49,11 @@ export function collectHeaderDiagnostics(
 
       // CreateForInIterator
       // Object.fromEntries
-      // _NativeError_ [ @@whatever ]
-      // Array.prototype [ @@iterator ]
+      // _NativeError_ [ %whatever% ]
+      // Array.prototype [ %Symbol.iterator% ]
       // %ForInIteratorPrototype%.next
       // Object.prototype.__defineGetter__
-      /^([%_]?)[A-Za-z][A-Za-z0-9/]*\1(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ @@[a-z][a-zA-Z]+ \])*\s*$/,
+      /^([%_]?)[A-Za-z][A-Za-z0-9/]*\1(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ %[a-zA-Z0-9_$.]+% \])*\s*$/,
     ].some(r => r.test(name));
 
     if (!nameMatches) {
