@@ -90,7 +90,7 @@ const FONT_FILES = new Map([
   ['IBMPlexMono-BoldItalic', 'IBMPlexMono-BoldItalic-SlashedZero.woff2'],
 ]);
 
-const IMG_FILES = new Set(['ecma-header.png']);
+const IMG_FILES = new Set(['ecma-header.svg']);
 
 interface VisitorMap {
   [k: string]: BuilderInterface;
@@ -1166,22 +1166,6 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           content: '© Ecma International ${this.opts.date!.getFullYear()}';
         }
       }
-      @page :first {
-        @bottom-left {
-          content: '';
-        }
-        @bottom-right {
-          content: '';
-        }
-      }
-      @page :blank {
-        @bottom-left {
-          content: '';
-        }
-        @bottom-right {
-          content: '';
-        }
-      }
     }
     `;
     this.doc.head.appendChild(currentYearStyle);
@@ -1189,8 +1173,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       this.doc.head,
       `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
         (hljs as any).versionString
-      }/styles/base16/solarized-light.min.css`,
-    );
+      }/styles/base16/solarized-light.min.css`);
   }
 
   private addStyle(head: HTMLHeadElement, href: string, media?: 'all' | 'print' | 'screen') {
@@ -1214,6 +1197,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     const elements = this.doc.body.childNodes;
     const wrapper = this.doc.createElement('div');
     wrapper.id = 'spec-container';
+    wrapper.setAttribute('data-shortname', this.opts.shortname || '');
 
     while (elements.length > 0) {
       wrapper.appendChild(elements[0]);

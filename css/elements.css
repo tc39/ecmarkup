@@ -100,7 +100,7 @@ body {
   font-size: 18px;
   line-height: 1.5;
   font-family:
-    IBM Plex Serif,
+    'IBM Plex Serif',
     serif;
   font-variant-numeric: slashed-zero;
   padding: 0;
@@ -158,7 +158,7 @@ span.e-user-code::before {
   vertical-align: middle;
   text-transform: uppercase;
   font-family:
-    IBM Plex Sans,
+    'IBM Plex Sans',
     sans-serif;
   font-weight: 900;
   font-size: x-small;
@@ -183,8 +183,8 @@ span.e-user-code::before {
 code {
   font-weight: bold;
   font-family:
-    Comic Code,
-    IBM Plex Mono,
+    'Comic Code',
+    'IBM Plex Mono',
     monospace;
   white-space: pre;
 }
@@ -251,7 +251,7 @@ var.referenced6 {
 
 emu-const {
   font-family:
-    IBM Plex Sans,
+    'IBM Plex Sans',
     sans-serif;
   font-variant: small-caps;
   text-transform: uppercase;
@@ -453,7 +453,7 @@ emu-rhs emu-nt {
 emu-t {
   display: inline-block;
   font-family:
-    IBM Plex Mono,
+    'IBM Plex Mono',
     monospace;
   font-weight: bold;
   white-space: nowrap;
@@ -490,7 +490,7 @@ emu-params,
 emu-opt {
   margin-right: 1ex;
   font-family:
-    IBM Plex Mono,
+    'IBM Plex Mono',
     monospace;
 }
 
@@ -506,7 +506,7 @@ emu-opt {
 emu-gprose {
   font-size: 0.9em;
   font-family:
-    IBM Plex Sans,
+    'IBM Plex Sans',
     sans-serif;
 }
 
@@ -920,7 +920,7 @@ tr.del > td {
   height: 18px;
   font-size: 12px;
   margin: 0 5px 0 10px;
-  font-family: IBM Plex Sans;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 #menu-pins .unpin-all:hover {
   background: #ddd;
@@ -1368,10 +1368,18 @@ li.menu-search-result-term:before {
   padding-right: 5px;
 }
 
+emu-normative-optional:before {
+  display: block;
+  color: #884400;
+  content: "NORMATIVE OPTIONAL";
+}
+
+emu-normative-optional,
 [normative-optional],
 [deprecated],
 [legacy] {
   border-left: 5px solid #ff6600;
+  display: block;
   padding: 0.5em;
   background: #ffeedd;
 }
@@ -1424,4 +1432,23 @@ li.menu-search-result-term:before {
   border-color: #bbb;
   background-color: #eee;
   box-shadow: inset 0 -1px 0 #ccc;
+}
+
+#metadata-block {
+  margin: 4em 0;
+  padding: 10px;
+  border: 1px solid #ee8421;
+}
+
+#metadata-block h1 {
+  font-size: 1.5em;
+  margin-top: 0;
+}
+#metadata-block > ul {
+  list-style-type: none;
+  margin: 0; padding: 0;
+}
+
+#ecma-logo {
+  width: 500px;
 }
