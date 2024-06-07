@@ -3,6 +3,7 @@
 <title>Ecmarkup</title>
 <pre class="metadata">
 repository: https://github.com/tc39/ecmarkup
+desription: An HTML superset/Markdown subset source format for ECMAScript and related specifications
 copyright: false
 markEffects: true
 </pre>
@@ -69,6 +70,7 @@ markEffects: true
       <tr><td></td><td>`version`</td><td>Document version, for example "6&lt;sup>th&lt;/sup> Edition" (which renders like "6<sup>th</sup> Edition") or "Draft 1".</td></tr>
       <tr><td></td><td>`date`</td><td>Timestamp of document rendering, used for various pieces of boilerplate. Defaults to the value of <a href="https://reproducible-builds.org/docs/source-date-epoch/">the `SOURCE_DATE_EPOCH` environment variable</a> (as a number of second since the POSIX epoch) if it exists, otherwise to the current date and time.</td></tr>
       <tr><td></td><td>`shortname`</td><td>Document shortname, for example "ECMA-262". If present and `status` is "draft", `version` defaults to "Draft <var>shortname</var>".</td></tr>
+      <tr><td></td><td>`description`</td><td>Brief description to be used for link previews in social media and the like.</td></tr>
       <tr><td></td><td>`location`</td><td>URL of this document. Used in conjunction with the biblio file to support inbound references from other documents.</td></tr>
       <tr><td></td><td>`copyright`</td><td>Emit copyright and software license information. Boolean, default true.</td></tr>
       <tr><td></td><td>`contributors`</td><td>Contributors to this specification, i.e. those who own the copyright. If your proposal includes text from any Ecma specification, this should include "Ecma International".</td></tr>

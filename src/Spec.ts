@@ -1438,6 +1438,41 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         this.doc.body.insertBefore(h1, this.doc.body.firstChild);
       }
     }
+
+    // opengraph tags
+    let metas = [...this.doc.querySelectorAll('meta')];
+    let insertMetaTag =
+      metas.length === 0
+        ? (node: HTMLMetaElement) => this.doc.head.prepend(node)
+        : (node: HTMLMetaElement) => metas[metas.length - 1].after(node);
+    if (!metas.some(n => n.getAttribute('property') === 'og:description')) {
+      let description =
+        this.opts.description ??
+        (this.doc.querySelector('emu-intro') ?? this.doc.querySelector('emu-clause'))?.textContent
+          ?.slice(0, 300)
+          .trim();
+      if (description) {
+        let meta = this.doc.createElement('meta');
+        meta.setAttribute('property', 'og:description');
+        meta.setAttribute('content', description);
+        insertMetaTag(meta);
+      }
+    }
+    if (!metas.some(n => n.getAttribute('property') === 'og:title')) {
+      let title = this.opts.title ?? this.doc.querySelector('title')?.textContent;
+      if (title) {
+        let meta = this.doc.createElement('meta');
+        meta.setAttribute('property', 'og:title');
+        meta.setAttribute('content', title);
+        insertMetaTag(meta);
+      }
+    }
+    if (!metas.some(n => n.getAttribute('property') === 'og:image')) {
+      let meta = this.doc.createElement('meta');
+      meta.setAttribute('property', 'og:image');
+      meta.setAttribute('content', 'https://tc39.es/ecmarkup/ecma-header.png');
+      insertMetaTag(meta);
+    }
   }
 
   private buildCopyrightBoilerplate() {
