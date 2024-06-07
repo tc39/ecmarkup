@@ -10,7 +10,7 @@ type SimpleLocation = { start: { offset: number }; end: { offset: number } };
 type BareText = {
   name: 'text';
   contents: string;
-  location: { start: { offset: number }; end: { offset: number } };
+  location: SimpleLocation;
 }; // like TextNode, but with less complete location information
 type ProsePart = FragmentNode | BareText;
 type List = {
