@@ -493,6 +493,29 @@ describe('algorithm formatting', () => {
     );
   });
 
+  it('multiline steps', async () => {
+    await assertDocFormatsAs(
+      `
+      <emu-alg>
+      1. Return the Record {
+                [[Precision]]: *"minute"*,
+                [[Unit]]: *"minute"*,
+                [[Increment]]: 1
+              }.
+      </emu-alg>
+      `,
+      dedentKeepingTrailingNewline`
+      <emu-alg>
+        1. Return the Record {
+            [[Precision]]: *"minute"*,
+            [[Unit]]: *"minute"*,
+            [[Increment]]: 1
+          }.
+      </emu-alg>
+      `,
+    );
+  });
+
   it('nested html', async () => {
     await assertDocFormatsAs(
       `
