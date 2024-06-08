@@ -609,6 +609,30 @@ describe('equation formatting', () => {
 });
 
 describe('structured header formatting', () => {
+  it('multiline with no arguments', async () => {
+    await assertDocFormatsAs(
+      `
+      <emu-clause>
+        <h1>
+          Foo (
+          ): ~empty~
+        </h1>
+
+        <dl class="header">
+        </dl>
+      </emu-clause>
+      `,
+      dedentKeepingTrailingNewline`
+      <emu-clause>
+        <h1>Foo ( ): ~empty~</h1>
+
+        <dl class="header">
+        </dl>
+      </emu-clause>
+      `,
+    );
+  });
+
   it('whitespace in inline style', async () => {
     await assertDocFormatsAs(
       `

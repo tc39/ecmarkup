@@ -38,8 +38,10 @@ export function printHeader(
   } = parseResult;
   /* eslint-enable prefer-const */
 
+  const multiline = type === 'multi-line' && (params.length > 0 || optionalParams.length > 0);
+
   const result = new LineBuilder(indent);
-  if (type === 'multi-line') {
+  if (multiline) {
     result.firstLineIsPartial = false;
   }
   if (wrappingTag !== null) {
@@ -60,7 +62,7 @@ export function printHeader(
     returnType === null
   ) {
     // do not print a parameter list
-  } else if (type === 'single-line') {
+  } else if (!multiline) {
     result.appendText(' ' + printSimpleParamList(params, optionalParams));
   } else {
     result.appendText(' (');
@@ -80,7 +82,7 @@ export function printHeader(
   if (wrappingTag !== null) {
     result.appendText(`</${wrappingTag}>`);
   }
-  if (type === 'multi-line') {
+  if (multiline) {
     result.linebreak();
   }
 
