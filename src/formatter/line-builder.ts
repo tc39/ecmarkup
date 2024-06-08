@@ -58,7 +58,7 @@ export class LineBuilder {
       if (text === '') {
         return;
       }
-      this.last = '  '.repeat(this.indent);
+      this.last += '  '.repeat(this.indent);
     }
     this.last += allowMultiSpace ? text : text.replace(/  +/g, ' ');
   }
@@ -80,7 +80,6 @@ export class LineBuilder {
   }
 
   linebreak(): void {
-    // console.log('linebreak');
     if (this.isEmpty()) {
       this.firstLineIsPartial = false;
       return;
@@ -121,6 +120,6 @@ export class LineBuilder {
       // when firstLineIsPartial, we don't indent the first line
       return false;
     }
-    return this.last === '';
+    return /^ *$/.test(this.last);
   }
 }
