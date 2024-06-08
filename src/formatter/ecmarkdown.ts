@@ -34,6 +34,32 @@ async function printListNode(
   return output;
 }
 
+function commonIndent(lines: string[]) {
+  if (lines.length === 0) {
+    return '';
+  }
+  let common = lines[0].match(/^[ \t]+/)?.[0];
+  if (common == null) {
+    return '';
+  }
+  for (let i = 1; i < lines.length; ++i) {
+    const line = lines[i];
+    let j = 0;
+    for (; j < line.length && j < common.length; ++j) {
+      if (common[j] !== line[j]) {
+        break;
+      }
+    }
+    if (j <= 0) {
+      return '';
+    }
+    if (j < common.length) {
+      common = common.slice(0, j);
+    }
+  }
+  return common;
+}
+
 async function printStep(
   source: string,
   item: OrderedListItemNode | UnorderedListItemNode,
@@ -48,7 +74,14 @@ async function printStep(
       .join(', ');
     output.appendText(`[${joined}] `);
   }
-  const contents = await printFragments(source, item.contents, indent + 1);
+
+  const stepSource = source.substring(
+    item.location.start.offset,
+    item.contents[item.contents.length - 1].location.end.offset,
+  );
+  const stepIndent = commonIndent(stepSource.split('\n').slice(1));
+
+  const contents = await printFragments(source, item.contents, indent + 1, stepIndent);
   // this is a bit gross, but whatever
   contents.lines[0] = contents.lines[0].trimStart();
   output.append(contents);
@@ -69,6 +102,8 @@ export async function printFragments(
   source: string,
   contents: FragmentNode[],
   indent: number,
+  // for steps which are split over multiple lines, this is the common indent among them
+  commonIndent: string = '',
 ): Promise<LineBuilder> {
   const output = new LineBuilder(indent);
   let skipNextElement = false;
@@ -82,7 +117,7 @@ export async function printFragments(
         // so don't even bother
         const { start, end } = node.location;
         const originalText = source.substring(start.offset, end.offset);
-        output.append(printText(originalText, indent));
+        output.append(printText(originalText, indent, commonIndent));
         break;
       }
       case 'comment': {
