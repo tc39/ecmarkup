@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+'use strict';
+
 Prince.trackBoxes = true;
 
 const year = new Date().getFullYear();
@@ -86,7 +89,11 @@ function rebuildLi(li) {
  * Generates link elements for table of contents items
  * */
 function renderTocLink(clauseID, clauseNumber, clauseTitle) {
-  const nonAnnexSections = ['sec-copyright-and-software-license', 'sec-colophon', 'sec-bibliography'];
+  const nonAnnexSections = [
+    'sec-copyright-and-software-license',
+    'sec-colophon',
+    'sec-bibliography',
+  ];
   const link = document.createElement('a');
   link.setAttribute('href', '#' + clauseID);
   link.setAttribute('title', clauseTitle);
@@ -99,7 +106,13 @@ function renderTocLink(clauseID, clauseNumber, clauseTitle) {
 
   if (/^[A-Z]$/.test(clauseNumber)) {
     const annexType = document.getElementById(clauseID).getAttribute('normative') || 'informative';
-    link.innerHTML = '<span class="secnum">Annex ' + clauseNumber + ' <span class="unbold">(' + annexType + ')</span></span> ' + clauseTitle;
+    link.innerHTML =
+      '<span class="secnum">Annex ' +
+      clauseNumber +
+      ' <span class="unbold">(' +
+      annexType +
+      ')</span></span> ' +
+      clauseTitle;
 
     return link;
   }
@@ -117,10 +130,15 @@ function renderTocLink(clauseID, clauseNumber, clauseTitle) {
  * Loops through every clause/annex's h1 and improves the markup
  * */
 function improveSectionHeadings() {
+  // eslint-disable-next-line prettier/prettier
   const sectionHeadings = Array.from(specContainer.querySelectorAll('emu-clause > h1, emu-annex > h1'));
 
   /** these section IDs are emu-annex elements but not functionally annexes */
-  const nonAnnexSections = ["sec-copyright-and-software-license", 'sec-colophon', 'sec-bibliography']
+  const nonAnnexSections = [
+    'sec-copyright-and-software-license',
+    'sec-colophon',
+    'sec-bibliography',
+  ];
 
   sectionHeadings.forEach(h1 => {
     const numElem = h1.firstChild;
@@ -135,7 +153,8 @@ function improveSectionHeadings() {
       } else {
         const annexType = parent.getAttribute('normative') || 'informative';
 
-        numElem.innerHTML = 'Annex ' + section + ' <br/><span class="unbold">(' + annexType + ')</span><br/>';
+        numElem.innerHTML =
+          'Annex ' + section + ' <br/><span class="unbold">(' + annexType + ')</span><br/>';
       }
     } else {
       numElem.textContent = section;
@@ -217,7 +236,6 @@ function generateInsideCover() {
 function generateEcmaCopyrightPage() {
   const copyrightNotice = document.createElement('div');
 
-
   copyrightNotice.classList.add('copyright-notice');
   copyrightNotice.innerHTML =
     '<p>COPYRIGHT NOTICE</p>\n\n<p>© ' +
@@ -233,6 +251,7 @@ function generateEcmaCopyrightPage() {
 function ecma262fixes() {
   const toc = document.getElementById('toc');
 
+  // eslint-disable-next-line prettier/prettier
   specContainer.insertBefore(document.getElementById('sec-bibliography'), document.getElementById('sec-colophon'));
   Array.from(toc.getElementsByTagName('a')).forEach(anchor => {
     if (anchor.getAttribute('href') === '#sec-colophon') {

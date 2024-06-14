@@ -1173,7 +1173,8 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       this.doc.head,
       `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
         (hljs as any).versionString
-      }/styles/base16/solarized-light.min.css`);
+      }/styles/base16/solarized-light.min.css`,
+    );
   }
 
   private addStyle(head: HTMLHeadElement, href: string, media?: 'all' | 'print' | 'screen') {
