@@ -299,7 +299,7 @@ describe('linting whole program', () => {
           ruleId: 'header-format',
           nodeType: 'h1',
           message:
-            "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"Example [ @@baz ] \"",
+            'found use of unsupported legacy well-known Symbol notation @@baz; use %Symbol.baz% instead',
         },
       );
     });

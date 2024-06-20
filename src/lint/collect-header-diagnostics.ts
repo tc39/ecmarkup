@@ -58,12 +58,15 @@ export function collectHeaderDiagnostics(
 
     if (!nameMatches) {
       const { line, column } = offsetToLineAndColumn(contents, 0);
+      let message = `expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found ${JSON.stringify(name)}`;
+      let oldSymbolMatch = name.match(/@@([a-z][a-zA-Z]+)/);
+      if (oldSymbolMatch != null) {
+        message = `found use of unsupported legacy well-known Symbol notation ${oldSymbolMatch[0]}; use %Symbol.${oldSymbolMatch[1]}% instead`;
+      }
       report({
         type: 'contents',
         ruleId,
-        message: `expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found ${JSON.stringify(
-          name,
-        )}`,
+        message,
         node: element,
         nodeRelativeLine: line,
         nodeRelativeColumn: column,
