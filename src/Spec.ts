@@ -1471,7 +1471,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     if (!metas.some(n => n.getAttribute('property') === 'og:image')) {
       const meta = this.doc.createElement('meta');
       meta.setAttribute('property', 'og:image');
-      meta.setAttribute('content', 'https://tc39.es/ecmarkup/ecma-header.png');
+      meta.setAttribute('content', 'https://tc39.es/ecmarkup/ecma-logo.png');
       insertMetaTag(meta);
     }
   }
