@@ -1447,8 +1447,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         : (node: HTMLMetaElement) => metas[metas.length - 1].after(node);
     if (!metas.some(n => n.getAttribute('property') === 'og:description')) {
       const description =
-        this.opts.description ??
-        (this.doc.querySelector('emu-intro') ?? this.doc.querySelector('emu-clause'))?.textContent
+        (this.opts.description ?? (this.doc.querySelector('emu-intro') ?? this.doc.querySelector('emu-clause'))?.textContent)
           ?.slice(0, 300)
           .trim();
       if (description) {
