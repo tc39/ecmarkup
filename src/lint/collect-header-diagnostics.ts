@@ -49,21 +49,24 @@ export function collectHeaderDiagnostics(
 
       // CreateForInIterator
       // Object.fromEntries
-      // _NativeError_ [ @@whatever ]
-      // Array.prototype [ @@iterator ]
+      // _NativeError_ [ %whatever% ]
+      // Array.prototype [ %Symbol.iterator% ]
       // %ForInIteratorPrototype%.next
       // Object.prototype.__defineGetter__
-      /^([%_]?)[A-Za-z][A-Za-z0-9/]*\1(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ @@[a-z][a-zA-Z]+ \])*\s*$/,
+      /^([%_]?)[A-Za-z][A-Za-z0-9/]*\1(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ %[a-zA-Z0-9_$.]+% \])*\s*$/,
     ].some(r => r.test(name));
 
     if (!nameMatches) {
       const { line, column } = offsetToLineAndColumn(contents, 0);
+      let message = `expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found ${JSON.stringify(name)}`;
+      const oldSymbolMatch = name.match(/@@([a-z][a-zA-Z]+)/);
+      if (oldSymbolMatch != null) {
+        message = `found use of unsupported legacy well-known Symbol notation ${oldSymbolMatch[0]}; use %Symbol.${oldSymbolMatch[1]}% instead`;
+      }
       report({
         type: 'contents',
         ruleId,
-        message: `expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found ${JSON.stringify(
-          name,
-        )}`,
+        message,
         node: element,
         nodeRelativeLine: line,
         nodeRelativeColumn: column,
