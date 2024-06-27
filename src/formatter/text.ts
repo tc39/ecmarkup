@@ -22,7 +22,7 @@ function isBadNumericReference(codePoint: number) {
   return false;
 }
 
-export function printText(text: string, indent: number): LineBuilder {
+export function printText(text: string, indent: number, commonIndent: string = ''): LineBuilder {
   const output: LineBuilder = new LineBuilder(indent);
   if (text === '') {
     return output;
@@ -64,25 +64,42 @@ export function printText(text: string, indent: number): LineBuilder {
   const leadingSpace = text[0] === ' ' || text[0] === '\t';
   const trailingSpace = text[text.length - 1] === ' ' || text[text.length - 1] === '\t';
 
-  const lines = text.split('\n').map(l => l.trim());
+  const lines = text.split('\n').map((l, i) => {
+    if (i === 0 || commonIndent === '' || !l.startsWith(commonIndent)) {
+      return l.trim();
+    }
+    const withoutIndent = l.substring(commonIndent.length);
+    const moreIndent = withoutIndent.match(/^ +/)?.[0];
+    if (moreIndent) {
+      return { indent: moreIndent, line: l.trim() };
+    }
+    return l.trim();
+  });
 
   if (leadingSpace) {
     output.appendText(' ');
   }
   if (lines.length === 1) {
     if (lines[0] !== '') {
-      output.appendText(lines[0]);
+      output.appendText(lines[0] as string);
       if (trailingSpace) {
         output.appendText(' ');
       }
     }
     return output;
   }
-  for (let i = 0; i < lines.length - 1; ++i) {
-    output.appendText(lines[i]);
-    output.linebreak();
+  for (let i = 0; i < lines.length; ++i) {
+    const line = lines[i];
+    if (typeof line === 'string') {
+      output.appendText(line);
+    } else {
+      output.last = line.indent;
+      output.appendText(line.line);
+    }
+    if (i < lines.length - 1) {
+      output.linebreak();
+    }
   }
-  output.appendText(lines[lines.length - 1]);
   if (trailingSpace && output.last !== '') {
     output.appendText(' ');
   }
