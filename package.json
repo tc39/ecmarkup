@@ -7,7 +7,7 @@
 	"scripts": {
 		"build": "tsc -sourceMap -declarationMap",
 		"build-release": "tsc",
-		"build-spec": "mkdir -p docs && node bin/ecmarkup.js spec/index.html docs/index.html --assets-dir=docs",
+		"build-spec": "mkdir -p docs && node bin/ecmarkup.js spec/index.html docs/index.html --assets-dir=docs && cp ecma-logo.png docs/",
 		"prepack": "safe-publish-latest && npm run build-release",
 		"format-spec": "node bin/emu-format.js --write spec/index.html",
 		"test": "mocha",

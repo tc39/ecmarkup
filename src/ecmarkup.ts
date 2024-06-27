@@ -27,6 +27,7 @@ export interface Options {
   version?: string;
   title?: string;
   shortname?: string;
+  description?: string;
   stage?: string | null;
   copyright?: boolean;
   date?: Date;
