@@ -25,6 +25,6 @@ describe('ecmarkup#build', () => {
     );
     let result = spec.toHTML();
     assert.equal(typeof result, 'string');
-    assert(result.includes(`<div id="spec-container">`));
+    assert(result.includes(`<div id="spec-container" data-shortname="">`));
   });
 });

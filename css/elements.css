@@ -100,7 +100,7 @@ body {
   font-size: 18px;
   line-height: 1.5;
   font-family:
-    IBM Plex Serif,
+    'IBM Plex Serif',
     serif;
   font-variant-numeric: slashed-zero;
   padding: 0;
@@ -158,7 +158,7 @@ span.e-user-code::before {
   vertical-align: middle;
   text-transform: uppercase;
   font-family:
-    IBM Plex Sans,
+    'IBM Plex Sans',
     sans-serif;
   font-weight: 900;
   font-size: x-small;
@@ -183,8 +183,8 @@ span.e-user-code::before {
 code {
   font-weight: bold;
   font-family:
-    Comic Code,
-    IBM Plex Mono,
+    'Comic Code',
+    'IBM Plex Mono',
     monospace;
   white-space: pre;
 }
@@ -251,7 +251,7 @@ var.referenced6 {
 
 emu-const {
   font-family:
-    IBM Plex Sans,
+    'IBM Plex Sans',
     sans-serif;
   font-variant: small-caps;
   text-transform: uppercase;
@@ -453,7 +453,7 @@ emu-rhs emu-nt {
 emu-t {
   display: inline-block;
   font-family:
-    IBM Plex Mono,
+    'IBM Plex Mono',
     monospace;
   font-weight: bold;
   white-space: nowrap;
@@ -490,7 +490,7 @@ emu-params,
 emu-opt {
   margin-right: 1ex;
   font-family:
-    IBM Plex Mono,
+    'IBM Plex Mono',
     monospace;
 }
 
@@ -506,7 +506,7 @@ emu-opt {
 emu-gprose {
   font-size: 0.9em;
   font-family:
-    IBM Plex Sans,
+    'IBM Plex Sans',
     sans-serif;
 }
 
@@ -920,7 +920,7 @@ tr.del > td {
   height: 18px;
   font-size: 12px;
   margin: 0 5px 0 10px;
-  font-family: IBM Plex Sans;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 #menu-pins .unpin-all:hover {
   background: #ddd;
@@ -945,7 +945,7 @@ tr.del > td {
   align-self: center;
 }
 
-#menu-pins-list > li:before,
+#menu-pins-list > li::before,
 #menu-pins-list > li > .unpin {
   flex-shrink: 0;
   flex-grow: 0;
@@ -955,7 +955,7 @@ tr.del > td {
   background: none;
   border: none;
 }
-#menu-pins-list > li:before,
+#menu-pins-list > li::before,
 #menu-pins-list > li > .unpin:hover {
   background: #ccc;
 }
@@ -969,7 +969,7 @@ tr.del > td {
   color: #bb1212;
 }
 
-#menu-pins-list > li:before {
+#menu-pins-list > li::before {
   content: counter(pins-counter);
   counter-increment: pins-counter;
   font-size: 16px;
@@ -1147,7 +1147,7 @@ a.menu-pane-header-production {
   overflow-y: auto;
 }
 
-li.menu-search-result-clause:before {
+li.menu-search-result-clause::before {
   content: 'clause';
   width: 40px;
   display: inline-block;
@@ -1156,7 +1156,7 @@ li.menu-search-result-clause:before {
   color: #666;
   font-size: 75%;
 }
-li.menu-search-result-op:before {
+li.menu-search-result-op::before {
   content: 'op';
   width: 40px;
   display: inline-block;
@@ -1166,7 +1166,7 @@ li.menu-search-result-op:before {
   font-size: 75%;
 }
 
-li.menu-search-result-prod:before {
+li.menu-search-result-prod::before {
   content: 'prod';
   width: 40px;
   display: inline-block;
@@ -1176,7 +1176,7 @@ li.menu-search-result-prod:before {
   font-size: 75%;
 }
 
-li.menu-search-result-term:before {
+li.menu-search-result-term::before {
   content: 'term';
   width: 40px;
   display: inline-block;
@@ -1206,10 +1206,10 @@ li.menu-search-result-term:before {
   white-space: nowrap;
 }
 
-#menu-trace-list li .secnum:after {
+#menu-trace-list li .secnum::after {
   content: ' ';
 }
-#menu-trace-list li:before {
+#menu-trace-list li::before {
   content: counter(item) ' ';
   background-color: #222;
   counter-increment: item;
@@ -1296,8 +1296,8 @@ li.menu-search-result-term:before {
   text-decoration: underline;
 }
 
-.toolbox:after,
-.toolbox:before {
+.toolbox::after,
+.toolbox::before {
   top: 100%;
   left: 15px;
   border: solid transparent;
@@ -1308,13 +1308,13 @@ li.menu-search-result-term:before {
   pointer-events: none;
 }
 
-.toolbox:after {
+.toolbox::after {
   border-color: rgba(0, 0, 0, 0);
   border-top-color: #ddd;
   border-width: 10px;
   margin-left: -10px;
 }
-.toolbox:before {
+.toolbox::before {
   border-color: rgba(204, 204, 204, 0);
   border-top-color: #aaa;
   border-width: 12px;
@@ -1353,7 +1353,7 @@ li.menu-search-result-term:before {
   display: flex;
 }
 
-#references-pane-close:after {
+#references-pane-close::after {
   content: '\2716';
   float: right;
   cursor: pointer;
@@ -1368,10 +1368,18 @@ li.menu-search-result-term:before {
   padding-right: 5px;
 }
 
+emu-normative-optional::before {
+  display: block;
+  color: #884400;
+  content: "NORMATIVE OPTIONAL";
+}
+
+emu-normative-optional,
 [normative-optional],
 [deprecated],
 [legacy] {
   border-left: 5px solid #ff6600;
+  display: block;
   padding: 0.5em;
   background: #ffeedd;
 }
@@ -1424,4 +1432,23 @@ li.menu-search-result-term:before {
   border-color: #bbb;
   background-color: #eee;
   box-shadow: inset 0 -1px 0 #ccc;
+}
+
+#metadata-block {
+  margin: 4em 0;
+  padding: 10px;
+  border: 1px solid #ee8421;
+}
+
+#metadata-block h1 {
+  font-size: 1.5em;
+  margin-top: 0;
+}
+#metadata-block > ul {
+  list-style-type: none;
+  margin: 0; padding: 0;
+}
+
+#ecma-logo {
+  width: 500px;
 }

@@ -1,12 +1,130 @@
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
-  background: #fff;
-  color: #000;
+:root {
+  --page-number-style: decimal;
 }
 
-.title {
+@page {
+  size: A4;
+  margin-top: 28mm;
+  margin-bottom: 20mm;
+  margin-inside: 19mm;
+  margin-outside: 13mm;
+  -prince-page-fill: prefer-fill;
+
+  @bottom-left {
+    font-family: Arial;
+  }
+
+  @bottom-right {
+    font-family: Arial;
+  }
+}
+
+@page :verso {
+  @top-left {
+    content: url('../img/ecma-header.svg');
+    padding-top: 5mm;
+  }
+
+  @bottom-left {
+    content: counter(page, var(--page-number-style));
+    font-size: 10pt;
+  }
+
+  @bottom-right {
+    font-size: 8pt;
+  }
+}
+
+@page :recto {
+  @top-right {
+    content: url('../img/ecma-header.svg');
+    padding-top: 5mm;
+  }
+
+  @bottom-left {
+    font-size: 8pt;
+  }
+
+  @bottom-right {
+    content: counter(page, var(--page-number-style));
+    font-size: 10pt;
+  }
+}
+
+@page :first, :nth(2) {
+  margin: 0;
+
+  @top-left {
+    content: none;
+  }
+
+  @top-right {
+    content: none;
+  }
+
+  @bottom-left {
+    content: none;
+  }
+
+  @bottom-right {
+    content: none;
+  }
+}
+
+@page toc, copyright, intro {
+  --page-number-style: lower-roman;
+}
+
+@page :blank {
+  @bottom-left {
+    content: '';
+  }
+
+  @bottom-right {
+    content: '';
+  }
+}
+
+@page front-cover {
+  background-image: url('../img/print-front-cover.svg');
+}
+
+@page inside-cover {
+  background-image: url('../img/print-inside-cover.svg');
+}
+
+@page front-cover, inside-cover {
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  padding: 0;
+  page-break-after: always;
+}
+
+html, body {
+  background-color: initial;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif, "DejaVu Math TeX Gyre", "DejaVu Sans Mono", "Cambria Math", Symbola, monospace;
+  font-size: 10pt;
+  color: #000;
+  line-height: 1.15;
+}
+
+h1, h2, h3, h4, h5, h6 { -prince-bookmark-level: none }
+
+h1.title {
+  break-before: recto;
+  color: black;
+  counter-reset: page 1;
+  display: block;
+  font-size: 15pt;
   font-family: Verdana;
+  font-weight: bold;
+  margin-bottom: 2.5ex;
+  margin-top: initial;
 }
 
 p {
@@ -24,6 +142,61 @@ h1 {
   line-height: 1.4;
 }
 
+emu-alg {
+  display: block; /* Can't render block elements inside inline elements. */
+}
+
+emu-alg li {
+  orphans: 2;
+  widows: 2;
+}
+
+emu-note,
+emu-note p,
+emu-table tr,
+emu-table th,
+emu-table td,
+pre,
+h1,
+emu-production,
+emu-figure:has(> figure > img) figure,
+#metadata-block {
+  break-inside: avoid;
+}
+
+p:has(+ .math-display),
+emu-table thead,
+h1,
+figcaption,
+emu-alg > ol > li:first-child,
+emu-grammar:has(+ emu-alg),
+figcaption:has(+ emu-table) {
+  break-after: avoid-page;
+}
+
+emu-alg > ol > li:last-child {
+  break-before: avoid;
+  break-after: initial; /* it's okay to break after the last item in a list, even if it's also the first item in the list */
+}
+
+emu-normative-optional emu-clause[id] {
+  margin-top: 0;
+}
+
+emu-normative-optional emu-alg > ol {
+  margin-bottom: 0;
+}
+
+emu-note {
+  gap: initial;
+  justify-content: space-between;
+}
+
+emu-note .note {
+  font-size: 9pt;
+  min-width: 4.5em;
+}
+
 emu-note p,
 emu-table td p {
   text-align: left;
@@ -31,23 +204,180 @@ emu-table td p {
   overflow: hidden;
 }
 
+emu-nt, emu-t {
+  display: initial;
+}
+
+emu-production.inline {
+  text-align: left;
+}
+
+emu-production.inline emu-nt {
+  display: inline;
+}
+
+emu-intro {
+  page: intro;
+}
+
+emu-clause[id], emu-annex[id], emu-intro[id] {
+  scroll-margin-top: initial;
+}
+
+emu-intro, emu-clause, emu-annex {
+  margin-top: 4ex;
+}
+
+emu-clause p:first-of-type {
+  margin-bottom: 0;
+  orphans: 3;
+}
+
+emu-clause p:last-child {
+ margin-bottom: 0;
+}
+
+emu-intro emu-intro, emu-clause emu-clause, emu-annex emu-annex {
+  margin-top: 3.5ex;
+}
+
+emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex,
+emu-intro emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex emu-annex,
+emu-intro emu-intro emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex emu-annex emu-annex {
+  margin-top: 3.2ex;
+}
+
+emu-intro h1, emu-clause h1 , emu-annex h1 {
+  break-after: avoid;
+  font-size: 12pt;
+  -prince-bookmark-level: 1;
+  -prince-bookmark-label: content();
+}
+
+emu-clause emu-clause h1, emu-annex emu-annex h1 {
+  -prince-bookmark-level: 2;
+  -prince-bookmark-state: closed;
+}
+
+emu-clause emu-clause h1, emu-annex emu-annex h1,
+emu-intro h2, emu-clause h2, emu-annex h2 {
+  font-size: 11pt;
+}
+
+emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex h1 {
+  -prince-bookmark-level: 3;
+}
+
+emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex h1 {
+  -prince-bookmark-level: 4;
+}
+
+emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
+  -prince-bookmark-level: 5;
+}
+
+emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
+  -prince-bookmark-level: 6;
+}
+
+emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause h2, emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex emu-annex emu-annex h2 {
+  font-size: 10pt;
+}
+
+emu-clause ol, emu-clause ul, emu-clause dl, emu-annex ol, emu-annex ul, emu-annex dl {
+  margin-left: 0;
+  padding-left: 1.75em;
+}
+
+emu-clause ol ol, emu-clause ul ul {
+  padding-left: 2em;
+}
+
+emu-grammar {
+  display: block;
+}
+
+h1 + emu-grammar {
+  margin-top: 1ex;
+}
+
+p + emu-grammar {
+  break-before: avoid;
+}
+
 emu-table td,
 emu-table th {
   overflow-wrap: break-word;
 }
 
-emu-table table {
-  table-layout: auto;
-  width: 100%;
+caption, table > figcaption {
+  caption-side: top;
+  color: #555555;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+caption {
+  -prince-caption-page: first;
+}
+
+table > figcaption {
+  display: table-caption;
+  -prince-caption-page: following;
+}
+
+table > figcaption::after {
+  content: ' (continued)';
+  font-style: italic;
+  font-weight: normal;
+}
+
+emu-table thead {
+  display: table-header-group;
+}
+
+emu-table tfoot {
+  display: table-footer-group;
 }
 
 emu-figure img {
+  margin-top: 1ex;
   max-width: 100%;
   height: auto;
 }
 
 #spec-container {
-  max-width: none;
+  max-width: initial;
+}
+
+#spec-container > emu-annex {
+  margin-top: 0;
+}
+
+#toc > h2 {
+  -prince-bookmark-level: 1;
+  -prince-bookmark-label: content();
+}
+
+#toc > h2::after {
+  content: 'page';
+  float: right;
+  font-size: 10pt;
+  text-align: right;
 }
 
 #toc a,
@@ -55,27 +385,31 @@ emu-figure img {
   color: #000;
 }
 
-#toc a[href] {
-  background: #fff;
-  padding-right: 0.5em;
-}
 #toc a[href]::after {
-  content: /* leader(dotted) */ target-counter(attr(href), page);
-  float: right;
-  padding-left: 0.5em;
-  background: #fff;
+  content: leader(dotted)  target-counter(attr(href), page);
 }
-/* NOTE: hacks because Paged.js doesn't support leader() in content directives */
-#toc ol {
-  overflow-x: hidden;
+
+#toc > ol.toc {
+  margin-top: 0;
 }
-#toc ol li:before {
-  float: left;
-  width: 0;
-  white-space: nowrap;
-  content: '. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . '
-    '. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . '
-    '. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .';
+
+ol.toc {
+  font-weight: bold;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+ol.toc ol.toc {
+  padding-left: 0;
+}
+
+ol.toc li {
+  text-indent: 35pt hanging;
+}
+
+ol.toc .secnum {
+  display: inline-block;
+  min-width: 3.25em;
 }
 
 /* skip the Introduction since it's before the first emu-clause (and therefore doesn't have a proper page number) */
@@ -84,50 +418,14 @@ emu-figure img {
 }
 
 #toc > ol > li {
-  margin-top: 1ex;
+  margin-top: 0.75ex;
 }
 
 #toc,
 #spec-container > emu-intro,
 #spec-container > emu-annex {
   break-before: recto;
-  break-after: always;
-}
-
-/* according to Ecma guidelines, we're actually not supposed to break before every clause (only the first), but Paged.js fails if we do that */
-/* so instead, just break before any of the clauses that have sub-clauses */
-#spec-container > emu-clause:has(emu-clause:not([example])) {
-  break-before: always;
-}
-
-#spec-container > emu-clause:first-of-type {
-  break-before: recto;
-}
-
-emu-note,
-emu-note p,
-emu-table tr,
-emu-table th,
-emu-table td,
-emu-alg li,
-pre,
-h1,
-#metadata-block {
-  break-inside: avoid;
-}
-
-emu-table thead,
-h1,
-figcaption,
-emu-alg > ol > li:first-child {
-  break-after: avoid;
-}
-
-emu-grammar + emu-alg,
-figcaption + emu-table,
-figcaption + span[id] + emu-table,
-emu-alg > ol > li:last-child {
-  break-before: avoid;
+  break-after: page;
 }
 
 a[data-print-href]::after {
@@ -135,68 +433,185 @@ a[data-print-href]::after {
   color: initial;
 }
 
-emu-table thead {
-  display: table-header-group;
-}
-emu-table tfoot {
-  display: table-footer-group;
+.real-table {
+  max-width: 100%;
+  width: auto;
 }
 
-@page {
-  size: A4;
+.annex-title {
+  text-align: center;
 }
 
-@page {
-  @top-center {
-    content: url(img/ecma-header.png);
-  }
-}
-@page :first {
-  @top-center {
-    content: none;
-  }
+.copyright-notice { /* ecma mandated */
+  font-style: italic;
+  border: 1px solid black;
+  padding: 1em;
+  page: copyright;
+  page-break-before: always;
+  page-break-after: always;
 }
 
-:root {
-  --page-number-style: decimal;
+.full-page-svg {
+  color: rgba(255, 255, 255, 0);
+}
+
+#front-cover {
+  page: front-cover;
+}
+
+#inside-cover {
+  page: inside-cover;
 }
 
 #toc {
   page: toc;
-}
-@page toc {
-  --page-number-style: lower-roman;
-}
-emu-intro {
-  page: intro;
-}
-@page intro {
-  --page-number-style: lower-roman;
-}
-
-#toc {
-  counter-reset: page 1;
-}
-#spec-container > emu-clause:first-of-type {
   counter-reset: page 1;
 }
 
-@page :left {
-  @bottom-left {
-    content: counter(page, var(--page-number-style));
-  }
-}
-@page :right {
-  @bottom-right {
-    content: counter(page, var(--page-number-style));
-  }
+#toc h2 {
+  font-size: 12pt;
+  margin-bottom: 1.5ex;
 }
 
-@page :first {
-  @bottom-left {
-    content: '';
-  }
-  @bottom-right {
-    content: '';
-  }
+.unbold {
+  font-weight: normal;
 }
+
+
+/**
+* ECMA-402-specific hacks
+*/
+emu-normative-optional,
+
+/* 15.3.7 Table 12 */
+#table-numberformat-resolvedoptions-properties {
+  break-inside: avoid-page;
+}
+
+/* These tables are too narrow for their captions */
+#table-sanctioned-single-unit-identifiers table,
+#table-listformat-resolvedoptions-properties table {
+  width: 102mm;
+}
+
+#table-intl-unsigned-rounding-modes table,
+#table-displaynames-resolvedoptions-properties table {
+  width: 130mm;
+}
+
+/* This note is so long it takes up several pages anyway, let it break */
+#sec-intl\.datetimeformat-internal-slots emu-note:nth-of-type(2) {
+  break-inside: initial;
+}
+
+/**
+* ECMA-262-specific hacks. Shouldn't require a ton of maintenance; audit if
+* visual inspection results in unexpected page breaks.
+*/
+/* 2.2 Examples of legacy/normative-optional are small enough to be aggressive against breaks */
+#sec-conformance [example],
+
+/* 6.1.6.1 All subclauses but 6.1.6.1.20 have ols that are short enough they shouldn't break top-level lis */
+#sec-ecmascript-language-types-number-type emu-clause:not(#sec-numeric-types-number-tostring) li,
+
+/* 6.1.7.2 Table 4: could fit one one page */
+#table-essential-internal-methods,
+
+/* 6.1.7.2, Table 5: a two-row table that was breaking */
+#table-additional-essential-internal-methods-of-function-objects,
+
+/* 7.1.18, Table 13: short-ish table broken halfway through */
+/*
+  I changed my mind on this rule bc I felt like it goes against Ecma convention, but my opinion is weakly-held. - Aki
+  #table-toobject-conversions,
+*/
+
+/* 7.3.17 Small alg, avoid breaking steps */
+#sec-createarrayfromlist li,
+
+/* 7.3.23 This prevents a break super deep within the algo */
+#sec-enumerableownproperties > emu-alg > ol > li > ol > li,
+
+/* 8.3.3 avoid breaking in small alg lists */
+#sec-static-semantics-containsundefinedcontinuetarget li,
+
+/* 9.1.1.3 attempt to fit two tables on the same page */
+#table-additional-fields-of-function-environment-records,
+
+/* 9.1.1.4 attempt to fit two long tables on the same page */
+#table-additional-fields-of-global-environment-records,
+
+/* 12.2 5-row table should be able to fit on one page */
+#table-white-space-code-points,
+
+/* 12.3 4-row table should be able to be on one page */
+#table-line-terminator-code-points,
+
+/* 14.7.5.10.3 short table shouldn't be broken */
+#table-for-in-iterator-instance-slots,
+
+/* 15.7.1 keep header with list to avoid awkward page break */
+#sec-class-definitions-static-semantics-early-errors > emu-grammar:first-of-type + ul,
+
+/* 15.7.8 keep third grammar together with alg */
+#sec-static-semantics-privateboundidentifiers > emu-grammar:nth-of-type(3)
+{
+  break-inside: avoid-page;
+}
+
+/* 12.10.1 long-ass note can break wherever it wants */
+#sec-rules-of-automatic-semicolon-insertion > emu-note {
+  break-before: initial;
+  break-inside: initial;
+}
+
+/* 12.10.2, 12.10.3, 12.10.3.2 Sections start with an <em> not inside a <p> */
+#sec-examples-of-automatic-semicolon-insertion > em,
+#sec-interesting-cases-of-automatic-semicolon-insertion > em,
+#sec-asi-cases-with-no-lineterminator-here > em {
+  display: block;
+  margin-top: 1.25ex;
+}
+
+/* 13.5.1.1 the vast, vast majority of the document, we are better off with emu-grammar being block. this is the exception. */
+#sec-delete-operator-static-semantics-early-errors emu-grammar {
+  display: inline-block;
+}
+
+/* 15.3 A very long term combined with inline-block, nowrap, and justified text resulting in weird punctuation */
+#_ref_20642 {
+  font-size: 98%;
+}
+
+/* 15.7.1 keep header with list to avoid awkward page break */
+#sec-class-definitions-static-semantics-early-errors > emu-grammar:first-of-type {
+  break-after: avoid-page;
+}
+
+/* 16.2.1.5.4 squish margins on graphics so table 46 fits on one page */
+#sec-example-cyclic-module-record-graphs figure:has(> img) {
+  margin: 0;
+}
+#sec-example-cyclic-module-record-graphs figure > img {
+  margin: 0;
+}
+#sec-example-cyclic-module-record-graphs figure:has(> img) > figcaption {
+  margin-bottom: 1ex;
+}
+#sec-example-cyclic-module-record-graphs emu-figure:has(> figure > img) + p {
+  margin-top: 1ex;
+}
+
+/* 16.2.1.5.4 table 46 is still wide after pivoting */
+#table-module-graph-cycle-async-fields-1 table {
+  font-size: 95%;
+}
+
+/* 16.2.1.5.4 table 51 & 54 are too narrow for caption */
+#table-module-graph-cycle-async-fields-6 table {
+  width: 110mm;
+}
+#table-module-graph-cycle-async-fields-9 table {
+  width: 135mm;
+}
+
