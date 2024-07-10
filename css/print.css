@@ -1,12 +1,213 @@
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10pt;
-  background: #fff;
-  color: #000;
+@font-face {
+  font-family: "Arial Plus";
+  src: local("Arial");
 }
 
-.title {
+@font-face {
+  font-family: "Arial Plus";
+  unicode-range: U+30;
+  font-style: normal;
+  font-weight: 400;
+  src: local(IBM Plex Mono Regular), local(IBMPlexMono-Regular);
+}
+
+@font-face {
+  font-family: "Arial Plus";
+  unicode-range: U+221e;
+  font-style: normal;
+  font-weight: 400;
+  src: local("DejaVu Math TeX Gyre");
+}
+
+@font-face {
+  font-family: "Arial Plus";
+  unicode-range: U+30;
+  font-style: normal;
+  font-weight: 700;
+  src: local(IBM Plex Mono Bold), local(IBMPlexMono-Bold);
+}
+
+@font-face {
+  font-family: "Arial Plus";
+  unicode-range: U+221e;
+  font-style: normal;
+  font-weight: 700;
+  src: local("DejaVu Math TeX Gyre");
+}
+
+@font-face {
+  font-family: "Arial Plus";
+  unicode-range: U+30;
+  font-style: italic;
+  font-weight: 400;
+  src: local(IBM Plex Mono Italic), local(IBMPlexMono-Italic);
+}
+
+@font-face {
+  font-family: "Arial Plus";
+  unicode-range: U+221e;
+  font-style: italic;
+  font-weight: 400;
+  src: local("DejaVu Math TeX Gyre");
+}
+
+@font-face {
+  font-family: "Arial Plus";
+  unicode-range: U+30;
+  font-style: italic;
+  font-weight: 700;
+  src: local(IBM Plex Mono Bold Italic), local(IBMPlexMono-BoldItalic);
+}
+
+@font-face {
+  font-family: "Arial Plus";
+  unicode-range: U+221e;
+  font-style: italic;
+  font-weight: 700;
+  src: local("DejaVu Math TeX Gyre");
+}
+
+:root {
+  --page-number-style: decimal;
+}
+
+@page {
+  size: A4;
+  margin-top: 28mm;
+  margin-bottom: 20mm;
+  margin-inside: 19mm;
+  margin-outside: 13mm;
+  -prince-page-fill: prefer-fill;
+
+  /* Uncomment when producing WIP versions of final standards */
+  /*
+  @prince-overlay {
+    color: rgba(0,0,0,0.15);
+    content: "WORK IN PROGRESS";
+    font-family: Arial;
+    font-weight: bolder;
+    font-size: 100pt;
+    transform: rotate(-60deg);
+  }
+  */
+
+  @bottom-left {
+    font-family: Arial;
+  }
+
+  @bottom-right {
+    font-family: Arial;
+  }
+}
+
+@page :verso {
+  @top-left {
+    content: url('../img/ecma-header.svg');
+    padding-top: 5mm;
+  }
+
+  @bottom-left {
+    content: counter(page, var(--page-number-style));
+    font-size: 10pt;
+  }
+
+  @bottom-right {
+    content: '© Ecma International ' string(year, first);
+    font-size: 8pt;
+  }
+}
+
+@page :recto {
+  @top-right {
+    content: url('../img/ecma-header.svg');
+    padding-top: 5mm;
+  }
+
+  @bottom-left {
+    content: '© Ecma International ' string(year, first);
+    font-size: 8pt;
+  }
+
+  @bottom-right {
+    content: counter(page, var(--page-number-style));
+    font-size: 10pt;
+  }
+}
+
+@page :first, :nth(2) {
+  margin: 0;
+
+  @top-left {
+    content: none;
+  }
+
+  @top-right {
+    content: none;
+  }
+
+  @bottom-left {
+    content: none;
+  }
+
+  @bottom-right {
+    content: none;
+  }
+}
+
+@page toc, copyright, intro {
+  --page-number-style: lower-roman;
+}
+
+@page :blank {
+  @bottom-left {
+    content: none;
+  }
+
+  @bottom-right {
+    content: none;
+  }
+}
+
+@page front-cover {
+  background-image: url('../img/print-front-cover.svg');
+}
+
+@page inside-cover {
+  background-image: url('../img/print-inside-cover.svg');
+}
+
+@page front-cover, inside-cover {
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  padding: 0;
+  page-break-after: always;
+}
+
+html, body {
+  background-color: initial;
+}
+
+body {
+  font-family: 'Arial Plus', Arial, Helvetica, sans-serif, "DejaVu Math TeX Gyre", Symbola, monospace;
+  font-size: 10pt;
+  color: #000;
+  line-height: 1.15;
+}
+
+h1, h2, h3, h4, h5, h6 { -prince-bookmark-level: none }
+
+.copyright-notice + h1.title {
+  break-before: recto;
+  color: black;
+  counter-reset: page 1;
+  display: block;
+  font-size: 15pt;
   font-family: Verdana;
+  font-weight: bold;
+  margin-bottom: 2.5ex;
+  margin-top: initial;
 }
 
 p {
@@ -24,6 +225,61 @@ h1 {
   line-height: 1.4;
 }
 
+emu-alg {
+  display: block; /* Can't render block elements inside inline elements. */
+}
+
+emu-alg li {
+  orphans: 2;
+  widows: 2;
+}
+
+emu-note,
+emu-note p,
+emu-table tr,
+emu-table th,
+emu-table td,
+pre,
+h1,
+emu-production,
+emu-figure:has(> figure > img) figure,
+#metadata-block {
+  break-inside: avoid;
+}
+
+p:has(+ .math-display),
+emu-table thead,
+h1,
+figcaption,
+emu-alg > ol > li:first-child,
+emu-grammar:has(+ emu-alg),
+figcaption:has(+ emu-table) {
+  break-after: avoid-page;
+}
+
+emu-alg ol li:last-child {
+  break-before: avoid;
+  break-after: initial; /* it's okay to break after the last item in a list, even if it's also the first item in the list */
+}
+
+emu-normative-optional emu-clause[id] {
+  margin-top: 0;
+}
+
+emu-normative-optional emu-alg > ol {
+  margin-bottom: 0;
+}
+
+emu-note {
+  gap: initial;
+  justify-content: space-between;
+}
+
+emu-note .note {
+  font-size: 9pt;
+  min-width: 4.5em;
+}
+
 emu-note p,
 emu-table td p {
   text-align: left;
@@ -31,23 +287,216 @@ emu-table td p {
   overflow: hidden;
 }
 
+emu-nt, emu-t {
+  display: initial;
+}
+
+emu-production.inline {
+  text-align: left;
+}
+
+emu-production.inline emu-nt {
+  display: inline;
+}
+
+emu-intro {
+  page: intro;
+}
+
+emu-intro, emu-clause, emu-annex {
+  margin-top: 4ex;
+}
+
+emu-clause p:first-of-type {
+  margin-bottom: 0;
+  orphans: 3;
+}
+
+emu-clause > p:first-of-type {
+  break-after: avoid-page;
+}
+
+emu-clause p:last-child {
+  break-after: auto;
+  margin-bottom: 0;
+}
+
+emu-clause > p:only-of-type {
+  break-after: auto;
+}
+
+emu-clause > p:first-of-type + emu-alg {
+  break-before: avoid;
+}
+
+emu-intro emu-intro, emu-clause emu-clause, emu-annex emu-annex {
+  margin-top: 3.5ex;
+}
+
+emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex,
+emu-intro emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex emu-annex,
+emu-intro emu-intro emu-intro emu-intro emu-intro,
+emu-clause emu-clause emu-clause emu-clause emu-clause,
+emu-annex emu-annex emu-annex emu-annex emu-annex {
+  margin-top: 3.2ex;
+}
+
+emu-intro h1, emu-clause h1 , emu-annex h1 {
+  break-after: avoid;
+  font-size: 12pt;
+  -prince-bookmark-level: 1;
+  -prince-bookmark-label: content();
+}
+
+emu-clause emu-clause h1, emu-annex emu-annex h1 {
+  -prince-bookmark-level: 2;
+  -prince-bookmark-state: closed;
+}
+
+emu-clause emu-clause h1, emu-annex emu-annex h1,
+emu-intro h2, emu-clause h2, emu-annex h2 {
+  font-size: 11pt;
+}
+
+emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex h1 {
+  -prince-bookmark-level: 3;
+}
+
+emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex h1 {
+  -prince-bookmark-level: 4;
+}
+
+emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
+  -prince-bookmark-level: 5;
+}
+
+emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
+  -prince-bookmark-level: 6;
+}
+
+emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause h2, emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex emu-annex emu-annex h2 {
+  font-size: 10pt;
+}
+
+emu-clause ol, emu-clause ul, emu-clause dl, emu-annex ol, emu-annex ul, emu-annex dl {
+  margin-left: 0;
+  padding-left: 1.75em;
+}
+
+emu-clause ol ol, emu-clause ul ul {
+  padding-left: 2em;
+}
+
+emu-grammar {
+  display: block;
+}
+
+emu-grammar:has(emu-production.inline) {
+  display: inline-block;
+}
+
+h1 + emu-grammar {
+  margin-top: 1ex;
+}
+
+p + emu-grammar {
+  break-before: avoid;
+}
+
 emu-table td,
 emu-table th {
   overflow-wrap: break-word;
 }
 
-emu-table table {
-  table-layout: auto;
-  width: 100%;
+caption, table > figcaption {
+  caption-side: top;
+  color: #555555;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+caption {
+  -prince-caption-page: first;
+}
+
+/* do not break inside of small tables */
+table:not(:has(tr:nth-of-type(5))) {
+  break-inside: avoid-page;
+}
+
+table > figcaption {
+  display: table-caption;
+  -prince-caption-page: following;
+}
+
+table > figcaption::after {
+  content: ' (continued)';
+  font-style: italic;
+  font-weight: normal;
+}
+
+.unicode-property-table {
+  table-layout: initial;
+  width: auto;
+  font-size: 90%;
+}
+
+.unicode-property-table th:first-of-type {
+  width: 33%;
+}
+
+th[rowspan] {
+  vertical-align: bottom;
+}
+
+td[rowspan] {
+  vertical-align: middle;
+}
+
+emu-table thead {
+  display: table-header-group;
+}
+
+emu-table tfoot {
+  display: table-footer-group;
 }
 
 emu-figure img {
+  margin-top: 1ex;
   max-width: 100%;
   height: auto;
 }
 
 #spec-container {
-  max-width: none;
+  max-width: initial;
+}
+
+#spec-container > emu-annex {
+  margin-top: 0;
+}
+
+#toc > h2 {
+  -prince-bookmark-level: 1;
+  -prince-bookmark-label: content();
+}
+
+#toc > h2::after {
+  content: 'page';
+  float: right;
+  font-size: 10pt;
+  text-align: right;
 }
 
 #toc a,
@@ -55,27 +504,31 @@ emu-figure img {
   color: #000;
 }
 
-#toc a[href] {
-  background: #fff;
-  padding-right: 0.5em;
-}
 #toc a[href]::after {
-  content: /* leader(dotted) */ target-counter(attr(href), page);
-  float: right;
-  padding-left: 0.5em;
-  background: #fff;
+  content: leader(dotted)  target-counter(attr(href), page);
 }
-/* NOTE: hacks because Paged.js doesn't support leader() in content directives */
-#toc ol {
-  overflow-x: hidden;
+
+#toc > ol.toc {
+  margin-top: 0;
 }
-#toc ol li:before {
-  float: left;
-  width: 0;
-  white-space: nowrap;
-  content: '. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . '
-    '. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . '
-    '. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .';
+
+ol.toc {
+  font-weight: bold;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+ol.toc ol.toc {
+  padding-left: 0;
+}
+
+ol.toc li {
+  text-indent: 35pt hanging;
+}
+
+ol.toc .secnum {
+  display: inline-block;
+  min-width: 3.25em;
 }
 
 /* skip the Introduction since it's before the first emu-clause (and therefore doesn't have a proper page number) */
@@ -84,50 +537,14 @@ emu-figure img {
 }
 
 #toc > ol > li {
-  margin-top: 1ex;
+  margin-top: 0.75ex;
 }
 
 #toc,
 #spec-container > emu-intro,
 #spec-container > emu-annex {
   break-before: recto;
-  break-after: always;
-}
-
-/* according to Ecma guidelines, we're actually not supposed to break before every clause (only the first), but Paged.js fails if we do that */
-/* so instead, just break before any of the clauses that have sub-clauses */
-#spec-container > emu-clause:has(emu-clause:not([example])) {
-  break-before: always;
-}
-
-#spec-container > emu-clause:first-of-type {
-  break-before: recto;
-}
-
-emu-note,
-emu-note p,
-emu-table tr,
-emu-table th,
-emu-table td,
-emu-alg li,
-pre,
-h1,
-#metadata-block {
-  break-inside: avoid;
-}
-
-emu-table thead,
-h1,
-figcaption,
-emu-alg > ol > li:first-child {
-  break-after: avoid;
-}
-
-emu-grammar + emu-alg,
-figcaption + emu-table,
-figcaption + span[id] + emu-table,
-emu-alg > ol > li:last-child {
-  break-before: avoid;
+  break-after: page;
 }
 
 a[data-print-href]::after {
@@ -135,68 +552,108 @@ a[data-print-href]::after {
   color: initial;
 }
 
-emu-table thead {
-  display: table-header-group;
-}
-emu-table tfoot {
-  display: table-footer-group;
+.real-table {
+  max-width: 100%;
+  width: auto;
 }
 
-@page {
-  size: A4;
+.annex-title {
+  text-align: center;
 }
 
-@page {
-  @top-center {
-    content: url(img/ecma-header.png);
-  }
-}
-@page :first {
-  @top-center {
-    content: none;
-  }
+.copyright-notice { /* ecma mandated */
+  font-style: italic;
+  border: 1px solid black;
+  padding: 1em;
+  page: copyright;
+  page-break-before: always;
+  page-break-after: always;
 }
 
-:root {
-  --page-number-style: decimal;
+.full-page-svg {
+  color: rgba(255, 255, 255, 0);
+}
+
+.secnum {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#front-cover {
+  page: front-cover;
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+}
+
+#front-cover h1 {
+  color: black;
+  display: block;
+  font-family: Verdana;
+  position: absolute;
+}
+
+h1.shortname {
+  top: 86mm;
+  font-weight: 400;
+  font-size: 21pt;
+  right: 31mm;
+  text-align: right;
+  margin-top: 0;
+}
+
+h1.shortname a:link, h1.shortname a:visited, h1.shortname a:hover, h1.shortname a:active {
+  color: black;
+}
+
+h1.shortname .status {
+  display: inline-block;
+  margin-right: 7em;
+  text-transform: capitalize;
+}
+
+h1.version {
+  font-size: 9.7pt;
+  font-weight: normal;
+  margin-top: 0;
+  text-align: right;
+  top: 96mm;
+  left: 139mm;
+  string-set: year attr(data-year);
+}
+
+#front-cover h1.title {
+  font-weight: bold;
+  font-size: 20pt;
+  line-height: 1.2;
+  top: 109mm;
+  right: 15mm;
+  width: 95mm;
+  text-align: left;
+}
+
+#inside-cover {
+  page: inside-cover;
+}
+
+#inside-cover address {
+  color: black;
+  font-size: 12pt;
+  font-style: normal;
+  position: relative;
+  left: 72mm;
+  top: 82mm;
 }
 
 #toc {
   page: toc;
-}
-@page toc {
-  --page-number-style: lower-roman;
-}
-emu-intro {
-  page: intro;
-}
-@page intro {
-  --page-number-style: lower-roman;
-}
-
-#toc {
-  counter-reset: page 1;
-}
-#spec-container > emu-clause:first-of-type {
   counter-reset: page 1;
 }
 
-@page :left {
-  @bottom-left {
-    content: counter(page, var(--page-number-style));
-  }
-}
-@page :right {
-  @bottom-right {
-    content: counter(page, var(--page-number-style));
-  }
+#toc h2 {
+  font-size: 12pt;
+  margin-bottom: 1.5ex;
 }
 
-@page :first {
-  @bottom-left {
-    content: '';
-  }
-  @bottom-right {
-    content: '';
-  }
+.unbold {
+  font-weight: normal;
 }

@@ -90,7 +90,7 @@ const FONT_FILES = new Map([
   ['IBMPlexMono-BoldItalic', 'IBMPlexMono-BoldItalic-SlashedZero.woff2'],
 ]);
 
-const IMG_FILES = new Set(['ecma-header.png']);
+const IMG_FILES = new Set(['ecma-header.svg', 'print-front-cover.svg', 'print-inside-cover.svg']);
 
 interface VisitorMap {
   [k: string]: BuilderInterface;
@@ -1087,7 +1087,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
             const urlRef =
               this.assets.type === 'inline'
                 ? `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
-                : `./${fontFile}`;
+                : `../${fontFile}`;
             return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
           },
         )
@@ -1112,8 +1112,8 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         : process.cwd();
 
       const scriptLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.js');
-      const styleLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.css');
-      const printStyleLocationOnDisk = path.join(this.assets.directory, 'print.css');
+      const styleLocationOnDisk = path.join(this.assets.directory, 'css', 'ecmarkup.css');
+      const printStyleLocationOnDisk = path.join(this.assets.directory, 'css', 'print.css');
 
       this.generatedFiles.set(scriptLocationOnDisk, jsContents);
       this.generatedFiles.set(styleLocationOnDisk, cssContents);
@@ -1126,7 +1126,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }
       for (const imgFile of IMG_FILES) {
         this.generatedFiles.set(
-          path.join(this.assets.directory, imgFile),
+          path.join(this.assets.directory, 'img', imgFile),
           IMG_FILE_CONTENTS.get(imgFile)!,
         );
       }
@@ -1153,38 +1153,6 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       printStyle.textContent = `@media print {\n${printCssContents}\n}`;
       this.doc.head.appendChild(printStyle);
     }
-    const currentYearStyle = this.doc.createElement('style');
-    currentYearStyle.textContent = `
-    @media print {
-      @page :left {
-        @bottom-right {
-          content: '© Ecma International ${this.opts.date!.getFullYear()}';
-        }
-      }
-      @page :right {
-        @bottom-left {
-          content: '© Ecma International ${this.opts.date!.getFullYear()}';
-        }
-      }
-      @page :first {
-        @bottom-left {
-          content: '';
-        }
-        @bottom-right {
-          content: '';
-        }
-      }
-      @page :blank {
-        @bottom-left {
-          content: '';
-        }
-        @bottom-right {
-          content: '';
-        }
-      }
-    }
-    `;
-    this.doc.head.appendChild(currentYearStyle);
     this.addStyle(
       this.doc.head,
       `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
