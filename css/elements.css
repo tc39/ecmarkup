@@ -782,7 +782,7 @@ emu-table td {
   background: #fff;
 }
 
-th[colspan], td[colspan] {
+td[colspan]:not([colspan="1"]), th[colspan]:not([colspan="1"]) {
   text-align: center;
 }
 
