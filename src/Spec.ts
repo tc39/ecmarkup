@@ -740,7 +740,7 @@ export default class Spec {
     });
   }
 
-  private checkValidSectionId(ele: Element) {
+  private readSectionId(ele: Element) {
     if (ele.id == null) {
       this.warn({
         type: 'node',
@@ -748,7 +748,7 @@ export default class Spec {
         message: 'When using --multipage, top-level sections must have ids',
         node: ele,
       });
-      return false;
+      return undefined;
     }
     if (!ele.id.startsWith('sec-')) {
       this.warn({
@@ -757,9 +757,10 @@ export default class Spec {
         message: 'When using --multipage, top-level sections must have ids beginning with `sec-`',
         node: ele,
       });
-      return false;
+      return undefined;
     }
-    if (!/^[A-Za-z0-9-_]+$/.test(ele.id)) {
+    const name = ele.id.substring(4);
+    if (!/^[A-Za-z0-9-_]+$/.test(name)) {
       this.warn({
         type: 'node',
         ruleId: 'top-level-section-id',
@@ -767,18 +768,18 @@ export default class Spec {
           'When using --multipage, top-level sections must have ids matching /^[A-Za-z0-9-_]+$/',
         node: ele,
       });
-      return false;
+      return undefined;
     }
-    if (ele.id.toLowerCase() === 'sec-index') {
+    if (name.toLowerCase() === 'index') {
       this.warn({
         type: 'node',
         ruleId: 'top-level-section-id',
         message: 'When using --multipage, top-level sections must not be named "index"',
         node: ele,
       });
-      return false;
+      return undefined;
     }
-    return true;
+    return name;
   }
 
   private propagateEffects() {
@@ -872,11 +873,12 @@ export default class Spec {
         if (!clauseTypes.includes(child.nodeName)) {
           throw new Error('non-clause children are not yet implemented: ' + child.nodeName);
         }
-        if (!this.checkValidSectionId(child)) {
+
+        const name = this.readSectionId(child);
+        if (name === undefined) {
           continue;
         }
 
-        const name = child.id.substring(4);
         section = { name, eles: [child] };
       }
 
