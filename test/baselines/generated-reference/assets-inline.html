@@ -1488,20 +1488,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Omit indendation when copying a single algorithm step.
 document.addEventListener('copy', evt => {
-  const selection = getSelection();
-  const singleRange = selection?.rangeCount === 1 && selection.getRangeAt(0);
-  const container = singleRange?.commonAncestorContainer;
-  if (!container?.querySelector("span[aria-hidden='true']")) {
+  const doc = document.implementation.createHTMLDocument('');
+  const domRoot = doc.createElement('div');
+  const html = evt.clipboardData.getData('text/html');
+  if (html) {
+    domRoot.innerHTML = html;
+  } else {
+    const selection = getSelection();
+    const singleRange = selection?.rangeCount === 1 && selection.getRangeAt(0);
+    const container = singleRange?.commonAncestorContainer;
+    if (!container?.querySelector?.("span[aria-hidden='true']")) {
+      return;
+    }
+    domRoot.append(singleRange.cloneContents());
+  }
+  const hiddenElems = [...domRoot.querySelectorAll("span[aria-hidden='true']")];
+  const lastHidden = hiddenElems.at(-1);
+  if (lastHidden?.parentNode !== domRoot || lastHidden.previousSibling) {
+    // Manipulation is not appropriate, either because there is more than one
+    // hidden element or because the only one is not at the beginning.
     return;
   }
-  const clone = document.createElement('div');
-  clone.append(singleRange.cloneContents());
-  const lastHidden = [...clone.querySelectorAll("span[aria-hidden='true']")].at(-1);
-  if (lastHidden.previousSibling || lastHidden.parentNode !== clone) {
-    return;
+  evt.clipboardData.setData('text/plain', domRoot.textContent.trimStart());
+  if (!html) {
+    evt.clipboardData.setData('text/html', domRoot.innerHTML);
   }
-  evt.clipboardData.setData('text/plain', clone.textContent.trimStart());
-  evt.clipboardData.setData('text/html', clone.innerHTML);
   evt.preventDefault();
 });
 
