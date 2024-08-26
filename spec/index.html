@@ -367,7 +367,10 @@ markEffects: true
       1. Set _length_ to _length_ + 1.
       1. Let _weight_ be GetWeight of _node_.
       1. If _length_ = 10&lt;sup>9&lt;/sup> or _weight_ &gt; 2&lt;sup>_length_ + 1&lt;/sup>, then
-        1. Throw a *RangeError* exception.
+        1. NOTE: This is an out-of-bounds state.
+        1. If _ignoreErrors_ is not *true*, then
+          1. Throw a *RangeError* exception.
+        1. Set _hadError_ to *true*.
     &lt;/emu-alg>
   </code></pre>
 
@@ -386,7 +389,10 @@ markEffects: true
       1. Set _length_ to _length_ + 1.
       1. Let _weight_ be GetWeight of _node_.
       1. If _length_ = 10<sup>9</sup> or _weight_ > 2<sup>_length_ + 1</sup>, then
-        1. Throw a *RangeError* exception.
+        1. NOTE: This is an out-of-bounds state.
+        1. If _ignoreErrors_ is not *true*, then
+          1. Throw a *RangeError* exception.
+        1. Set _hadError_ to *true*.
     </emu-alg>
   </aside>
 

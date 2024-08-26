@@ -80,6 +80,7 @@ const counterByDepth = [];
 function addStepNumberText(
   ol,
   depth = 0,
+  indent = '',
   special = [...ol.classList].some(c => c.startsWith('nested-')),
 ) {
   let counter = !special && counterByDepth[depth];
@@ -103,7 +104,9 @@ function addStepNumberText(
   let i = (Number(ol.getAttribute('start')) || 1) - 1;
   for (const li of ol.children) {
     const marker = document.createElement('span');
-    marker.textContent = `${i < cache.length ? cache[i] : getTextForIndex(i)}. `;
+    const markerText = i < cache.length ? cache[i] : getTextForIndex(i);
+    const extraIndent = ' '.repeat(markerText.length + 2);
+    marker.textContent = `${indent}${markerText}. `;
     marker.setAttribute('aria-hidden', 'true');
     const attributesContainer = li.querySelector('.attributes-tag');
     if (attributesContainer == null) {
@@ -112,7 +115,7 @@ function addStepNumberText(
       attributesContainer.insertAdjacentElement('afterend', marker);
     }
     for (const sublist of li.querySelectorAll(':scope > ol')) {
-      addStepNumberText(sublist, depth + 1, special);
+      addStepNumberText(sublist, depth + 1, indent + extraIndent, special);
     }
     i++;
   }
