@@ -1467,6 +1467,7 @@ function addStepNumberText(
     const extraIndent = ' '.repeat(markerText.length + 2);
     marker.textContent = `${indent}${markerText}. `;
     marker.setAttribute('aria-hidden', 'true');
+    marker.setAttribute('class', 'list-marker');
     const attributesContainer = li.querySelector('.attributes-tag');
     if (attributesContainer == null) {
       li.prepend(marker);
@@ -1488,6 +1489,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Omit indendation when copying a single algorithm step.
 document.addEventListener('copy', evt => {
+  // Construct a DOM from the selection.
   const doc = document.implementation.createHTMLDocument('');
   const domRoot = doc.createElement('div');
   const html = evt.clipboardData.getData('text/html');
@@ -1497,18 +1499,33 @@ document.addEventListener('copy', evt => {
     const selection = getSelection();
     const singleRange = selection?.rangeCount === 1 && selection.getRangeAt(0);
     const container = singleRange?.commonAncestorContainer;
-    if (!container?.querySelector?.("span[aria-hidden='true']")) {
+    if (!container?.querySelector?.('.list-marker')) {
       return;
     }
     domRoot.append(singleRange.cloneContents());
   }
-  const hiddenElems = [...domRoot.querySelectorAll("span[aria-hidden='true']")];
-  const lastHidden = hiddenElems.at(-1);
-  if (lastHidden?.parentNode !== domRoot || lastHidden.previousSibling) {
-    // Manipulation is not appropriate, either because there is more than one
-    // hidden element or because the only one is not at the beginning.
+
+  // Preserve the indentation if there is no hidden list marker, or if selection
+  // of more than one step is indicated by either multiple such markers or by
+  // visible text before the first one.
+  const listMarkers = domRoot.querySelectorAll('.list-marker');
+  if (listMarkers.length !== 1) {
     return;
   }
+  const treeWalker = document.createTreeWalker(domRoot, undefined, {
+    acceptNode(node) {
+      return node.nodeType === Node.TEXT_NODE || node === listMarkers[0]
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_SKIP;
+    },
+  });
+  while (treeWalker.nextNode()) {
+    const node = treeWalker.currentNode;
+    if (node.nodeType === Node.ELEMENT_NODE) break;
+    if (/\S/u.test(node.data)) return;
+  }
+
+  // Strip leading indentation from the plain text representation.
   evt.clipboardData.setData('text/plain', domRoot.textContent.trimStart());
   if (!html) {
     evt.clipboardData.setData('text/html', domRoot.innerHTML);
