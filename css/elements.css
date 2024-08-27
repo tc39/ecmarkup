@@ -125,6 +125,7 @@ body.oldtoc {
 
 span[aria-hidden='true'] {
   font-size: 0;
+  white-space: pre;
 }
 
 a {
