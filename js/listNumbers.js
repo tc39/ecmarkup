@@ -126,3 +126,22 @@ document.addEventListener('DOMContentLoaded', () => {
     addStepNumberText(ol);
   });
 });
+
+// Omit indendation when copying a single algorithm step.
+document.addEventListener('copy', evt => {
+  const selection = getSelection();
+  const singleRange = selection?.rangeCount === 1 && selection.getRangeAt(0);
+  const container = singleRange?.commonAncestorContainer;
+  if (!container?.querySelector("span[aria-hidden='true']")) {
+    return;
+  }
+  const clone = document.createElement('div');
+  clone.append(singleRange.cloneContents());
+  const lastHidden = [...clone.querySelectorAll("span[aria-hidden='true']")].at(-1);
+  if (lastHidden.previousSibling || lastHidden.parentNode !== clone) {
+    return;
+  }
+  evt.clipboardData.setData('text/plain', clone.textContent.trimStart());
+  evt.clipboardData.setData('text/html', clone.innerHTML);
+  evt.preventDefault();
+});
