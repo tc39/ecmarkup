@@ -740,7 +740,16 @@ export default class Spec {
     });
   }
 
-  private checkValidSectionId(ele: Element) {
+  private readSectionId(ele: Element) {
+    if (ele.id == null) {
+      this.warn({
+        type: 'node',
+        ruleId: 'top-level-section-id',
+        message: 'When using --multipage, top-level sections must have ids',
+        node: ele,
+      });
+      return undefined;
+    }
     if (!ele.id.startsWith('sec-')) {
       this.warn({
         type: 'node',
@@ -748,9 +757,10 @@ export default class Spec {
         message: 'When using --multipage, top-level sections must have ids beginning with `sec-`',
         node: ele,
       });
-      return false;
+      return undefined;
     }
-    if (!/^[A-Za-z0-9-_]+$/.test(ele.id)) {
+    const name = ele.id.substring(4);
+    if (!/^[A-Za-z0-9-_]+$/.test(name)) {
       this.warn({
         type: 'node',
         ruleId: 'top-level-section-id',
@@ -758,18 +768,18 @@ export default class Spec {
           'When using --multipage, top-level sections must have ids matching /^[A-Za-z0-9-_]+$/',
         node: ele,
       });
-      return false;
+      return undefined;
     }
-    if (ele.id.toLowerCase() === 'sec-index') {
+    if (name.toLowerCase() === 'index') {
       this.warn({
         type: 'node',
         ruleId: 'top-level-section-id',
         message: 'When using --multipage, top-level sections must not be named "index"',
         node: ele,
       });
-      return false;
+      return undefined;
     }
-    return true;
+    return name;
   }
 
   private propagateEffects() {
@@ -834,82 +844,57 @@ export default class Spec {
     const clauseTypes = ['EMU-ANNEX', 'EMU-CLAUSE'];
     // @ts-ignore
     for (const child of wrapper.children) {
+      let section: { name: string; eles: Element[] };
       if (stillIntro) {
         if (clauseTypes.includes(child.nodeName)) {
           throw new Error('cannot make multipage build without intro');
-        } else if (child.nodeName === 'EMU-INTRO') {
-          stillIntro = false;
-
-          if (child.id == null) {
-            this.warn({
-              type: 'node',
-              ruleId: 'top-level-section-id',
-              message: 'When using --multipage, top-level sections must have ids',
-              node: child,
-            });
-            continue;
-          }
-          if (child.id !== 'sec-intro') {
-            this.warn({
-              type: 'node',
-              ruleId: 'top-level-section-id',
-              message: 'When using --multipage, the introduction must have id "sec-intro"',
-              node: child,
-            });
-            continue;
-          }
-
-          const name = 'index';
+        } else if (child.nodeName !== 'EMU-INTRO') {
+          // anything before emu-intro is considered part of the introduction
           introEles.push(child);
-          sections.push({ name, eles: introEles });
-
-          const contained: string[] = [];
-          sectionToContainedIds.set(name, contained);
-
-          for (const item of introEles) {
-            if (item.id) {
-              contained.push(item.id);
-              containedIdToSection.set(item.id, name);
-            }
-          }
-
-          // @ts-ignore
-          for (const item of [...introEles].flatMap(e => [...e.querySelectorAll('[id]')])) {
-            contained.push(item.id);
-            containedIdToSection.set(item.id, name);
-          }
-        } else {
-          introEles.push(child);
+          continue;
         }
-      } else {
-        if (!clauseTypes.includes(child.nodeName)) {
-          throw new Error('non-clause children are not yet implemented: ' + child.nodeName);
-        }
-        if (child.id == null) {
+
+        stillIntro = false;
+
+        if (child.id !== 'sec-intro') {
           this.warn({
             type: 'node',
             ruleId: 'top-level-section-id',
-            message: 'When using --multipage, top-level sections must have ids',
+            message: 'When using --multipage, the introduction must have id "sec-intro"',
             node: child,
           });
           continue;
         }
-        if (!this.checkValidSectionId(child)) {
+
+        const name = 'index';
+        introEles.push(child);
+        section = { name, eles: introEles };
+      } else {
+        if (!clauseTypes.includes(child.nodeName)) {
+          throw new Error('non-clause children are not yet implemented: ' + child.nodeName);
+        }
+
+        const name = this.readSectionId(child);
+        if (name === undefined) {
           continue;
         }
 
-        const name = child.id.substring(4);
-        const contained: string[] = [];
-        sectionToContainedIds.set(name, contained);
+        section = { name, eles: [child] };
+      }
 
-        contained.push(child.id);
-        containedIdToSection.set(child.id, name);
+      sections.push(section);
 
-        for (const item of child.querySelectorAll('[id]')) {
-          contained.push(item.id);
-          containedIdToSection.set(item.id, name);
+      const contained: string[] = [];
+      sectionToContainedIds.set(section.name, contained);
+      for (const ele of section.eles) {
+        if (ele.id) {
+          contained.push(ele.id);
+          containedIdToSection.set(ele.id, section.name);
         }
-        sections.push({ name, eles: [child] });
+        for (const item of ele.querySelectorAll('[id]')) {
+          contained.push(item.id);
+          containedIdToSection.set(item.id, section.name);
+        }
       }
     }
 
