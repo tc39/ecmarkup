@@ -169,7 +169,8 @@ export function typecheck(spec: Spec) {
       const isCompletion =
         returnType.kind === 'completion' ||
         (returnType.kind === 'union' && returnType.types[0].kind === 'completion');
-      if (['Completion', 'ThrowCompletion', 'NormalCompletion'].includes(calleeName)) {
+      // prettier-ignore
+      if (['Completion', 'ThrowCompletion', 'NormalCompletion', 'ReturnCompletion'].includes(calleeName)) {
         if (consumedAsCompletion) {
           warn(
             `${calleeName} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`,

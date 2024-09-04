@@ -12,9 +12,43 @@ describe('typechecking completions', () => {
   let biblio;
   before(async () => {
     biblio = await getBiblio(`
-      <emu-clause id="normal-completion" type="abstract operation">
-        <h1>NormalCompletion ( _x_ )</h1>
-        <dl class="header"></dl>
+      <emu-clause id="sec-normalcompletion" type="abstract operation">
+        <h1>
+          NormalCompletion (
+            _value_: any value except a Completion Record,
+          ): a normal completion
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Return Completion Record { [[Type]]: ~normal~, [[Value]]: _value_, [[Target]]: ~empty~ }.
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-throwcompletion" type="abstract operation">
+        <h1>
+          ThrowCompletion (
+            _value_: an ECMAScript language value,
+          ): a throw completion
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Return Completion Record { [[Type]]: ~throw~, [[Value]]: _value_, [[Target]]: ~empty~ }.
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-returncompletion" type="abstract operation">
+        <h1>
+          ReturnCompletion (
+            _value_: any value except a Completion Record,
+          ): a return completion
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Return Completion Record { [[Type]]: ~return~, [[Value]]: _value_, [[Target]]: ~empty~ }.
+        </emu-alg>
       </emu-clause>
 
       <emu-clause id="sec-completion-ao" type="abstract operation">
@@ -27,6 +61,17 @@ describe('typechecking completions', () => {
         <emu-alg>
           1. Assert: _completionRecord_ is a Completion Record.
           1. Return _completionRecord_.
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-examplecompletionao" type="abstract operation">
+        <h1>
+          ExampleCompletionAO (): a normal completion
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Return Completion Record { [[Type]]: ~normal~, [[Value]]: 0, [[Target]]: ~empty~ }.
         </emu-alg>
       </emu-clause>
     `);
@@ -98,6 +143,28 @@ describe('typechecking completions', () => {
           extraBiblios: [biblio],
         },
       );
+
+      await assertLint(
+        positioned`
+        <emu-clause id="example" type="abstract operation">
+        <h1>ExampleAlg ( )</h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Do something with Completion(${M}NormalCompletion(0)).
+        </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'typecheck',
+          nodeType: 'emu-alg',
+          message:
+            'NormalCompletion clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result',
+        },
+        {
+          extraBiblios: [biblio],
+        },
+      );
     });
 
     it('negative', async () => {
@@ -105,12 +172,14 @@ describe('typechecking completions', () => {
         `
           <emu-clause id="example" type="abstract operation">
           <h1>
-            ExampleAlg (): a normal completion containing a Number
+            ExampleAlg (): a Completion Record
           </h1>
           <dl class="header">
           </dl>
           <emu-alg>
-            1. Return NormalCompletion(0).
+            1. If some condition holds, return ThrowCompletion(*null*).
+            1. Else if some other condition holds, return ReturnCompletion(*null*).
+            1. Return NormalCompletion(*null*).
           </emu-alg>
           </emu-clause>
 
@@ -389,7 +458,7 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
-            1. Do something with Completion(NormalCompletion(0)).
+            1. Do something with Completion(ExampleCompletionAO()).
             1. NOTE: This will not throw a *TypeError* exception.
             1. Consider whether something is a return completion.
           </emu-alg>
