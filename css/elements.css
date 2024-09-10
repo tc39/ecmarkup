@@ -1463,9 +1463,3 @@ emu-normative-optional,
 #ecma-logo {
   width: 500px;
 }
-
-.unicode-property-table {
-  table-layout: fixed;
-  width: 100%;
-  font-size: 80%;
-}

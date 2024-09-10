@@ -447,16 +447,6 @@ table > figcaption::after {
   font-weight: normal;
 }
 
-.unicode-property-table {
-  table-layout: initial;
-  width: auto;
-  font-size: 90%;
-}
-
-.unicode-property-table th:first-of-type {
-  width: 33%;
-}
-
 th[rowspan] {
   vertical-align: bottom;
 }
