@@ -99,17 +99,11 @@ function usage() {
   }
 
   const touched = [];
-  if (!write) {
+  if (!write && !check) {
     const input = await fs.readFile(files[0], 'utf8');
     const printed = await printDocument(input);
-    if (check) {
-      if (printed !== input) {
-        touched.push(files[0]);
-      }
-    } else {
-      // printDocument includes a newline
-      process.stdout.write(printed);
-    }
+    // printDocument includes a newline
+    process.stdout.write(printed);
   } else {
     for (const file of files) {
       console.log(`Processing ${file}`);

@@ -38,3 +38,32 @@ describe('ecmarkup#cli', function () {
     });
   });
 });
+
+describe('emu-format --check', function () {
+  this.timeout(4000);
+
+  it('exits cleanly if the file needs no formatting', () => {
+    execSync(`${execPath} ./bin/emu-format.js --check test/format-good.html`, {
+      encoding: 'utf8',
+    });
+  });
+
+  it('exits with an error if the file needs formatting', () => {
+    assert.throws(() => {
+      execSync(`${execPath} ./bin/emu-format.js --check test/format-bad.html`, {
+        encoding: 'utf8',
+      });
+    });
+  });
+
+  it('exits with an error if any files in the list need formatting', () => {
+    assert.throws(() => {
+      execSync(
+        `${execPath} ./bin/emu-format.js --check test/format-good.html test/format-bad.html`,
+        {
+          encoding: 'utf8',
+        },
+      );
+    });
+  });
+});
