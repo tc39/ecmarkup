@@ -347,17 +347,19 @@ function previousText(expr: Expr, path: PathItem[]): string | null {
 
 function textFromPreviousPart(seq: Seq, index: number): string | null {
   let prevIndex = index - 1;
+  let text = null;
   let prev;
   while (isProsePart((prev = seq.items[prevIndex]))) {
     if (prev.name === 'text') {
-      return prev.contents;
+      text = prev.contents + (text ?? '');
+      --prevIndex;
     } else if (prev.name === 'tag') {
       --prevIndex;
     } else {
       break;
     }
   }
-  return null;
+  return text;
 }
 
 function stripWhitespace(items: NonSeq[]) {
