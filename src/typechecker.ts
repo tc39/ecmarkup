@@ -50,10 +50,10 @@ export function typecheck(spec: Spec) {
       }
       const calleeName = callee[0].contents;
 
-      const warn = (message: string) => {
+      const warn = (offset: number, message: string) => {
         const { line, column } = offsetToLineAndColumn(
           originalHtml,
-          callee[0].location.start.offset,
+          offset,
         );
         spec.warn({
           type: 'contents',
@@ -69,13 +69,14 @@ export function typecheck(spec: Spec) {
       if (biblioEntry == null) {
         if (!['toUppercase', 'toLowercase'].includes(calleeName)) {
           // TODO make the spec not do this
-          warn(`could not find definition for ${calleeName}`);
+          warn(callee[0].location.start.offset, `could not find definition for ${calleeName}`);
         }
         return;
       }
 
       if (biblioEntry.kind === 'syntax-directed operation' && expr.name === 'call') {
         warn(
+          callee[0].location.start.offset,
           `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`,
         );
       } else if (
@@ -83,7 +84,7 @@ export function typecheck(spec: Spec) {
         biblioEntry.kind !== 'syntax-directed operation' &&
         expr.name === 'sdo-call'
       ) {
-        warn(`${calleeName} is not a syntax-directed operation but here is being invoked as one`);
+        warn(callee[0].location.start.offset, `${calleeName} is not a syntax-directed operation but here is being invoked as one`);
       }
 
       if (biblioEntry.signature == null) {
@@ -95,7 +96,7 @@ export function typecheck(spec: Spec) {
       if (args.length < min || args.length > max) {
         const count = `${min}${min === max ? '' : `-${max}`}`;
         const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
-        warn(message);
+        warn(callee[0].location.start.offset, message);
       } else {
         const params = signature.parameters.concat(signature.optionalParameters);
         for (const [arg, param] of zip(args, params, true)) {
@@ -114,11 +115,6 @@ export function typecheck(spec: Spec) {
               argType.kind === 'list' &&
               argType.of.kind !== 'never')
           ) {
-            const items = stripWhitespace(arg.items);
-            const { line, column } = offsetToLineAndColumn(
-              originalHtml,
-              items[0].location.start.offset,
-            );
             const argDescriptor =
               argType.kind.startsWith('concrete') ||
               argType.kind === 'enum value' ||
@@ -145,14 +141,8 @@ export function typecheck(spec: Spec) {
                 '\nhint: you passed a mathematical value, but this position takes an ES language BigInt';
             }
 
-            spec.warn({
-              type: 'contents',
-              ruleId: 'typecheck',
-              message: `argument ${argDescriptor} does not look plausibly assignable to parameter type (${serialize(paramType)})${hint}`,
-              node,
-              nodeRelativeLine: line,
-              nodeRelativeColumn: column,
-            });
+            const items = stripWhitespace(arg.items);
+            warn(items[0].location.start.offset, `argument ${argDescriptor} does not look plausibly assignable to parameter type (${serialize(paramType)})${hint}`);
           }
         }
       }
@@ -173,16 +163,18 @@ export function typecheck(spec: Spec) {
       if (['Completion', 'ThrowCompletion', 'NormalCompletion', 'ReturnCompletion'].includes(calleeName)) {
         if (consumedAsCompletion) {
           warn(
+            callee[0].location.start.offset,
             `${calleeName} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`,
           );
         }
       } else if (isCompletion && !consumedAsCompletion) {
-        warn(`${calleeName} returns a Completion Record, but is not consumed as if it does`);
+        warn(callee[0].location.start.offset, `${calleeName} returns a Completion Record, but is not consumed as if it does`);
       } else if (!isCompletion && consumedAsCompletion) {
-        warn(`${calleeName} does not return a Completion Record, but is consumed as if it does`);
+        warn(callee[0].location.start.offset, `${calleeName} does not return a Completion Record, but is consumed as if it does`);
       }
       if (returnType.kind === 'unused' && !isCalledAsPerform(expr, path, false)) {
         warn(
+          callee[0].location.start.offset,
           `${calleeName} does not return a meaningful value and should only be invoked as \`Perform ${calleeName}(...).\``,
         );
       }
@@ -211,6 +203,9 @@ export function typecheck(spec: Spec) {
     };
     const walkLines = (list: OrderedListNode) => {
       for (const line of list.contents) {
+        // we already parsed in collect-algorithm-diagnostics, but that was before generating the biblio
+        // the biblio affects the parse of calls, so we need to re-do it
+        // TODO do collect-algorithm-diagnostics after generating the biblio, somehow?
         const item = parseExpr(line.contents, opNames);
         if (item.name === 'failure') {
           const { line, column } = offsetToLineAndColumn(originalHtml, item.offset);
