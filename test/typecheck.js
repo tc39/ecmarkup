@@ -204,6 +204,7 @@ describe('typechecking completions', () => {
             1. Set _a_ to ! ExampleAlg().
             1. Return ? ExampleAlg().
             1. Return <ins>?</ins> ExampleAlg().
+            1. Return <del>?</del> <ins>!</ins> ExampleAlg().
             1. Let _foo_ be 0.
             1. Set _a_ to Completion(ExampleSDO of _foo_).
             1. Set _a_ to Completion(ExampleSDO of _foo_ with argument 0).
