@@ -38,6 +38,20 @@ export function typecheck(spec: Spec) {
       continue;
     }
     const originalHtml = (node as AlgorithmElementWithTree).originalHtml;
+    const warn = (offset: number, message: string) => {
+      const { line, column } = offsetToLineAndColumn(
+        originalHtml,
+        offset,
+      );
+      spec.warn({
+        type: 'contents',
+        ruleId: 'typecheck',
+        message,
+        node,
+        nodeRelativeLine: line,
+        nodeRelativeColumn: column,
+      });
+    };
 
     const expressionVisitor = (expr: Expr, path: PathItem[]) => {
       if (expr.name !== 'call' && expr.name !== 'sdo-call') {
@@ -49,21 +63,6 @@ export function typecheck(spec: Spec) {
         return;
       }
       const calleeName = callee[0].contents;
-
-      const warn = (offset: number, message: string) => {
-        const { line, column } = offsetToLineAndColumn(
-          originalHtml,
-          offset,
-        );
-        spec.warn({
-          type: 'contents',
-          ruleId: 'typecheck',
-          message,
-          node,
-          nodeRelativeLine: line,
-          nodeRelativeColumn: column,
-        });
-      };
 
       const biblioEntry = spec.biblio.byAoid(calleeName);
       if (biblioEntry == null) {
