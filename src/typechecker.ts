@@ -7,6 +7,171 @@ import { walk as walkExpr, parse as parseExpr, isProsePart } from './expr-parser
 import { offsetToLineAndColumn, zip } from './utils';
 import type Biblio from './Biblio';
 
+type OnlyPerformedMap = Map<string, null | 'only performed' | 'top'>;
+type AlwaysAssertedToBeNormalMap = Map<string, null | 'always asserted normal' | 'top'>;
+
+const getExpressionVisitor =
+  (
+    spec: Spec,
+    warn: (offset: number, message: string) => void,
+    onlyPerformed: OnlyPerformedMap,
+    alwaysAssertedToBeNormal: AlwaysAssertedToBeNormalMap,
+  ) =>
+  (expr: Expr, path: PathItem[]) => {
+    if (expr.name !== 'call' && expr.name !== 'sdo-call') {
+      return;
+    }
+
+    const { callee, arguments: args } = expr;
+    if (!(callee.length === 1 && callee[0].name === 'text')) {
+      return;
+    }
+    const calleeName = callee[0].contents;
+
+    const biblioEntry = spec.biblio.byAoid(calleeName);
+    if (biblioEntry == null) {
+      if (!['toUppercase', 'toLowercase'].includes(calleeName)) {
+        // TODO make the spec not do this
+        warn(callee[0].location.start.offset, `could not find definition for ${calleeName}`);
+      }
+      return;
+    }
+
+    if (biblioEntry.kind === 'syntax-directed operation' && expr.name === 'call') {
+      warn(
+        callee[0].location.start.offset,
+        `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`,
+      );
+    } else if (
+      biblioEntry.kind != null &&
+      biblioEntry.kind !== 'syntax-directed operation' &&
+      expr.name === 'sdo-call'
+    ) {
+      warn(
+        callee[0].location.start.offset,
+        `${calleeName} is not a syntax-directed operation but here is being invoked as one`,
+      );
+    }
+
+    if (biblioEntry.signature == null) {
+      return;
+    }
+    const { signature } = biblioEntry;
+    const min = signature.parameters.length;
+    const max = min + signature.optionalParameters.length;
+    if (args.length < min || args.length > max) {
+      const count = `${min}${min === max ? '' : `-${max}`}`;
+      const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
+      warn(callee[0].location.start.offset, message);
+    } else {
+      const params = signature.parameters.concat(signature.optionalParameters);
+      for (const [arg, param] of zip(args, params, true)) {
+        if (param.type == null) continue;
+        const argType = typeFromExpr(arg, spec.biblio);
+        const paramType = typeFromExprType(param.type);
+
+        // often we can't infer the argument precisely, so we check only that the intersection is nonempty rather than that the argument type is a subtype of the parameter type
+        const intersection = meet(argType, paramType);
+
+        if (
+          intersection.kind === 'never' ||
+          (intersection.kind === 'list' &&
+            intersection.of.kind === 'never' &&
+            // if the meet is list<never>, and we're passing a concrete list, it had better be empty
+            argType.kind === 'list' &&
+            argType.of.kind !== 'never')
+        ) {
+          const argDescriptor =
+            argType.kind.startsWith('concrete') ||
+            argType.kind === 'enum value' ||
+            argType.kind === 'null' ||
+            argType.kind === 'undefined'
+              ? `(${serialize(argType)})`
+              : `type (${serialize(argType)})`;
+
+          let hint = '';
+          if (argType.kind === 'concrete number' && dominates({ kind: 'real' }, paramType)) {
+            hint =
+              '\nhint: you passed an ES language Number, but this position takes a mathematical value';
+          } else if (argType.kind === 'concrete real' && dominates({ kind: 'number' }, paramType)) {
+            hint =
+              '\nhint: you passed a mathematical value, but this position takes an ES language Number';
+          } else if (argType.kind === 'concrete real' && dominates({ kind: 'bigint' }, paramType)) {
+            hint =
+              '\nhint: you passed a mathematical value, but this position takes an ES language BigInt';
+          }
+
+          const items = stripWhitespace(arg.items);
+          warn(
+            items[0].location.start.offset,
+            `argument ${argDescriptor} does not look plausibly assignable to parameter type (${serialize(paramType)})${hint}`,
+          );
+        }
+      }
+    }
+
+    const { return: returnType } = signature;
+    if (returnType == null) {
+      return;
+    }
+
+    const consumedAsCompletion = isConsumedAsCompletion(expr, path);
+
+    // checks elsewhere ensure that well-formed documents never have a union of completion and non-completion, so checking the first child suffices
+    // TODO: this is for 'a break completion or a throw completion', which is kind of a silly union; maybe address that in some other way?
+    const isCompletion =
+      returnType.kind === 'completion' ||
+      (returnType.kind === 'union' && returnType.types[0].kind === 'completion');
+    if (
+      ['Completion', 'ThrowCompletion', 'NormalCompletion', 'ReturnCompletion'].includes(calleeName)
+    ) {
+      if (consumedAsCompletion) {
+        warn(
+          callee[0].location.start.offset,
+          `${calleeName} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`,
+        );
+      }
+    } else if (isCompletion && !consumedAsCompletion) {
+      warn(
+        callee[0].location.start.offset,
+        `${calleeName} returns a Completion Record, but is not consumed as if it does`,
+      );
+    } else if (!isCompletion && consumedAsCompletion) {
+      warn(
+        callee[0].location.start.offset,
+        `${calleeName} does not return a Completion Record, but is consumed as if it does`,
+      );
+    }
+    if (returnType.kind === 'unused' && !isCalledAsPerform(expr, path, false)) {
+      warn(
+        callee[0].location.start.offset,
+        `${calleeName} does not return a meaningful value and should only be invoked as \`Perform ${calleeName}(...).\``,
+      );
+    }
+
+    if (onlyPerformed.has(calleeName) && onlyPerformed.get(calleeName) !== 'top') {
+      const old = onlyPerformed.get(calleeName);
+      const performed = isCalledAsPerform(expr, path, true);
+      if (!performed) {
+        onlyPerformed.set(calleeName, 'top');
+      } else if (old === null) {
+        onlyPerformed.set(calleeName, 'only performed');
+      }
+    }
+    if (
+      alwaysAssertedToBeNormal.has(calleeName) &&
+      alwaysAssertedToBeNormal.get(calleeName) !== 'top'
+    ) {
+      const old = alwaysAssertedToBeNormal.get(calleeName);
+      const asserted = isAssertedToBeNormal(expr, path);
+      if (!asserted) {
+        alwaysAssertedToBeNormal.set(calleeName, 'top');
+      } else if (old === null) {
+        alwaysAssertedToBeNormal.set(calleeName, 'always asserted normal');
+      }
+    }
+  };
+
 export function typecheck(spec: Spec) {
   const isUnused = (t: BiblioType) =>
     t.kind === 'unused' ||
@@ -15,10 +180,10 @@ export function typecheck(spec: Spec) {
   const AOs = spec.biblio
     .localEntries()
     .filter(e => e.type === 'op' && e.signature?.return != null) as AlgorithmBiblioEntry[];
-  const onlyPerformed: Map<string, null | 'only performed' | 'top'> = new Map(
+  const onlyPerformed: OnlyPerformedMap = new Map(
     AOs.filter(e => !isUnused(e.signature!.return!)).map(a => [a.aoid, null]),
   );
-  const alwaysAssertedToBeNormal: Map<string, null | 'always asserted normal' | 'top'> = new Map(
+  const alwaysAssertedToBeNormal: AlwaysAssertedToBeNormalMap = new Map(
     // prettier-ignore
     AOs
       .filter(e => e.signature!.return!.kind === 'completion' && !e.skipGlobalChecks)
@@ -39,10 +204,7 @@ export function typecheck(spec: Spec) {
     }
     const originalHtml = (node as AlgorithmElementWithTree).originalHtml;
     const warn = (offset: number, message: string) => {
-      const { line, column } = offsetToLineAndColumn(
-        originalHtml,
-        offset,
-      );
+      const { line, column } = offsetToLineAndColumn(originalHtml, offset);
       spec.warn({
         type: 'contents',
         ruleId: 'typecheck',
@@ -53,153 +215,6 @@ export function typecheck(spec: Spec) {
       });
     };
 
-    const expressionVisitor = (expr: Expr, path: PathItem[]) => {
-      if (expr.name !== 'call' && expr.name !== 'sdo-call') {
-        return;
-      }
-
-      const { callee, arguments: args } = expr;
-      if (!(callee.length === 1 && callee[0].name === 'text')) {
-        return;
-      }
-      const calleeName = callee[0].contents;
-
-      const biblioEntry = spec.biblio.byAoid(calleeName);
-      if (biblioEntry == null) {
-        if (!['toUppercase', 'toLowercase'].includes(calleeName)) {
-          // TODO make the spec not do this
-          warn(callee[0].location.start.offset, `could not find definition for ${calleeName}`);
-        }
-        return;
-      }
-
-      if (biblioEntry.kind === 'syntax-directed operation' && expr.name === 'call') {
-        warn(
-          callee[0].location.start.offset,
-          `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`,
-        );
-      } else if (
-        biblioEntry.kind != null &&
-        biblioEntry.kind !== 'syntax-directed operation' &&
-        expr.name === 'sdo-call'
-      ) {
-        warn(callee[0].location.start.offset, `${calleeName} is not a syntax-directed operation but here is being invoked as one`);
-      }
-
-      if (biblioEntry.signature == null) {
-        return;
-      }
-      const { signature } = biblioEntry;
-      const min = signature.parameters.length;
-      const max = min + signature.optionalParameters.length;
-      if (args.length < min || args.length > max) {
-        const count = `${min}${min === max ? '' : `-${max}`}`;
-        const message = `${calleeName} takes ${count} argument${count === '1' ? '' : 's'}, but this invocation passes ${args.length}`;
-        warn(callee[0].location.start.offset, message);
-      } else {
-        const params = signature.parameters.concat(signature.optionalParameters);
-        for (const [arg, param] of zip(args, params, true)) {
-          if (param.type == null) continue;
-          const argType = typeFromExpr(arg, spec.biblio);
-          const paramType = typeFromExprType(param.type);
-
-          // often we can't infer the argument precisely, so we check only that the intersection is nonempty rather than that the argument type is a subtype of the parameter type
-          const intersection = meet(argType, paramType);
-
-          if (
-            intersection.kind === 'never' ||
-            (intersection.kind === 'list' &&
-              intersection.of.kind === 'never' &&
-              // if the meet is list<never>, and we're passing a concrete list, it had better be empty
-              argType.kind === 'list' &&
-              argType.of.kind !== 'never')
-          ) {
-            const argDescriptor =
-              argType.kind.startsWith('concrete') ||
-              argType.kind === 'enum value' ||
-              argType.kind === 'null' ||
-              argType.kind === 'undefined'
-                ? `(${serialize(argType)})`
-                : `type (${serialize(argType)})`;
-
-            let hint = '';
-            if (argType.kind === 'concrete number' && dominates({ kind: 'real' }, paramType)) {
-              hint =
-                '\nhint: you passed an ES language Number, but this position takes a mathematical value';
-            } else if (
-              argType.kind === 'concrete real' &&
-              dominates({ kind: 'number' }, paramType)
-            ) {
-              hint =
-                '\nhint: you passed a mathematical value, but this position takes an ES language Number';
-            } else if (
-              argType.kind === 'concrete real' &&
-              dominates({ kind: 'bigint' }, paramType)
-            ) {
-              hint =
-                '\nhint: you passed a mathematical value, but this position takes an ES language BigInt';
-            }
-
-            const items = stripWhitespace(arg.items);
-            warn(items[0].location.start.offset, `argument ${argDescriptor} does not look plausibly assignable to parameter type (${serialize(paramType)})${hint}`);
-          }
-        }
-      }
-
-      const { return: returnType } = signature;
-      if (returnType == null) {
-        return;
-      }
-
-      const consumedAsCompletion = isConsumedAsCompletion(expr, path);
-
-      // checks elsewhere ensure that well-formed documents never have a union of completion and non-completion, so checking the first child suffices
-      // TODO: this is for 'a break completion or a throw completion', which is kind of a silly union; maybe address that in some other way?
-      const isCompletion =
-        returnType.kind === 'completion' ||
-        (returnType.kind === 'union' && returnType.types[0].kind === 'completion');
-      // prettier-ignore
-      if (['Completion', 'ThrowCompletion', 'NormalCompletion', 'ReturnCompletion'].includes(calleeName)) {
-        if (consumedAsCompletion) {
-          warn(
-            callee[0].location.start.offset,
-            `${calleeName} clearly creates a Completion Record; it does not need to be marked as such, and it would not be useful to immediately unwrap its result`,
-          );
-        }
-      } else if (isCompletion && !consumedAsCompletion) {
-        warn(callee[0].location.start.offset, `${calleeName} returns a Completion Record, but is not consumed as if it does`);
-      } else if (!isCompletion && consumedAsCompletion) {
-        warn(callee[0].location.start.offset, `${calleeName} does not return a Completion Record, but is consumed as if it does`);
-      }
-      if (returnType.kind === 'unused' && !isCalledAsPerform(expr, path, false)) {
-        warn(
-          callee[0].location.start.offset,
-          `${calleeName} does not return a meaningful value and should only be invoked as \`Perform ${calleeName}(...).\``,
-        );
-      }
-
-      if (onlyPerformed.has(calleeName) && onlyPerformed.get(calleeName) !== 'top') {
-        const old = onlyPerformed.get(calleeName);
-        const performed = isCalledAsPerform(expr, path, true);
-        if (!performed) {
-          onlyPerformed.set(calleeName, 'top');
-        } else if (old === null) {
-          onlyPerformed.set(calleeName, 'only performed');
-        }
-      }
-      if (
-        alwaysAssertedToBeNormal.has(calleeName) &&
-        alwaysAssertedToBeNormal.get(calleeName) !== 'top'
-      ) {
-        const old = alwaysAssertedToBeNormal.get(calleeName);
-        const asserted = isAssertedToBeNormal(expr, path);
-        if (!asserted) {
-          alwaysAssertedToBeNormal.set(calleeName, 'top');
-        } else if (old === null) {
-          alwaysAssertedToBeNormal.set(calleeName, 'always asserted normal');
-        }
-      }
-    };
     const walkLines = (list: OrderedListNode) => {
       for (const line of list.contents) {
         // we already parsed in collect-algorithm-diagnostics, but that was before generating the biblio
@@ -217,7 +232,7 @@ export function typecheck(spec: Spec) {
             nodeRelativeColumn: column,
           });
         } else {
-          walkExpr(expressionVisitor, item);
+          walkExpr(getExpressionVisitor(spec, warn, onlyPerformed, alwaysAssertedToBeNormal), item);
         }
         if (line.sublist?.name === 'ol') {
           walkLines(line.sublist);
