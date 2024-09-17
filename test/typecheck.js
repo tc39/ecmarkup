@@ -74,6 +74,19 @@ describe('typechecking completions', () => {
           1. Return Completion Record { [[Type]]: ~normal~, [[Value]]: 0, [[Target]]: ~empty~ }.
         </emu-alg>
       </emu-clause>
+
+      <emu-clause id="sec-examplenoncompletionao" type="abstract operation">
+        <h1>
+          ExampleNonCompletionAO (
+            _x_: unknown,
+          ): a mathematical value
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Return 0.
+        </emu-alg>
+      </emu-clause>
     `);
   });
 
@@ -83,7 +96,7 @@ describe('typechecking completions', () => {
         positioned`
         <emu-clause id="example" type="abstract operation">
         <h1>
-          ExampleAlg (): a normal completion containing a Number
+          ExampleAlg (): a normal completion containing a mathematical value
         </h1>
         <dl class="header">
         </dl>
@@ -237,7 +250,7 @@ describe('typechecking completions', () => {
         positioned`
         <emu-clause id="example" type="abstract operation">
         <h1>
-          ExampleAlg (): a Number
+          ExampleAlg (): a mathematical value
         </h1>
         <dl class="header">
         </dl>
@@ -269,7 +282,7 @@ describe('typechecking completions', () => {
       await assertLintFree(`
         <emu-clause id="example" type="abstract operation">
         <h1>
-          ExampleAlg (): a Number
+          ExampleAlg (): a mathematical value
         </h1>
         <dl class="header">
         </dl>
@@ -310,10 +323,10 @@ describe('typechecking completions', () => {
         </emu-clause>
         `,
         {
-          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message:
-            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+            'this would return an abrupt completion, but the containing AO is declared not to return an abrupt completion',
         },
       );
 
@@ -331,10 +344,10 @@ describe('typechecking completions', () => {
         </emu-clause>
         `,
         {
-          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message:
-            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+            'this would return an abrupt completion, but the containing AO is declared not to return an abrupt completion',
         },
       );
 
@@ -352,10 +365,10 @@ describe('typechecking completions', () => {
         </emu-clause>
         `,
         {
-          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message:
-            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+            'this would return an abrupt completion, but the containing AO is declared not to return an abrupt completion',
         },
       );
 
@@ -374,10 +387,10 @@ describe('typechecking completions', () => {
         </emu-clause>
         `,
         {
-          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message:
-            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+            'this would return an abrupt completion, but the containing AO is declared not to return an abrupt completion',
         },
       );
 
@@ -385,21 +398,43 @@ describe('typechecking completions', () => {
         positioned`
         <emu-clause id="example" type="abstract operation">
         <h1>
-          ExampleAlg (): a Number
+          ExampleAlg (): a normal completion containing a Number
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Let _foo_ be a thing.
+          1. ${M}Throw _foo_.
+        </emu-alg>
+        </emu-clause>
+        `,
+        {
+          ruleId: 'typecheck',
+          nodeType: 'emu-alg',
+          message:
+            'this would return an abrupt completion, but the containing AO is declared not to return an abrupt completion',
+        },
+      );
+
+      await assertLint(
+        positioned`
+        <emu-clause id="example" type="abstract operation">
+        <h1>
+          ExampleAlg (): a mathematical value
         </h1>
         <dl class="header">
         </dl>
         <emu-alg>
           1. Let _x_ be 0.
-          1. ${M}Return Completion(_x_).
+          1. Return ${M}Completion(_x_).
         </emu-alg>
         </emu-clause>
         `,
         {
-          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message:
-            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+            "type of returned value (a normal completion or an abrupt completion) does not look plausibly assignable to algorithm's return type (mathematical value)",
         },
         {
           extraBiblios: [biblio],
@@ -421,10 +456,10 @@ describe('typechecking completions', () => {
         </emu-clause>
         `,
         {
-          ruleId: 'completiony-thing-in-non-completion-algorithm',
+          ruleId: 'typecheck',
           nodeType: 'emu-alg',
           message:
-            'this would return a Completion Record, but the containing AO is declared not to return a Completion Record',
+            'this would return an abrupt completion, but the containing AO is declared not to return an abrupt completion',
         },
       );
     });
@@ -464,6 +499,7 @@ describe('typechecking completions', () => {
             1. Do something with Completion(ExampleCompletionAO()).
             1. NOTE: This will not throw a *TypeError* exception.
             1. Consider whether something is a return completion.
+            1. <del>Throw a *RangeError* exception.</del>
           </emu-alg>
           </emu-clause>
         `,
@@ -494,25 +530,37 @@ describe('typechecking completions', () => {
           ruleId: 'completion-algorithm-lacks-completiony-thing',
           nodeType: 'emu-alg',
           message:
-            'this algorithm is declared as returning a Completion Record, but there is no step which might plausibly return an abrupt completion',
+            'this algorithm is declared as returning an abrupt completion, but there is no step which might plausibly return an abrupt completion',
         },
       );
     });
 
     it('negative', async () => {
-      await assertLintFree(`
-        <emu-clause id="example" type="abstract operation">
-        <h1>
-          ExampleAlg (): either a normal completion containing a Number or an abrupt completion
-        </h1>
-        <dl class="header">
-        </dl>
-        <emu-alg>
-          1. Let _foo_ be 0.
-          1. Return ? _foo_.
-        </emu-alg>
-        </emu-clause>
-      `);
+      async function assertStepIsConsideredAbrupt(step) {
+        await assertLintFree(
+          `
+            <emu-clause id="example" type="abstract operation">
+            <h1>
+              ExampleAlg (): either a normal completion containing a mathematical value or an abrupt completion
+            </h1>
+            <dl class="header">
+            </dl>
+            <emu-alg>
+              1. Let _foo_ be 0.
+              1. ${step}
+            </emu-alg>
+            </emu-clause>
+          `,
+          {
+            extraBiblios: [biblio],
+          },
+        );
+      }
+
+      await assertStepIsConsideredAbrupt('Return ? _foo_.');
+      await assertStepIsConsideredAbrupt('Return <ins>?</ins> _foo_.');
+
+      await assertStepIsConsideredAbrupt('Return ExampleNonCompletionAO(? _foo_).');
 
       await assertLintFree(`
         <emu-clause id="example" type="abstract operation">
@@ -601,7 +649,7 @@ describe('typechecking completions', () => {
         positioned`
         ${M}<emu-clause id="example" type="abstract operation">
           <h1>
-            ExampleAlg (): a Number
+            ExampleAlg (): a mathematical value
           </h1>
           <dl class="header">
           </dl>
@@ -634,7 +682,7 @@ describe('typechecking completions', () => {
       await assertLintFree(`
         <emu-clause id="example" type="abstract operation">
         <h1>
-          ExampleAlg (): a Number
+          ExampleAlg (): a mathematical value
         </h1>
         <dl class="header">
         </dl>
@@ -1248,7 +1296,13 @@ describe('negation', async () => {
 });
 
 describe('type system', () => {
-  async function assertTypeError(paramType, arg, message, extraBiblios = []) {
+  async function assertTypeError(
+    paramType,
+    arg,
+    messageForParam,
+    messageForReturn,
+    extraBiblios = [],
+  ) {
     await assertLint(
       positioned`
         <emu-clause id="example" type="abstract operation">
@@ -1266,12 +1320,51 @@ describe('type system', () => {
       {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
-        message,
+        message: messageForParam,
       },
       {
         extraBiblios,
       },
     );
+
+    if (messageForReturn === null) {
+      await assertLintFree(
+        `
+          <emu-clause id="example" type="abstract operation">
+            <h1>Example (): ${paramType}</h1>
+            <dl class="header"></dl>
+            <emu-alg>
+              1. ${paramType.includes('abrupt completion') ? 'Throw a new *Error*.' : 'Do something.'}
+              1. Return ${arg}.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          extraBiblios,
+        },
+      );
+    } else {
+      await assertLint(
+        positioned`
+          <emu-clause id="example" type="abstract operation">
+            <h1>Example (): ${paramType}</h1>
+            <dl class="header"></dl>
+            <emu-alg>
+              1. ${paramType.includes('abrupt completion') ? 'Throw a new *Error*.' : 'Do something.'}
+              1. Return ${M}${arg}.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'typecheck',
+          nodeType: 'emu-alg',
+          message: messageForReturn,
+        },
+        {
+          extraBiblios,
+        },
+      );
+    }
   }
 
   async function assertNoTypeError(paramType, arg, extraBiblios = []) {
@@ -1331,6 +1424,7 @@ describe('type system', () => {
       '~sync~ or ~async~',
       '~iterate-strings~',
       'argument (~iterate-strings~) does not look plausibly assignable to parameter type (~sync~ or ~async~)',
+      "returned value (~iterate-strings~) does not look plausibly assignable to algorithm's return type (~sync~ or ~async~)",
     );
 
     await assertNoTypeError('~sync~ or ~async~', '~sync~');
@@ -1342,12 +1436,14 @@ describe('type system', () => {
       'a Number',
       '*false*',
       'argument (false) does not look plausibly assignable to parameter type (Number)',
+      "returned value (false) does not look plausibly assignable to algorithm's return type (Number)",
     );
 
     await assertTypeError(
       'a Boolean',
       '*1*<sub>𝔽</sub>',
       'argument (*1*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (Boolean)',
+      "returned value (*1*<sub>𝔽</sub>) does not look plausibly assignable to algorithm's return type (Boolean)",
     );
 
     await assertNoTypeError('a Boolean', '*false*');
@@ -1358,21 +1454,25 @@ describe('type system', () => {
       '*null*',
       '*undefined*',
       'argument (undefined) does not look plausibly assignable to parameter type (null)',
+      "returned value (undefined) does not look plausibly assignable to algorithm's return type (null)",
     );
     await assertTypeError(
       'a Boolean or *null*',
       '*undefined*',
       'argument (undefined) does not look plausibly assignable to parameter type (Boolean or null)',
+      "returned value (undefined) does not look plausibly assignable to algorithm's return type (Boolean or null)",
     );
     await assertTypeError(
       '*undefined*',
       '*null*',
       'argument (null) does not look plausibly assignable to parameter type (undefined)',
+      "returned value (null) does not look plausibly assignable to algorithm's return type (undefined)",
     );
     await assertTypeError(
       'a Boolean or *undefined*',
       '*null*',
       'argument (null) does not look plausibly assignable to parameter type (Boolean or undefined)',
+      "returned value (null) does not look plausibly assignable to algorithm's return type (Boolean or undefined)",
     );
 
     await assertNoTypeError('an ECMAScript language value', '*null*');
@@ -1389,12 +1489,15 @@ describe('type system', () => {
       '5',
       'argument (5) does not look plausibly assignable to parameter type (BigInt)\n' +
         'hint: you passed a mathematical value, but this position takes an ES language BigInt',
+      "returned value (5) does not look plausibly assignable to algorithm's return type (BigInt)\n" +
+        'hint: you returned a mathematical value, but this algorithm returns an ES language BigInt',
     );
 
     await assertTypeError(
       'an integer',
       '*5*<sub>ℤ</sub>',
       'argument (*5*<sub>ℤ</sub>) does not look plausibly assignable to parameter type (integer)',
+      "returned value (*5*<sub>ℤ</sub>) does not look plausibly assignable to algorithm's return type (integer)",
     );
 
     await assertNoTypeError('a BigInt', '*5*<sub>ℤ</sub>');
@@ -1405,6 +1508,7 @@ describe('type system', () => {
       'an integer',
       '0.5',
       'argument (0.5) does not look plausibly assignable to parameter type (integer)',
+      "returned value (0.5) does not look plausibly assignable to algorithm's return type (integer)",
     );
 
     await assertNoTypeError('an integer', '2');
@@ -1413,6 +1517,7 @@ describe('type system', () => {
       'a non-negative integer',
       '-1',
       'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)',
+      "returned value (-1) does not look plausibly assignable to algorithm's return type (non-negative integer)",
     );
 
     await assertNoTypeError('a non-negative integer', '3');
@@ -1421,30 +1526,35 @@ describe('type system', () => {
       '*1*<sub>𝔽</sub>',
       '*2*<sub>𝔽</sub>',
       'argument (*2*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*1*<sub>𝔽</sub>)',
+      "returned value (*2*<sub>𝔽</sub>) does not look plausibly assignable to algorithm's return type (*1*<sub>𝔽</sub>)",
     );
 
     await assertTypeError(
       '*+0*<sub>𝔽</sub>',
       '*-0*<sub>𝔽</sub>',
       'argument (*-0*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (*+0*<sub>𝔽</sub>)',
+      "returned value (*-0*<sub>𝔽</sub>) does not look plausibly assignable to algorithm's return type (*+0*<sub>𝔽</sub>)",
     );
 
     await assertTypeError(
       'an integral Number',
       '*0.5*<sub>𝔽</sub>',
       'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)',
+      "returned value (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to algorithm's return type (integral Number)",
     );
 
     await assertTypeError(
       'an integral Number',
       '*NaN*',
       'argument (*NaN*) does not look plausibly assignable to parameter type (integral Number)',
+      "returned value (*NaN*) does not look plausibly assignable to algorithm's return type (integral Number)",
     );
 
     await assertTypeError(
       'an integral Number',
       '*+&infin;*<sub>𝔽</sub>',
       'argument (*+&infin;*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)',
+      "returned value (*+&infin;*<sub>𝔽</sub>) does not look plausibly assignable to algorithm's return type (integral Number)",
     );
 
     await assertNoTypeError('*2*<sub>𝔽</sub>', '*2*<sub>𝔽</sub>');
@@ -1459,6 +1569,7 @@ describe('type system', () => {
       'an integral Number',
       '*0.5*<sub>𝔽</sub>',
       'argument (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (integral Number)',
+      "returned value (*0.5*<sub>𝔽</sub>) does not look plausibly assignable to algorithm's return type (integral Number)",
     );
 
     await assertTypeError(
@@ -1466,6 +1577,8 @@ describe('type system', () => {
       '*5*<sub>𝔽</sub>',
       'argument (*5*<sub>𝔽</sub>) does not look plausibly assignable to parameter type (mathematical value)\n' +
         'hint: you passed an ES language Number, but this position takes a mathematical value',
+      "returned value (*5*<sub>𝔽</sub>) does not look plausibly assignable to algorithm's return type (mathematical value)\n" +
+        'hint: you returned an ES language Number, but this algorithm returns a mathematical value',
     );
 
     await assertTypeError(
@@ -1473,6 +1586,8 @@ describe('type system', () => {
       '5',
       'argument (5) does not look plausibly assignable to parameter type (integral Number)\n' +
         'hint: you passed a mathematical value, but this position takes an ES language Number',
+      "returned value (5) does not look plausibly assignable to algorithm's return type (integral Number)\n" +
+        'hint: you returned a mathematical value, but this algorithm returns an ES language Number',
     );
   });
 
@@ -1481,6 +1596,7 @@ describe('type system', () => {
       'a time value',
       '~enum-value~',
       'argument (~enum-value~) does not look plausibly assignable to parameter type (integral Number or *NaN*)',
+      "returned value (~enum-value~) does not look plausibly assignable to algorithm's return type (integral Number or *NaN*)",
     );
 
     await assertTypeError(
@@ -1488,6 +1604,8 @@ describe('type system', () => {
       '5',
       'argument (5) does not look plausibly assignable to parameter type (integral Number or *NaN*)\n' +
         'hint: you passed a mathematical value, but this position takes an ES language Number',
+      "returned value (5) does not look plausibly assignable to algorithm's return type (integral Number or *NaN*)\n" +
+        'hint: you returned a mathematical value, but this algorithm returns an ES language Number',
     );
 
     await assertNoTypeError('a time value', '*2*<sub>𝔽</sub>');
@@ -1500,18 +1618,21 @@ describe('type system', () => {
       'an ECMAScript language value',
       '~enum-value~',
       'argument (~enum-value~) does not look plausibly assignable to parameter type (ECMAScript language value)',
+      "returned value (~enum-value~) does not look plausibly assignable to algorithm's return type (ECMAScript language value)",
     );
 
     await assertTypeError(
       'an ECMAScript language value',
       '42',
       'argument (42) does not look plausibly assignable to parameter type (ECMAScript language value)',
+      "returned value (42) does not look plausibly assignable to algorithm's return type (ECMAScript language value)",
     );
 
     await assertTypeError(
       'an ECMAScript language value',
       'NormalCompletion(42)',
       'argument type (a normal completion containing 42) does not look plausibly assignable to parameter type (ECMAScript language value)',
+      "type of returned value (a normal completion containing 42) does not look plausibly assignable to algorithm's return type (ECMAScript language value)",
       [completionBiblio],
     );
 
@@ -1529,6 +1650,7 @@ describe('type system', () => {
       'either a normal completion containing a Boolean or an abrupt completion',
       '*false*',
       'argument (false) does not look plausibly assignable to parameter type (a normal completion containing Boolean or an abrupt completion)',
+      null /* it is legal to return an unwrapped value from an algorithm declared to return a normal completion */,
       [completionBiblio],
     );
 
@@ -1536,6 +1658,7 @@ describe('type system', () => {
       'a Boolean',
       'NormalCompletion(*false*)',
       'argument type (a normal completion containing false) does not look plausibly assignable to parameter type (Boolean)',
+      "type of returned value (a normal completion containing false) does not look plausibly assignable to algorithm's return type (Boolean)",
       [completionBiblio],
     );
 
@@ -1543,6 +1666,7 @@ describe('type system', () => {
       'a normal completion containing a Number',
       'NormalCompletion(*false*)',
       'argument type (a normal completion containing false) does not look plausibly assignable to parameter type (a normal completion containing Number)',
+      "type of returned value (a normal completion containing false) does not look plausibly assignable to algorithm's return type (a normal completion containing Number)",
       [completionBiblio],
     );
 
@@ -1588,6 +1712,7 @@ describe('type system', () => {
       'a String',
       'ReturnsNumber()',
       'argument type (Number) does not look plausibly assignable to parameter type (String)',
+      "type of returned value (Number) does not look plausibly assignable to algorithm's return type (String)",
       [biblio],
     );
 
@@ -1595,6 +1720,7 @@ describe('type system', () => {
       'a String',
       '! ReturnsCompletionOfNumber()',
       'argument type (Number) does not look plausibly assignable to parameter type (String)',
+      "type of returned value (Number) does not look plausibly assignable to algorithm's return type (String)",
       [biblio],
     );
 
@@ -1620,6 +1746,7 @@ describe('type system', () => {
       'an integer',
       'ReturnsListOfNumberOrString()',
       'argument type (List of Number or String) does not look plausibly assignable to parameter type (integer)',
+      "type of returned value (List of Number or String) does not look plausibly assignable to algorithm's return type (integer)",
       [biblio],
     );
 
@@ -1631,12 +1758,14 @@ describe('type system', () => {
       'a String',
       '« »',
       'argument type (empty List) does not look plausibly assignable to parameter type (String)',
+      "type of returned value (empty List) does not look plausibly assignable to algorithm's return type (String)",
     );
 
     await assertTypeError(
       'a List of Strings',
       '« 0.5 »',
       'argument type (List of 0.5) does not look plausibly assignable to parameter type (List of String)',
+      "type of returned value (List of 0.5) does not look plausibly assignable to algorithm's return type (List of String)",
     );
 
     await assertNoTypeError('a List of Strings', '« "something" »');
@@ -1649,21 +1778,25 @@ describe('type system', () => {
       '0',
       '1',
       'argument (1) does not look plausibly assignable to parameter type (0)',
+      "returned value (1) does not look plausibly assignable to algorithm's return type (0)",
     );
     await assertTypeError(
       'a positive integer',
       '0',
       'argument (0) does not look plausibly assignable to parameter type (positive integer)',
+      "returned value (0) does not look plausibly assignable to algorithm's return type (positive integer)",
     );
     await assertTypeError(
       'a non-negative integer',
       '-1',
       'argument (-1) does not look plausibly assignable to parameter type (non-negative integer)',
+      "returned value (-1) does not look plausibly assignable to algorithm's return type (non-negative integer)",
     );
     await assertTypeError(
       'a negative integer',
       '0',
       'argument (0) does not look plausibly assignable to parameter type (negative integer)',
+      "returned value (0) does not look plausibly assignable to algorithm's return type (negative integer)",
     );
 
     await assertNoTypeError('a mathematical value', '0');
@@ -1683,6 +1816,7 @@ describe('type system', () => {
       '"type"',
       '*"value"*',
       'argument ("value") does not look plausibly assignable to parameter type ("type")',
+      'returned value ("value") does not look plausibly assignable to algorithm\'s return type ("type")',
     );
 
     await assertNoTypeError('"a"', '*"a"*');

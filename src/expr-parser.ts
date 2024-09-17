@@ -7,7 +7,7 @@ const periodSpaceMatcher = /(?<period>\.(?= ))/u;
 const periodSpaceOrEOFMatcher = /(?<period>\.(?= |$))/u;
 
 type SimpleLocation = { start: { offset: number }; end: { offset: number } };
-type BareText = {
+export type BareText = {
   name: 'text';
   contents: string;
   location: SimpleLocation;

@@ -2,7 +2,7 @@ import type Biblio from './Biblio';
 import type { Type as BiblioType } from './Biblio';
 import type { Expr, NonSeq } from './expr-parser';
 
-type Type =
+export type Type =
   | { kind: 'unknown' } // top
   | { kind: 'never' } // bottom
   | { kind: 'union'; of: NonUnion[] } // constraint: nothing in the union dominates anything else in the union
@@ -80,6 +80,7 @@ const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
   bigint: ['concrete bigint'],
   boolean: ['concrete boolean'],
 };
+
 /*
 The type lattice used here is very simple (aside from explicit unions).
 As such we mostly only need to define the `dominates` relationship and apply trivial rules:
@@ -140,6 +141,7 @@ export function dominates(a: Type, b: Type): boolean {
   }
   return false;
 }
+
 function addToUnion(types: NonUnion[], type: NonUnion): Type {
   if (type.kind === 'normal completion') {
     const existingNormalCompletionIndex = types.findIndex(t => t.kind === 'normal completion');
@@ -584,7 +586,7 @@ export function typeFromExprType(type: BiblioType): Type {
     }
     case 'unused': {
       // this is really only a return type, but might as well handle it
-      return { kind: 'enum value', value: '~unused~' };
+      return { kind: 'enum value', value: 'unused' };
     }
   }
   return { kind: 'unknown' };
@@ -600,15 +602,24 @@ export function isCompletion(
   );
 }
 
+export function isPossiblyAbruptCompletion(
+  type: Type,
+): type is Type & { kind: 'abrupt completion' | 'union' } {
+  return (
+    type.kind === 'abrupt completion' ||
+    (type.kind === 'union' && type.of.some(isPossiblyAbruptCompletion))
+  );
+}
+
 export function stripWhitespace(items: NonSeq[]) {
   items = [...items];
-  while (items[0]?.name === 'text' && /^\s+$/.test(items[0].contents)) {
+  while (items[0]?.name === 'text' && /^\s*$/.test(items[0].contents)) {
     items.shift();
   }
   while (
     items[items.length - 1]?.name === 'text' &&
     // @ts-expect-error
-    /^\s+$/.test(items[items.length - 1].contents)
+    /^\s*$/.test(items[items.length - 1].contents)
   ) {
     items.pop();
   }
