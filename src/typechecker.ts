@@ -3,7 +3,7 @@ import type { AlgorithmElementWithTree } from './Algorithm';
 import type Biblio from './Biblio';
 import type { AlgorithmBiblioEntry, Type as BiblioType } from './Biblio';
 import type Spec from './Spec';
-import type { BareText, Expr, PathItem, Seq } from './expr-parser';
+import type { BareText, Expr, NonSeq, PathItem, Seq } from './expr-parser';
 import { walk as walkExpr, parse as parseExpr, isProsePart } from './expr-parser';
 import { offsetToLineAndColumn, zip } from './utils';
 import {
@@ -276,8 +276,10 @@ export function typecheck(spec: Spec) {
         ? null
         : false;
     const returnType = signature?.return == null ? null : typeFromExprType(signature.return);
+    let numberOfAbstractClosuresWeAreWithin = 0;
     const walkLines = (list: OrderedListNode) => {
       for (const line of list.contents) {
+        let thisLineIsAbstractClosure = false;
         // we already parsed in collect-algorithm-diagnostics, but that was before generating the biblio
         // the biblio affects the parse of calls, so we need to re-do it
         // TODO do collect-algorithm-diagnostics after generating the biblio, somehow?
@@ -295,18 +297,38 @@ export function typecheck(spec: Spec) {
         } else {
           walkExpr(getExpressionVisitor(spec, warn, onlyPerformed, alwaysAssertedToBeNormal), item);
           if (returnType != null) {
-            const lineHadCompletionReturn = inspectReturns(warn, item, returnType, spec.biblio);
-            if (hasPossibleCompletionReturn != null) {
-              if (lineHadCompletionReturn == null) {
-                hasPossibleCompletionReturn = null;
-              } else {
-                hasPossibleCompletionReturn ||= lineHadCompletionReturn;
+            let idx = item.items.length - 1;
+            let last: NonSeq | undefined;
+            while (
+              idx >= 0 &&
+              ((last = item.items[idx]).name !== 'text' ||
+                (last as BareText).contents.trim() === '')
+            ) {
+              --idx;
+            }
+            if (
+              last != null &&
+              (last as BareText).contents.endsWith('performs the following steps when called:')
+            ) {
+              thisLineIsAbstractClosure = true;
+              ++numberOfAbstractClosuresWeAreWithin;
+            } else if (numberOfAbstractClosuresWeAreWithin === 0) {
+              const lineHadCompletionReturn = inspectReturns(warn, item, returnType, spec.biblio);
+              if (hasPossibleCompletionReturn != null) {
+                if (lineHadCompletionReturn == null) {
+                  hasPossibleCompletionReturn = null;
+                } else {
+                  hasPossibleCompletionReturn ||= lineHadCompletionReturn;
+                }
               }
             }
           }
         }
         if (line.sublist?.name === 'ol') {
           walkLines(line.sublist);
+        }
+        if (thisLineIsAbstractClosure) {
+          --numberOfAbstractClosuresWeAreWithin;
         }
       }
     };

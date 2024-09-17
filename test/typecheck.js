@@ -66,11 +66,12 @@ describe('typechecking completions', () => {
 
       <emu-clause id="sec-examplecompletionao" type="abstract operation">
         <h1>
-          ExampleCompletionAO (): a normal completion
+          ExampleCompletionAO (): a normal completion containing a number or an abrupt completion.
         </h1>
         <dl class="header">
         </dl>
         <emu-alg>
+          1. If you want to, throw a new *Error* exception.
           1. Return Completion Record { [[Type]]: ~normal~, [[Value]]: 0, [[Target]]: ~empty~ }.
         </emu-alg>
       </emu-clause>
@@ -500,6 +501,28 @@ describe('typechecking completions', () => {
             1. NOTE: This will not throw a *TypeError* exception.
             1. Consider whether something is a return completion.
             1. <del>Throw a *RangeError* exception.</del>
+          </emu-alg>
+          </emu-clause>
+        `,
+        {
+          extraBiblios: [biblio],
+        },
+      );
+
+      await assertLintFree(
+        `
+          <emu-clause id="example" type="abstract operation">
+          <h1>
+            ExampleAlg (): a mathematical value
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Let _addend_ be 41.
+            1. Let _closure_ be a new Abstract Closure with parameters (_x_) that captures _addend_ and performs the following steps when called:
+              1. Return _x_ + ? ExampleCompletionAO(_addend_).
+            1. Let _val_ be ! _closure_(1).
+            1. Return _val_.
           </emu-alg>
           </emu-clause>
         `,
