@@ -207,11 +207,15 @@ export function meet(a: Type, b: Type): Type {
     // union is join. meet distributes over join.
     return a.of.map(t => meet(t, b)).reduce(join);
   }
-  if (
-    (a.kind === 'list' && b.kind === 'list') ||
-    (a.kind === 'normal completion' && b.kind === 'normal completion')
-  ) {
-    return { kind: a.kind, of: meet(a.of, b.of) };
+  if (a.kind === 'list' && b.kind === 'list') {
+    return { kind: 'list', of: meet(a.of, b.of) };
+  }
+  if (a.kind === 'normal completion' && b.kind === 'normal completion') {
+    const inner = meet(a.of, b.of);
+    if (inner.kind === 'never') {
+      return { kind: 'never' };
+    }
+    return { kind: 'normal completion', of: inner };
   }
   return { kind: 'never' };
 }
@@ -397,6 +401,29 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
         break;
       }
       const calleeName = callee[0].contents;
+
+      // special case: `Completion` is identity on completions
+      if (expr.name === 'call' && calleeName === 'Completion' && expr.arguments.length === 1) {
+        const inner = typeFromExpr(expr.arguments[0], biblio);
+        if (!isCompletion(inner)) {
+          // probably unknown, we might as well refine to "some completion"
+          return {
+            kind: 'union',
+            of: [
+              { kind: 'normal completion', of: { kind: 'unknown' } },
+              { kind: 'abrupt completion' },
+            ],
+          };
+        }
+      }
+      // special case: `NormalCompletion` wraps its input
+      if (
+        expr.name === 'call' &&
+        calleeName === 'NormalCompletion' &&
+        expr.arguments.length === 1
+      ) {
+        return { kind: 'normal completion', of: typeFromExpr(expr.arguments[0], biblio) };
+      }
 
       const biblioEntry = biblio.byAoid(calleeName);
       if (biblioEntry?.signature?.return == null) {
