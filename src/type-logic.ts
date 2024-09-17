@@ -140,6 +140,20 @@ export function dominates(a: Type, b: Type): boolean {
   return false;
 }
 function addToUnion(types: NonUnion[], type: NonUnion): Type {
+  if (type.kind === 'normal completion') {
+    const existingNormalCompletionIndex = types.findIndex(t => t.kind === 'normal completion');
+    if (existingNormalCompletionIndex !== -1) {
+      // prettier-ignore
+      const joined = join(types[existingNormalCompletionIndex], type) as Type & { kind: 'normal completion' };
+      if (types.length === 1) {
+        return joined;
+      }
+      const typesCopy = [...types];
+      typesCopy.splice(existingNormalCompletionIndex, 1, joined);
+      return { kind: 'union', of: typesCopy };
+    }
+  }
+
   if (types.some(t => dominates(t, type))) {
     return { kind: 'union', of: types };
   }
