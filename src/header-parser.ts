@@ -407,12 +407,14 @@ export function parseStructuredHeaderDl(
   effects: string[];
   redefinition: boolean;
   skipGlobalChecks: boolean;
+  skipReturnChecks: boolean;
 } {
   let description = null;
   let _for = null;
   let redefinition: boolean | null = null;
   let effects: string[] = [];
   let skipGlobalChecks: boolean | null = null;
+  let skipReturnChecks: boolean | null = null;
   for (let i = 0; i < dl.children.length; ++i) {
     const dt = dl.children[i];
     if (dt.tagName !== 'DT') {
@@ -482,6 +484,7 @@ export function parseStructuredHeaderDl(
         }
         break;
       }
+      // TODO figure out how to de-dupe the code for boolean attributes
       case 'redefinition': {
         if (redefinition != null) {
           spec.warn({
@@ -538,6 +541,34 @@ export function parseStructuredHeaderDl(
         }
         break;
       }
+      case 'skip return checks': {
+        if (skipReturnChecks != null) {
+          spec.warn({
+            type: 'node',
+            ruleId: 'header-format',
+            message: `duplicate "skip return checks" attribute`,
+            node: dt,
+          });
+        }
+        const contents = (dd.textContent ?? '').trim();
+        if (contents === 'true') {
+          skipReturnChecks = true;
+        } else if (contents === 'false') {
+          skipReturnChecks = false;
+        } else {
+          spec.warn({
+            type: 'contents',
+            ruleId: 'header-format',
+            message: `unknown value for "skip return checks" attribute (expected "true" or "false", got ${JSON.stringify(
+              contents,
+            )})`,
+            node: dd,
+            nodeRelativeLine: 1,
+            nodeRelativeColumn: 1,
+          });
+        }
+        break;
+      }
       case '': {
         spec.warn({
           type: 'node',
@@ -564,6 +595,7 @@ export function parseStructuredHeaderDl(
     effects,
     redefinition: redefinition ?? false,
     skipGlobalChecks: skipGlobalChecks ?? false,
+    skipReturnChecks: skipReturnChecks ?? false,
   };
 }
 

@@ -598,6 +598,39 @@ describe('typechecking completions', () => {
         </emu-alg>
         </emu-clause>
       `);
+
+      await assertLintFree(`
+        <emu-clause id="sec-completion-ao" type="abstract operation">
+          <h1>
+            Completion (
+              _completionRecord_: a Completion Record,
+            ): a Completion Record
+          </h1>
+          <dl class="header">
+            <dt>skip return checks</dt>
+            <dd>true</dd>
+          </dl>
+          <emu-alg>
+            1. Assert: _completionRecord_ is a Completion Record.
+            1. Return _completionRecord_.
+          </emu-alg>
+        </emu-clause>
+
+        <emu-clause id="sec-normalcompletion" type="abstract operation">
+          <h1>
+            NormalCompletion (
+              _value_: any value except a Completion Record,
+            ): a normal completion
+          </h1>
+          <dl class="header">
+            <dt>skip return checks</dt>
+            <dd>true</dd>
+          </dl>
+          <emu-alg>
+            1. Return Completion Record { [[Type]]: ~normal~, [[Value]]: _value_, [[Target]]: ~empty~ }.
+          </emu-alg>
+        </emu-clause>
+      `);
     });
   });
 

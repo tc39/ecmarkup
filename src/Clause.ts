@@ -55,6 +55,7 @@ export default class Clause extends Builder {
   /** @internal */ readonly effects: string[]; // this is held by identity and mutated by Spec.ts
   /** @internal */ signature: Signature | null;
   /** @internal */ skipGlobalChecks: boolean;
+  /** @internal */ skipReturnChecks: boolean;
 
   constructor(spec: Spec, node: HTMLElement, parent: Clause, number: string) {
     super(spec, node);
@@ -67,6 +68,7 @@ export default class Clause extends Builder {
     this.examples = [];
     this.effects = [];
     this.skipGlobalChecks = false;
+    this.skipReturnChecks = false;
 
     // namespace is either the entire spec or the parent clause's namespace.
     let parentNamespace = spec.namespace;
@@ -206,6 +208,7 @@ export default class Clause extends Builder {
       effects,
       redefinition,
       skipGlobalChecks,
+      skipReturnChecks,
     } = parseStructuredHeaderDl(this.spec, type, dl);
 
     const paras = formatPreamble(
@@ -237,6 +240,7 @@ export default class Clause extends Builder {
     }
 
     this.skipGlobalChecks = skipGlobalChecks;
+    this.skipReturnChecks = skipReturnChecks;
 
     this.effects.push(...effects);
     for (const effect of effects) {
@@ -373,6 +377,7 @@ export default class Clause extends Builder {
           signature,
           effects: clause.effects,
           _node: clause.node,
+          _skipReturnChecks: clause.skipReturnChecks,
         };
         if (clause.skipGlobalChecks) {
           op.skipGlobalChecks = true;

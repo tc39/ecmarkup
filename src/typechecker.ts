@@ -275,7 +275,10 @@ export function typecheck(spec: Spec) {
       )
         ? null
         : false;
-    const returnType = signature?.return == null ? null : typeFromExprType(signature.return);
+    const returnType =
+      biblioEntry?._skipReturnChecks || signature?.return == null
+        ? null
+        : typeFromExprType(signature.return);
     let numberOfAbstractClosuresWeAreWithin = 0;
     const walkLines = (list: OrderedListNode) => {
       for (const line of list.contents) {

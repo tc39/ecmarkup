@@ -271,8 +271,10 @@ export default class Biblio {
         delete copy.location;
         // @ts-ignore
         delete copy.referencingIds;
-        // @ts-ignore
-        delete copy._node;
+        for (const key of Object.keys(copy)) {
+          // @ts-ignore
+          if (key.startsWith('_')) delete copy[key];
+        }
         return copy;
       }),
     };
@@ -344,6 +346,7 @@ export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   signature: null | Signature;
   effects: string[];
   skipGlobalChecks?: boolean;
+  /** @internal*/ _skipReturnChecks?: boolean;
   /** @internal*/ _node?: Element;
 }
 
@@ -398,7 +401,7 @@ export type PartialBiblioEntry = Unkey<BiblioEntry, NonExportedKeys>;
 
 export type ExportedBiblio = {
   location: string;
-  entries: PartialBiblioEntry[];
+  entries: Unkey<PartialBiblioEntry, `_${string}`>[];
 };
 
 function dumpEnv(env: EnvRec) {
