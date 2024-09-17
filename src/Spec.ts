@@ -526,12 +526,13 @@ export default class Spec {
 
     this.setReplacementAlgorithmOffsets();
 
-    this.autolink();
-
     if (this.opts.lintSpec) {
       this.log('Checking types...');
       typecheck(this);
     }
+
+    this.autolink();
+
     this.log('Propagating effect annotations...');
     this.propagateEffects();
     this.log('Annotating external links...');
