@@ -283,7 +283,7 @@ function join(a: Type | null, b: Type | null): Type | null {
 function squashUnionTypes(unionTypes: Type[]): Type {
   const out = unionTypes.flatMap(t => (t.kind === 'union' ? t.types : [t]));
   if (out.every(t => t.kind === 'completion')) {
-    return (out as Extract<Type, { kind: 'completion' }>[]).reduce((a, b) => {
+    return out.reduce((a, b) => {
       if (a.completionType !== 'abrupt' && b.completionType !== 'abrupt') {
         return {
           kind: 'completion',

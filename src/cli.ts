@@ -136,7 +136,7 @@ const build = debounce(async function build() {
         } else {
           opts.extraBiblios!.push(bib);
         }
-      } catch (e) {
+      } catch {
         fail(`could not find biblio ${toResolve}`);
       }
     }
@@ -149,7 +149,7 @@ const build = debounce(async function build() {
     let formatter;
     try {
       formatter = require(toResolve);
-    } catch (e) {
+    } catch {
       fail(`could not find formatter ${errorFormatter}`);
     }
     const warnings: EcmarkupError[] = [];
