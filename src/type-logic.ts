@@ -8,7 +8,8 @@ type Type =
   | { kind: 'union'; of: NonUnion[] } // constraint: nothing in the union dominates anything else in the union
   | { kind: 'list'; of: Type }
   | { kind: 'record' } // TODO more precision
-  | { kind: 'completion'; of: Type }
+  | { kind: 'normal completion'; of: Type }
+  | { kind: 'abrupt completion' }
   | { kind: 'real' }
   | { kind: 'integer' }
   | { kind: 'non-negative integer' }
@@ -50,7 +51,7 @@ const simpleKinds = new Set<Type['kind']>([
 const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
   // @ts-expect-error TS does not know about __proto__
   __proto__: null,
-  record: ['completion'],
+  record: ['normal completion', 'abrupt completion'],
   real: [
     'integer',
     'non-negative integer',
@@ -97,7 +98,7 @@ export function dominates(a: Type, b: Type): boolean {
   }
   if (
     (a.kind === 'list' && b.kind === 'list') ||
-    (a.kind === 'completion' && b.kind === 'completion')
+    (a.kind === 'normal completion' && b.kind === 'normal completion')
   ) {
     return dominates(a.of, b.of);
   }
@@ -170,7 +171,7 @@ export function join(a: Type, b: Type): Type {
   }
   if (
     (a.kind === 'list' && b.kind === 'list') ||
-    (a.kind === 'completion' && b.kind === 'completion')
+    (a.kind === 'normal completion' && b.kind === 'normal completion')
   ) {
     return { kind: a.kind, of: join(a.of, b.of) };
   }
@@ -193,7 +194,7 @@ export function meet(a: Type, b: Type): Type {
   }
   if (
     (a.kind === 'list' && b.kind === 'list') ||
-    (a.kind === 'completion' && b.kind === 'completion')
+    (a.kind === 'normal completion' && b.kind === 'normal completion')
   ) {
     return { kind: a.kind, of: meet(a.of, b.of) };
   }
@@ -224,13 +225,16 @@ export function serialize(type: Type): string {
     case 'record': {
       return 'Record';
     }
-    case 'completion': {
+    case 'normal completion': {
       if (type.of.kind === 'never') {
-        return 'an abrupt Completion Record';
+        return 'never';
       } else if (type.of.kind === 'unknown') {
-        return 'a Completion Record';
+        return 'a normal completion';
       }
-      return 'a Completion Record normally holding ' + serialize(type.of);
+      return 'a normal completion containing ' + serialize(type.of);
+    }
+    case 'abrupt completion': {
+      return 'an abrupt completion';
     }
     case 'real': {
       return 'mathematical value';
@@ -338,8 +342,17 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
       const remaining = stripWhitespace(items.slice(1));
       if (remaining.length === 1 && ['call', 'sdo-call'].includes(remaining[0].name)) {
         const callType = typeFromExpr(remaining[0], biblio);
-        if (callType.kind === 'completion') {
-          return callType.of;
+        if (isCompletion(callType)) {
+          const normal: Type =
+            callType.kind === 'normal completion'
+              ? callType.of
+              : callType.kind === 'abrupt completion'
+                ? // the expression `? _abrupt_` strictly speaking has type `never`
+                  // however we mostly use `never` to mean user error, so use unknown instead
+                  // this should only ever happen after `Return`
+                  { kind: 'unknown' }
+                : callType.of.find(k => k.kind === 'normal completion')?.of ?? { kind: 'unknown' };
+          return normal;
         }
       }
     }
@@ -418,15 +431,23 @@ export function typeFromExprType(type: BiblioType): Type {
     }
     case 'completion': {
       if (type.completionType === 'abrupt') {
-        return { kind: 'completion', of: { kind: 'never' } };
-      }
-      return {
-        kind: 'completion',
-        of:
+        return { kind: 'abrupt completion' };
+      } else {
+        const normalType: Type =
           type.typeOfValueIfNormal == null
             ? { kind: 'unknown' }
-            : typeFromExprType(type.typeOfValueIfNormal),
-      };
+            : typeFromExprType(type.typeOfValueIfNormal);
+        if (type.completionType === 'normal') {
+          return { kind: 'normal completion', of: normalType };
+        } else if (type.completionType === 'mixed') {
+          return {
+            kind: 'union',
+            of: [{ kind: 'normal completion', of: normalType }, { kind: 'abrupt completion' }],
+          };
+        } else {
+          throw new Error('unreachable: completion kind ' + type.completionType);
+        }
+      }
     }
     case 'opaque': {
       const text = type.type;
@@ -512,6 +533,16 @@ export function typeFromExprType(type: BiblioType): Type {
     }
   }
   return { kind: 'unknown' };
+}
+
+export function isCompletion(
+  type: Type,
+): type is Type & { kind: 'normal completion' | 'abrupt completion' | 'union' } {
+  return (
+    type.kind === 'normal completion' ||
+    type.kind === 'abrupt completion' ||
+    (type.kind === 'union' && type.of.some(isCompletion))
+  );
 }
 
 export function stripWhitespace(items: NonSeq[]) {
