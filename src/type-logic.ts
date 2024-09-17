@@ -34,6 +34,7 @@ const simpleKinds = new Set<Type['kind']>([
   'unknown',
   'never',
   'record',
+  'abrupt completion',
   'real',
   'integer',
   'non-negative integer',
