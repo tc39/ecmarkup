@@ -283,11 +283,9 @@ export function typecheck(spec: Spec) {
       )
         ? null
         : false;
-    const returnType =
-      biblioEntry?._skipReturnChecks || signature?.return == null
-        ? null
-        : typeFromExprType(signature.return);
+    const returnType = signature?.return == null ? null : typeFromExprType(signature.return);
     let numberOfAbstractClosuresWeAreWithin = 0;
+    let hadReturnIssue = false;
     const walkLines = (list: OrderedListNode) => {
       for (const line of list.contents) {
         let thisLineIsAbstractClosure = false;
@@ -324,7 +322,17 @@ export function typecheck(spec: Spec) {
               thisLineIsAbstractClosure = true;
               ++numberOfAbstractClosuresWeAreWithin;
             } else if (numberOfAbstractClosuresWeAreWithin === 0) {
-              const lineHadCompletionReturn = inspectReturns(warn, item, returnType, spec.biblio);
+              const returnWarn = biblioEntry?._skipReturnChecks
+                ? () => {
+                    hadReturnIssue = true;
+                  }
+                : warn;
+              const lineHadCompletionReturn = inspectReturns(
+                returnWarn,
+                item,
+                returnType,
+                spec.biblio,
+              );
               if (hasPossibleCompletionReturn != null) {
                 if (lineHadCompletionReturn == null) {
                   hasPossibleCompletionReturn = null;
@@ -350,11 +358,25 @@ export function typecheck(spec: Spec) {
       isPossiblyAbruptCompletion(returnType) &&
       hasPossibleCompletionReturn === false
     ) {
+      if (biblioEntry!._skipReturnChecks) {
+        hadReturnIssue = true;
+      } else {
+        spec.warn({
+          type: 'node',
+          ruleId: 'completion-algorithm-lacks-completiony-thing',
+          message:
+            'this algorithm is declared as returning an abrupt completion, but there is no step which might plausibly return an abrupt completion',
+          node,
+        });
+      }
+    }
+
+    if (biblioEntry?._skipReturnChecks && !hadReturnIssue) {
       spec.warn({
         type: 'node',
-        ruleId: 'completion-algorithm-lacks-completiony-thing',
+        ruleId: 'unnecessary-attribute',
         message:
-          'this algorithm is declared as returning an abrupt completion, but there is no step which might plausibly return an abrupt completion',
+          'this algorithm has the "skip return check" attribute, but there is nothing which would cause an issue if it were removed',
         node,
       });
     }

@@ -598,39 +598,6 @@ describe('typechecking completions', () => {
         </emu-alg>
         </emu-clause>
       `);
-
-      await assertLintFree(`
-        <emu-clause id="sec-completion-ao" type="abstract operation">
-          <h1>
-            Completion (
-              _completionRecord_: a Completion Record,
-            ): a Completion Record
-          </h1>
-          <dl class="header">
-            <dt>skip return checks</dt>
-            <dd>true</dd>
-          </dl>
-          <emu-alg>
-            1. Assert: _completionRecord_ is a Completion Record.
-            1. Return _completionRecord_.
-          </emu-alg>
-        </emu-clause>
-
-        <emu-clause id="sec-normalcompletion" type="abstract operation">
-          <h1>
-            NormalCompletion (
-              _value_: any value except a Completion Record,
-            ): a normal completion
-          </h1>
-          <dl class="header">
-            <dt>skip return checks</dt>
-            <dd>true</dd>
-          </dl>
-          <emu-alg>
-            1. Return Completion Record { [[Type]]: ~normal~, [[Value]]: _value_, [[Target]]: ~empty~ }.
-          </emu-alg>
-        </emu-clause>
-      `);
     });
   });
 
@@ -1911,6 +1878,70 @@ describe('error location', () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'argument (~enum~) does not look plausibly assignable to parameter type (integer)',
+      },
+    );
+  });
+});
+
+describe('skip return checks', () => {
+  it('respects the "skip return checks" attribute', async () => {
+    await assertLintFree(`
+      <emu-clause id="sec-completion-ao" type="abstract operation">
+        <h1>
+          Completion (
+            _completionRecord_: a Completion Record,
+          ): a Completion Record
+        </h1>
+        <dl class="header">
+          <dt>skip return checks</dt>
+          <dd>true</dd>
+        </dl>
+        <emu-alg>
+          1. Assert: _completionRecord_ is a Completion Record.
+          1. Return _completionRecord_.
+        </emu-alg>
+      </emu-clause>
+    `);
+
+    await assertLintFree(`
+      <emu-clause id="example" type="abstract operation">
+        <h1>
+          ExampleAlg (): either a normal completion containing a Number or an abrupt completion
+        </h1>
+        <dl class="header">
+          <dt>skip return checks</dt>
+          <dd>true</dd>
+        </dl>
+        <emu-alg>
+          1. Let _foo_ be 0.
+          1. Return _foo_.
+        </emu-alg>
+      </emu-clause>
+    `);
+  });
+
+  it('warns when the "skip return checks" attribute is unnecessary', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            ExampleAlg (): a mathematical value
+          </h1>
+          <dl class="header">
+            <dt>skip return checks</dt>
+            <dd>true</dd>
+          </dl>
+          ${M}<emu-alg>
+            1. Let _foo_ be 0.
+            1. Return _foo_.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'unnecessary-attribute',
+        nodeType: 'emu-alg',
+        message:
+          'this algorithm has the "skip return check" attribute, but there is nothing which would cause an issue if it were removed',
       },
     );
   });
