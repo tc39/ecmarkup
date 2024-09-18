@@ -1716,3 +1716,79 @@ describe('error location', () => {
     );
   });
 });
+
+describe('special cases', () => {
+  it('NormalCompletion takes one argument', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-normalcompletion" type="abstract operation" aoid="NormalCompletion">
+          <h1>NormalCompletion ( )</h1>
+        </emu-clause>
+
+        <emu-clause id="takesnormalcompletion" type="abstract operation">
+          <h1>
+            TakesCompletion (
+              _x_: a normal completion or an abrupt completion
+            ): ~unused~
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Do something with _x_.
+          </emu-alg>
+        </emu-clause>
+
+        <emu-clause id="example" type="abstract operation">
+          <h1>Example ()</h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Perform TakesCompletion(${M}NormalCompletion()).
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'expected NormalCompletion to be passed exactly one argument',
+      },
+    );
+  });
+
+  it('NormalCompletion takes one argument', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-completion" type="abstract operation" aoid="Completion">
+          <h1>Completion ( )</h1>
+        </emu-clause>
+
+        <emu-clause id="takesnormalcompletion" type="abstract operation">
+          <h1>
+            TakesCompletion (
+              _x_: a normal completion or an abrupt completion
+            ): ~unused~
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Do something with _x_.
+          </emu-alg>
+        </emu-clause>
+
+        <emu-clause id="example" type="abstract operation">
+          <h1>Example ()</h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Perform TakesCompletion(${M}Completion()).
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'expected Completion to be passed exactly one argument',
+      },
+    );
+  });
+});

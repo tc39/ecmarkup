@@ -74,7 +74,7 @@ const getExpressionVisitor =
       const params = signature.parameters.concat(signature.optionalParameters);
       for (const [arg, param] of zip(args, params, true)) {
         if (param.type == null) continue;
-        const argType = typeFromExpr(arg, spec.biblio);
+        const argType = typeFromExpr(arg, spec.biblio, warn);
         const paramType = typeFromExprType(param.type);
 
         // often we can't infer the argument precisely, so we check only that the intersection is nonempty rather than that the argument type is a subtype of the parameter type
