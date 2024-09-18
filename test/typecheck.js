@@ -1511,7 +1511,7 @@ describe('type system', () => {
     await assertTypeError(
       'an ECMAScript language value',
       'NormalCompletion(42)',
-      'argument type (a Completion Record) does not look plausibly assignable to parameter type (ECMAScript language value)',
+      'argument type (a normal completion) does not look plausibly assignable to parameter type (ECMAScript language value)',
       [completionBiblio],
     );
 
@@ -1528,14 +1528,14 @@ describe('type system', () => {
     await assertTypeError(
       'either a normal completion containing a Boolean or an abrupt completion',
       '*false*',
-      'argument (false) does not look plausibly assignable to parameter type (a Completion Record normally holding Boolean)',
+      'argument (false) does not look plausibly assignable to parameter type (a normal completion containing Boolean or an abrupt completion)',
       [completionBiblio],
     );
 
     await assertTypeError(
       'a Boolean',
       'NormalCompletion(*false*)',
-      'argument type (a Completion Record) does not look plausibly assignable to parameter type (Boolean)',
+      'argument type (a normal completion) does not look plausibly assignable to parameter type (Boolean)',
       [completionBiblio],
     );
 
