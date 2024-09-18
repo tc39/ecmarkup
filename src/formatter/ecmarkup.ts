@@ -187,7 +187,7 @@ export async function printElement(
     let parsed;
     try {
       parsed = parseAlgorithm(contents);
-    } catch (e) {
+    } catch {
       // TODO error location information, ugh
       bad(node, 'failed to parse algorithm');
     }
@@ -202,7 +202,7 @@ export async function printElement(
     let parsed;
     try {
       parsed = parseFragment(contents);
-    } catch (e) {
+    } catch {
       // TODO error location information, ugh
       bad(node, 'failed to parse emu-eqn');
     }
@@ -404,7 +404,7 @@ async function printChildNodes(
       let parsed;
       try {
         parsed = parseFragment(value);
-      } catch (e) {
+      } catch {
         parsed = null;
       }
       if (parsed) {

@@ -1887,7 +1887,7 @@ function getBoilerplate(file: string) {
     if (fs.lstatSync(file).isFile()) {
       boilerplateFile = file;
     }
-  } catch (error) {
+  } catch {
     boilerplateFile = path.join(__dirname, '../boilerplate', `${file}.html`);
   }
 

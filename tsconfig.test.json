@@ -2,6 +2,7 @@
     "extends": "./tsconfig",
     "include": ["lib/**/*"],
     "compilerOptions": {
+        "outDir": "this needs to be set so it does not ignore lib",
         "noEmit": true,
     }
 }
