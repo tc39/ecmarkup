@@ -1551,6 +1551,13 @@ describe('type system', () => {
       'NormalCompletion(*false*)',
       [completionBiblio],
     );
+
+    await assertNoTypeError(
+      'either a normal completion containing an ECMAScript language value or an abrupt completion',
+      'NormalCompletion(*false*)',
+      [completionBiblio],
+    );
+
     await assertNoTypeError('a Boolean', '! Throwy()', [completionBiblio]);
   });
 
