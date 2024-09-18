@@ -523,7 +523,7 @@ function inspectReturns(
       items: [tweakedFirst, ...line.items.slice(returnIndex + 1, -1), tweakedLast],
     };
   }
-  const typeOfReturnedExpr = typeFromExpr(returnedExpr, biblio);
+  const typeOfReturnedExpr = typeFromExpr(returnedExpr, biblio, warn);
   if (hadAbrupt != null && isPossiblyAbruptCompletion(typeOfReturnedExpr)) {
     hadAbrupt = true;
   }
