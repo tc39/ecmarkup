@@ -1552,8 +1552,10 @@ describe('type system', () => {
     await assertTypeError(
       'an integer',
       '*5*<sub>ℤ</sub>',
-      'argument (*5*<sub>ℤ</sub>) does not look plausibly assignable to parameter type (integer)',
-      "returned value (*5*<sub>ℤ</sub>) does not look plausibly assignable to algorithm's return type (integer)",
+      'argument (*5*<sub>ℤ</sub>) does not look plausibly assignable to parameter type (integer)\n' +
+        'hint: you passed an ES language BigInt, but this position takes a mathematical value',
+      "returned value (*5*<sub>ℤ</sub>) does not look plausibly assignable to algorithm's return type (integer)\n" +
+        'hint: you returned an ES language BigInt, but this algorithm returns a mathematical value',
     );
 
     await assertNoTypeError('a BigInt', '*5*<sub>ℤ</sub>');

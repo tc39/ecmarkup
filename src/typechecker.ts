@@ -85,17 +85,22 @@ const getExpressionVisitor =
         if (error != null) {
           let hint: string;
           switch (error) {
-            case 'number-to-math': {
+            case 'number-to-real': {
               hint =
                 '\nhint: you passed an ES language Number, but this position takes a mathematical value';
               break;
             }
-            case 'math-to-number': {
+            case 'bigint-to-real': {
+              hint =
+                '\nhint: you passed an ES language BigInt, but this position takes a mathematical value';
+              break;
+            }
+            case 'real-to-number': {
               hint =
                 '\nhint: you passed a mathematical value, but this position takes an ES language Number';
               break;
             }
-            case 'math-to-bigint': {
+            case 'real-to-bigint': {
               hint =
                 '\nhint: you passed a mathematical value, but this position takes an ES language BigInt';
               break;
@@ -186,10 +191,11 @@ const getExpressionVisitor =
   };
 
 type ErrorForUsingTypeXAsTypeY =
-  | null
-  | 'number-to-math'
-  | 'math-to-number'
-  | 'math-to-bigint'
+  | null // i.e., no error
+  | 'number-to-real'
+  | 'bigint-to-real'
+  | 'real-to-number'
+  | 'real-to-bigint'
   | 'other';
 function getErrorForUsingTypeXAsTypeY(argType: Type, paramType: Type): ErrorForUsingTypeXAsTypeY {
   // often we can't infer the argument precisely, so we check only that the intersection is nonempty rather than that the argument type is a subtype of the parameter type
@@ -204,11 +210,13 @@ function getErrorForUsingTypeXAsTypeY(argType: Type, paramType: Type): ErrorForU
       argType.of.kind !== 'never')
   ) {
     if (argType.kind === 'concrete number' && dominates({ kind: 'real' }, paramType)) {
-      return 'number-to-math';
+      return 'number-to-real';
+    } else if (argType.kind === 'concrete bigint' && dominates({ kind: 'real' }, paramType)) {
+      return 'bigint-to-real';
     } else if (argType.kind === 'concrete real' && dominates({ kind: 'number' }, paramType)) {
-      return 'math-to-number';
+      return 'real-to-number';
     } else if (argType.kind === 'concrete real' && dominates({ kind: 'bigint' }, paramType)) {
-      return 'math-to-bigint';
+      return 'real-to-bigint';
     }
 
     return 'other';
@@ -550,17 +558,22 @@ function inspectReturns(
 
     let hint: string;
     switch (error) {
-      case 'number-to-math': {
+      case 'number-to-real': {
         hint =
           '\nhint: you returned an ES language Number, but this algorithm returns a mathematical value';
         break;
       }
-      case 'math-to-number': {
+      case 'bigint-to-real': {
+        hint =
+          '\nhint: you returned an ES language BigInt, but this algorithm returns a mathematical value';
+        break;
+      }
+      case 'real-to-number': {
         hint =
           '\nhint: you returned a mathematical value, but this algorithm returns an ES language Number';
         break;
       }
-      case 'math-to-bigint': {
+      case 'real-to-bigint': {
         hint =
           '\nhint: you returned a mathematical value, but this algorithm returns an ES language BigInt';
         break;

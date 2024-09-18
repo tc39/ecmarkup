@@ -585,7 +585,6 @@ export function typeFromExprType(type: BiblioType): Type {
       break;
     }
     case 'unused': {
-      // this is really only a return type, but might as well handle it
       return { kind: 'enum value', value: 'unused' };
     }
   }
