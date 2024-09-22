@@ -1,8 +1,9 @@
 import type { OrderedListNode } from 'ecmarkdown';
 import type { AlgorithmElementWithTree } from './Algorithm';
+import type Biblio from './Biblio';
 import type { AlgorithmBiblioEntry, Type as BiblioType } from './Biblio';
 import type Spec from './Spec';
-import type { Expr, PathItem, Seq } from './expr-parser';
+import type { BareText, Expr, NonSeq, PathItem, Seq } from './expr-parser';
 import { walk as walkExpr, parse as parseExpr, isProsePart } from './expr-parser';
 import { offsetToLineAndColumn, zip } from './utils';
 import {
@@ -12,6 +13,9 @@ import {
   serialize,
   dominates,
   stripWhitespace,
+  type Type,
+  isCompletion,
+  isPossiblyAbruptCompletion,
 } from './type-logic';
 
 type OnlyPerformedMap = Map<string, null | 'only performed' | 'top'>;
@@ -77,17 +81,36 @@ const getExpressionVisitor =
         const argType = typeFromExpr(arg, spec.biblio, warn);
         const paramType = typeFromExprType(param.type);
 
-        // often we can't infer the argument precisely, so we check only that the intersection is nonempty rather than that the argument type is a subtype of the parameter type
-        const intersection = meet(argType, paramType);
+        const error = getErrorForUsingTypeXAsTypeY(argType, paramType);
+        if (error != null) {
+          let hint: string;
+          switch (error) {
+            case 'number-to-real': {
+              hint =
+                '\nhint: you passed an ES language Number, but this position takes a mathematical value';
+              break;
+            }
+            case 'bigint-to-real': {
+              hint =
+                '\nhint: you passed an ES language BigInt, but this position takes a mathematical value';
+              break;
+            }
+            case 'real-to-number': {
+              hint =
+                '\nhint: you passed a mathematical value, but this position takes an ES language Number';
+              break;
+            }
+            case 'real-to-bigint': {
+              hint =
+                '\nhint: you passed a mathematical value, but this position takes an ES language BigInt';
+              break;
+            }
+            case 'other': {
+              hint = '';
+              break;
+            }
+          }
 
-        if (
-          intersection.kind === 'never' ||
-          (intersection.kind === 'list' &&
-            intersection.of.kind === 'never' &&
-            // if the meet is list<never>, and we're passing a concrete list, it had better be empty
-            argType.kind === 'list' &&
-            argType.of.kind !== 'never')
-        ) {
           const argDescriptor =
             argType.kind.startsWith('concrete') ||
             argType.kind === 'enum value' ||
@@ -95,18 +118,6 @@ const getExpressionVisitor =
             argType.kind === 'undefined'
               ? `(${serialize(argType)})`
               : `type (${serialize(argType)})`;
-
-          let hint = '';
-          if (argType.kind === 'concrete number' && dominates({ kind: 'real' }, paramType)) {
-            hint =
-              '\nhint: you passed an ES language Number, but this position takes a mathematical value';
-          } else if (argType.kind === 'concrete real' && dominates({ kind: 'number' }, paramType)) {
-            hint =
-              '\nhint: you passed a mathematical value, but this position takes an ES language Number';
-          } else if (argType.kind === 'concrete real' && dominates({ kind: 'bigint' }, paramType)) {
-            hint =
-              '\nhint: you passed a mathematical value, but this position takes an ES language BigInt';
-          }
 
           const items = stripWhitespace(arg.items);
           warn(
@@ -179,6 +190,40 @@ const getExpressionVisitor =
     }
   };
 
+type ErrorForUsingTypeXAsTypeY =
+  | null // i.e., no error
+  | 'number-to-real'
+  | 'bigint-to-real'
+  | 'real-to-number'
+  | 'real-to-bigint'
+  | 'other';
+function getErrorForUsingTypeXAsTypeY(argType: Type, paramType: Type): ErrorForUsingTypeXAsTypeY {
+  // often we can't infer the argument precisely, so we check only that the intersection is nonempty rather than that the argument type is a subtype of the parameter type
+  const intersection = meet(argType, paramType);
+
+  if (
+    intersection.kind === 'never' ||
+    (intersection.kind === 'list' &&
+      intersection.of.kind === 'never' &&
+      // if the meet is list<never>, and we're passing a concrete list, it had better be empty
+      argType.kind === 'list' &&
+      argType.of.kind !== 'never')
+  ) {
+    if (argType.kind === 'concrete number' && dominates({ kind: 'real' }, paramType)) {
+      return 'number-to-real';
+    } else if (argType.kind === 'concrete bigint' && dominates({ kind: 'real' }, paramType)) {
+      return 'bigint-to-real';
+    } else if (argType.kind === 'concrete real' && dominates({ kind: 'number' }, paramType)) {
+      return 'real-to-number';
+    } else if (argType.kind === 'concrete real' && dominates({ kind: 'bigint' }, paramType)) {
+      return 'real-to-bigint';
+    }
+
+    return 'other';
+  }
+  return null;
+}
+
 export function typecheck(spec: Spec) {
   const isUnused = (t: BiblioType) =>
     t.kind === 'unused' ||
@@ -222,8 +267,28 @@ export function typecheck(spec: Spec) {
       });
     };
 
+    let containingClause: Element | null = node;
+    while (containingClause?.nodeName != null && containingClause.nodeName !== 'EMU-CLAUSE') {
+      containingClause = containingClause.parentElement;
+    }
+    const aoid = containingClause?.getAttribute('aoid');
+    const biblioEntry = aoid == null ? null : spec.biblio.byAoid(aoid);
+    const signature = biblioEntry?.signature;
+
+    // hasPossibleCompletionReturn is a three-state: null to indicate we're not looking, or a boolean
+    let hasPossibleCompletionReturn =
+      signature?.return == null ||
+      ['sdo', 'internal method', 'concrete method'].includes(
+        containingClause!.getAttribute('type')!,
+      )
+        ? null
+        : false;
+    const returnType = signature?.return == null ? null : typeFromExprType(signature.return);
+    let numberOfAbstractClosuresWeAreWithin = 0;
+    let hadReturnIssue = false;
     const walkLines = (list: OrderedListNode) => {
       for (const line of list.contents) {
+        let thisLineIsAbstractClosure = false;
         // we already parsed in collect-algorithm-diagnostics, but that was before generating the biblio
         // the biblio affects the parse of calls, so we need to re-do it
         // TODO do collect-algorithm-diagnostics after generating the biblio, somehow?
@@ -240,13 +305,81 @@ export function typecheck(spec: Spec) {
           });
         } else {
           walkExpr(getExpressionVisitor(spec, warn, onlyPerformed, alwaysAssertedToBeNormal), item);
+          if (returnType != null) {
+            let idx = item.items.length - 1;
+            let last: NonSeq | undefined;
+            while (
+              idx >= 0 &&
+              ((last = item.items[idx]).name !== 'text' ||
+                (last as BareText).contents.trim() === '')
+            ) {
+              --idx;
+            }
+            if (
+              last != null &&
+              (last as BareText).contents.endsWith('performs the following steps when called:')
+            ) {
+              thisLineIsAbstractClosure = true;
+              ++numberOfAbstractClosuresWeAreWithin;
+            } else if (numberOfAbstractClosuresWeAreWithin === 0) {
+              const returnWarn = biblioEntry?._skipReturnChecks
+                ? () => {
+                    hadReturnIssue = true;
+                  }
+                : warn;
+              const lineHadCompletionReturn = inspectReturns(
+                returnWarn,
+                item,
+                returnType,
+                spec.biblio,
+              );
+              if (hasPossibleCompletionReturn != null) {
+                if (lineHadCompletionReturn == null) {
+                  hasPossibleCompletionReturn = null;
+                } else {
+                  hasPossibleCompletionReturn ||= lineHadCompletionReturn;
+                }
+              }
+            }
+          }
         }
         if (line.sublist?.name === 'ol') {
           walkLines(line.sublist);
         }
+        if (thisLineIsAbstractClosure) {
+          --numberOfAbstractClosuresWeAreWithin;
+        }
       }
     };
     walkLines(tree.contents);
+
+    if (
+      returnType != null &&
+      isPossiblyAbruptCompletion(returnType) &&
+      hasPossibleCompletionReturn === false
+    ) {
+      if (biblioEntry!._skipReturnChecks) {
+        hadReturnIssue = true;
+      } else {
+        spec.warn({
+          type: 'node',
+          ruleId: 'completion-algorithm-lacks-completiony-thing',
+          message:
+            'this algorithm is declared as returning an abrupt completion, but there is no step which might plausibly return an abrupt completion',
+          node,
+        });
+      }
+    }
+
+    if (biblioEntry?._skipReturnChecks && !hadReturnIssue) {
+      spec.warn({
+        type: 'node',
+        ruleId: 'unnecessary-attribute',
+        message:
+          'this algorithm has the "skip return check" attribute, but there is nothing which would cause an issue if it were removed',
+        node,
+      });
+    }
   }
 
   for (const [aoid, state] of onlyPerformed) {
@@ -330,6 +463,157 @@ function isConsumedAsCompletion(expr: Expr, path: PathItem[]) {
     }
   }
   return false;
+}
+
+// returns a boolean to indicate whether this line can return an abrupt completion, or null to indicate we should stop caring
+// also checks return types in general
+function inspectReturns(
+  warn: (offset: number, message: string) => void,
+  line: Seq,
+  returnType: Type,
+  biblio: Biblio,
+): boolean | null {
+  let hadAbrupt = false;
+  // check for `throw` etc
+  const throwRegexp =
+    /\b(ReturnIfAbrupt\b|IfAbruptCloseIterator\b|(^|(?<=, ))[tT]hrow (a\b|the\b|$)|[rR]eturn( a| a new| the)? Completion Record\b|the result of evaluating\b)|(?<=[\s(]|\b)\?\s/;
+  let thrower = line.items.find(e => e.name === 'text' && throwRegexp.test(e.contents));
+  let offsetOfThrow: number;
+  if (thrower == null) {
+    // `Throw` etc are at the top level, but the `?` macro can be nested, so we need to walk the whole line looking for it
+    walkExpr(e => {
+      if (thrower != null || e.name !== 'text') return;
+      const qm = /((?<=[\s(])|\b|^)\?(\s|$)/.exec(e.contents);
+      if (qm != null) {
+        thrower = e;
+        offsetOfThrow = qm.index;
+      }
+    }, line);
+  } else {
+    offsetOfThrow = throwRegexp.exec((thrower as BareText).contents)!.index;
+  }
+  if (thrower != null) {
+    if (isPossiblyAbruptCompletion(returnType)) {
+      hadAbrupt = true;
+    } else {
+      warn(
+        thrower.location.start.offset + offsetOfThrow!,
+        'this would return an abrupt completion, but the containing AO is declared not to return an abrupt completion',
+      );
+      return null;
+    }
+  }
+
+  // check return types
+  const returnIndex = line.items.findIndex(
+    e => e.name === 'text' && /\b[Rr]eturn /.test(e.contents),
+  );
+  if (returnIndex === -1) return hadAbrupt;
+  const last = line.items[line.items.length - 1];
+  if (last.name !== 'text' || !/\.\s*$/.test(last.contents)) return hadAbrupt;
+
+  const ret = line.items[returnIndex] as BareText;
+  const afterRet = /\b[Rr]eturn\b/.exec(ret.contents)!.index + 6; /* 'return'.length */
+
+  const beforePeriod = /\.\s*$/.exec(last.contents)!.index;
+  let returnedExpr: Seq;
+
+  if (ret === last) {
+    returnedExpr = {
+      name: 'seq',
+      items: [
+        {
+          name: 'text',
+          contents: ret.contents.slice(afterRet, beforePeriod),
+          location: {
+            start: { offset: ret.location.start.offset + afterRet },
+            end: { offset: ret.location.end.offset - (ret.contents.length - beforePeriod) },
+          },
+        },
+      ],
+    };
+  } else {
+    const tweakedFirst: BareText = {
+      name: 'text',
+      contents: ret.contents.slice(afterRet),
+      location: { start: { offset: ret.location.start.offset + afterRet }, end: ret.location.end },
+    };
+
+    const tweakedLast: BareText = {
+      name: 'text',
+      contents: last.contents.slice(0, beforePeriod),
+      location: {
+        start: last.location.start,
+        end: { offset: last.location.end.offset - (last.contents.length - beforePeriod) },
+      },
+    };
+
+    returnedExpr = {
+      name: 'seq',
+      items: [tweakedFirst, ...line.items.slice(returnIndex + 1, -1), tweakedLast],
+    };
+  }
+  const typeOfReturnedExpr = typeFromExpr(returnedExpr, biblio, warn);
+  if (hadAbrupt != null && isPossiblyAbruptCompletion(typeOfReturnedExpr)) {
+    hadAbrupt = true;
+  }
+
+  let error = getErrorForUsingTypeXAsTypeY(typeOfReturnedExpr, returnType);
+
+  if (error !== null) {
+    if (isCompletion(returnType) && !isCompletion(typeOfReturnedExpr)) {
+      // special case: you can return values for normal completions without wrapping
+      error = getErrorForUsingTypeXAsTypeY(
+        { kind: 'normal completion', of: typeOfReturnedExpr },
+        returnType,
+      );
+      if (error == null) return hadAbrupt;
+    }
+
+    const returnDescriptor =
+      typeOfReturnedExpr.kind.startsWith('concrete') ||
+      typeOfReturnedExpr.kind === 'enum value' ||
+      typeOfReturnedExpr.kind === 'null' ||
+      typeOfReturnedExpr.kind === 'undefined'
+        ? `returned value (${serialize(typeOfReturnedExpr)})`
+        : `type of returned value (${serialize(typeOfReturnedExpr)})`;
+
+    let hint: string;
+    switch (error) {
+      case 'number-to-real': {
+        hint =
+          '\nhint: you returned an ES language Number, but this algorithm returns a mathematical value';
+        break;
+      }
+      case 'bigint-to-real': {
+        hint =
+          '\nhint: you returned an ES language BigInt, but this algorithm returns a mathematical value';
+        break;
+      }
+      case 'real-to-number': {
+        hint =
+          '\nhint: you returned a mathematical value, but this algorithm returns an ES language Number';
+        break;
+      }
+      case 'real-to-bigint': {
+        hint =
+          '\nhint: you returned a mathematical value, but this algorithm returns an ES language BigInt';
+        break;
+      }
+      case 'other': {
+        hint = '';
+        break;
+      }
+    }
+
+    warn(
+      returnedExpr.items[0].location.start.offset +
+        /^\s*/.exec((returnedExpr.items[0] as BareText).contents)![0].length,
+      `${returnDescriptor} does not look plausibly assignable to algorithm's return type (${serialize(returnType)})${hint}`,
+    );
+    return null;
+  }
+  return hadAbrupt;
 }
 
 function parentSkippingBlankSpace(expr: Expr, path: PathItem[]): PathItem | null {

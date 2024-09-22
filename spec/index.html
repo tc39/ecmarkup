@@ -212,6 +212,7 @@ markEffects: true
             <li><b>for:</b> The type of value to which a clause of type "concrete method" or "internal method" applies.</li>
             <li><b>redefinition:</b> If "true", the name of the operation will not automatically link (i.e., it will not automatically be given an aoid).</li>
             <li><b>skip global checks:</b> If "true", disables consistency checks for this AO which require knowing every callsite.</li>
+            <li><b>skip return checks:</b> If "true", disables checking that the returned values from this AO correspond to its declared return type. Adding this to an AO which does not require it will produce a warning.</li>
           </ul>
         </li>
       </ol>
