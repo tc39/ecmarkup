@@ -1511,7 +1511,7 @@ describe('type system', () => {
     await assertTypeError(
       'an ECMAScript language value',
       'NormalCompletion(42)',
-      'argument type (a normal completion) does not look plausibly assignable to parameter type (ECMAScript language value)',
+      'argument type (a normal completion containing 42) does not look plausibly assignable to parameter type (ECMAScript language value)',
       [completionBiblio],
     );
 
@@ -1535,7 +1535,14 @@ describe('type system', () => {
     await assertTypeError(
       'a Boolean',
       'NormalCompletion(*false*)',
-      'argument type (a normal completion) does not look plausibly assignable to parameter type (Boolean)',
+      'argument type (a normal completion containing false) does not look plausibly assignable to parameter type (Boolean)',
+      [completionBiblio],
+    );
+
+    await assertTypeError(
+      'a normal completion containing a Number',
+      'NormalCompletion(*false*)',
+      'argument type (a normal completion containing false) does not look plausibly assignable to parameter type (a normal completion containing Number)',
       [completionBiblio],
     );
 
@@ -1544,6 +1551,13 @@ describe('type system', () => {
       'NormalCompletion(*false*)',
       [completionBiblio],
     );
+
+    await assertNoTypeError(
+      'either a normal completion containing an ECMAScript language value or an abrupt completion',
+      'NormalCompletion(*false*)',
+      [completionBiblio],
+    );
+
     await assertNoTypeError('a Boolean', '! Throwy()', [completionBiblio]);
   });
 
@@ -1705,6 +1719,82 @@ describe('error location', () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'argument (~enum~) does not look plausibly assignable to parameter type (integer)',
+      },
+    );
+  });
+});
+
+describe('special cases', () => {
+  it('NormalCompletion takes one argument', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-normalcompletion" type="abstract operation" aoid="NormalCompletion">
+          <h1>NormalCompletion ( )</h1>
+        </emu-clause>
+
+        <emu-clause id="takesnormalcompletion" type="abstract operation">
+          <h1>
+            TakesCompletion (
+              _x_: a normal completion or an abrupt completion
+            ): ~unused~
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Do something with _x_.
+          </emu-alg>
+        </emu-clause>
+
+        <emu-clause id="example" type="abstract operation">
+          <h1>Example ()</h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Perform TakesCompletion(${M}NormalCompletion()).
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'expected NormalCompletion to be passed exactly one argument',
+      },
+    );
+  });
+
+  it('NormalCompletion takes one argument', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-completion" type="abstract operation" aoid="Completion">
+          <h1>Completion ( )</h1>
+        </emu-clause>
+
+        <emu-clause id="takesnormalcompletion" type="abstract operation">
+          <h1>
+            TakesCompletion (
+              _x_: a normal completion or an abrupt completion
+            ): ~unused~
+          </h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Do something with _x_.
+          </emu-alg>
+        </emu-clause>
+
+        <emu-clause id="example" type="abstract operation">
+          <h1>Example ()</h1>
+          <dl class="header">
+          </dl>
+          <emu-alg>
+            1. Perform TakesCompletion(${M}Completion()).
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'expected Completion to be passed exactly one argument',
       },
     );
   });

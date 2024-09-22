@@ -207,11 +207,15 @@ export function meet(a: Type, b: Type): Type {
     // union is join. meet distributes over join.
     return a.of.map(t => meet(t, b)).reduce(join);
   }
-  if (
-    (a.kind === 'list' && b.kind === 'list') ||
-    (a.kind === 'normal completion' && b.kind === 'normal completion')
-  ) {
-    return { kind: a.kind, of: meet(a.of, b.of) };
+  if (a.kind === 'list' && b.kind === 'list') {
+    return { kind: 'list', of: meet(a.of, b.of) };
+  }
+  if (a.kind === 'normal completion' && b.kind === 'normal completion') {
+    const inner = meet(a.of, b.of);
+    if (inner.kind === 'never') {
+      return { kind: 'never' };
+    }
+    return { kind: 'normal completion', of: inner };
   }
   return { kind: 'never' };
 }
@@ -318,7 +322,11 @@ export function serialize(type: Type): string {
   }
 }
 
-export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
+export function typeFromExpr(
+  expr: Expr,
+  biblio: Biblio,
+  warn: (offset: number, message: string) => void,
+): Type {
   seq: if (expr.name === 'seq') {
     const items = stripWhitespace(expr.items);
     if (items.length === 1) {
@@ -356,7 +364,7 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
     if (items[0]?.name === 'text' && ['!', '?'].includes(items[0].contents.trim())) {
       const remaining = stripWhitespace(items.slice(1));
       if (remaining.length === 1 && ['call', 'sdo-call'].includes(remaining[0].name)) {
-        const callType = typeFromExpr(remaining[0], biblio);
+        const callType = typeFromExpr(remaining[0], biblio, warn);
         if (isCompletion(callType)) {
           const normal: Type =
             callType.kind === 'normal completion'
@@ -384,7 +392,7 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
     case 'list': {
       return {
         kind: 'list',
-        of: expr.elements.map(t => typeFromExpr(t, biblio)).reduce(join, { kind: 'never' }),
+        of: expr.elements.map(t => typeFromExpr(t, biblio, warn)).reduce(join, { kind: 'never' }),
       };
     }
     case 'record': {
@@ -397,6 +405,37 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
         break;
       }
       const calleeName = callee[0].contents;
+
+      // special case: `Completion` is identity on completions
+      if (expr.name === 'call' && calleeName === 'Completion') {
+        if (expr.arguments.length === 1) {
+          const inner = typeFromExpr(expr.arguments[0], biblio, warn);
+          if (!isCompletion(inner)) {
+            // probably unknown, we might as well refine to "some completion"
+            return {
+              kind: 'union',
+              of: [
+                { kind: 'normal completion', of: { kind: 'unknown' } },
+                { kind: 'abrupt completion' },
+              ],
+            };
+          }
+        } else {
+          warn(expr.location.start.offset, 'expected Completion to be passed exactly one argument');
+        }
+      }
+
+      // special case: `NormalCompletion` wraps its input
+      if (expr.name === 'call' && calleeName === 'NormalCompletion') {
+        if (expr.arguments.length === 1) {
+          return { kind: 'normal completion', of: typeFromExpr(expr.arguments[0], biblio, warn) };
+        } else {
+          warn(
+            expr.location.start.offset,
+            'expected NormalCompletion to be passed exactly one argument',
+          );
+        }
+      }
 
       const biblioEntry = biblio.byAoid(calleeName);
       if (biblioEntry?.signature?.return == null) {
@@ -433,6 +472,7 @@ export function typeFromExpr(expr: Expr, biblio: Biblio): Type {
   }
   return { kind: 'unknown' };
 }
+
 export function typeFromExprType(type: BiblioType): Type {
   switch (type.kind) {
     case 'union': {
