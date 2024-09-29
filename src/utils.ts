@@ -104,7 +104,7 @@ export function replaceTextNode(node: Node, frag: DocumentFragment) {
   const parent = node.parentNode;
   if (!parent) return [];
 
-  const newXrefNodes = Array.from(frag.querySelectorAll('EMU-XREF'));
+  const newXrefNodes = Array.from(frag.querySelectorAll('emu-xref'));
   const first = frag.childNodes[0];
 
   if (first.nodeType === 3) {
