@@ -273,10 +273,6 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
   };
 }
 
-function isEmuImportElement(node: Node): node is EmuImportElement {
-  return node.nodeType === 1 && node.nodeName === 'EMU-IMPORT';
-}
-
 export type WorklistItem = { aoid: string | null; effects: string[] };
 export function maybeAddClauseToEffectWorklist(
   effectName: string,

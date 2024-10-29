@@ -47,7 +47,7 @@ export async function buildImports(spec: Spec, importNode: EmuImportElement, roo
       const importedImports = [
         ...(importedNode as HTMLElement).querySelectorAll('emu-import'),
         // we have to do this because querySelectorAll can't return its `this`
-        ...((importedNode as HTMLElement).tagName === 'EMU-IMPORT' ? [importedNode] : [])
+        ...((importedNode as HTMLElement).tagName === 'EMU-IMPORT' ? [importedNode] : []),
       ];
       for (const childImport of importedImports) {
         await buildImports(spec, childImport as EmuImportElement, relativeRoot);
