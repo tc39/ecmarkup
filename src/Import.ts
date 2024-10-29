@@ -43,7 +43,6 @@ export async function buildImports(spec: Spec, importNode: EmuImportElement, roo
     spec.topLevelImportedNodes.set(importedNode, importNode);
   }
 
-  const children = frag.childElementCount;
   importNode.replaceWith(frag);
 
   // This is a bit gross.

@@ -1268,6 +1268,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     const biblioPaths = [];
     for (const biblioEle of this.doc.querySelectorAll('emu-biblio')) {
       const href = biblioEle.getAttribute('href');
+      biblioEle.remove();
       if (href == null) {
         this.spec.warn({
           type: 'node',
@@ -1307,7 +1308,21 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
   }
 
   private async loadImports() {
-    await loadImports(this, this.spec.doc.body, this.rootDir);
+    const imports = this.doc.body.querySelectorAll('EMU-IMPORT');
+    for (let i = 0; i < imports.length; i++) {
+      await buildImports(this, imports[i] as EmuImportElement, this.rootDir);
+    }
+
+    // we've already removed biblio elements in the main document in loadBiblios
+    // so any which are here now were in an import, which is illegal
+    for (const biblioEle of this.doc.querySelectorAll('emu-biblio')) {
+      this.warn({
+        type: 'node',
+        node: biblioEle,
+        ruleId: 'biblio-in-import',
+        message: 'emu-biblio elements cannot be used within emu-imports',
+      });
+    }
   }
 
   public exportBiblio(): ExportedBiblio | null {
@@ -1895,14 +1910,6 @@ function getBoilerplate(file: string) {
   }
 
   return fs.readFileSync(boilerplateFile, 'utf8');
-}
-
-async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: string) {
-  const imports = rootElement.querySelectorAll('EMU-IMPORT');
-  for (let i = 0; i < imports.length; i++) {
-    const node = imports[i];
-    await buildImports(spec, node as EmuImportElement, rootPath);
-  }
 }
 
 async function walk(walker: TreeWalker, context: Context) {
