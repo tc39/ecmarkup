@@ -17,8 +17,8 @@ import * as yaml from 'js-yaml';
 import * as utils from './utils';
 import * as hljs from 'highlight.js';
 // Builders
-import type { EmuImportElement } from './Import';
-import Import from './Import';
+import { buildImports } from './Import';
+import type { Import, EmuImportElement } from './Import';
 import Clause from './Clause';
 import ClauseNumbers from './clauseNums';
 import Algorithm from './Algorithm';
@@ -339,6 +339,7 @@ export default class Spec {
   /** @internal */ _emuMetasToRender: Set<HTMLElement>;
   /** @internal */ _emuMetasToRemove: Set<HTMLElement>;
   /** @internal */ refsByClause: { [refId: string]: [string] };
+  /** @internal */ topLevelImportedNodes: Map<Node, EmuImportElement>;
 
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
 
@@ -384,6 +385,7 @@ export default class Spec {
     this._emuMetasToRender = new Set();
     this._emuMetasToRemove = new Set();
     this.refsByClause = Object.create(null);
+    this.topLevelImportedNodes = new Map();
 
     this.processMetadata();
     Object.assign(this.opts, opts);
@@ -1899,8 +1901,7 @@ async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: strin
   const imports = rootElement.querySelectorAll('EMU-IMPORT');
   for (let i = 0; i < imports.length; i++) {
     const node = imports[i];
-    const imp = await Import.build(spec, node as EmuImportElement, rootPath);
-    await loadImports(spec, node as HTMLElement, imp.relativeRoot);
+    await buildImports(spec, node as EmuImportElement, rootPath);
   }
 }
 
