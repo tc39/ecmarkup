@@ -26,18 +26,14 @@ export async function buildImports(spec: Spec, importNode: EmuImportElement, roo
   importNode.importPath = importPath;
 
   const importDoc = importDom.window.document;
-  const nodes = importDoc.body.childNodes;
+
+  // clone this list so we can walk it after the replaceWith call
+  const importedNodes = [...importDoc.body.childNodes];
   const frag = spec.doc.createDocumentFragment();
 
-  for (let i = 0; i < nodes.length; i++) {
-    const importedNode = spec.doc.adoptNode(nodes[i]);
-    if (importedNode.nodeType === 1 /* Node.ELEMENT_NODE */) {
-      // @ts-expect-error this is an element now, we've checked
-      for (const childImport of importedNode.querySelectorAll('EMU-IMPORT')) {
-        await buildImports(spec, childImport as EmuImportElement, relativeRoot);
-      }
-    }
-
+  for (let i = 0; i < importedNodes.length; i++) {
+    const importedNode = spec.doc.adoptNode(importedNodes[i]);
+    importedNodes[i] = importedNode;
     frag.appendChild(importedNode);
 
     spec.topLevelImportedNodes.set(importedNode, importNode);
@@ -45,25 +41,19 @@ export async function buildImports(spec: Spec, importNode: EmuImportElement, roo
 
   importNode.replaceWith(frag);
 
-  // This is a bit gross.
-  // We want to do this check after adopting the elements into the main DOM, so the location-finding infrastructure works
-  // But `appendChild(documentFragment)` both empties out the original fragment and returns it.
-  // So we have to remember how many child elements we are adding and walk over each of them manually.
-  // for (let i = node.children.length - children; i < node.children.length; ++i) {
-  //   const child = node.children[i];
-  //   const biblios = [
-  //     ...child.querySelectorAll('emu-biblio'),
-  //     ...(child.tagName === 'EMU-BIBLIO' ? [child] : []),
-  //   ];
-  //   for (const biblio of biblios) {
-  //     spec.warn({
-  //       type: 'node',
-  //       node: biblio,
-  //       ruleId: 'biblio-in-import',
-  //       message: 'emu-biblio elements cannot be used within emu-imports',
-  //     });
-  //   }
-  // }
+  for (let i = 0; i < importedNodes.length; i++) {
+    const importedNode = importedNodes[i];
+    if (importedNode.nodeType === 1 /* Node.ELEMENT_NODE */) {
+      const importedImports = [
+        ...(importedNode as HTMLElement).querySelectorAll('emu-import'),
+        // we have to do this because querySelectorAll can't return its `this`
+        ...((importedNode as HTMLElement).tagName === 'EMU-IMPORT' ? [importedNode] : [])
+      ];
+      for (const childImport of importedImports) {
+        await buildImports(spec, childImport as EmuImportElement, relativeRoot);
+      }
+    }
+  }
 }
 
 export interface EmuImportElement extends HTMLElement {

@@ -655,15 +655,22 @@ export default class Spec {
     node: Element | Node,
   ): ({ file?: string; source: string } & ElementLocation) | undefined {
     let pointer: Element | Node | null = node;
-    while (pointer != null) {
-      if (isEmuImportElement(pointer)) {
-        break;
+    let dom: JSDOM;
+    let file: string | undefined;
+    let source: string | undefined;
+    search: {
+      while (pointer != null) {
+        if (this.topLevelImportedNodes.has(pointer)) {
+          const importNode = this.topLevelImportedNodes.get(pointer)!;
+          dom = importNode.dom;
+          file = importNode.importPath;
+          source = importNode.source;
+          break search;
+        }
+        pointer = pointer.parentElement;
       }
-      pointer = pointer.parentElement;
-    }
-    const dom = pointer == null ? this.dom : pointer.dom;
-    if (!dom) {
-      return;
+      // else
+      dom = this.dom;
     }
     const loc = dom.nodeLocation(node);
     if (loc) {
@@ -681,8 +688,8 @@ export default class Spec {
         endCol: loc.endCol,
       };
       if (pointer != null) {
-        out.file = pointer.importPath!;
-        out.source = pointer.source!;
+        out.file = file!;
+        out.source = source!;
       }
       return out;
     }
