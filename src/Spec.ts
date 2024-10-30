@@ -17,8 +17,8 @@ import * as yaml from 'js-yaml';
 import * as utils from './utils';
 import * as hljs from 'highlight.js';
 // Builders
-import type { EmuImportElement } from './Import';
-import Import from './Import';
+import { buildImports } from './Import';
+import type { Import, EmuImportElement } from './Import';
 import Clause from './Clause';
 import ClauseNumbers from './clauseNums';
 import Algorithm from './Algorithm';
@@ -273,10 +273,6 @@ function wrapWarn(source: string, spec: Spec, warn: (err: EcmarkupError) => void
   };
 }
 
-function isEmuImportElement(node: Node): node is EmuImportElement {
-  return node.nodeType === 1 && node.nodeName === 'EMU-IMPORT';
-}
-
 export type WorklistItem = { aoid: string | null; effects: string[] };
 export function maybeAddClauseToEffectWorklist(
   effectName: string,
@@ -339,6 +335,7 @@ export default class Spec {
   /** @internal */ _emuMetasToRender: Set<HTMLElement>;
   /** @internal */ _emuMetasToRemove: Set<HTMLElement>;
   /** @internal */ refsByClause: { [refId: string]: [string] };
+  /** @internal */ topLevelImportedNodes: Map<Node, EmuImportElement>;
 
   private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
 
@@ -384,6 +381,7 @@ export default class Spec {
     this._emuMetasToRender = new Set();
     this._emuMetasToRemove = new Set();
     this.refsByClause = Object.create(null);
+    this.topLevelImportedNodes = new Map();
 
     this.processMetadata();
     Object.assign(this.opts, opts);
@@ -653,15 +651,22 @@ export default class Spec {
     node: Element | Node,
   ): ({ file?: string; source: string } & ElementLocation) | undefined {
     let pointer: Element | Node | null = node;
-    while (pointer != null) {
-      if (isEmuImportElement(pointer)) {
-        break;
+    let dom: JSDOM;
+    let file: string | undefined;
+    let source: string | undefined;
+    search: {
+      while (pointer != null) {
+        if (this.topLevelImportedNodes.has(pointer)) {
+          const importNode = this.topLevelImportedNodes.get(pointer)!;
+          dom = importNode.dom;
+          file = importNode.importPath;
+          source = importNode.source;
+          break search;
+        }
+        pointer = pointer.parentElement;
       }
-      pointer = pointer.parentElement;
-    }
-    const dom = pointer == null ? this.dom : pointer.dom;
-    if (!dom) {
-      return;
+      // else
+      dom = this.dom;
     }
     const loc = dom.nodeLocation(node);
     if (loc) {
@@ -679,8 +684,8 @@ export default class Spec {
         endCol: loc.endCol,
       };
       if (pointer != null) {
-        out.file = pointer.importPath!;
-        out.source = pointer.source!;
+        out.file = file!;
+        out.source = source!;
       }
       return out;
     }
@@ -1266,6 +1271,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     const biblioPaths = [];
     for (const biblioEle of this.doc.querySelectorAll('emu-biblio')) {
       const href = biblioEle.getAttribute('href');
+      biblioEle.remove();
       if (href == null) {
         this.spec.warn({
           type: 'node',
@@ -1305,7 +1311,21 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
   }
 
   private async loadImports() {
-    await loadImports(this, this.spec.doc.body, this.rootDir);
+    const imports = this.doc.body.querySelectorAll('EMU-IMPORT');
+    for (let i = 0; i < imports.length; i++) {
+      await buildImports(this, imports[i] as EmuImportElement, this.rootDir);
+    }
+
+    // we've already removed biblio elements in the main document in loadBiblios
+    // so any which are here now were in an import, which is illegal
+    for (const biblioEle of this.doc.querySelectorAll('emu-biblio')) {
+      this.warn({
+        type: 'node',
+        node: biblioEle,
+        ruleId: 'biblio-in-import',
+        message: 'emu-biblio elements cannot be used within emu-imports',
+      });
+    }
   }
 
   public exportBiblio(): ExportedBiblio | null {
@@ -1893,15 +1913,6 @@ function getBoilerplate(file: string) {
   }
 
   return fs.readFileSync(boilerplateFile, 'utf8');
-}
-
-async function loadImports(spec: Spec, rootElement: HTMLElement, rootPath: string) {
-  const imports = rootElement.querySelectorAll('EMU-IMPORT');
-  for (let i = 0; i < imports.length; i++) {
-    const node = imports[i];
-    const imp = await Import.build(spec, node as EmuImportElement, rootPath);
-    await loadImports(spec, node as HTMLElement, imp.relativeRoot);
-  }
 }
 
 async function walk(walker: TreeWalker, context: Context) {

@@ -1,5 +1,5 @@
 import type { Warning } from '../Spec';
-import type { default as Import } from '../Import';
+import type { Import } from '../Import';
 
 import { offsetToLineAndColumn } from '../utils';
 
