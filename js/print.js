@@ -20,7 +20,6 @@ version.setAttribute('data-year', year);
 
 if (shortname.innerHTML === 'ECMA-262') ecma262fixes();
 
-removeEmuImports();
 removeUnusedSections();
 improveSectionHeadings();
 improveToc();
@@ -178,21 +177,6 @@ function improveSectionHeadings() {
       h1.insertBefore(document.createTextNode(' '), h1.firstChild);
       h1.insertBefore(secnum, h1.firstChild);
     }
-  });
-}
-
-/**
- * The emu-imports element interferes with a ton of css specificity so we just
- * take everything out and plop it directly into the DOM
- * */
-function removeEmuImports() {
-  const emuImports = Array.from(specContainer.getElementsByTagName('emu-import'));
-
-  emuImports.forEach(importedMarkup => {
-    while (importedMarkup.hasChildNodes()) {
-      importedMarkup.parentNode.insertBefore(importedMarkup.childNodes[0], importedMarkup);
-    }
-    importedMarkup.parentNode.removeChild(importedMarkup);
   });
 }
 
