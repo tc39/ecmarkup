@@ -1503,6 +1503,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
         this.doc.body.appendChild(copyrightClause);
       }
     }
+    copyrightClause.setAttribute('back-matter', '');
 
     copyrightClause.innerHTML = `
       <h1>Copyright &amp; Software License</h1>

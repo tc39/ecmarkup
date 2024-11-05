@@ -16,7 +16,7 @@ export default class Toc {
     const html = Toc.build(this.spec, { maxDepth });
     const tocContainer = this.spec.doc.createElement('div');
     tocContainer.setAttribute('id', 'toc');
-    tocContainer.innerHTML = '<h2>Table of Contents</h2>' + html;
+    tocContainer.innerHTML = '<h2>Contents</h2>' + html;
     const intro = this.spec.doc.querySelector('emu-intro, emu-clause, emu-annex');
     if (intro && intro.parentNode) {
       intro.parentNode.insertBefore(tocContainer, intro);
@@ -44,11 +44,22 @@ export default class Toc {
         }
       }
 
-      html += '<a href="#' + sub.id + '" title="' + sub.title + '">';
+      html += `<a href="#${sub.id}" title="${sub.title}">`;
       if (sub.number) {
-        html += '<span class="secnum">' + sub.number + '</span> ';
+        if (sub.isBackMatter) {
+          html += `<span>${shorten(sub.titleHTML)}</span>`;
+        } else if (sub.isAnnex) {
+          const isInnerAnnex = sub.node.parentElement?.nodeName === 'EMU-ANNEX';
+          if (isInnerAnnex) {
+            html += `<span class="secnum">Annex ${sub.number}</span> ${shorten(sub.titleHTML)}`;
+          } else {
+            html += `<span class="secnum">Annex ${sub.number} <span class="annex-kind">(${sub.isNormative ? 'normative' : 'informative'})</span></span> ${shorten(sub.titleHTML)}`;
+          }
+        } else {
+          html += `<span class="secnum">${sub.number}</span> ${shorten(sub.titleHTML)}`;
+        }
       }
-      html += shorten(sub.titleHTML) + '</a>';
+      html += '</a>';
       if (sub.subclauses.length > 0) html += Toc.build(sub, { maxDepth: maxDepth - 1, expandy });
       html += '</li>';
     });

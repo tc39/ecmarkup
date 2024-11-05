@@ -22,7 +22,6 @@ if (shortname.innerHTML === 'ECMA-262') ecma262fixes();
 
 removeUnusedSections();
 improveSectionHeadings();
-improveToc();
 rearrangeTables();
 
 PDF.pageLayout = 'two-column-right';
@@ -50,94 +49,6 @@ Prince.registerPostLayoutFunc(() => {
     specContainer.insertBefore(title.cloneNode(true), scope);
   }
 });
-
-/**
- * Orchestrates the loops to improve toc
- * */
-function improveToc() {
-  const tocContainer = document.getElementById('toc');
-  const toc = tocContainer.querySelector('.toc');
-
-  tocContainer.firstChild.textContent = 'Contents';
-  rebuildOl(toc);
-}
-
-/**
- * Loops through Table of Contents list items and produces markup optimized for
- * a PDF ToC
- * */
-function rebuildOl(ol) {
-  Array.from(ol.querySelectorAll(':scope li')).forEach(li => {
-    rebuildLi(li);
-  });
-}
-
-/**
- * Gathers information about a given toc item
- * */
-function rebuildLi(li) {
-  const sublevel = li.querySelector('ol');
-
-  if (sublevel) {
-    rebuildOl(sublevel);
-  }
-
-  const anchor = li.firstChild;
-  const clauseID = anchor.getAttribute('href').slice(1);
-
-  if (li.querySelector('.secnum') === null) {
-    return;
-  }
-
-  const clauseNumber = anchor.firstChild.innerHTML;
-  const clauseTitle = anchor.getAttribute('title');
-
-  li.insertBefore(renderTocLink(clauseID, clauseNumber, clauseTitle), anchor);
-  li.removeChild(anchor);
-}
-
-/**
- * Generates link elements for table of contents items
- * */
-function renderTocLink(clauseID, clauseNumber, clauseTitle) {
-  const nonAnnexSections = [
-    'sec-copyright-and-software-license',
-    'sec-colophon',
-    'sec-bibliography',
-  ];
-  const link = document.createElement('a');
-  link.setAttribute('href', '#' + clauseID);
-  link.setAttribute('title', clauseTitle);
-
-  if (nonAnnexSections.includes(clauseID)) {
-    link.innerHTML = '<span class="secnum">' + clauseTitle + '</span>';
-
-    return link;
-  }
-
-  if (/^[A-Z]$/.test(clauseNumber)) {
-    const annexType = document.getElementById(clauseID).hasAttribute('normative')
-      ? 'normative'
-      : 'informative';
-    link.innerHTML =
-      '<span class="secnum">Annex ' +
-      clauseNumber +
-      ' <span class="unbold">(' +
-      annexType +
-      ')</span></span> ' +
-      clauseTitle;
-
-    return link;
-  }
-
-  if (/^[A-Z]\./.test(clauseNumber)) {
-    link.innerHTML = '<span class="secnum">Annex ' + clauseNumber + '</span> ' + clauseTitle;
-    return link;
-  }
-
-  link.innerHTML = '<span class="secnum">' + clauseNumber + '</span> ' + clauseTitle;
-  return link;
-}
 
 /**
  * Loops through every clause/annex's h1 and improves the markup
