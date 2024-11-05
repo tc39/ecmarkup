@@ -390,6 +390,10 @@ export default class Spec {
       throw new Error('--js-out and --css-out have been removed; use --assets-dir instead');
     }
 
+    if (this.opts.oldToc) {
+      throw new Error('--old-toc has been removed; specify --printable to get a printable document');
+    }
+
     if (
       this.opts.assets != null &&
       this.opts.assets !== 'external' &&
@@ -579,7 +583,7 @@ export default class Spec {
     if (this.opts.toc) {
       this.log('Building table of contents...');
 
-      if (this.opts.oldToc) {
+      if (this.opts.printable) {
         new Toc(this).build(2);
       } else {
         ({ js: tocJs, eles: commonEles } = makeMenu(this));

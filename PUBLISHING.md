@@ -9,13 +9,13 @@ version: 15th Edition
 date: 2024-06-25
 ```
 
-To generate markup for use in PDF conversion, make sure to include the options `--assets`, `--assets-dir`, and `--old-toc`. If you have images and styles to include, make sure to move them into your assets directory before running `ecmarkup`. For example:
+To generate markup for use in PDF conversion, make sure to include the options `--assets`, `--assets-dir`, and `--printable`. If you have images and styles to include, make sure to move them into your assets directory before running `ecmarkup`. For example:
 
 ```shell
 mkdir -p out &&
 mv images out &&
 mv print.css out &&
-ecmarkup --assets external --assets-dir out --old-toc spec.html out/index.html
+ecmarkup --assets external --assets-dir out --printable spec.html out/index.html
 ```
 
 Then, from your spec's working directory, run [`prince`](https://www.princexml.com/) to generate your PDF.
