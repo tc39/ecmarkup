@@ -1311,7 +1311,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
   }
 
   private async loadImports() {
-    const imports = this.doc.body.querySelectorAll('EMU-IMPORT');
+    const imports = this.doc.body.querySelectorAll('emu-import');
     for (let i = 0; i < imports.length; i++) {
       await buildImports(this, imports[i] as EmuImportElement, this.rootDir);
     }
