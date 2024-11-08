@@ -590,7 +590,12 @@ export default class Spec {
       }
     }
 
-    if (!this.opts.printable) {
+    if (this.opts.printable) {
+      this.log('Applying tweaks for printable document...');
+      // The logo is present in ecma-262. We could consider removing it from the document instead of having this tweak.
+      document.getElementById('ecma-logo')?.remove();
+
+    } else {
       // apparently including this confuses Prince, even when it's `display: none`
       this.log('Building shortcuts help dialog...');
       commonEles.push(this.buildShortcutsHelp());

@@ -18,7 +18,6 @@ const year = version.innerHTML.match(/\d{4}/)[0];
 
 version.setAttribute('data-year', year);
 
-removeUnusedSections();
 rearrangeTables();
 
 PDF.pageLayout = 'two-column-right';
@@ -65,15 +64,6 @@ function rearrangeTables() {
     table.insertBefore(captionElement, table.getElementsByTagName('thead')[0]);
     table.appendChild(figcaption);
   });
-}
-
-/**
- * Gets rid of elements we don't need in the print version
- * */
-function removeUnusedSections() {
-  const ecmaLogo = document.getElementById('ecma-logo');
-
-  if (ecmaLogo) specContainer.removeChild(ecmaLogo.parentNode);
 }
 
 function generateFrontCover() {
