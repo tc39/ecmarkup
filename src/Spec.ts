@@ -592,7 +592,16 @@ export default class Spec {
     const wrapper = this.buildSpecWrapper();
 
     if (this.opts.printable) {
-      this.log('Building covers...');
+      this.log('Building covers and applying other print tweaks...');
+      const metadataEle = this.doc.querySelector('#metadata-block');
+      if (metadataEle) {
+        this.doc.querySelector('emu-intro')!.appendChild(metadataEle);
+      }
+      const scopeEle = document.getElementById('scope') ?? document.getElementById('sec-scope');
+      if (!scopeEle) {
+        throw new Error('--printable requires a scope');
+      }
+      scopeEle.before(this.doc.querySelector('h1.title')!.cloneNode(true));
 
       // front cover
       const frontCover = document.createElement('div');
@@ -620,6 +629,8 @@ export default class Spec {
       insideCover.innerHTML = '<p>Ecma International<br />Rue du Rhone 114 CH-1204 Geneva<br/>Tel: +41 22 849 6000<br/>Fax: +41 22 849 6001<br/>Web: https://www.ecma-international.org<br/>Ecma is the registered trademark of Ecma International.</p>';
 
       frontCover.after(insideCover);
+
+
     }
 
     let commonEles: HTMLElement[] = [];
@@ -1416,7 +1427,29 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
             'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
         });
       } else {
-        this.buildCopyrightBoilerplate();
+        const copyrightClause = this.buildCopyrightBoilerplate();
+        if (this.opts.printable) {
+          let intro = this.doc.querySelector('emu-intro');
+          if (!intro) {
+            throw new Error('--printable requires an emu-intro');
+          }
+          intro.after(copyrightClause);
+        } else {
+          let last: HTMLElement | undefined;
+          utils.domWalkBackward(this.doc.body, node => {
+            if (last) return false;
+            if (node.nodeName === 'EMU-CLAUSE' || node.nodeName === 'EMU-ANNEX') {
+              last = node as HTMLElement;
+              return false;
+            }
+          });
+
+          if (last && last.parentNode) {
+            last.parentNode.insertBefore(copyrightClause, last.nextSibling);
+          } else {
+            this.doc.body.appendChild(copyrightClause);
+          }
+        }
       }
     }
 
@@ -1561,23 +1594,8 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
     let copyrightClause = this.doc.querySelector('.copyright-and-software-license');
     if (!copyrightClause) {
-      let last: HTMLElement | undefined;
-      utils.domWalkBackward(this.doc.body, node => {
-        if (last) return false;
-        if (node.nodeName === 'EMU-CLAUSE' || node.nodeName === 'EMU-ANNEX') {
-          last = node as HTMLElement;
-          return false;
-        }
-      });
-
       copyrightClause = this.doc.createElement('emu-annex');
       copyrightClause.setAttribute('id', 'sec-copyright-and-software-license');
-
-      if (last && last.parentNode) {
-        last.parentNode.insertBefore(copyrightClause, last.nextSibling);
-      } else {
-        this.doc.body.appendChild(copyrightClause);
-      }
     }
     copyrightClause.setAttribute('back-matter', '');
 
@@ -1589,6 +1607,8 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       <h2>Software License</h2>
       ${license}
     `;
+
+    return copyrightClause;
   }
 
   private generateSDOMap() {
