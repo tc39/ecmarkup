@@ -391,7 +391,9 @@ export default class Spec {
     }
 
     if (this.opts.oldToc) {
-      throw new Error('--old-toc has been removed; specify --printable to get a printable document');
+      throw new Error(
+        '--old-toc has been removed; specify --printable to get a printable document',
+      );
     }
 
     if (
@@ -596,7 +598,6 @@ export default class Spec {
       this.log('Applying tweaks for printable document...');
       // The logo is present in ecma-262. We could consider removing it from the document instead of having this tweak.
       document.getElementById('ecma-logo')?.remove();
-
     } else {
       // apparently including this confuses Prince, even when it's `display: none`
       this.log('Building shortcuts help dialog...');
@@ -619,7 +620,7 @@ export default class Spec {
 
     const file = this.opts.multipage
       ? path.join(this.opts.outfile!, 'index.html')
-      : this.opts.outfile ?? null;
+      : (this.opts.outfile ?? null);
     this.generatedFiles.set(file, this.toHTML());
 
     return this;
@@ -1141,7 +1142,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       script.setAttribute('defer', '');
       this.doc.head.appendChild(script);
 
-      this.addStyle(this.doc.head, path.relative(outDir, printStyleLocationOnDisk), this.opts.printable ? void 0 : 'print');
+      this.addStyle(
+        this.doc.head,
+        path.relative(outDir, printStyleLocationOnDisk),
+        this.opts.printable ? void 0 : 'print',
+      );
       this.addStyle(this.doc.head, path.relative(outDir, styleLocationOnDisk));
     } else {
       // i.e. assets.type === 'inline'
@@ -1414,10 +1419,13 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       this.doc.body.insertBefore(h1, this.doc.body.firstChild);
     }
     if (this.opts.printable) {
-      this.doc.querySelector('h1.version')!.setAttribute('data-year', new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        timeZone: 'UTC',
-      }).format(this.opts.date));
+      this.doc.querySelector('h1.version')!.setAttribute(
+        'data-year',
+        new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          timeZone: 'UTC',
+        }).format(this.opts.date),
+      );
     }
 
     // shortname and status, like 'Draft ECMA-262'
@@ -1426,8 +1434,10 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       const shortnameLinkHtml =
         status === 'proposal' && location ? `<a href="${location}">${shortname}</a>` : shortname;
       const shortnameHtml =
-        (this.opts.printable && status === 'standard' ? '' : `<span class="status">${status.charAt(0).toUpperCase() + status.slice(1)}</span> `)
-        + shortnameLinkHtml;
+        (this.opts.printable && status === 'standard'
+          ? ''
+          : `<span class="status">${status.charAt(0).toUpperCase() + status.slice(1)}</span> `) +
+        shortnameLinkHtml;
 
       if (!this._updateBySelector('h1.shortname', shortnameHtml)) {
         const h1 = this.doc.createElement('h1');
@@ -1458,7 +1468,9 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       }
     }
     if (!metas.some(n => n.getAttribute('property') === 'og:title')) {
-      const title = this.opts.title ? utils.textContentFromHTML(this.doc, this.opts.title) : this.doc.querySelector('title')?.textContent;
+      const title = this.opts.title
+        ? utils.textContentFromHTML(this.doc, this.opts.title)
+        : this.doc.querySelector('title')?.textContent;
       if (title) {
         const meta = this.doc.createElement('meta');
         meta.setAttribute('property', 'og:title');

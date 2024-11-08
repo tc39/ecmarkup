@@ -20,7 +20,6 @@ export default class H1 extends Builder {
     parent.titleHTML = headerClone.innerHTML;
     parent.title = headerClone.textContent;
     if (parent.number) {
-
       // we want to prepend some HTML but setting `innerHTML` on the node will blow away the existing children,
       // which messes up other stuff which expects those to keep their identity
       node.insertAdjacentHTML('afterbegin', parent.getSecnumHTML());

@@ -415,7 +415,7 @@ export default class Clause extends Builder {
       if (isInnerAnnex) {
         return `<span class="secnum">${this.number}</span> `;
       } else {
-        return  `<span class="secnum">Annex ${this.number} <span class="annex-kind">(${this.isNormative ? 'normative' : 'informative'})</span></span> `;
+        return `<span class="secnum">Annex ${this.number} <span class="annex-kind">(${this.isNormative ? 'normative' : 'informative'})</span></span> `;
       }
     } else {
       return `<span class="secnum">${this.number}</span> `;
