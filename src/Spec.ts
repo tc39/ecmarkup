@@ -1405,8 +1405,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     }
 
     const defaultDateFormat = status === 'standard' ? STANDARD_DATE_FORMAT : DRAFT_DATE_FORMAT;
-    const date = new Intl.DateTimeFormat('en-US', defaultDateFormat).format(this.opts.date);
-    versionText += date;
+    versionText += new Intl.DateTimeFormat('en-US', defaultDateFormat).format(this.opts.date);
 
     if (!this._updateBySelector('h1.version', versionText)) {
       const h1 = this.doc.createElement('h1');
@@ -1414,8 +1413,14 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       h1.innerHTML = versionText;
       this.doc.body.insertBefore(h1, this.doc.body.firstChild);
     }
+    if (this.opts.printable) {
+      this.doc.querySelector('h1.version')!.setAttribute('data-year', new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        timeZone: 'UTC',
+      }).format(this.opts.date));
+    }
 
-    // shortname and status, ala 'Draft ECMA-262
+    // shortname and status, like 'Draft ECMA-262'
     if (shortname && !omitShortname) {
       // for proposals, link shortname to location
       const shortnameLinkHtml =

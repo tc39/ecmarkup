@@ -14,9 +14,7 @@ const specContainer = document.getElementById('spec-container');
 const shortname = specContainer.querySelector('h1.shortname');
 const version = specContainer.querySelector('h1.version');
 const title = specContainer.querySelector('h1.title');
-const year = version.innerHTML.match(/\d{4}/)[0];
-
-version.setAttribute('data-year', year);
+const year = version.getAttribute('data-year');
 
 rearrangeTables();
 
