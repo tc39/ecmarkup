@@ -537,8 +537,10 @@ export default class Spec {
 
     this.log('Propagating effect annotations...');
     this.propagateEffects();
-    this.log('Annotating external links...');
-    this.annotateExternalLinks();
+    if (this.opts.printable) {
+      this.log('Annotating external links...');
+      this.annotateExternalLinks();
+    }
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');
