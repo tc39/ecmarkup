@@ -67,10 +67,6 @@ function rearrangeTables() {
 function generateFrontCover() {
   const frontCover = document.createElement('div');
 
-  shortname.innerHTML = shortname.innerHTML.replace(/standard/i, '');
-  // eslint-disable-next-line prettier/prettier
-  shortname.innerHTML = shortname.innerHTML.replace(/(draft|proposal)/i, '<span class="status">$1</span>');
-
   frontCover.classList.add('full-page-svg');
   frontCover.setAttribute('id', 'front-cover');
 

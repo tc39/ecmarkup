@@ -1426,7 +1426,8 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       const shortnameLinkHtml =
         status === 'proposal' && location ? `<a href="${location}">${shortname}</a>` : shortname;
       const shortnameHtml =
-        status.charAt(0).toUpperCase() + status.slice(1) + ' ' + shortnameLinkHtml;
+        (this.opts.printable && status === 'standard' ? '' : `<span class="status">${status.charAt(0).toUpperCase() + status.slice(1)}</span> `)
+        + shortnameLinkHtml;
 
       if (!this._updateBySelector('h1.shortname', shortnameHtml)) {
         const h1 = this.doc.createElement('h1');
