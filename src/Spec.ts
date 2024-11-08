@@ -590,8 +590,11 @@ export default class Spec {
       }
     }
 
-    this.log('Building shortcuts help dialog...');
-    commonEles.push(this.buildShortcutsHelp());
+    if (!this.opts.printable) {
+      // apparently including this confuses Prince, even when it's `display: none`
+      this.log('Building shortcuts help dialog...');
+      commonEles.push(this.buildShortcutsHelp());
+    }
 
     for (const ele of commonEles) {
       this.doc.body.insertBefore(ele, this.doc.body.firstChild);
@@ -1131,7 +1134,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       script.setAttribute('defer', '');
       this.doc.head.appendChild(script);
 
-      this.addStyle(this.doc.head, path.relative(outDir, printStyleLocationOnDisk), 'print');
+      this.addStyle(this.doc.head, path.relative(outDir, printStyleLocationOnDisk), this.opts.printable ? void 0 : 'print');
       this.addStyle(this.doc.head, path.relative(outDir, styleLocationOnDisk));
     } else {
       // i.e. assets.type === 'inline'
@@ -1145,7 +1148,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       style.textContent = cssContents;
       this.doc.head.appendChild(style);
       const printStyle = this.doc.createElement('style');
-      printStyle.textContent = `@media print {\n${printCssContents}\n}`;
+      if (this.opts.printable) {
+        printStyle.textContent = printCssContents;
+      } else {
+        printStyle.textContent = `@media print {\n${printCssContents}\n}`;
+      }
       this.doc.head.appendChild(printStyle);
     }
     this.addStyle(

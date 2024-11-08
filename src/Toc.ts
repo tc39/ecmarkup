@@ -44,22 +44,7 @@ export default class Toc {
         }
       }
 
-      html += `<a href="#${sub.id}" title="${sub.title}">`;
-      if (sub.number) {
-        if (sub.isBackMatter) {
-          html += `<span>${shorten(sub.titleHTML)}</span>`;
-        } else if (sub.isAnnex) {
-          const isInnerAnnex = sub.node.parentElement?.nodeName === 'EMU-ANNEX';
-          if (isInnerAnnex) {
-            html += `<span class="secnum">Annex ${sub.number}</span> ${shorten(sub.titleHTML)}`;
-          } else {
-            html += `<span class="secnum">Annex ${sub.number} <span class="annex-kind">(${sub.isNormative ? 'normative' : 'informative'})</span></span> ${shorten(sub.titleHTML)}`;
-          }
-        } else {
-          html += `<span class="secnum">${sub.number}</span> ${shorten(sub.titleHTML)}`;
-        }
-      }
-      html += '</a>';
+      html += `<a href="#${sub.id}" title="${sub.title}">${sub.getSecnumHTML()}${shorten(sub.titleHTML)}</a>`;
       if (sub.subclauses.length > 0) html += Toc.build(sub, { maxDepth: maxDepth - 1, expandy });
       html += '</li>';
     });

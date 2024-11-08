@@ -408,6 +408,20 @@ export default class Clause extends Builder {
     clauseStack.pop();
   }
 
+  getSecnumHTML() {
+    if (!this.number || this.isBackMatter) return '';
+    if (this.isAnnex) {
+      const isInnerAnnex = this.node.parentElement?.nodeName === 'EMU-ANNEX';
+      if (isInnerAnnex) {
+        return `<span class="secnum">${this.number}</span> `;
+      } else {
+        return  `<span class="secnum">Annex ${this.number} <span class="annex-kind">(${this.isNormative ? 'normative' : 'informative'})</span></span> `;
+      }
+    } else {
+      return `<span class="secnum">${this.number}</span> `;
+    }
+  }
+
   static elements = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];
   static linkElements = Clause.elements;
 }

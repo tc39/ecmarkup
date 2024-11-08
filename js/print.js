@@ -19,7 +19,6 @@ const year = version.innerHTML.match(/\d{4}/)[0];
 version.setAttribute('data-year', year);
 
 removeUnusedSections();
-improveSectionHeadings();
 rearrangeTables();
 
 PDF.pageLayout = 'two-column-right';
@@ -49,47 +48,6 @@ Prince.registerPostLayoutFunc(() => {
 });
 
 /**
- * Loops through every clause/annex's h1 and improves the markup
- * */
-function improveSectionHeadings() {
-  // eslint-disable-next-line prettier/prettier
-  const sectionHeadings = Array.from(specContainer.querySelectorAll('emu-clause > h1, emu-annex > h1'));
-
-  /** these section IDs are emu-annex elements but not functionally annexes */
-  const nonAnnexSections = [
-    'sec-copyright-and-software-license',
-    'sec-colophon',
-    'sec-bibliography',
-  ];
-
-  sectionHeadings.forEach(h1 => {
-    const secnum = h1.firstChild;
-    const section = secnum.innerHTML;
-    const parent = h1.parentNode;
-
-    if (/^[A-Z]$/.test(section)) {
-      h1.classList.add('annex-title');
-
-      if (nonAnnexSections.includes(parent.id)) {
-        secnum.innerHTML = '';
-      } else {
-        const annexType = parent.hasAttribute('normative') ? 'normative' : 'informative';
-
-        secnum.innerHTML =
-          'Annex ' + section + ' <br/><span class="unbold">(' + annexType + ')</span><br/>';
-      }
-    } else {
-      secnum.textContent = section;
-    }
-
-    if (secnum.textContent !== '') {
-      h1.insertBefore(document.createTextNode(' '), h1.firstChild);
-      h1.insertBefore(secnum, h1.firstChild);
-    }
-  });
-}
-
-/**
  * Sets up table captions and figcaptions for tables, which provides for
  * continuation table captions.
  * */
@@ -116,8 +74,6 @@ function removeUnusedSections() {
   const ecmaLogo = document.getElementById('ecma-logo');
 
   if (ecmaLogo) specContainer.removeChild(ecmaLogo.parentNode);
-
-  document.getElementsByTagName('body')[0].removeChild(document.getElementById('shortcuts-help'));
 }
 
 function generateFrontCover() {
