@@ -70,8 +70,6 @@ function generateFrontCover() {
   shortname.innerHTML = shortname.innerHTML.replace(/standard/i, '');
   // eslint-disable-next-line prettier/prettier
   shortname.innerHTML = shortname.innerHTML.replace(/(draft|proposal)/i, '<span class="status">$1</span>');
-  version.innerHTML = version.innerHTML.replace(/(\d+)(st|nd|rd|th)/i, '$1<sup>$2</sup>');
-  title.innerHTML = title.innerHTML.replace(/(®|&reg;)/, '<sup>&reg;</sup>');
 
   frontCover.classList.add('full-page-svg');
   frontCover.setAttribute('id', 'front-cover');

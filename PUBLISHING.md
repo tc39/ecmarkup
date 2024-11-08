@@ -5,7 +5,7 @@ In order to produce a PDF, the front matter `title`, `shortname`, `version`, and
 ```
 title: ECMAScript® 2024 Language Specification
 shortname: ECMA-262
-version: 15th Edition
+version: 15<sup>th</sup> Edition
 date: 2024-06-25
 ```
 

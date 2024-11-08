@@ -1381,7 +1381,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     // title
     if (title && !this._updateBySelector('title', title)) {
       const titleElem = this.doc.createElement('title');
-      titleElem.innerHTML = title;
+      titleElem.innerHTML = utils.textContentFromHTML(this.doc, title);
       this.doc.head.appendChild(titleElem);
 
       const h1 = this.doc.createElement('h1');
@@ -1457,7 +1457,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       }
     }
     if (!metas.some(n => n.getAttribute('property') === 'og:title')) {
-      const title = this.opts.title ?? this.doc.querySelector('title')?.textContent;
+      const title = this.opts.title ? utils.textContentFromHTML(this.doc, this.opts.title) : this.doc.querySelector('title')?.textContent;
       if (title) {
         const meta = this.doc.createElement('meta');
         meta.setAttribute('property', 'og:title');
