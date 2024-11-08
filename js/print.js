@@ -26,9 +26,6 @@ PDF.author = 'Ecma International';
 PDF.subject = shortname.innerHTML + ', ' + version.innerHTML;
 
 Prince.registerPostLayoutFunc(() => {
-  specContainer.parentNode.insertBefore(generateFrontCover(), specContainer);
-  specContainer.parentNode.insertBefore(generateInsideCover(), specContainer);
-
   /**
    * Specific modifications for Ecma standards that don't apply to other
    * usages of ecmarkup. In case idk a proposal has the need to publish a PDF.
@@ -64,29 +61,6 @@ function rearrangeTables() {
   });
 }
 
-function generateFrontCover() {
-  const frontCover = document.createElement('div');
-
-  frontCover.classList.add('full-page-svg');
-  frontCover.setAttribute('id', 'front-cover');
-
-  frontCover.appendChild(shortname);
-  frontCover.appendChild(version);
-  frontCover.appendChild(title);
-
-  return frontCover;
-}
-
-function generateInsideCover() {
-  const insideCover = document.createElement('div');
-
-  insideCover.classList.add('full-page-svg');
-  insideCover.setAttribute('id', 'inside-cover');
-  insideCover.innerHTML =
-    '<p>Ecma International<br />Rue du Rhone 114 CH-1204 Geneva<br/>Tel: +41 22 849 6000<br/>Fax: +41 22 849 6001<br/>Web: https://www.ecma-international.org<br/>Ecma is the registered trademark of Ecma International.</p>';
-
-  return insideCover;
-}
 
 function generateEcmaCopyrightPage() {
   const copyrightNotice = document.createElement('div');

@@ -404,6 +404,15 @@ export default class Spec {
       throw new Error(`--assets=${this.opts.assets} cannot be used --assets-dir"`);
     }
 
+    if (this.opts.printable) {
+      if (this.opts.title == null) {
+        throw new Error(`--printable requires a title to be set in the metadata"`);
+      }
+      if (this.opts.shortname == null) {
+        throw new Error(`--printable requires a shortname to be set in the metadata"`);
+      }
+    }
+
     if (this.opts.multipage) {
       this.opts.outfile ??= '';
       const type = this.opts.assets ?? 'external';
@@ -581,6 +590,37 @@ export default class Spec {
     this.highlightCode();
     this.setCharset();
     const wrapper = this.buildSpecWrapper();
+
+    if (this.opts.printable) {
+      this.log('Building covers...');
+
+      // front cover
+      const frontCover = document.createElement('div');
+
+      frontCover.classList.add('full-page-svg');
+      frontCover.setAttribute('id', 'front-cover');
+
+      const shortNameNode = this.doc.querySelector('h1.shortname');
+      if (shortNameNode != null) {
+        frontCover.appendChild(shortNameNode.cloneNode(true));
+      }
+      const versionNode = this.doc.querySelector('h1.version');
+      if (versionNode != null) {
+        frontCover.appendChild(versionNode.cloneNode(true));
+      }
+      // we know title exists because we enforce it in the constructor when using --printable
+      frontCover.appendChild(this.doc.querySelector('title')!.cloneNode(true));
+      wrapper.before(frontCover);
+
+      // inside cover
+      const insideCover = document.createElement('div');
+
+      insideCover.classList.add('full-page-svg');
+      insideCover.setAttribute('id', 'inside-cover');
+      insideCover.innerHTML = '<p>Ecma International<br />Rue du Rhone 114 CH-1204 Geneva<br/>Tel: +41 22 849 6000<br/>Fax: +41 22 849 6001<br/>Web: https://www.ecma-international.org<br/>Ecma is the registered trademark of Ecma International.</p>';
+
+      frontCover.after(insideCover);
+    }
 
     let commonEles: HTMLElement[] = [];
     let tocJs = '';
