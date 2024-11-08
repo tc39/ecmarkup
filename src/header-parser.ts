@@ -688,7 +688,7 @@ export function formatPreamble(
     ? 'It is defined piecewise over the following productions:'
     : 'It performs the following steps when called:';
   const getRelevantElement = (el: Element): Element =>
-    el.tagName === 'INS' || el.tagName === 'DEL' ? el.firstElementChild ?? el : el;
+    el.tagName === 'INS' || el.tagName === 'DEL' ? (el.firstElementChild ?? el) : el;
   let next = dl.nextElementSibling;
   while (next != null && getRelevantElement(next)?.tagName === 'EMU-NOTE') {
     next = next.nextElementSibling;

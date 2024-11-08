@@ -24,7 +24,7 @@ function usage() {
       },
       {
         header: 'Options',
-        hide: ['files', 'js-out', 'css-out'],
+        hide: ['files', 'js-out', 'css-out', 'old-toc'],
         optionList: options as unknown as commandLineUsage.OptionDefinition[],
       },
     ]),
@@ -62,6 +62,10 @@ const outfile = args.files[1];
 
 if (args.strict && args.watch) {
   fail('Cannot use --strict with --watch');
+}
+
+if (args['old-toc']) {
+  fail('--old-toc has been removed; specify --printable to get a printable document');
 }
 
 if (args['js-out'] || args['css-out']) {
@@ -112,8 +116,8 @@ const build = debounce(async function build() {
     if (args['no-toc'] != null) {
       opts.toc = !args['no-toc'];
     }
-    if (args['old-toc'] != null) {
-      opts.oldToc = args['old-toc'];
+    if (args.printable != null) {
+      opts.printable = args.printable;
     }
 
     if (args.assets != null) {
