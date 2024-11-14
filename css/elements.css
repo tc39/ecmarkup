@@ -577,6 +577,15 @@ pre code.hljs {
   background: transparent;
 }
 
+:is(emu-intro, emu-clause > emu-clause > emu-clause, emu-annex) > :not(emu-intro, emu-clause, emu-annex, h1, h2, h3, h4, h5, h6) {
+  contain: layout;
+  content-visibility: auto;
+}
+
+p, emu-nt, emu-rhs, emu-production[collapsed], li, tr {
+  contain-intrinsic-size: auto 1.1em;
+}
+
 emu-clause[id],
 emu-annex[id],
 emu-intro[id] {
