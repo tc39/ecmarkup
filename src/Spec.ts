@@ -598,10 +598,9 @@ export default class Spec {
         this.doc.querySelector('emu-intro')!.appendChild(metadataEle);
       }
       const scopeEle = document.getElementById('scope') ?? document.getElementById('sec-scope');
-      if (!scopeEle) {
-        throw new Error('--printable requires a scope');
+      if (scopeEle) {
+        scopeEle.before(this.doc.querySelector('h1.title')!.cloneNode(true));
       }
-      scopeEle.before(this.doc.querySelector('h1.title')!.cloneNode(true));
 
       // front cover
       const frontCover = document.createElement('div');
