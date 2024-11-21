@@ -1889,10 +1889,8 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
   /** @internal */
   public setMetaViewport() {
-    let current = this.spec.doc.querySelector('meta[name=viewport]');
-
-    if (!current) {
-      let metaViewport = this.spec.doc.createElement('meta');
+    if (!this.spec.doc.querySelector('meta[name=viewport]')) {
+      const metaViewport = this.spec.doc.createElement('meta');
       metaViewport.setAttribute('name', 'viewport');
       metaViewport.setAttribute('content', 'width=device-width, initial-scale=1');
       this.spec.doc.head.insertBefore(metaViewport, this.spec.doc.head.firstChild);
