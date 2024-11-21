@@ -588,7 +588,8 @@ export default class Spec {
     this.buildReferenceGraph();
 
     this.highlightCode();
-    this.setCharset();
+    this.setMetaCharset();
+    this.setMetaViewport();
     const wrapper = this.buildSpecWrapper();
 
     if (this.opts.printable) {
@@ -2038,7 +2039,7 @@ ${copyright}`;
   }
 
   /** @internal */
-  public setCharset() {
+  public setMetaCharset() {
     let current = this.spec.doc.querySelector('meta[charset]');
 
     if (!current) {
@@ -2047,6 +2048,16 @@ ${copyright}`;
     }
 
     current.setAttribute('charset', 'utf-8');
+  }
+
+  /** @internal */
+  public setMetaViewport() {
+    if (!this.spec.doc.querySelector('meta[name=viewport]')) {
+      const metaViewport = this.spec.doc.createElement('meta');
+      metaViewport.setAttribute('name', 'viewport');
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1');
+      this.spec.doc.head.insertBefore(metaViewport, this.spec.doc.head.firstChild);
+    }
   }
 
   private _updateBySelector(selector: string, contents: string) {
