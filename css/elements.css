@@ -60,6 +60,8 @@
   --control-input-background-color: #bbb;
   --control-input-border-color: #999;
 
+  --menu-header-background-color: #bbb;
+  --menu-revealed-link-foreground-color: #206ca7;
   --menu-unpin-hover-foreground-color: #bb1212;
 
   --menu-trace-list-foreground-color: #999;
@@ -77,85 +79,87 @@
 }
 
 @supports (color-scheme: dark) {
-@media (prefers-color-scheme: dark) {
-:root {
-  --foreground-color: #fcfcfc;
-  --background-color: #171717;
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --foreground-color: #fcfcfc;
+      --background-color: #171717;
 
-  --link-foreground-color: #439de2;
-  --link-hover-foreground-color: #80cafb;
+      --link-foreground-color: #439de2;
+      --link-hover-foreground-color: #80cafb;
 
-  --user-code-foreground-color: brown;
+      --user-code-foreground-color: brown;
 
-  --var-foreground-color: #4fb6ab;
+      --var-foreground-color: #4fb6ab;
 
-  --referenced0-background-color: #9c9c1d;
-  --referenced1-background-color: #7e171c;
-  --referenced2-background-color: #1f6211;
-  --referenced3-background-color: #1a7a6b;
-  --referenced4-background-color: #7b4719;
-  --referenced5-background-color: #185870;
-  --referenced6-background-color: #731761;
+      --referenced0-background-color: #6d6d1e;
+      --referenced1-background-color: #7e171c;
+      --referenced2-background-color: #1f6211;
+      --referenced3-background-color: #1a7a6b;
+      --referenced4-background-color: #7b4719;
+      --referenced5-background-color: #185870;
+      --referenced6-background-color: #731761;
 
-  --note-background-color: #223c22;
-  --note-border-color: #31a331;
-  --note-editor-border-color: #801e1e;
+      --note-background-color: #1b2f1b;
+      --note-border-color: #31a331;
+      --note-editor-border-color: #801e1e;
 
-  --nt-link-foreground-color: #d0d0d0;
+      --nt-link-foreground-color: #d0d0d0;
 
-  --production-rhs-background-color: #4d4d4d;
-  --production-rhs-border-color: #888;
+      --production-rhs-background-color: #4d4d4d;
+      --production-rhs-border-color: #888;
 
-  --params-foreground-color: #57d0c7;
-  --opt-foreground-color: #d8b750;
+      --params-foreground-color: #57d0c7;
+      --opt-foreground-color: #d8b750;
 
-  --title-foreground-color: #f60;
+      --title-foreground-color: #f60;
 
-  --caption-foreground-color: #b0b0b0;
+      --caption-foreground-color: #b0b0b0;
 
-  --table-header-background-color: #404040;
+      --table-header-background-color: #303030;
 
-  --highlight-background-color-start: rgba(114, 105, 24, 1);
-  --highlight-background-color-end: rgba(114, 105, 24, 0);
+      --highlight-background-color-start: rgba(114, 105, 24, 1);
+      --highlight-background-color-end: rgba(114, 105, 24, 0);
 
-  --highlight-background-color: rgba(114, 105, 24, 1);
+      --highlight-background-color: rgba(114, 105, 24, 1);
 
-  --ins-background-color: #1e4a1e;
-  --ins-border-color: #61d89b;
+      --ins-background-color: #1e4a1e;
+      --ins-border-color: #61d89b;
 
-  --del-background-color: #4a1f1f;
+      --del-background-color: #4a1f1f;
 
-  --control-foreground-color: #101010;
-  --control-dimmed-foreground-color: #d0d0d0;
-  --control-background-color: #303030;
-  --control-dark-background-color: #505050;
-  --control-border-color: #505050;
-  --control-light-border-color: #606060;
-  --control-shortcut-background-color: #505050;
-  --control-shortcut-shadow-color: #000000;
-  --control-dialog-fade-color: rgba(0, 0, 0, 0.6);
+      --control-foreground-color: #101010;
+      --control-dimmed-foreground-color: #d0d0d0;
+      --control-background-color: #202020;
+      --control-dark-background-color: #303030;
+      --control-border-color: #505050;
+      --control-light-border-color: #606060;
+      --control-shortcut-background-color: #505050;
+      --control-shortcut-shadow-color: #000000;
+      --control-dialog-fade-color: rgba(0, 0, 0, 0.6);
 
-  --control-link-foreground-color: #7ebce9;
+      --control-link-foreground-color: #7ebce9;
 
-  --control-input-background-color: #606060;
-  --control-input-border-color: #a0a0a0;
+      --control-input-background-color: #606060;
+      --control-input-border-color: #a0a0a0;
 
-  --menu-unpin-hover-foreground-color: #e77373;
+      --menu-header-background-color: #404040;
+      --menu-revealed-link-foreground-color: #9bd0f7;
+      --menu-unpin-hover-foreground-color: #f29c9c;
 
-  --menu-trace-list-foreground-color: #222;
-  --menu-trace-list-background-color: #999;
+      --menu-trace-list-foreground-color: #222;
+      --menu-trace-list-background-color: #999;
 
-  --toolbox-tail-background-outside-color: rgba(0, 0, 0, 0);
-  --toolbox-tail-border-outside-color: rgba(204, 204, 204, 0);
+      --toolbox-tail-background-outside-color: rgba(0, 0, 0, 0);
+      --toolbox-tail-border-outside-color: rgba(204, 204, 204, 0);
 
-  --normative-optional-background-color: #352c24;
-  --normative-optional-border-color: #ff6600;
+      --normative-optional-background-color: #352c24;
+      --normative-optional-border-color: #ff6600;
 
-  --attributes-tag-foreground-color: #b9824b;
+      --attributes-tag-foreground-color: #e6a96d;
 
-  --figure-background: #fff;
-}
-}
+      --figure-background: #fff;
+    }
+  }
 }
 
 /* IBM Plex fonts (Latin subset) have been downloaded from Google Fonts and modified to add support back in for the `zero` substitution (slashed zeroes) */
@@ -383,11 +387,11 @@ var {
 }
 
 @supports (color-scheme: dark) {
-@media (prefers-color-scheme: dark) {
-var {
-  mix-blend-mode: normal;
-}
-}
+  @media (prefers-color-scheme: dark) {
+    var {
+      mix-blend-mode: normal;
+    }
+  }
 }
 
 var.field {
@@ -396,7 +400,7 @@ var.field {
 }
 /* suppress line break opportunities between `.` and `[[FieldName]]` */
 var.field::before {
-  content: '\2060'
+  content: '\2060';
 }
 
 var.referenced {
@@ -978,7 +982,7 @@ table.lightweight-table th {
     background-color: var(--highlight-background-color-start);
   }
   100% {
-    background-color: var(--highlight-background-color-end)
+    background-color: var(--highlight-background-color-end);
   }
 }
 #spec-container :target:not(emu-annex, emu-clause, emu-intro, emu-note, body) {
@@ -1232,7 +1236,7 @@ tr.del > td {
 }
 
 #menu-toc li.revealed-leaf > a {
-  color: var(--link-foreground-color);
+  color: var(--menu-revealed-link-foreground-color);
 }
 
 #menu-toc li.revealed > ol {
@@ -1249,7 +1253,7 @@ tr.del > td {
 
 .menu-pane-header {
   padding: 2px 8px;
-  background-color: var(--control-light-border-color);
+  background-color: var(--menu-header-background-color);
   font-weight: bold;
   letter-spacing: 1px;
   flex-grow: 0;
@@ -1274,6 +1278,10 @@ tr.del > td {
 
 .menu-pane-header emu-geq {
   margin-left: 0px;
+}
+
+.menu-pane-header a {
+  color: var(--control-link-foreground-color);
 }
 
 a.menu-pane-header-production {
