@@ -45,9 +45,9 @@ export const options = [
     description: "Don't include the table of contents",
   },
   {
-    name: 'old-toc',
+    name: 'printable',
     type: Boolean,
-    description: 'Use the old table of contents styling',
+    description: 'Make the output suitable for printing',
   },
   {
     name: 'mark-effects',
@@ -103,5 +103,9 @@ export const options = [
   {
     name: 'js-out',
     type: String,
+  },
+  {
+    name: 'old-toc',
+    type: Boolean,
   },
 ] as const;
