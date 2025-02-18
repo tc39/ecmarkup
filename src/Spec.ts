@@ -395,7 +395,7 @@ export default class Spec {
       this.opts.assets !== 'external' &&
       this.opts.assetsDir != null
     ) {
-      throw new Error(`--assets=${this.opts.assets} cannot be used --assets-dir"`);
+      throw new Error(`--assets=${this.opts.assets} cannot be used with --assets-dir"`);
     }
 
     if (this.opts.multipage) {

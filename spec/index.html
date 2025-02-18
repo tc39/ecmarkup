@@ -52,7 +52,7 @@ markEffects: true
       <tr><td>`--verbose`</td><td></td><td>Print verbose logging info.</td></tr>
       <tr><td>`--write-biblio`</td><td></td><td>Emit a biblio file to the specified path.</td></tr>
       <tr><td>`--assets`</td><td>`assets`</td><td>"none" for no CSS/JS/etc, "inline" for inline CSS/JS/etc, "external" for external CSS/JS/etc.</td></tr>
-      <tr><td>`--assets-dir`</td><td>`assetsDir`</td><td>Directory in which to place assets when using `--assets=external`.</td></tr>
+      <tr><td>`--assets-dir`</td><td>`assetsDir`</td><td>Directory in which to place assets when using `--assets=external`. Defaults to "assets".</td></tr>
       <tr><td>`--lint-spec`</td><td>`lintSpec`</td><td>Enforce some style and correctness checks.</td></tr>
       <tr><td>`--error-formatter`</td><td></td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using `--verbose`. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
       <tr><td>`--strict`</td><td></td><td>Exit with an error if there are warnings. Cannot be used with `--watch`.</td></tr>
@@ -84,8 +84,8 @@ markEffects: true
 </emu-clause>
 
 <emu-clause id="stylesheets-and-scripts">
-  <h1>Stylesheets and Scripts</h1>
-  <p>Ecmarkup requires CSS styles and, if you're using the sidebar table of contents, javascript as well. By default CSS and JS dependencies are inlined into the document. You can override this by setting assets to "none" (for example if you want to manually link to external assets). Passing cssOut and jsOut will write the respective files to disk at the given path.</p>
+  <h1>Stylesheets and other assets</h1>
+  <p>Ecmarkup requires CSS styles and other assets. By default all assets are inlined into the document. You can override this by setting assets to "none" (for example if you want to manually link to external assets) or "external". When using "external" the default directory for assets is `assets` in the same directory as the output file, but you can override this with `--assets-dir`.</p>
 </emu-clause>
 
 <emu-clause id="editorial-conventions">
