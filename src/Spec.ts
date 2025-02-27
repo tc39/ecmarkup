@@ -1176,12 +1176,16 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     }
     `;
     this.doc.head.appendChild(currentYearStyle);
-    this.addStyle(
-      this.doc.head,
-      `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
+    const solarizedStyle = this.doc.createElement('style');
+    solarizedStyle.textContent = `
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
         (hljs as any).versionString
-      }/styles/base16/solarized-light.min.css`,
-    );
+      }/styles/base16/solarized-light.min.css");
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
+        (hljs as any).versionString
+      }/styles/base16/solarized-dark.min.css") (prefers-color-scheme: dark);
+    `;
+    this.doc.head.appendChild(solarizedStyle);
   }
 
   private addStyle(head: HTMLHeadElement, href: string, media?: 'all' | 'print' | 'screen') {
