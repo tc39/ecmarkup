@@ -1444,22 +1444,3 @@ emu-normative-optional,
   background-color: #eee;
   box-shadow: inset 0 -1px 0 #ccc;
 }
-
-#metadata-block {
-  margin: 4em 0;
-  padding: 10px;
-  border: 1px solid #ee8421;
-}
-
-#metadata-block h1 {
-  font-size: 1.5em;
-  margin-top: 0;
-}
-#metadata-block > ul {
-  list-style-type: none;
-  margin: 0; padding: 0;
-}
-
-#ecma-logo {
-  width: 500px;
-}

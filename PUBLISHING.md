@@ -13,8 +13,7 @@ To generate markup for use in PDF conversion, make sure to include the options `
 
 ```shell
 mkdir -p out &&
-mv images out &&
-mv print.css out &&
+cp -R images out &&
 ecmarkup --assets external --assets-dir out --printable spec.html out/index.html
 ```
 
