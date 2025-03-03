@@ -990,7 +990,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
       // assets are never internal for multipage builds
       // @ts-expect-error
-      const multipageLocationOnDisk = path.join(this.assets.directory, 'multipage.js');
+      const multipageLocationOnDisk = path.join(this.assets.directory, 'js', 'multipage.js');
 
       this.generatedFiles.set(multipageLocationOnDisk, multipageJsContents);
 
@@ -1142,7 +1142,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
             const urlRef =
               this.assets.type === 'inline'
                 ? `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
-                : `../${fontFile}`;
+                : `../fonts/${fontFile}`;
             return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
           },
         )
@@ -1154,7 +1154,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           const urlRef =
             this.assets.type === 'inline'
               ? `data:image/${imageType};base64,${IMG_FILE_CONTENTS.get(url)!.toString('base64')}`
-              : `./${url}`;
+              : `../img/${url}`;
           return `${indent}content: url(${urlRef});`;
         }),
     );
@@ -1166,7 +1166,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           : path.dirname(this.opts.outfile)
         : process.cwd();
 
-      const scriptLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.js');
+      const scriptLocationOnDisk = path.join(this.assets.directory, 'js', 'ecmarkup.js');
       const styleLocationOnDisk = path.join(this.assets.directory, 'css', 'ecmarkup.css');
       const printStyleLocationOnDisk = path.join(this.assets.directory, 'css', 'print.css');
 
@@ -1175,7 +1175,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       this.generatedFiles.set(printStyleLocationOnDisk, printCssContents);
       for (const [, fontFile] of FONT_FILES) {
         this.generatedFiles.set(
-          path.join(this.assets.directory, fontFile),
+          path.join(this.assets.directory, 'fonts', fontFile),
           FONT_FILE_CONTENTS.get(fontFile)!,
         );
       }
