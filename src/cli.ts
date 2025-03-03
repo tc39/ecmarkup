@@ -77,7 +77,7 @@ if (args.assets != null && !['none', 'inline', 'external'].includes(args.assets)
 }
 
 if (args.assets != null && args.assets !== 'external' && args['assets-dir'] != null) {
-  fail(`--assets=${args.assets} cannot be used --assets-dir"`);
+  fail(`--assets=${args.assets} cannot be used with --assets-dir"`);
 }
 
 if (args.multipage) {

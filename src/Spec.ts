@@ -401,7 +401,7 @@ export default class Spec {
       this.opts.assets !== 'external' &&
       this.opts.assetsDir != null
     ) {
-      throw new Error(`--assets=${this.opts.assets} cannot be used --assets-dir"`);
+      throw new Error(`--assets=${this.opts.assets} cannot be used with --assets-dir"`);
     }
 
     if (this.opts.printable) {
@@ -1351,7 +1351,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
   }
 
   private async loadImports() {
-    const imports = this.doc.body.querySelectorAll('EMU-IMPORT');
+    const imports = this.doc.body.querySelectorAll('emu-import');
     for (let i = 0; i < imports.length; i++) {
       await buildImports(this, imports[i] as EmuImportElement, this.rootDir);
     }
