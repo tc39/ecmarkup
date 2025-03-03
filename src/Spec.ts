@@ -625,11 +625,10 @@ export default class Spec {
 
       insideCover.classList.add('full-page-svg');
       insideCover.setAttribute('id', 'inside-cover');
-      insideCover.innerHTML = '<p>Ecma International<br />Rue du Rhone 114 CH-1204 Geneva<br/>Tel: +41 22 849 6000<br/>Fax: +41 22 849 6001<br/>Web: https://www.ecma-international.org<br/>Ecma is the registered trademark of Ecma International.</p>';
+      insideCover.innerHTML =
+        '<p>Ecma International<br />Rue du Rhone 114 CH-1204 Geneva<br/>Tel: +41 22 849 6000<br/>Fax: +41 22 849 6001<br/>Web: https://www.ecma-international.org<br/>Ecma is the registered trademark of Ecma International.</p>';
 
       frontCover.after(insideCover);
-
-
     }
 
     let commonEles: HTMLElement[] = [];
@@ -1195,7 +1194,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       this.addStyle(
         this.doc.head,
         path.relative(outDir, printStyleLocationOnDisk),
-        this.opts.printable ? void 0 : 'print',
+        this.opts.printable ? undefined : 'print',
       );
       this.addStyle(this.doc.head, path.relative(outDir, styleLocationOnDisk));
     } else {
@@ -1428,7 +1427,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       } else {
         const copyrightClause = this.buildCopyrightBoilerplate();
         if (this.opts.printable) {
-          let intro = this.doc.querySelector('emu-intro');
+          const intro = this.doc.querySelector('emu-intro');
           if (!intro) {
             throw new Error('--printable requires an emu-intro');
           }
@@ -1597,7 +1596,9 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       copyrightClause.setAttribute('id', 'sec-copyright-and-software-license');
       copyrightClause.classList.add('copyright-notice');
     } else if (this.opts.printable) {
-      throw new Error('ecmarkup currently generates its own copyright for printed documents; if you need this open an issue');
+      throw new Error(
+        'ecmarkup currently generates its own copyright for printed documents; if you need this open an issue',
+      );
     }
     copyrightClause.setAttribute('back-matter', '');
 

@@ -8,7 +8,7 @@ export default class H1 extends Builder {
     // do nothing
   }
 
-  static async exit({ spec, node, clauseStack }: Context) {
+  static async exit({ node, clauseStack }: Context) {
     const parent = clauseStack[clauseStack.length - 1] || null;
     if (parent === null || parent.header !== node) {
       return;
