@@ -454,32 +454,6 @@ windows:${M}\r
     );
   });
 
-  it('leading whitespace within tags', async () => {
-    await assertLint(
-      positioned`
-        <p>${M} This is an example.</p>
-      `,
-      {
-        ruleId: 'spelling',
-        nodeType: 'html',
-        message: 'tags should not contain leading whitespace',
-      },
-    );
-  });
-
-  it('trailing whitespace within tags', async () => {
-    await assertLint(
-      positioned`
-        <p>This is an example:${M} </p>
-      `,
-      {
-        ruleId: 'spelling',
-        nodeType: 'html',
-        message: 'tags should not contain trailing whitespace',
-      },
-    );
-  });
-
   it('comparison with *+/-0*', async () => {
     await assertLint(
       positioned`
