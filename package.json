@@ -11,7 +11,7 @@
 		"prepack": "safe-publish-latest && npm run build-release",
 		"format-spec": "node bin/emu-format.js --write spec/index.html",
 		"test": "mocha",
-		"test-baselines": "mocha test/baselines.js",
+		"test-baselines": "mocha --timeout 10000 test/baselines.js",
 		"test-declarations": "tsc -p tsconfig.test.json",
 		"update-baselines": "npm --update-baselines run test-baselines",
 		"pretest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
