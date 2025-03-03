@@ -16,7 +16,7 @@ export default class Toc {
     const html = Toc.build(this.spec, { maxDepth });
     const tocContainer = this.spec.doc.createElement('div');
     tocContainer.setAttribute('id', 'toc');
-    tocContainer.innerHTML = '<h2>Table of Contents</h2>' + html;
+    tocContainer.innerHTML = '<h2>Contents</h2>' + html;
     const intro = this.spec.doc.querySelector('emu-intro, emu-clause, emu-annex');
     if (intro && intro.parentNode) {
       intro.parentNode.insertBefore(tocContainer, intro);
@@ -44,11 +44,7 @@ export default class Toc {
         }
       }
 
-      html += '<a href="#' + sub.id + '" title="' + sub.title + '">';
-      if (sub.number) {
-        html += '<span class="secnum">' + sub.number + '</span> ';
-      }
-      html += shorten(sub.titleHTML) + '</a>';
+      html += `<a href="#${sub.id}" title="${sub.title}">${sub.getSecnumHTML()}${shorten(sub.titleHTML)}</a>`;
       if (sub.subclauses.length > 0) html += Toc.build(sub, { maxDepth: maxDepth - 1, expandy });
       html += '</li>';
     });

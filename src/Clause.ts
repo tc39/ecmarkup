@@ -56,6 +56,9 @@ export default class Clause extends Builder {
   /** @internal */ signature: Signature | null;
   /** @internal */ skipGlobalChecks: boolean;
   /** @internal */ skipReturnChecks: boolean;
+  isAnnex: boolean;
+  isBackMatter: boolean;
+  isNormative: boolean;
 
   constructor(spec: Spec, node: HTMLElement, parent: Clause, number: string) {
     super(spec, node);
@@ -69,6 +72,9 @@ export default class Clause extends Builder {
     this.effects = [];
     this.skipGlobalChecks = false;
     this.skipReturnChecks = false;
+    this.isAnnex = node.nodeName === 'EMU-ANNEX';
+    this.isBackMatter = this.isAnnex && node.hasAttribute('back-matter');
+    this.isNormative = !this.isAnnex || node.hasAttribute('normative');
 
     // namespace is either the entire spec or the parent clause's namespace.
     let parentNamespace = spec.namespace;
@@ -400,6 +406,20 @@ export default class Clause extends Builder {
     spec.biblio.add(entry, spec.namespace);
 
     clauseStack.pop();
+  }
+
+  getSecnumHTML() {
+    if (!this.number || this.isBackMatter) return '';
+    if (this.isAnnex) {
+      const isInnerAnnex = this.node.parentElement?.nodeName === 'EMU-ANNEX';
+      if (isInnerAnnex) {
+        return `<span class="secnum">${this.number}</span> `;
+      } else {
+        return `<span class="secnum">Annex ${this.number} <span class="annex-kind">(${this.isNormative ? 'normative' : 'informative'})</span></span> `;
+      }
+    } else {
+      return `<span class="secnum">${this.number}</span> `;
+    }
   }
 
   static elements = ['EMU-INTRO', 'EMU-CLAUSE', 'EMU-ANNEX'];

@@ -75,7 +75,7 @@ markEffects: true
       <tr><td></td><td>`copyright`</td><td>Emit copyright and software license information. Boolean, default true.</td></tr>
       <tr><td></td><td>`contributors`</td><td>Contributors to this specification, i.e. those who own the copyright. If your proposal includes text from any Ecma specification, this should include "Ecma International".</td></tr>
       <tr><td>`--no-toc`</td><td>`toc`</td><td>Emit table of contents. Boolean, default true.</td></tr>
-      <tr><td>`--old-toc`</td><td>`oldToc`</td><td>Emit the table of contents at the top of the document rather than as a side pane. Boolean, default false.</td></tr>
+      <tr><td>`--printable`</td><td>`printable`</td><td>Make the output suitable for printing. Boolean, default false.</td></tr>
       <tr><td>`--load-biblio`</td><td>`extraBiblios`</td><td>Extra biblio.json file(s) to load. This should contain either an object as exported by `--write-biblio` or an array of such objects.</td></tr>
       <tr><td></td><td>`boilerplate`</td><td>An object with `address` and/or `copyright` and/or `license` fields containing paths to files containing the corresponding content for populating an element with class "copyright-and-software-license" (or if not found, an appended <emu-xref href="#emu-annex" title></emu-xref> with that id) when `copyright` is true. Absent fields are assumed to reference files in a "boilerplate" directory sibling of the directory containing the ecmarkup executable.</td></tr>
       <tr><td>`--mark-effects`</td><td>`markEffects`</td><td>Propagate and render <a href="#effects">effects</a> like "user code".</td></tr>
@@ -260,6 +260,7 @@ markEffects: true
 
     <h2>Attributes</h2>
     <p><b>normative:</b> If present, annex is normative. Default is non-normative.</p>
+    <p><b>back-matter:</b> If present, annex is back matter (such as a colophon), which means it will not be assigned an annex letter and will appear without one in the table of contents and document. This attribute should only be used with non-normative annexes, and back matter annexes should not be followed by non-back-matter annexes.</p>
     <p><b>id:</b> Clause id. Must be unique.</p>
     <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
   </emu-clause>

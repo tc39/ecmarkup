@@ -130,14 +130,6 @@ const matchers = [
     message: 'multiple consecutive spaces are not allowed',
   },
   {
-    pattern: /(?<=<[a-z]+( [a-z]+(="[^"\n]+")?)*>)(?<!(td|th|dd|dt|ins|del)>) /gu,
-    message: 'tags should not contain leading whitespace',
-  },
-  {
-    pattern: /(?<=[^ \n]) +<\/(?!td|th|dd|dt|ins|del)/gu,
-    message: 'tags should not contain trailing whitespace',
-  },
-  {
     pattern: /(?<=&lt; ?\*)\+0\*/gu,
     message: '"less than" comparisons against floating-point zero should use negative zero',
   },

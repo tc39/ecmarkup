@@ -83,6 +83,13 @@ export function htmlToDom(html: string) {
 }
 
 /** @internal */
+export function textContentFromHTML(doc: Document, html: string) {
+  const ele = doc.createElement('span');
+  ele.innerHTML = html;
+  return ele.textContent!;
+}
+
+/** @internal */
 export function domWalkBackward(root: Node, cb: (node: Element) => boolean | undefined) {
   const childNodes = root.childNodes;
   const childLen = childNodes.length;

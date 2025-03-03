@@ -90,7 +90,7 @@ const FONT_FILES = new Map([
   ['IBMPlexMono-BoldItalic', 'IBMPlexMono-BoldItalic-SlashedZero.woff2'],
 ]);
 
-const IMG_FILES = new Set(['ecma-header.png']);
+const IMG_FILES = new Set(['ecma-header.svg', 'print-front-cover.svg', 'print-inside-cover.svg']);
 
 interface VisitorMap {
   [k: string]: BuilderInterface;
@@ -390,12 +390,27 @@ export default class Spec {
       throw new Error('--js-out and --css-out have been removed; use --assets-dir instead');
     }
 
+    if (this.opts.oldToc) {
+      throw new Error(
+        '--old-toc has been removed; specify --printable to get a printable document',
+      );
+    }
+
     if (
       this.opts.assets != null &&
       this.opts.assets !== 'external' &&
       this.opts.assetsDir != null
     ) {
       throw new Error(`--assets=${this.opts.assets} cannot be used with --assets-dir"`);
+    }
+
+    if (this.opts.printable) {
+      if (this.opts.title == null) {
+        throw new Error(`--printable requires a title to be set in the metadata"`);
+      }
+      if (this.opts.shortname == null) {
+        throw new Error(`--printable requires a shortname to be set in the metadata"`);
+      }
     }
 
     if (this.opts.multipage) {
@@ -533,8 +548,10 @@ export default class Spec {
 
     this.log('Propagating effect annotations...');
     this.propagateEffects();
-    this.log('Annotating external links...');
-    this.annotateExternalLinks();
+    if (this.opts.printable) {
+      this.log('Annotating external links...');
+      this.annotateExternalLinks();
+    }
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');
@@ -574,20 +591,67 @@ export default class Spec {
     this.setCharset();
     const wrapper = this.buildSpecWrapper();
 
+    if (this.opts.printable) {
+      this.log('Building covers and applying other print tweaks...');
+      const metadataEle = this.doc.querySelector('#metadata-block');
+      if (metadataEle) {
+        this.doc.querySelector('emu-intro')!.appendChild(metadataEle);
+      }
+      const scopeEle = document.getElementById('scope') ?? document.getElementById('sec-scope');
+      if (scopeEle) {
+        scopeEle.before(this.doc.querySelector('h1.title')!.cloneNode(true));
+      }
+
+      // front cover
+      const frontCover = document.createElement('div');
+
+      frontCover.classList.add('full-page-svg');
+      frontCover.setAttribute('id', 'front-cover');
+
+      const shortNameNode = this.doc.querySelector('h1.shortname');
+      if (shortNameNode != null) {
+        frontCover.appendChild(shortNameNode.cloneNode(true));
+      }
+      const versionNode = this.doc.querySelector('h1.version');
+      if (versionNode != null) {
+        frontCover.appendChild(versionNode.cloneNode(true));
+      }
+      // we know title exists because we enforce it in the constructor when using --printable
+      frontCover.appendChild(this.doc.querySelector('title')!.cloneNode(true));
+      wrapper.before(frontCover);
+
+      // inside cover
+      const insideCover = document.createElement('div');
+
+      insideCover.classList.add('full-page-svg');
+      insideCover.setAttribute('id', 'inside-cover');
+      insideCover.innerHTML =
+        '<p>Ecma International<br />Rue du Rhone 114 CH-1204 Geneva<br/>Tel: +41 22 849 6000<br/>Fax: +41 22 849 6001<br/>Web: https://www.ecma-international.org<br/>Ecma is the registered trademark of Ecma International.</p>';
+
+      frontCover.after(insideCover);
+    }
+
     let commonEles: HTMLElement[] = [];
     let tocJs = '';
     if (this.opts.toc) {
       this.log('Building table of contents...');
 
-      if (this.opts.oldToc) {
+      if (this.opts.printable) {
         new Toc(this).build(2);
       } else {
         ({ js: tocJs, eles: commonEles } = makeMenu(this));
       }
     }
 
-    this.log('Building shortcuts help dialog...');
-    commonEles.push(this.buildShortcutsHelp());
+    if (this.opts.printable) {
+      this.log('Applying tweaks for printable document...');
+      // The logo is present in ecma-262. We could consider removing it from the document instead of having this tweak.
+      document.getElementById('ecma-logo')?.remove();
+    } else {
+      // apparently including this confuses Prince, even when it's `display: none`
+      this.log('Building shortcuts help dialog...');
+      commonEles.push(this.buildShortcutsHelp());
+    }
 
     for (const ele of commonEles) {
       this.doc.body.insertBefore(ele, this.doc.body.firstChild);
@@ -926,7 +990,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 
       // assets are never internal for multipage builds
       // @ts-expect-error
-      const multipageLocationOnDisk = path.join(this.assets.directory, 'multipage.js');
+      const multipageLocationOnDisk = path.join(this.assets.directory, 'js', 'multipage.js');
 
       this.generatedFiles.set(multipageLocationOnDisk, multipageJsContents);
 
@@ -1078,7 +1142,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
             const urlRef =
               this.assets.type === 'inline'
                 ? `data:font/${fontType};base64,${FONT_FILE_CONTENTS.get(fontFile)!.toString('base64')}`
-                : `./${fontFile}`;
+                : `../fonts/${fontFile}`;
             return `${indent}src: local(${displayName}), local(${postScriptName}), url(${urlRef}) format('${fontType}');`;
           },
         )
@@ -1090,7 +1154,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           const urlRef =
             this.assets.type === 'inline'
               ? `data:image/${imageType};base64,${IMG_FILE_CONTENTS.get(url)!.toString('base64')}`
-              : `./${url}`;
+              : `../img/${url}`;
           return `${indent}content: url(${urlRef});`;
         }),
     );
@@ -1102,22 +1166,22 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
           : path.dirname(this.opts.outfile)
         : process.cwd();
 
-      const scriptLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.js');
-      const styleLocationOnDisk = path.join(this.assets.directory, 'ecmarkup.css');
-      const printStyleLocationOnDisk = path.join(this.assets.directory, 'print.css');
+      const scriptLocationOnDisk = path.join(this.assets.directory, 'js', 'ecmarkup.js');
+      const styleLocationOnDisk = path.join(this.assets.directory, 'css', 'ecmarkup.css');
+      const printStyleLocationOnDisk = path.join(this.assets.directory, 'css', 'print.css');
 
       this.generatedFiles.set(scriptLocationOnDisk, jsContents);
       this.generatedFiles.set(styleLocationOnDisk, cssContents);
       this.generatedFiles.set(printStyleLocationOnDisk, printCssContents);
       for (const [, fontFile] of FONT_FILES) {
         this.generatedFiles.set(
-          path.join(this.assets.directory, fontFile),
+          path.join(this.assets.directory, 'fonts', fontFile),
           FONT_FILE_CONTENTS.get(fontFile)!,
         );
       }
       for (const imgFile of IMG_FILES) {
         this.generatedFiles.set(
-          path.join(this.assets.directory, imgFile),
+          path.join(this.assets.directory, 'img', imgFile),
           IMG_FILE_CONTENTS.get(imgFile)!,
         );
       }
@@ -1127,7 +1191,11 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       script.setAttribute('defer', '');
       this.doc.head.appendChild(script);
 
-      this.addStyle(this.doc.head, path.relative(outDir, printStyleLocationOnDisk), 'print');
+      this.addStyle(
+        this.doc.head,
+        path.relative(outDir, printStyleLocationOnDisk),
+        this.opts.printable ? undefined : 'print',
+      );
       this.addStyle(this.doc.head, path.relative(outDir, styleLocationOnDisk));
     } else {
       // i.e. assets.type === 'inline'
@@ -1141,41 +1209,13 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       style.textContent = cssContents;
       this.doc.head.appendChild(style);
       const printStyle = this.doc.createElement('style');
-      printStyle.textContent = `@media print {\n${printCssContents}\n}`;
+      if (this.opts.printable) {
+        printStyle.textContent = printCssContents;
+      } else {
+        printStyle.textContent = `@media print {\n${printCssContents}\n}`;
+      }
       this.doc.head.appendChild(printStyle);
     }
-    const currentYearStyle = this.doc.createElement('style');
-    currentYearStyle.textContent = `
-    @media print {
-      @page :left {
-        @bottom-right {
-          content: '© Ecma International ${this.opts.date!.getFullYear()}';
-        }
-      }
-      @page :right {
-        @bottom-left {
-          content: '© Ecma International ${this.opts.date!.getFullYear()}';
-        }
-      }
-      @page :first {
-        @bottom-left {
-          content: '';
-        }
-        @bottom-right {
-          content: '';
-        }
-      }
-      @page :blank {
-        @bottom-left {
-          content: '';
-        }
-        @bottom-right {
-          content: '';
-        }
-      }
-    }
-    `;
-    this.doc.head.appendChild(currentYearStyle);
     this.addStyle(
       this.doc.head,
       `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
@@ -1385,7 +1425,29 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
             'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
         });
       } else {
-        this.buildCopyrightBoilerplate();
+        const copyrightClause = this.buildCopyrightBoilerplate();
+        if (this.opts.printable) {
+          const intro = this.doc.querySelector('emu-intro');
+          if (!intro) {
+            throw new Error('--printable requires an emu-intro');
+          }
+          intro.after(copyrightClause);
+        } else {
+          let last: HTMLElement | undefined;
+          utils.domWalkBackward(this.doc.body, node => {
+            if (last) return false;
+            if (node.nodeName === 'EMU-CLAUSE' || node.nodeName === 'EMU-ANNEX') {
+              last = node as HTMLElement;
+              return false;
+            }
+          });
+
+          if (last && last.parentNode) {
+            last.parentNode.insertBefore(copyrightClause, last.nextSibling);
+          } else {
+            this.doc.body.appendChild(copyrightClause);
+          }
+        }
       }
     }
 
@@ -1395,7 +1457,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     // title
     if (title && !this._updateBySelector('title', title)) {
       const titleElem = this.doc.createElement('title');
-      titleElem.innerHTML = title;
+      titleElem.innerHTML = utils.textContentFromHTML(this.doc, title);
       this.doc.head.appendChild(titleElem);
 
       const h1 = this.doc.createElement('h1');
@@ -1419,8 +1481,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     }
 
     const defaultDateFormat = status === 'standard' ? STANDARD_DATE_FORMAT : DRAFT_DATE_FORMAT;
-    const date = new Intl.DateTimeFormat('en-US', defaultDateFormat).format(this.opts.date);
-    versionText += date;
+    versionText += new Intl.DateTimeFormat('en-US', defaultDateFormat).format(this.opts.date);
 
     if (!this._updateBySelector('h1.version', versionText)) {
       const h1 = this.doc.createElement('h1');
@@ -1428,14 +1489,26 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       h1.innerHTML = versionText;
       this.doc.body.insertBefore(h1, this.doc.body.firstChild);
     }
+    if (this.opts.printable) {
+      this.doc.querySelector('h1.version')!.setAttribute(
+        'data-year',
+        new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          timeZone: 'UTC',
+        }).format(this.opts.date),
+      );
+    }
 
-    // shortname and status, ala 'Draft ECMA-262
+    // shortname and status, like 'Draft ECMA-262'
     if (shortname && !omitShortname) {
       // for proposals, link shortname to location
       const shortnameLinkHtml =
         status === 'proposal' && location ? `<a href="${location}">${shortname}</a>` : shortname;
       const shortnameHtml =
-        status.charAt(0).toUpperCase() + status.slice(1) + ' ' + shortnameLinkHtml;
+        (this.opts.printable && status === 'standard'
+          ? ''
+          : `<span class="status">${status.charAt(0).toUpperCase() + status.slice(1)}</span> `) +
+        shortnameLinkHtml;
 
       if (!this._updateBySelector('h1.shortname', shortnameHtml)) {
         const h1 = this.doc.createElement('h1');
@@ -1466,7 +1539,9 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       }
     }
     if (!metas.some(n => n.getAttribute('property') === 'og:title')) {
-      const title = this.opts.title ?? this.doc.querySelector('title')?.textContent;
+      const title = this.opts.title
+        ? utils.textContentFromHTML(this.doc, this.opts.title)
+        : this.doc.querySelector('title')?.textContent;
       if (title) {
         const meta = this.doc.createElement('meta');
         meta.setAttribute('property', 'og:title');
@@ -1517,24 +1592,15 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
     let copyrightClause = this.doc.querySelector('.copyright-and-software-license');
     if (!copyrightClause) {
-      let last: HTMLElement | undefined;
-      utils.domWalkBackward(this.doc.body, node => {
-        if (last) return false;
-        if (node.nodeName === 'EMU-CLAUSE' || node.nodeName === 'EMU-ANNEX') {
-          last = node as HTMLElement;
-          return false;
-        }
-      });
-
-      copyrightClause = this.doc.createElement('emu-annex');
+      copyrightClause = this.doc.createElement(this.opts.printable ? 'div' : 'emu-annex');
       copyrightClause.setAttribute('id', 'sec-copyright-and-software-license');
-
-      if (last && last.parentNode) {
-        last.parentNode.insertBefore(copyrightClause, last.nextSibling);
-      } else {
-        this.doc.body.appendChild(copyrightClause);
-      }
+      copyrightClause.classList.add('copyright-notice');
+    } else if (this.opts.printable) {
+      throw new Error(
+        'ecmarkup currently generates its own copyright for printed documents; if you need this open an issue',
+      );
     }
+    copyrightClause.setAttribute('back-matter', '');
 
     copyrightClause.innerHTML = `
       <h1>Copyright &amp; Software License</h1>
@@ -1544,6 +1610,8 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       <h2>Software License</h2>
       ${license}
     `;
+
+    return copyrightClause;
   }
 
   private generateSDOMap() {
