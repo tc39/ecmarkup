@@ -1593,8 +1593,11 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
     let copyrightClause = this.doc.querySelector('.copyright-and-software-license');
     if (!copyrightClause) {
-      copyrightClause = this.doc.createElement('emu-annex');
+      copyrightClause = this.doc.createElement(this.opts.printable ? 'div' : 'emu-annex');
       copyrightClause.setAttribute('id', 'sec-copyright-and-software-license');
+      copyrightClause.classList.add('copyright-notice');
+    } else if (this.opts.printable) {
+      throw new Error('ecmarkup currently generates its own copyright for printed documents; if you need this open an issue');
     }
     copyrightClause.setAttribute('back-matter', '');
 
