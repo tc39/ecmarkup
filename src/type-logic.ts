@@ -376,9 +376,9 @@ export function typeFromExpr(
                   // however we mostly use `never` to mean user error, so use unknown instead
                   // this should only ever happen after `Return`
                   { kind: 'unknown' }
-                : (callType.of.find(k => k.kind === 'normal completion')?.of ?? {
+                : callType.of.find(k => k.kind === 'normal completion')?.of ?? {
                     kind: 'unknown',
-                  });
+                  };
           return normal;
         }
       }

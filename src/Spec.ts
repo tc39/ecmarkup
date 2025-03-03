@@ -669,7 +669,7 @@ export default class Spec {
 
     const file = this.opts.multipage
       ? path.join(this.opts.outfile!, 'index.html')
-      : (this.opts.outfile ?? null);
+      : this.opts.outfile ?? null;
     this.generatedFiles.set(file, this.toHTML());
 
     return this;
