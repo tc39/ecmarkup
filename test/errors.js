@@ -1106,6 +1106,31 @@ ${M}      </pre>
       );
     });
 
+    it('unknown oneof', async () => {
+      await assertError(
+        positioned`
+        <emu-grammar type="definition">
+          Foo :: one of \`a\` \`b\` \`c\`
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+        <h1>Static Semantics: Example</h1>
+        <dl class='header'></dl>
+          <emu-grammar>
+            Foo :: ${M}one of \`a\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+        </emu-clause>`,
+        {
+          ruleId: 'grammar-shape',
+          nodeType: 'emu-grammar',
+          message: 'could not find definition for rhs "a"',
+        },
+      );
+    });
+
     it('negative', async () => {
       await assertErrorFree(`
         <emu-grammar type="definition">
@@ -1166,6 +1191,25 @@ ${M}      </pre>
           extraBiblios: [upstream],
         },
       );
+    });
+
+    it('negative: oneof', async () => {
+      await assertErrorFree(`
+        <emu-grammar type="definition">
+          Foo :: one of \`a\` \`b\` \`c\`
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+        <h1>Static Semantics: Example</h1>
+        <dl class='header'></dl>
+          <emu-grammar>
+            Foo :: one of \`a\` \`b\` \`c\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+        </emu-clause>
+      `);
     });
   });
 });

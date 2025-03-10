@@ -73,8 +73,8 @@ export function rhsMatches(a: RightHandSide | OneOfList, b: RightHandSide | OneO
       }
       return symbolSpanMatches(aHead, bHead);
     }
-    default:
-      throw new Error('unknown rhs type ' + a.constructor.name);
+    case SyntaxKind.OneOfList:
+      return oneOfListMatches(a, b as OneOfList);
   }
 }
 
@@ -168,6 +168,16 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
       }
       return ae.operatorToken.kind === be.operatorToken.kind && ae.name.text === be.name.text;
     })
+  );
+}
+
+function oneOfListMatches(a: OneOfList, b: OneOfList) {
+  if (a.terminals === undefined || b.terminals === undefined) {
+    throw new Error('OneOfList must have terminals');
+  }
+  return (
+    a.terminals.length === b.terminals.length &&
+    a.terminals.every((ae, i) => ae.text === b.terminals![i].text)
   );
 }
 
