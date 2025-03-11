@@ -175,10 +175,8 @@ function oneOfListMatches(a: OneOfList, b: OneOfList) {
   if (a.terminals === undefined || b.terminals === undefined) {
     throw new Error('OneOfList must have terminals');
   }
-  return (
-    a.terminals.length === b.terminals.length &&
-    a.terminals.every((ae, i) => ae.text === b.terminals![i].text)
-  );
+  // The terminals in a must be a subset of the terminals in b.
+  return a.terminals.every(ae => b.terminals!.find(be => ae.text === be.text));
 }
 
 // this is only for use with single-file grammars

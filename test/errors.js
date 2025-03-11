@@ -1117,7 +1117,7 @@ ${M}      </pre>
         <h1>Static Semantics: Example</h1>
         <dl class='header'></dl>
           <emu-grammar>
-            Foo :: ${M}one of \`a\`
+            Foo :: ${M}one of \`d\`
           </emu-grammar>
           <emu-alg>
             1. Return *true*.
@@ -1126,7 +1126,7 @@ ${M}      </pre>
         {
           ruleId: 'grammar-shape',
           nodeType: 'emu-grammar',
-          message: 'could not find definition for rhs "a"',
+          message: 'could not find definition for rhs "d"',
         },
       );
     });
@@ -1207,6 +1207,31 @@ ${M}      </pre>
           </emu-grammar>
           <emu-alg>
             1. Return *true*.
+          </emu-alg>
+        </emu-clause>
+      `);
+    });
+
+    it('negative: oneof (subset)', async () => {
+      await assertErrorFree(`
+        <emu-grammar type="definition">
+          Foo :: one of \`a\` \`b\` \`c\`
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+        <h1>Static Semantics: Example</h1>
+        <dl class='header'></dl>
+          <emu-grammar>
+            Foo :: one of \`a\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+          <emu-grammar>
+            Foo :: one of \`b\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *false*.
           </emu-alg>
         </emu-clause>
       `);
