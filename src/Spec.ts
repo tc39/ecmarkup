@@ -1508,12 +1508,18 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
     // version string, e.g. "6th Edition July 2016" or "Draft 10 / September 26, 2015"
     let versionText = '';
+    let omitShortname = false;
     if (version) {
       versionText += version + ' / ';
     } else if (status === 'proposal' && stage) {
       versionText += 'Stage ' + stage + ' Draft / ';
-    } else if (status === 'draft' && shortname) {
-      versionText += 'Draft / ';
+    } else if (status === 'draft') {
+      if (this.opts.printable) {
+        versionText += 'Draft / ';
+      } else if (shortname) {
+        versionText += 'Draft ' + shortname + ' / ';
+        omitShortname = true;
+      }
     } else {
       return;
     }
@@ -1538,7 +1544,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     }
 
     // shortname and status, like 'Draft ECMA-262'
-    if (shortname) {
+    if (shortname && !omitShortname) {
       // for proposals, link shortname to location
       const shortnameLinkHtml =
         status === 'proposal' && location ? `<a href="${location}">${shortname}</a>` : shortname;
