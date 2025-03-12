@@ -10,9 +10,8 @@
 
 // Prince.trackBoxes = true;
 
-const specContainer = document.getElementById('spec-container');
-const shortname = specContainer.querySelector('h1.shortname');
-const version = specContainer.querySelector('h1.version');
+const shortname = document.querySelector('h1.shortname');
+const version = document.querySelector('h1.version');
 
 rearrangeTables();
 
@@ -21,7 +20,7 @@ PDF.pageMode = 'show-bookmarks';
 PDF.duplex = 'duplex-flip-long-edge';
 PDF.title = document.title;
 PDF.author = 'Ecma International';
-PDF.subject = shortname.innerHTML + ', ' + version.innerHTML;
+PDF.subject = shortname.innerHTML + (version ? ', ' + version.innerHTML : '');
 
 /**
  * Sets up table captions and figcaptions for tables, which provides for

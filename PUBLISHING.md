@@ -1,6 +1,6 @@
 # Generating a PDF from ecmarkup
 
-In order to produce a PDF, the front matter `title`, `shortname`, `version`, and `date` are **mandatory**. If generating a final annual edition, date should reflect the date of the Ecma GA which will ratify the Standard. For example:
+In order to produce a PDF, the front matter `title`, `shortname`, and `status` are **mandatory**. If generating a version for submission to the GA, `version` and `date` are mandatory. `date` should reflect the date of the Ecma GA which will ratify the Standard. For example:
 
 ```
 title: ECMAScript® 2024 Language Specification
@@ -17,7 +17,7 @@ cp -R images out &&
 ecmarkup --assets external --assets-dir out --printable spec.html out/index.html
 ```
 
-Then, from your spec's working directory, run [`prince`](https://www.princexml.com/) to generate your PDF.
+Then, from your spec's working directory, run [`prince-books`](https://www.princexml.com/) to generate your PDF.
 
 ```shell
 cd path/to/spec

@@ -77,7 +77,7 @@ markEffects: true
       <tr><td>`--no-toc`</td><td>`toc`</td><td>Emit table of contents. Boolean, default true.</td></tr>
       <tr><td>`--printable`</td><td>`printable`</td><td>Make the output suitable for printing. Boolean, default false.</td></tr>
       <tr><td>`--load-biblio`</td><td>`extraBiblios`</td><td>Extra biblio.json file(s) to load. This should contain either an object as exported by `--write-biblio` or an array of such objects.</td></tr>
-      <tr><td></td><td>`boilerplate`</td><td>An object with `address` and/or `copyright` and/or `license` fields containing paths to files containing the corresponding content for populating an element with class "copyright-and-software-license" (or if not found, an appended <emu-xref href="#emu-annex" title></emu-xref> with that id) when `copyright` is true. Absent fields are assumed to reference files in a "boilerplate" directory sibling of the directory containing the ecmarkup executable.</td></tr>
+      <tr><td></td><td>`boilerplate`</td><td>An object with `address` and/or `copyright` and/or `license` fields containing paths to files containing the corresponding content for populating an element with class "copyright-and-software-license" (or if not found, an appended <emu-xref href="#emu-annex" title></emu-xref> with that id) when `copyright` is true or set to `alternative`. Absent fields are assumed to reference files in a "boilerplate" directory sibling of the directory containing the ecmarkup executable.</td></tr>
       <tr><td>`--mark-effects`</td><td>`markEffects`</td><td>Propagate and render <a href="#effects">effects</a> like "user code".</td></tr>
     </table>
   </emu-table>
