@@ -1,6 +1,10 @@
 # Generating a PDF from ecmarkup
 
-In order to produce a PDF, the front matter `title`, `shortname`, and `status` are **mandatory**. If generating a version for submission to the GA, `version` and `date` are mandatory. `date` should reflect the date of the Ecma GA which will ratify the Standard. For example:
+## Required frontmatter
+
+- In order to produce a PDF, the front matter `title`, `shortname`, and `status` are **mandatory**.
+- If using the alternative copyright, `location` is also mandatory.
+- If generating a version for submission to the GA, `version` and `date` are mandatory. `date` should reflect the date of the Ecma GA which will ratify the Standard. For example:
 
 ```
 title: ECMAScript® 2024 Language Specification
@@ -21,7 +25,7 @@ Then, from your spec's working directory, run [`prince-books`](https://www.princ
 
 ```shell
 cd path/to/spec
-prince --script ./node_modules/ecmarkup/js/print.js out/index.html -o path/to/output.pdf
+prince-books --script ./node_modules/ecmarkup/js/print.js out/index.html -o path/to/output.pdf
 ```
 
 This has been extensively tested with Prince 15. Earlier and later editions not guaranteed.
