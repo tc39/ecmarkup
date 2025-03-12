@@ -496,7 +496,7 @@ emu-figure img {
 }
 
 #toc a[href]::after {
-  content: leader(dotted)  target-counter(attr(href), page);
+  content: leader(dotted) target-counter(attr(href), page);
 }
 
 #toc > ol.toc {
@@ -548,11 +548,20 @@ a[data-print-href]::after {
   width: auto;
 }
 
-.annex-title {
+emu-annex > h1 {
   text-align: center;
 }
 
-.copyright-notice { /* ecma mandated */
+emu-annex > h1 span {
+  display: block;
+}
+
+emu-annex > h1 .secnum {
+  margin: 0 0 1lh;
+}
+
+.copyright-notice {
+  /* ecma mandated */
   font-style: italic;
   border: 1px solid black;
   padding: 1em;
@@ -613,6 +622,7 @@ h1.version {
 }
 
 #front-cover h1.title {
+  display: block;
   font-weight: bold;
   font-size: 20pt;
   line-height: 1.2;
@@ -624,15 +634,6 @@ h1.version {
 
 #inside-cover {
   page: inside-cover;
-}
-
-#inside-cover address {
-  color: black;
-  font-size: 12pt;
-  font-style: normal;
-  position: relative;
-  left: 72mm;
-  top: 82mm;
 }
 
 #toc {
@@ -647,4 +648,8 @@ h1.version {
 
 .annex-kind {
   font-weight: normal;
+}
+
+p.ECMAaddress {
+  margin: 0;
 }
