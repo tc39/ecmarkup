@@ -1563,7 +1563,7 @@ li.menu-search-result-term::before {
 
 emu-normative-optional::before {
   display: block;
-  color: #884400;
+  color: var(--attributes-tag-foreground-color);
   content: "NORMATIVE OPTIONAL";
 }
 
