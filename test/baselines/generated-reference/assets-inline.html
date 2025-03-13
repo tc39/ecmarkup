@@ -3738,7 +3738,7 @@ emu-figure img {
 }
 
 #toc a[href]::after {
-  content: leader(dotted)  target-counter(attr(href), page);
+  content: leader(dotted) target-counter(attr(href), page);
 }
 
 #toc > ol.toc {
@@ -3790,8 +3790,16 @@ a[data-print-href]::after {
   width: auto;
 }
 
-.annex-title {
+emu-annex > h1 {
   text-align: center;
+}
+
+emu-annex > h1 span {
+  display: block;
+}
+
+emu-annex > h1 .secnum {
+  margin: 0 0 1lh;
 }
 
 .copyright-notice { /* ecma mandated */
@@ -3801,10 +3809,6 @@ a[data-print-href]::after {
   page: copyright;
   page-break-before: always;
   page-break-after: always;
-}
-
-.full-page-svg {
-  color: rgba(255, 255, 255, 0);
 }
 
 .secnum {
@@ -3855,6 +3859,7 @@ h1.version {
 }
 
 #front-cover h1.title {
+  display: block;
   font-weight: bold;
   font-size: 20pt;
   line-height: 1.2;
@@ -3866,15 +3871,6 @@ h1.version {
 
 #inside-cover {
   page: inside-cover;
-}
-
-#inside-cover address {
-  color: black;
-  font-size: 12pt;
-  font-style: normal;
-  position: relative;
-  left: 72mm;
-  top: 82mm;
 }
 
 #toc {
@@ -3889,6 +3885,10 @@ h1.version {
 
 .annex-kind {
   font-weight: normal;
+}
+
+p.ECMAaddress {
+  margin: 0;
 }
 
 }</style><style>
@@ -3939,14 +3939,14 @@ h1.version {
     <h1>Intro</h1>
     <p>This is a section.</p>
 </emu-intro>
-<emu-annex id="sec-copyright-and-software-license" class="copyright-notice" back-matter="">
-      <h1>Copyright &amp; Software License</h1>
-      
-      <h2>Copyright Notice</h2>
-      <p>© 1997 Ecma</p>
-
-      <h2>Software License</h2>
-      <p>All Software contained in this document ("Software") is protected by copyright and is being made available under the "BSD License", included below. This Software may be subject to third party rights (rights from parties other than Ecma International), including patent rights, and no licenses under such third party rights are granted under this license even if the third party concerned is a member of Ecma International. SEE THE ECMA CODE OF CONDUCT IN PATENT MATTERS AVAILABLE AT <a href="https://ecma-international.org/memento/codeofconduct.htm">https://ecma-international.org/memento/codeofconduct.htm</a> FOR INFORMATION REGARDING THE LICENSING OF PATENT CLAIMS THAT ARE REQUIRED TO IMPLEMENT ECMA INTERNATIONAL STANDARDS.</p>
+<emu-annex id="sec-copyright-and-software-license" back-matter="">
+        <h1>Copyright &amp; Software License</h1>
+        
+        <div class="copyright-notice" id="copyright-notice"><h2>Copyright Notice</h2>
+<p>© 1997 Ecma</p>
+</div>
+        <h2>Software License</h2>
+        <p>All Software contained in this document ("Software") is protected by copyright and is being made available under the "BSD License", included below. This Software may be subject to third party rights (rights from parties other than Ecma International), including patent rights, and no licenses under such third party rights are granted under this license even if the third party concerned is a member of Ecma International. SEE THE ECMA CODE OF CONDUCT IN PATENT MATTERS AVAILABLE AT <a href="https://ecma-international.org/memento/codeofconduct.htm">https://ecma-international.org/memento/codeofconduct.htm</a> FOR INFORMATION REGARDING THE LICENSING OF PATENT CLAIMS THAT ARE REQUIRED TO IMPLEMENT ECMA INTERNATIONAL STANDARDS.</p>
 
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
 
@@ -3958,4 +3958,4 @@ h1.version {
 
 <p>THIS SOFTWARE IS PROVIDED BY THE ECMA INTERNATIONAL "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ECMA INTERNATIONAL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 
-    </emu-annex></div></body>
+      </emu-annex></div></body>

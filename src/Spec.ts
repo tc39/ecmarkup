@@ -1513,10 +1513,10 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       versionText += version + ' / ';
     } else if (status === 'proposal' && stage) {
       versionText += 'Stage ' + stage + ' Draft / ';
-    } else if (status === 'draft') {
+    } else if (status === 'draft' && shortname) {
       if (this.opts.printable) {
         versionText += 'Draft / ';
-      } else if (shortname) {
+      } else {
         versionText += 'Draft ' + shortname + ' / ';
         omitShortname = true;
       }
