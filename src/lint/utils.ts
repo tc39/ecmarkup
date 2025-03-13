@@ -75,6 +75,9 @@ export function rhsMatches(a: RightHandSide | OneOfList, b: RightHandSide | OneO
     }
     case SyntaxKind.OneOfList:
       return oneOfListMatches(a, b as OneOfList);
+    default:
+      // @ts-expect-error: Callers might pass other kinds of nodes.
+      throw new Error('unknown rhs type ' + a.constructor.name);
   }
 }
 
