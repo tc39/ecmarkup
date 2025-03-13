@@ -79,7 +79,7 @@
 }
 
 @supports (color-scheme: dark) {
-  @media (prefers-color-scheme: dark) {
+  @media only screen and (prefers-color-scheme: dark) {
     :root {
       --foreground-color: #fcfcfc;
       --background-color: #171717;
@@ -387,7 +387,7 @@ var {
 }
 
 @supports (color-scheme: dark) {
-  @media (prefers-color-scheme: dark) {
+  @media only screen and (prefers-color-scheme: dark) {
     var {
       mix-blend-mode: normal;
     }
