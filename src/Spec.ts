@@ -1255,7 +1255,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }/styles/base16/solarized-light.min.css");
       @import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
         (hljs as any).versionString
-      }/styles/base16/solarized-dark.min.css") (prefers-color-scheme: dark);
+      }/styles/a11y-dark.min.css") (prefers-color-scheme: dark);
     `;
     this.doc.head.appendChild(solarizedStyle);
   }
