@@ -1263,14 +1263,15 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       let festiveStyleContents = await utils.readFile(path.join(__dirname, '..', 'css', 'festive.css'));
       let festiveScript = this.doc.createElement('script');
       festiveScript.innerHTML = `
-        (function() {
-          var d = new Date;
-          if (d.getMonth() === 2 && d.getDate() === 13) {
-            var s = document.createElement('style');
+        {
+          let d = new Date;
+          if (d.getMonth() === 3 && d.getDate() === 1) {
+            let s = document.createElement('style');
+            s.id = 'bd75b99add5f';
             s.innerHTML = atob(${JSON.stringify(btoa(festiveStyleContents))});
             document.head.appendChild(s);
           }
-        })();
+        }
       `;
       this.doc.head.appendChild(festiveScript);
     }
