@@ -857,7 +857,7 @@ let referencePane = {
     this.$pane.appendChild(this.$tableContainer);
 
     if (menu != null) {
-      menu.$specContainer.appendChild(this.$container);
+      menu.$specContainer.after(this.$container);
     }
   },
 
@@ -1189,6 +1189,9 @@ function doShortcut(e) {
     document.documentElement.classList.toggle('show-ao-annotations');
   } else if (e.key === '?') {
     document.getElementById('shortcuts-help').classList.toggle('active');
+  } else if (e.key === ';') {
+    let el = document.getElementById('bd75b99add5f');
+    if (el != null) el.remove();
   }
 }
 
@@ -2564,7 +2567,7 @@ table.real-table th {
 }
 
 emu-table td {
-  background: var(--background-color);
+  background: transparent;
 }
 
 td[colspan]:not([colspan="1"]), th[colspan]:not([colspan="1"]) {
@@ -2671,7 +2674,7 @@ tr.del > td {
   height: 100vh;
   max-width: 500px;
   box-sizing: border-box;
-  background-color: var(--control-background-color);
+  background: var(--control-background-color);
   overflow: hidden;
   transition: opacity 0.1s linear;
   padding: 0 5px;
@@ -3112,7 +3115,7 @@ li.menu-search-result-term::before {
 
 .toolbox::after {
   border-color: var(--toolbox-tail-background-outside-color);
-  border-top-color: var(--control-background-color);
+  border-top-color: var(--control-border-color);
   border-width: 10px;
   margin-left: -10px;
 }
@@ -3129,7 +3132,7 @@ li.menu-search-result-term::before {
   left: 0;
   right: 0;
   display: none;
-  background-color: var(--control-background-color);
+  background: var(--control-background-color);
   z-index: 1;
 }
 
@@ -3210,7 +3213,7 @@ emu-normative-optional,
   outline: solid 10000px var(--control-dialog-fade-color);
   border-radius: 5px;
   border-width: 1px 1px 0 1px;
-  background-color: var(--control-background-color);
+  background: var(--control-background-color);
   display: none;
 }
 

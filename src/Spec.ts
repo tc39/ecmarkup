@@ -1260,6 +1260,25 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }/styles/a11y-dark.min.css") (prefers-color-scheme: dark);
     `;
     this.doc.head.appendChild(solarizedStyle);
+
+    if (this.opts.shortname === 'ECMA-262' && this.opts.status === 'draft') {
+      const festiveStyleContents = await utils.readFile(
+        path.join(__dirname, '..', 'css', 'festive.css'),
+      );
+      const festiveScript = this.doc.createElement('script');
+      festiveScript.innerHTML = `
+        {
+          let d = new Date;
+          if (d.getMonth() === 3 && d.getDate() === 1) {
+            let s = document.createElement('style');
+            s.id = 'bd75b99add5f';
+            s.innerHTML = atob(${JSON.stringify(btoa(festiveStyleContents))});
+            document.head.appendChild(s);
+          }
+        }
+      `;
+      this.doc.head.appendChild(festiveScript);
+    }
   }
 
   private addStyle(head: HTMLHeadElement, href: string, media?: 'all' | 'print' | 'screen') {
