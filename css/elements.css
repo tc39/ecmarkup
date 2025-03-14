@@ -955,7 +955,7 @@ table.real-table th {
 }
 
 emu-table td {
-  background: var(--background-color);
+  background: transparent;
 }
 
 td[colspan]:not([colspan="1"]), th[colspan]:not([colspan="1"]) {

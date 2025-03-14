@@ -773,7 +773,8 @@ let referencePane = {
     this.$pane.appendChild(this.$tableContainer);
 
     if (menu != null) {
-      menu.$specContainer.appendChild(this.$container);
+      // menu.$specContainer.appendChild(this.$container);
+      menu.$specContainer.after(this.$container);
     }
   },
 
