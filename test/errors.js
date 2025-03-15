@@ -1106,6 +1106,31 @@ ${M}      </pre>
       );
     });
 
+    it('unknown oneof', async () => {
+      await assertError(
+        positioned`
+        <emu-grammar type="definition">
+          Foo :: one of \`a\` \`b\` \`c\`
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+        <h1>Static Semantics: Example</h1>
+        <dl class='header'></dl>
+          <emu-grammar>
+            Foo :: ${M}one of \`d\` \`e\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+        </emu-clause>`,
+        {
+          ruleId: 'grammar-shape',
+          nodeType: 'emu-grammar',
+          message: 'could not find definition for rhs "d e"',
+        },
+      );
+    });
+
     it('negative', async () => {
       await assertErrorFree(`
         <emu-grammar type="definition">
@@ -1166,6 +1191,50 @@ ${M}      </pre>
           extraBiblios: [upstream],
         },
       );
+    });
+
+    it('negative: oneof', async () => {
+      await assertErrorFree(`
+        <emu-grammar type="definition">
+          Foo :: one of \`a\` \`b\` \`c\`
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+        <h1>Static Semantics: Example</h1>
+        <dl class='header'></dl>
+          <emu-grammar>
+            Foo :: one of \`a\` \`b\` \`c\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+        </emu-clause>
+      `);
+    });
+
+    it('negative: oneof (subset)', async () => {
+      await assertErrorFree(`
+        <emu-grammar type="definition">
+          Foo :: one of \`a\` \`b\` \`c\` \`d\`
+        </emu-grammar>
+
+        <emu-clause id="sec-example" type="sdo">
+        <h1>Static Semantics: Example</h1>
+        <dl class='header'></dl>
+          <emu-grammar>
+            Foo :: one of \`a\` \`b\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *true*.
+          </emu-alg>
+          <emu-grammar>
+            Foo :: one of \`c\` \`d\`
+          </emu-grammar>
+          <emu-alg>
+            1. Return *false*.
+          </emu-alg>
+        </emu-clause>
+      `);
     });
   });
 });

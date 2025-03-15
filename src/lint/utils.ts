@@ -73,7 +73,10 @@ export function rhsMatches(a: RightHandSide | OneOfList, b: RightHandSide | OneO
       }
       return symbolSpanMatches(aHead, bHead);
     }
+    case SyntaxKind.OneOfList:
+      return oneOfListMatches(a, b as OneOfList);
     default:
+      // @ts-expect-error: Callers might pass other kinds of nodes.
       throw new Error('unknown rhs type ' + a.constructor.name);
   }
 }
@@ -169,6 +172,14 @@ function argumentListMatches(a: ArgumentList, b: ArgumentList) {
       return ae.operatorToken.kind === be.operatorToken.kind && ae.name.text === be.name.text;
     })
   );
+}
+
+function oneOfListMatches(a: OneOfList, b: OneOfList) {
+  if (a.terminals === undefined || b.terminals === undefined) {
+    throw new Error('OneOfList must have terminals');
+  }
+  // The terminals in a must be a subset of the terminals in b.
+  return a.terminals.every(ae => b.terminals!.find(be => ae.text === be.text));
 }
 
 // this is only for use with single-file grammars
