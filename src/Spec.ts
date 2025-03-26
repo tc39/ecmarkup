@@ -1216,12 +1216,48 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }
       this.doc.head.appendChild(printStyle);
     }
-    this.addStyle(
-      this.doc.head,
-      `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
+    const currentYearStyle = this.doc.createElement('style');
+    currentYearStyle.textContent = `
+    @media print {
+      @page :left {
+        @bottom-right {
+          content: '© Ecma International ${this.opts.date!.getFullYear()}';
+        }
+      }
+      @page :right {
+        @bottom-left {
+          content: '© Ecma International ${this.opts.date!.getFullYear()}';
+        }
+      }
+      @page :first {
+        @bottom-left {
+          content: '';
+        }
+        @bottom-right {
+          content: '';
+        }
+      }
+      @page :blank {
+        @bottom-left {
+          content: '';
+        }
+        @bottom-right {
+          content: '';
+        }
+      }
+    }
+    `;
+    this.doc.head.appendChild(currentYearStyle);
+    const solarizedStyle = this.doc.createElement('style');
+    solarizedStyle.textContent = `
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
         (hljs as any).versionString
-      }/styles/base16/solarized-light.min.css`,
-    );
+      }/styles/base16/solarized-light.min.css");
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
+        (hljs as any).versionString
+      }/styles/a11y-dark.min.css") (prefers-color-scheme: dark);
+    `;
+    this.doc.head.appendChild(solarizedStyle);
   }
 
   private addStyle(head: HTMLHeadElement, href: string, media?: 'all' | 'print' | 'screen') {
