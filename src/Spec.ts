@@ -597,10 +597,6 @@ export default class Spec {
       if (metadataEle) {
         this.doc.querySelector('emu-intro')!.appendChild(metadataEle);
       }
-      const scopeEle = document.getElementById('scope') ?? document.getElementById('sec-scope');
-      if (scopeEle) {
-        scopeEle.before(this.doc.querySelector('h1.title')!.cloneNode(true));
-      }
 
       // front cover
       const frontCover = document.createElement('div');
@@ -608,16 +604,13 @@ export default class Spec {
       frontCover.classList.add('full-page-svg');
       frontCover.setAttribute('id', 'front-cover');
 
-      const shortNameNode = this.doc.querySelector('h1.shortname');
-      if (shortNameNode != null) {
-        frontCover.appendChild(shortNameNode.cloneNode(true));
-      }
       const versionNode = this.doc.querySelector('h1.version');
       if (versionNode != null) {
-        frontCover.appendChild(versionNode.cloneNode(true));
+        frontCover.append(versionNode);
       }
-      // we know title exists because we enforce it in the constructor when using --printable
-      frontCover.appendChild(this.doc.querySelector('title')!.cloneNode(true));
+      // we know title & shortname exist because we enforce it in the constructor when using --printable
+      frontCover.append(this.doc.querySelector('h1.title') ?? '');
+      frontCover.append(this.doc.querySelector('h1.shortname') ?? '');
       wrapper.before(frontCover);
 
       // inside cover
@@ -625,8 +618,6 @@ export default class Spec {
 
       insideCover.classList.add('full-page-svg');
       insideCover.setAttribute('id', 'inside-cover');
-      insideCover.innerHTML =
-        '<p>Ecma International<br />Rue du Rhone 114 CH-1204 Geneva<br/>Tel: +41 22 849 6000<br/>Fax: +41 22 849 6001<br/>Web: https://www.ecma-international.org<br/>Ecma is the registered trademark of Ecma International.</p>';
 
       frontCover.after(insideCover);
     }
@@ -646,7 +637,18 @@ export default class Spec {
     if (this.opts.printable) {
       this.log('Applying tweaks for printable document...');
       // The logo is present in ecma-262. We could consider removing it from the document instead of having this tweak.
-      document.getElementById('ecma-logo')?.remove();
+      const logo = document.getElementById('ecma-logo');
+      if (logo) {
+        if (logo.parentElement && logo.parentElement.tagName === 'P') {
+          logo.parentElement.remove();
+        } else {
+          logo.remove();
+        }
+      }
+
+      this.doc
+        .querySelector('#spec-container > emu-clause:first-of-type')
+        ?.before(this.doc.querySelector('h1.title')!.cloneNode(true));
     } else {
       // apparently including this confuses Prince, even when it's `display: none`
       this.log('Building shortcuts help dialog...');
@@ -1461,28 +1463,30 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
             'contributors not specified, skipping copyright boilerplate. specify contributors in your frontmatter metadata',
         });
       } else {
-        const copyrightClause = this.buildCopyrightBoilerplate();
+        // copyright goes near the front of the printed document, instead of the last annex
         if (this.opts.printable) {
           const intro = this.doc.querySelector('emu-intro');
           if (!intro) {
             throw new Error('--printable requires an emu-intro');
           }
+          const copyrightClause = this.buildCopyrightBoilerplate();
           intro.after(copyrightClause);
-        } else {
-          let last: HTMLElement | undefined;
-          utils.domWalkBackward(this.doc.body, node => {
-            if (last) return false;
-            if (node.nodeName === 'EMU-CLAUSE' || node.nodeName === 'EMU-ANNEX') {
-              last = node as HTMLElement;
-              return false;
-            }
-          });
+        }
 
-          if (last && last.parentNode) {
-            last.parentNode.insertBefore(copyrightClause, last.nextSibling);
-          } else {
-            this.doc.body.appendChild(copyrightClause);
+        const licenseClause = this.buildLicenseBoilerplate();
+        let last: HTMLElement | undefined;
+        utils.domWalkBackward(this.doc.body, node => {
+          if (last) return false;
+          if (node.nodeName === 'EMU-CLAUSE' || node.nodeName === 'EMU-ANNEX') {
+            last = node as HTMLElement;
+            return false;
           }
+        });
+
+        if (last && last.parentNode) {
+          last.parentNode.insertBefore(licenseClause, last.nextSibling);
+        } else {
+          this.doc.body.appendChild(licenseClause);
         }
       }
     }
@@ -1510,8 +1514,12 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
     } else if (status === 'proposal' && stage) {
       versionText += 'Stage ' + stage + ' Draft / ';
     } else if (status === 'draft' && shortname) {
-      versionText += 'Draft ' + shortname + ' / ';
-      omitShortname = true;
+      if (this.opts.printable) {
+        versionText += 'Draft / ';
+      } else {
+        versionText += 'Draft ' + shortname + ' / ';
+        omitShortname = true;
+      }
     } else {
       return;
     }
@@ -1594,16 +1602,47 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
   }
 
   private buildCopyrightBoilerplate() {
-    let addressFile: string | undefined;
     let copyrightFile: string | undefined;
+
+    if (this.opts.boilerplate) {
+      if (this.opts.boilerplate.copyright == 'alternative') {
+        copyrightFile = 'alternative-copyright';
+      } else if (this.opts.boilerplate.copyright) {
+        copyrightFile = path.join(process.cwd(), this.opts.boilerplate.copyright);
+      }
+    }
+
+    let copyright = getBoilerplate(copyrightFile || `${this.opts.status}-copyright`);
+    const copyrightElement = this.doc.createElement('div');
+
+    copyrightElement.classList.add('copyright-notice');
+    copyrightElement.id = 'copyright-notice';
+
+    if (this.opts.contributors) {
+      copyright = copyright.replace('!CONTRIBUTORS!', this.opts.contributors);
+    }
+
+    copyright = copyright
+      .replace('!YEAR!', '' + this.opts.date!.getFullYear())
+      .replace('!DOCUMENT!', `${this.opts.title} ${this.opts.location}`);
+
+    if (this.opts.printable) {
+      copyrightElement.innerHTML = copyright;
+    } else {
+      copyrightElement.innerHTML = `<h2>Copyright Notice</h2>
+${copyright}`;
+    }
+
+    return copyrightElement;
+  }
+
+  private buildLicenseBoilerplate() {
+    let addressFile: string | undefined;
     let licenseFile: string | undefined;
 
     if (this.opts.boilerplate) {
       if (this.opts.boilerplate.address) {
         addressFile = path.join(process.cwd(), this.opts.boilerplate.address);
-      }
-      if (this.opts.boilerplate.copyright) {
-        copyrightFile = path.join(process.cwd(), this.opts.boilerplate.copyright);
       }
       if (this.opts.boilerplate.license) {
         licenseFile = path.join(process.cwd(), this.opts.boilerplate.license);
@@ -1612,42 +1651,43 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 
     // Get content from files
     let address = getBoilerplate(addressFile || 'address');
-    let copyright = getBoilerplate(copyrightFile || `${this.opts.status}-copyright`);
     const license = getBoilerplate(licenseFile || 'software-license');
 
     if (this.opts.status === 'proposal') {
       address = '';
     }
 
-    // Operate on content
-    copyright = copyright.replace(/!YEAR!/g, '' + this.opts.date!.getFullYear());
+    let licenseClause = this.doc.querySelector('.copyright-and-software-license');
 
-    if (this.opts.contributors) {
-      copyright = copyright.replace(/!CONTRIBUTORS!/g, this.opts.contributors);
-    }
-
-    let copyrightClause = this.doc.querySelector('.copyright-and-software-license');
-    if (!copyrightClause) {
-      copyrightClause = this.doc.createElement(this.opts.printable ? 'div' : 'emu-annex');
-      copyrightClause.setAttribute('id', 'sec-copyright-and-software-license');
-      copyrightClause.classList.add('copyright-notice');
+    if (!licenseClause) {
+      licenseClause = this.doc.createElement('emu-annex');
+      licenseClause.setAttribute('id', 'sec-copyright-and-software-license');
     } else if (this.opts.printable) {
       throw new Error(
         'ecmarkup currently generates its own copyright for printed documents; if you need this open an issue',
       );
     }
-    copyrightClause.setAttribute('back-matter', '');
 
-    copyrightClause.innerHTML = `
-      <h1>Copyright &amp; Software License</h1>
+    licenseClause.setAttribute('back-matter', '');
+
+    // Printed document has "Software license" as last section, web version has "Copyright and Software license"
+    if (this.opts.printable) {
+      licenseClause.innerHTML = `
+      <h1>Software License</h1>
       ${address}
-      <h2>Copyright Notice</h2>
-      ${copyright.replace('!YEAR!', '' + this.opts.date!.getFullYear())}
-      <h2>Software License</h2>
       ${license}
-    `;
+      `;
+    } else {
+      licenseClause.innerHTML = `
+        <h1>Copyright &amp; Software License</h1>
+        ${address}
+        ${this.buildCopyrightBoilerplate().outerHTML}
+        <h2>Software License</h2>
+        ${license}
+      `;
+    }
 
-    return copyrightClause;
+    return licenseClause;
   }
 
   private generateSDOMap() {
