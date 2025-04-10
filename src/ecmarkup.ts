@@ -2,7 +2,7 @@ import type { BiblioEntry, ExportedBiblio } from './Biblio';
 
 import Spec from './Spec';
 import * as utils from './utils';
-import { CancellationToken } from 'prex';
+import { CancelToken } from '@esfx/canceltoken';
 
 export type { Spec, BiblioEntry };
 
@@ -52,9 +52,9 @@ export interface Options {
 
 export async function build(
   path: string,
-  fetch: (path: string, token: CancellationToken) => PromiseLike<string>,
+  fetch: (path: string, token: CancelToken) => PromiseLike<string>,
   opts?: Options,
-  token = CancellationToken.none,
+  token = CancelToken.none,
 ): Promise<Spec> {
   const html = await fetch(path, token);
   const dom = utils.htmlToDom(html);
