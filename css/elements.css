@@ -1573,17 +1573,6 @@ li.menu-search-result-term::before {
   padding-right: 5px;
 }
 
-emu-normative-optional {
-  display: block;
-}
-
-emu-normative-optional::before {
-  display: block;
-  color: var(--attributes-tag-foreground-color);
-  content: "NORMATIVE OPTIONAL";
-}
-
-emu-normative-optional,
 [normative-optional],
 [deprecated],
 [legacy] {
