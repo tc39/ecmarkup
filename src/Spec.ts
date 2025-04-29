@@ -1323,7 +1323,9 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
 ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</code></li>` : ''}
   <li><span>Jump to search box</span><code>/</code></li>
   <li><span>Toggle pinning of the current clause</span><code>p</code></li>
-  <li><span>Jump to <i>n</i>th pin</span><code>1-9</code></li>
+  <li><span>Jump to the <i>n</i><sup>th</sup> pin</span><code>1-9</code></li>
+  <li><span>Jump to the 10<sup>th</sup> pin</span><code>0</code></li>
+  <li><span>Jump to the most recent link target</span><code>\`</code></li>
 </ul>`;
     return shortcutsHelp;
   }
