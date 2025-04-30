@@ -27,7 +27,6 @@ const knownEmuTags = new Set([
   'emu-gann',
   'emu-gprose',
   'emu-gmod',
-  'emu-normative-optional', // used in ecma-402
 ]);
 
 // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
