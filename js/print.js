@@ -12,6 +12,11 @@
 
 const shortname = document.querySelector('h1.shortname');
 const version = document.querySelector('h1.version');
+const title = document.querySelector('h1.title');
+
+shortname.innerHTML = restoreSuperScripts(shortname.innerHTML);
+version.innerHTML = restoreSuperScripts(version.innerHTML);
+title.innerHTML = restoreSuperScripts(title.innerHTML);
 
 rearrangeTables();
 
@@ -21,6 +26,20 @@ PDF.duplex = 'duplex-flip-long-edge';
 PDF.title = document.title;
 PDF.author = 'Ecma International';
 PDF.subject = shortname.innerHTML + (version ? ', ' + version.innerHTML : '');
+
+function restoreSuperScripts(string) {
+  if (!string) return false;
+
+  return string
+    .replace(/(\d)st/, '$1<sup>st</sup>')
+    .replace(/(\d)nd/, '$1<sup>nd</sup>')
+    .replace(/(\d)rd/, '$1<sup>rd</sup>')
+    .replace(/(\d)th/, '$1<sup>th</sup>')
+    .replace('&reg;', '<sup>&reg;</sup>')
+    .replace('®', '<sup>®</sup>')
+    .replace('&trade;', '<sup>&trade;</sup>')
+    .replace('™', '<sup>™</sup>');
+}
 
 /**
  * Sets up table captions and figcaptions for tables, which provides for
