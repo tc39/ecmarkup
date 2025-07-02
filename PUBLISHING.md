@@ -11,7 +11,7 @@ status: proposal
 stage: 3
 ```
 
-- If using the alternative copyright for a standard publication, `location` is also mandatory. For example:
+- You can also specify various boilerplate content (see the boilerplate/ directory)  For example:
 
 ```yaml
 title: ECMAScript® Language Specification
@@ -34,6 +34,8 @@ boilerplate:
 location: https://262.ecma-international.org/16.0/
 ```
 
+## Build and print
+
 To generate markup for use in PDF conversion, make sure to include the options `--assets`, `--assets-dir`, and `--printable`. If you have images and styles to include, make sure to move them into your assets directory before running `ecmarkup`. For example:
 
 ```shell
@@ -49,4 +51,4 @@ cd path/to/spec
 prince-books --script ./node_modules/ecmarkup/js/print.js out/index.html -o path/to/output.pdf
 ```
 
-This has been extensively tested with Prince 15. Earlier and later editions not guaranteed.
+This has been extensively tested with [Prince Books](https://www.princexml.com/books/), built off of Prince 15. Earlier and later editions not guaranteed. CSS rule-specific documentation available in css/print.css.

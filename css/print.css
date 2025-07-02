@@ -69,7 +69,7 @@
 
 :root {
   --page-number-style: decimal;
-  -prince-change-line-breaks-for-pagination: yes;
+  -prince-change-line-breaks-for-pagination: yes; /* see https://www.princexml.com/doc/prince-for-books/#pagination-fine-tuning */
 }
 
 @page {
@@ -78,9 +78,9 @@
   margin-bottom: 20mm;
   margin-inside: 19mm;
   margin-outside: 13mm;
-  -prince-page-fill: prefer-balance;
+  -prince-page-fill: prefer-balance; /* see https://www.princexml.com/doc/prince-for-books/#the-property--prince-page-fill */
 
-  /* Uncomment when producing WIP versions of final standards */
+  /* Uncomment when producing WIP versions of final standards, see https://www.princexml.com/doc/paged/#page-regions */
   /*
   @prince-overlay {
     color: rgba(0,0,0,0.15);
@@ -197,7 +197,7 @@ body {
   line-height: 1.15;
 }
 
-h1, h2, h3, h4, h5, h6 { -prince-bookmark-level: none }
+h1, h2, h3, h4, h5, h6 { -prince-bookmark-level: none } /* see https://www.princexml.com/doc/prince-output/#pdf-bookmarks */
 
 .copyright-notice + h1.title {
   break-before: recto;
@@ -217,7 +217,7 @@ p {
   text-wrap: pretty;
   overflow-wrap: break-word;
   hyphens: auto;
-  orphans: 2, -prince-prefer 3;
+  orphans: 2, -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
   widows: 2, -prince-prefer 3;
 }
 
@@ -446,7 +446,7 @@ caption, table > figcaption {
 }
 
 caption {
-  -prince-caption-page: first;
+  -prince-caption-page: first; /* see https://www.princexml.com/doc/css-props/#prop-prince-caption-page */
 }
 
 /* do not break inside of small tables */
