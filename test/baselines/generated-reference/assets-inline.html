@@ -1906,6 +1906,23 @@ body.oldtoc {
   margin: 0 auto;
 }
 
+#metadata-block {
+  margin: 4em 0;
+  padding: 10px;
+  border: 1px solid #ee8421;
+}
+
+#metadata-block h1 {
+  font-size: 1.5em;
+  margin-top: 0;
+}
+
+#metadata-block > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
 span[aria-hidden='true'] {
   font-size: 0;
   white-space: pre;
@@ -3244,6 +3261,7 @@ emu-normative-optional,
 
 #ecma-logo {
   background: var(--figure-background);
+  width: 500px;
 }
 </style><style>@media print {
 @font-face {
@@ -3317,6 +3335,7 @@ emu-normative-optional,
 
 :root {
   --page-number-style: decimal;
+  -prince-change-line-breaks-for-pagination: yes; /* see https://www.princexml.com/doc/prince-for-books/#pagination-fine-tuning */
 }
 
 @page {
@@ -3325,16 +3344,16 @@ emu-normative-optional,
   margin-bottom: 20mm;
   margin-inside: 19mm;
   margin-outside: 13mm;
-  -prince-page-fill: prefer-fill;
+  -prince-page-fill: prefer-balance; /* see https://www.princexml.com/doc/prince-for-books/#the-property--prince-page-fill */
 
-  /* Uncomment when producing WIP versions of final standards */
+  /* Uncomment when producing WIP versions of final standards, see https://www.princexml.com/doc/paged/#page-regions */
   /*
   @prince-overlay {
     color: rgba(0,0,0,0.15);
-    content: "WORK IN PROGRESS";
+    content: "DRAFT";
     font-family: Arial;
     font-weight: bolder;
-    font-size: 100pt;
+    font-size: 200pt;
     transform: rotate(-60deg);
   }
   */
@@ -3444,7 +3463,7 @@ body {
   line-height: 1.15;
 }
 
-h1, h2, h3, h4, h5, h6 { -prince-bookmark-level: none }
+h1, h2, h3, h4, h5, h6 { -prince-bookmark-level: none } /* see https://www.princexml.com/doc/prince-output/#pdf-bookmarks */
 
 .copyright-notice + h1.title {
   break-before: recto;
@@ -3464,13 +3483,22 @@ p {
   text-wrap: pretty;
   overflow-wrap: break-word;
   hyphens: auto;
-  orphans: 2;
-  widows: 2;
+  orphans: 2, -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
+  widows: 2, -prince-prefer 3;
 }
 
 h1 {
   text-wrap: balance;
   line-height: 1.4;
+}
+
+pre:has(> code) {
+  margin: 0;
+}
+
+p + pre:has(+ p) {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 emu-alg {
@@ -3511,6 +3539,10 @@ emu-alg ol li:last-child {
   break-after: initial; /* it's okay to break after the last item in a list, even if it's also the first item in the list */
 }
 
+emu-normative-optional {
+  break-inside: avoid;
+}
+
 emu-normative-optional emu-clause[id] {
   margin-top: 0;
 }
@@ -3527,6 +3559,10 @@ emu-note {
 emu-note .note {
   font-size: 9pt;
   min-width: 4.5em;
+}
+
+emu-note table td {
+  background-color: white;
 }
 
 emu-note p,
@@ -3557,7 +3593,6 @@ emu-intro, emu-clause, emu-annex {
 }
 
 emu-clause p:first-of-type {
-  margin-bottom: 0;
   orphans: 3;
 }
 
@@ -3677,7 +3712,7 @@ caption, table > figcaption {
 }
 
 caption {
-  -prince-caption-page: first;
+  -prince-caption-page: first; /* see https://www.princexml.com/doc/css-props/#prop-prince-caption-page */
 }
 
 /* do not break inside of small tables */
@@ -3716,6 +3751,11 @@ emu-figure img {
   margin-top: 1ex;
   max-width: 100%;
   height: auto;
+}
+
+.attributes-tag {
+  break-before: avoid-page;
+  break-after: avoid-page;
 }
 
 #spec-container {
@@ -3813,8 +3853,8 @@ emu-annex > h1 .secnum {
   border: 1px solid black;
   padding: 1em;
   page: copyright;
-  page-break-before: always;
-  page-break-after: always;
+  break-before: page;
+  break-after: page;
 }
 
 .secnum {

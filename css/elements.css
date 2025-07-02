@@ -289,6 +289,23 @@ body.oldtoc {
   margin: 0 auto;
 }
 
+#metadata-block {
+  margin: 4em 0;
+  padding: 10px;
+  border: 1px solid #ee8421;
+}
+
+#metadata-block h1 {
+  font-size: 1.5em;
+  margin-top: 0;
+}
+
+#metadata-block > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
 span[aria-hidden='true'] {
   font-size: 0;
   white-space: pre;
@@ -1627,4 +1644,5 @@ emu-normative-optional,
 
 #ecma-logo {
   background: var(--figure-background);
+  width: 500px;
 }
