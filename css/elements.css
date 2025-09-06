@@ -627,7 +627,7 @@ emu-oneof {
 }
 
 emu-nt {
-  display: inline-block;
+  display: inline;
   font-style: italic;
   white-space: nowrap;
   text-indent: 0;
