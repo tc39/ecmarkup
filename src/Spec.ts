@@ -1056,7 +1056,7 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       }
 
       for (const script of allClones.flatMap(e => [...e.querySelectorAll('script')])) {
-        if (script.src != null && !/^(http:|https:|:|\/)/.test(script.src)) {
+        if (script.hasAttribute('src') && !/^(http:|https:|:|\/)/.test(script.src)) {
           script.src = path.relative('multipage', script.src);
         }
       }
