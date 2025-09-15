@@ -9,6 +9,7 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
   const ids: (string | number[])[] = [];
   let inAnnex = false;
   let currentLevel = 0;
+  let hasWarnedForExcessNesting = false;
 
   return {
     next(clauseStack: Clause[], node: HTMLElement) {
@@ -26,9 +27,18 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
         spec.warn({
           type: 'node',
           node,
-          ruleId: 'skipped-caluse',
+          ruleId: 'skipped-clause',
           message: 'clause is being numbered without numbering its parent clause',
         });
+      }
+      if (!hasWarnedForExcessNesting && level + 1 > (spec.opts.maxClauseDepth ?? Infinity)) {
+        spec.warn({
+          type: 'node',
+          node,
+          ruleId: 'max-clause-depth',
+          message: `clause exceeds maximum nesting depth of ${spec.opts.maxClauseDepth}`,
+        });
+        hasWarnedForExcessNesting = true;
       }
 
       const nextNum = annex ? nextAnnexNum : nextClauseNum;

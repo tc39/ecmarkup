@@ -1237,4 +1237,49 @@ ${M}      </pre>
       `);
     });
   });
+
+  describe('max clause depth', () => {
+    it('max depth', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="one">
+            <h1>One</h1>
+            ${M}<emu-clause id="two">
+              <h1>Two</h1>
+            </emu-clause>
+            <emu-clause id="two-again">
+              <h1>Not warned</h1>
+            </emu-clause>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'max-clause-depth',
+          nodeType: 'emu-clause',
+          message: 'clause exceeds maximum nesting depth of 1',
+        },
+        {
+          maxClauseDepth: 1,
+        },
+      );
+    });
+
+    it('negative', async () => {
+      await assertErrorFree(
+        `
+          <emu-clause id="one">
+            <h1>One</h1>
+            <emu-clause id="two">
+              <h1>Two</h1>
+            </emu-clause>
+            <emu-clause id="two-again">
+              <h1>Not warned</h1>
+            </emu-clause>
+          </emu-clause>
+        `,
+        {
+          maxClauseDepth: 2,
+        },
+      );
+    });
+  });
 });

@@ -32,6 +32,7 @@ export interface Options {
   copyright?: boolean;
   date?: Date;
   location?: string;
+  maxClauseDepth?: number;
   multipage?: boolean;
   extraBiblios?: ExportedBiblio[];
   contributors?: string;
