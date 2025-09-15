@@ -48,9 +48,7 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
         if (ids.length === MAX_LEVELS) {
           const lastLevelIndex = MAX_LEVELS - 1;
           const lastLevel = ids[lastLevelIndex] as number[];
-          const head = lastLevel.slice(0, -1);
-          const tail = lastLevel[lastLevel.length - 1];
-          ids[lastLevelIndex] = [...head, tail + 1];
+          lastLevel[lastLevel.length - 1]++;
         } else {
           while (ids.length < MAX_LEVELS) {
             ids.push([1]);
