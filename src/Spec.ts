@@ -44,7 +44,7 @@ import {
   YES_CLAUSE_AUTOLINK,
 } from './autolinker';
 import { lint } from './lint/lint';
-import { CancellationToken } from 'prex';
+import { CancelToken } from '@esfx/canceltoken';
 import type { JSDOM } from 'jsdom';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
@@ -314,7 +314,7 @@ export default class Spec {
   >; // map from re to its labeled nodes
   /** @internal */ labeledStepsToBeRectified: Set<string>;
   /** @internal */ replacementAlgorithms: { element: Element; target: string }[];
-  /** @internal */ cancellationToken: CancellationToken;
+  /** @internal */ cancellationToken: CancelToken;
 
   readonly log: (msg: string) => void;
   readonly warn: (err: Warning) => void | undefined;
@@ -337,15 +337,15 @@ export default class Spec {
   /** @internal */ refsByClause: { [refId: string]: [string] };
   /** @internal */ topLevelImportedNodes: Map<Node, EmuImportElement>;
 
-  private _fetch: (file: string, token: CancellationToken) => PromiseLike<string>;
+  private _fetch: (file: string, token: CancelToken) => PromiseLike<string>;
 
   constructor(
     rootPath: string,
-    fetch: (file: string, token: CancellationToken) => PromiseLike<string>,
+    fetch: (file: string, token: CancelToken) => PromiseLike<string>,
     dom: JSDOM,
     opts: Options = {},
     sourceText: string,
-    token = CancellationToken.none,
+    token = CancelToken.none,
   ) {
     this.spec = this;
     this.opts = {};
@@ -1348,7 +1348,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
   }
 
   private async loadBiblios() {
-    this.cancellationToken.throwIfCancellationRequested();
+    this.cancellationToken.throwIfSignaled();
     const biblioPaths = [];
     for (const biblioEle of this.doc.querySelectorAll('emu-biblio')) {
       const href = biblioEle.getAttribute('href');
@@ -1449,7 +1449,7 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
   }
 
   private buildBoilerplate() {
-    this.cancellationToken.throwIfCancellationRequested();
+    this.cancellationToken.throwIfSignaled();
     const status = this.opts.status!;
     const version = this.opts.version;
     const title = this.opts.title;

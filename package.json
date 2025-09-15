@@ -48,6 +48,7 @@
 	"author": "Brian Terlson",
 	"license": "MIT",
 	"dependencies": {
+		"@esfx/canceltoken": "^1.0.0",
 		"chalk": "^4.1.2",
 		"command-line-args": "^5.2.0",
 		"command-line-usage": "^6.1.1",
@@ -62,7 +63,6 @@
 		"jsdom": "^25.0.1",
 		"nwsapi": "2.2.0",
 		"parse5": "^6.0.1",
-		"prex": "^0.4.7",
 		"promise-debounce": "^1.0.1"
 	},
 	"devDependencies": {
