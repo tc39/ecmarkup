@@ -967,7 +967,7 @@ table.real-table th {
 }
 
 emu-table td {
-  background: transparent;
+  background: var(--background-color);
 }
 
 td[colspan]:not([colspan="1"]), th[colspan]:not([colspan="1"]) {
@@ -1074,7 +1074,7 @@ tr.del > td {
   height: 100vh;
   max-width: 500px;
   box-sizing: border-box;
-  background: var(--control-background-color);
+  background-color: var(--control-background-color);
   overflow: hidden;
   transition: opacity 0.1s linear;
   padding: 0 5px;
@@ -1515,7 +1515,7 @@ li.menu-search-result-term::before {
 
 .toolbox::after {
   border-color: var(--toolbox-tail-background-outside-color);
-  border-top-color: var(--control-border-color);
+  border-top-color: var(--control-background-color);
   border-width: 10px;
   margin-left: -10px;
 }
@@ -1532,7 +1532,7 @@ li.menu-search-result-term::before {
   left: 0;
   right: 0;
   display: none;
-  background: var(--control-background-color);
+  background-color: var(--control-background-color);
   z-index: 1;
 }
 
@@ -1616,7 +1616,7 @@ emu-normative-optional,
   outline: solid 10000px var(--control-dialog-fade-color);
   border-radius: 5px;
   border-width: 1px 1px 0 1px;
-  background: var(--control-background-color);
+  background-color: var(--control-background-color);
   display: none;
 }
 

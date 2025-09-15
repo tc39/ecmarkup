@@ -778,7 +778,7 @@ let referencePane = {
     this.$pane.appendChild(this.$tableContainer);
 
     if (menu != null) {
-      menu.$specContainer.after(this.$container);
+      menu.$specContainer.appendChild(this.$container);
     }
   },
 
@@ -1110,9 +1110,6 @@ function doShortcut(e) {
     document.documentElement.classList.toggle('show-ao-annotations');
   } else if (e.key === '?') {
     document.getElementById('shortcuts-help').classList.toggle('active');
-  } else if (e.key === ';') {
-    let el = document.getElementById('bd75b99add5f');
-    if (el != null) el.remove();
   }
 }
 
