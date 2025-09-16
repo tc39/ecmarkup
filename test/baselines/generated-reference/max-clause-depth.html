@@ -22,6 +22,7 @@
   <h1><span class="secnum">1</span> One</h1>
   <emu-clause id="two">
     <h1><span class="secnum">1.1</span> Two</h1>
+    <!-- EXPECT_WARNING { "ruleId": "max-clause-depth", "message": "clause exceeds maximum nesting depth of 2" } -->
     <emu-clause id="three">
       <h1><span class="secnum">1.2</span> Three</h1>
     </emu-clause>

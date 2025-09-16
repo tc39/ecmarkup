@@ -12,6 +12,7 @@
   <h1>One</h1>
   <emu-clause id="two">
     <h1>Two</h1>
+    <!-- EXPECT_WARNING { "ruleId": "max-clause-depth", "message": "clause exceeds maximum nesting depth of 2" } -->
     <emu-clause id="three">
       <h1>Three</h1>
     </emu-clause>
