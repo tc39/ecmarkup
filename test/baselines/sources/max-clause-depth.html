@@ -15,9 +15,15 @@
     <!-- EXPECT_WARNING { "ruleId": "max-clause-depth", "message": "clause exceeds maximum nesting depth of 2" } -->
     <emu-clause id="three">
       <h1>Three</h1>
+      <emu-clause id="four">
+        <h1>four</h1>
+      </emu-clause>
     </emu-clause>
     <emu-clause id="three-again">
       <h1>Three Again</h1>
+      <emu-clause id="four-again">
+        <h1>Four Again</h1>
+      </emu-clause>
     </emu-clause>
   </emu-clause>
   <emu-clause id="two-again">
