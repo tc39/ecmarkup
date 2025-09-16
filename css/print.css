@@ -273,18 +273,6 @@ emu-alg ol li:last-child {
   break-after: initial; /* it's okay to break after the last item in a list, even if it's also the first item in the list */
 }
 
-emu-normative-optional {
-  break-inside: avoid;
-}
-
-emu-normative-optional emu-clause[id] {
-  margin-top: 0;
-}
-
-emu-normative-optional emu-alg > ol {
-  margin-bottom: 0;
-}
-
 emu-note {
   gap: initial;
   justify-content: space-between;
