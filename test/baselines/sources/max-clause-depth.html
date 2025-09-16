@@ -1,0 +1,35 @@
+<head>
+<link rel="icon" href="img/favicon.ico">
+</head>
+
+<pre class=metadata>
+  copyright: false
+  assets: none
+  maxClauseDepth: 2
+</pre>
+
+<emu-clause id="one">
+  <h1>One</h1>
+  <emu-clause id="two">
+    <h1>Two</h1>
+    <!-- EXPECT_WARNING { "ruleId": "max-clause-depth", "message": "clause exceeds maximum nesting depth of 2" } -->
+    <emu-clause id="three">
+      <h1>Three</h1>
+      <emu-clause id="four">
+        <h1>four</h1>
+      </emu-clause>
+    </emu-clause>
+    <emu-clause id="three-again">
+      <h1>Three Again</h1>
+      <emu-clause id="four-again">
+        <h1>Four Again</h1>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+  <emu-clause id="two-again">
+    <h1>Two Again</h1>
+  </emu-clause>
+</emu-clause>
+<emu-clause id="one-again">
+  <h1>One Again</h1>
+</emu-clause>

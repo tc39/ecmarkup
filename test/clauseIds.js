@@ -7,7 +7,7 @@ describe('clause id generation', () => {
   let iter;
 
   beforeEach(() => {
-    iter = sectionNums();
+    iter = sectionNums({ opts: {} });
   });
 
   specify('generating clause ids', () => {

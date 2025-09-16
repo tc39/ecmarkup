@@ -68,6 +68,12 @@ export const options = [
       'The formatter for warnings and errors; either a path prefixed with "." or "./", or package name, of an installed eslint compatible formatter (default: eslint-formatter-codeframe)',
   },
   {
+    name: 'max-clause-depth',
+    type: Number,
+    description:
+      'The maximum nesting depth for clauses; exceeding this will cause a warning. Defaults to no limit.',
+  },
+  {
     name: 'multipage',
     type: Boolean,
     description: 'Generate a multipage version of the spec. Implies --assets=external.',

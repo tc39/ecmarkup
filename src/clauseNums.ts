@@ -9,6 +9,8 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
   const ids: (string | number[])[] = [];
   let inAnnex = false;
   let currentLevel = 0;
+  let hasWarnedForExcessNesting = false;
+  const MAX_LEVELS = spec.opts.maxClauseDepth ?? Infinity;
 
   return {
     next(clauseStack: Clause[], node: HTMLElement) {
@@ -22,28 +24,47 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
           message: 'clauses cannot follow annexes',
         });
       }
-      if (level - currentLevel > 1) {
+      if (level - currentLevel > 1 && (level < MAX_LEVELS || currentLevel < MAX_LEVELS - 1)) {
         spec.warn({
           type: 'node',
           node,
-          ruleId: 'skipped-caluse',
+          ruleId: 'skipped-clause',
           message: 'clause is being numbered without numbering its parent clause',
         });
+      }
+      if (!hasWarnedForExcessNesting && level + 1 > (spec.opts.maxClauseDepth ?? Infinity)) {
+        spec.warn({
+          type: 'node',
+          node,
+          ruleId: 'max-clause-depth',
+          message: `clause exceeds maximum nesting depth of ${spec.opts.maxClauseDepth}`,
+        });
+        hasWarnedForExcessNesting = true;
       }
 
       const nextNum = annex ? nextAnnexNum : nextClauseNum;
 
-      if (level === currentLevel) {
-        ids[currentLevel] = nextNum(clauseStack, node);
-      } else if (level > currentLevel) {
-        ids.push(nextNum(clauseStack, node));
+      if (level >= MAX_LEVELS) {
+        if (ids.length === MAX_LEVELS) {
+          const lastLevelIndex = MAX_LEVELS - 1;
+          const lastLevel = ids[lastLevelIndex] as number[];
+          lastLevel[lastLevel.length - 1]++;
+        } else {
+          while (ids.length < MAX_LEVELS) {
+            ids.push([1]);
+          }
+        }
       } else {
-        ids.length = level + 1;
-        ids[level] = nextNum(clauseStack, node);
+        if (level === currentLevel) {
+          ids[currentLevel] = nextNum(clauseStack, node);
+        } else if (level > currentLevel) {
+          ids.push(nextNum(clauseStack, node));
+        } else {
+          ids.length = level + 1;
+          ids[level] = nextNum(clauseStack, node);
+        }
       }
-
-      currentLevel = level;
-
+      currentLevel = Math.min(level, MAX_LEVELS - 1);
       return ids.flat().join('.');
     },
   };
