@@ -319,6 +319,7 @@ export default class Spec {
   readonly log: (msg: string) => void;
   readonly warn: (err: Warning) => void | undefined;
 
+  /** @internal */ _figurePrefix: string;
   /** @internal */ _figureCounts: { [type: string]: number };
   /** @internal */ _xrefs: Xref[];
   /** @internal */ _ntRefs: NonTerminal[];
@@ -371,6 +372,7 @@ export default class Spec {
       table: 0,
       figure: 0,
     };
+    this._figurePrefix = '';
     this._xrefs = [];
     this._ntRefs = [];
     this._ntStringRefs = [];

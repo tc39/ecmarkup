@@ -82,6 +82,13 @@ export default class Clause extends Builder {
       parentNamespace = parent.namespace;
     }
 
+    // Reset figure numbering for each Annex
+    if (this.isAnnex && !this.parentClause) {
+      spec._figureCounts.figure = 0;
+      spec._figureCounts.table = 0;
+      spec._figurePrefix = `${number}.`;
+    }
+
     if (node.hasAttribute('namespace')) {
       this.namespace = node.getAttribute('namespace')!;
       spec.biblio.createNamespace(this.namespace, parentNamespace);
