@@ -33,6 +33,7 @@ export interface Options {
   date?: Date;
   location?: string;
   maxClauseDepth?: number;
+  tocDepth?: number;
   multipage?: boolean;
   extraBiblios?: ExportedBiblio[];
   contributors?: string;
