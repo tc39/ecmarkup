@@ -19,6 +19,7 @@ version.innerHTML = restoreSuperScripts(version.innerHTML);
 title.innerHTML = restoreSuperScripts(title.innerHTML);
 
 rearrangeTables();
+formatCaptions();
 
 PDF.pageLayout = 'two-column-right';
 PDF.pageMode = 'show-bookmarks';
@@ -26,6 +27,15 @@ PDF.duplex = 'duplex-flip-long-edge';
 PDF.title = document.title;
 PDF.author = 'Ecma International';
 PDF.subject = shortname.innerHTML + (version ? ', ' + version.innerHTML : '');
+
+/**
+ * Terms and definitions section should not have every term listed in the table of contents.
+ * */
+const terms = document.querySelector('#toc a[href="#sec-terms-and-definitions"]');
+
+if (terms) {
+  (terms.parentElement.querySelector('ol.toc') || document.createElement('i')).remove();
+}
 
 function restoreSuperScripts(string) {
   if (!string) return false;
@@ -50,7 +60,7 @@ function rearrangeTables() {
 
   tables.forEach(emuTable => {
     const figcaption = emuTable.getElementsByTagName('figcaption')[0];
-    const tableCaptionText = figcaption.innerHTML;
+    const tableCaptionText = figcaption.innerHTML.replace(': ', ' — ');
     const table = emuTable.getElementsByTagName('table')[0];
     const captionElement = document.createElement('caption');
 
@@ -59,6 +69,12 @@ function rearrangeTables() {
     table.insertBefore(captionElement, table.getElementsByTagName('thead')[0]);
     table.appendChild(figcaption);
   });
+}
+
+function formatCaptions() {
+  const captions = Array.from(document.getElementsByTagName('figcaption'));
+
+  captions.forEach(caption => (caption.innerHTML = caption.innerHTML.replace(': ', ' — ')));
 }
 
 /**
