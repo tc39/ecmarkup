@@ -750,6 +750,32 @@ describe('typechecking completions', () => {
         </emu-alg>
         </emu-clause>
       `);
+
+      await assertLintFree(`
+        <emu-clause id="example" type="abstract operation">
+        <h1>
+          ExampleAlg (): a mathematical value
+        </h1>
+        <dl class="header">
+          <dt>skip global checks</dt>
+          <dd>true</dd>
+        </dl>
+        <emu-alg>
+          1. Return 0.
+        </emu-alg>
+        </emu-clause>
+
+        <emu-clause id="example2" type="abstract operation">
+        <h1>
+          Example2 ()
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+        1. Perform ExampleAlg().
+        </emu-alg>
+        </emu-clause>
+      `);
     });
   });
 
