@@ -233,7 +233,10 @@ export function typecheck(spec: Spec) {
     .localEntries()
     .filter(e => e.type === 'op' && e.signature?.return != null) as AlgorithmBiblioEntry[];
   const onlyPerformed: OnlyPerformedMap = new Map(
-    AOs.filter(e => !isUnused(e.signature!.return!)).map(a => [a.aoid, null]),
+    AOs.filter(e => !e.skipGlobalChecks && !isUnused(e.signature!.return!)).map(a => [
+      a.aoid,
+      null,
+    ]),
   );
   const alwaysAssertedToBeNormal: AlwaysAssertedToBeNormalMap = new Map(
     // prettier-ignore
