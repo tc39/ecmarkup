@@ -602,7 +602,7 @@ export default class Spec {
           const adoptionInfo = this.doc.createElement('p');
 
           adoptionInfo.classList.add('adoption-info');
-          adoptionInfo.innerHTML = `This Ecma Standard was developed by Technical Committee ${this.opts.committee} and was adopted by the General Assembly of ${Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' }).format(this.opts.date)}.`;
+          adoptionInfo.innerHTML = `This Ecma Standard was developed by Technical Committee ${this.opts.committee} and was adopted by the General Assembly of ${Intl.DateTimeFormat('en-GB-oxendict', { month: 'long', year: 'numeric' }).format(this.opts.date)}.`;
           intro!.appendChild(adoptionInfo);
         } else {
           throw new Error(
