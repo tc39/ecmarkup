@@ -594,9 +594,24 @@ export default class Spec {
 
     if (this.opts.printable) {
       this.log('Building covers and applying other print tweaks...');
+
+      const intro = this.doc.querySelector('emu-intro');
+
+      if (this.opts.status === 'standard') {
+        if (this.opts.committee) {
+          const adoptionInfo = this.doc.createElement('p');
+
+          adoptionInfo.classList.add('adoption-info');
+          adoptionInfo.innerHTML = `This Ecma Standard was developed by Technical Committee ${this.opts.committee.toLowerCase().replace('tc', '')} and was adopted by the General Assembly of ${Intl.DateTimeFormat('en-GB', {month: 'long', year: 'numeric'}).format(this.opts.date)}.`
+          intro!.appendChild(adoptionInfo);
+        } else {
+          throw new Error('"standard" status requires a technical committee be defined in the metadata.');
+        }
+      }
+
       const metadataEle = this.doc.querySelector('#metadata-block');
       if (metadataEle) {
-        this.doc.querySelector('emu-intro')!.appendChild(metadataEle);
+        intro!.appendChild(metadataEle);
       }
 
       // front cover

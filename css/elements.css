@@ -1635,5 +1635,3 @@ li.menu-search-result-term::before {
   background: var(--figure-background);
   width: 500px;
 }
-
-.adoption-info { display: none; }

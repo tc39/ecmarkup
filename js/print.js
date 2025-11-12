@@ -19,7 +19,6 @@ version.innerHTML = restoreSuperScripts(version.innerHTML);
 title.innerHTML = restoreSuperScripts(title.innerHTML);
 
 rearrangeTables();
-formatCaptions();
 
 PDF.pageLayout = 'two-column-right';
 PDF.pageMode = 'show-bookmarks';
@@ -60,7 +59,7 @@ function rearrangeTables() {
 
   tables.forEach(emuTable => {
     const figcaption = emuTable.getElementsByTagName('figcaption')[0];
-    const tableCaptionText = figcaption.innerHTML.replace(': ', ' — ');
+    const tableCaptionText = figcaption.innerHTML;
     const table = emuTable.getElementsByTagName('table')[0];
     const captionElement = document.createElement('caption');
 
@@ -69,12 +68,6 @@ function rearrangeTables() {
     table.insertBefore(captionElement, table.getElementsByTagName('thead')[0]);
     table.appendChild(figcaption);
   });
-}
-
-function formatCaptions() {
-  const captions = Array.from(document.getElementsByTagName('figcaption'));
-
-  captions.forEach(caption => (caption.innerHTML = caption.innerHTML.replace(': ', ' — ')));
 }
 
 /**

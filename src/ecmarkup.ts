@@ -49,6 +49,7 @@ export interface Options {
   boilerplate?: Boilerplate;
   log?: (msg: string) => void;
   warn?: (err: EcmarkupError) => void;
+  committee?: string;
 }
 
 export async function build(
