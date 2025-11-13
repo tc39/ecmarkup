@@ -28,9 +28,9 @@ export default class Figure extends Builder {
     }
 
     if (this.captionElem) {
-      this.caption += ' — ' + this.captionElem.innerHTML;
+      this.caption += ' \u2014 ' + this.captionElem.innerHTML;
     } else if (node.getAttribute('caption')) {
-      this.caption += ' — ' + node.getAttribute('caption');
+      this.caption += ' \u2014 ' + node.getAttribute('caption');
     }
 
     if (this.id) {
@@ -56,6 +56,6 @@ export default class Figure extends Builder {
 
     const captionElem = spec.doc.createElement('figcaption');
     captionElem.innerHTML = figure.caption;
-    node.childNodes[0].insertBefore(captionElem, node.childNodes[0].firstChild);
+      node.childNodes[0].insertBefore(captionElem, node.childNodes[0].firstChild);
   }
 }
