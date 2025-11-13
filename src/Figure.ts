@@ -60,6 +60,11 @@ export default class Figure extends Builder {
 
     const captionElem = spec.doc.createElement('figcaption');
     captionElem.innerHTML = figure.caption;
+
+    if (node.nodeName.split('-')[1] === 'FIGURE') {
+      node.firstElementChild?.appendChild(captionElem);
+    } else {
       node.childNodes[0].insertBefore(captionElem, node.childNodes[0].firstChild);
+    }
   }
 }
