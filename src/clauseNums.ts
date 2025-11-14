@@ -11,7 +11,7 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
   let currentLevel = 0;
   let hasWarnedForExcessNesting = false;
   // Ecma house style calls for a maximum of 5 levels of clause division
-  const MAX_LEVELS = spec.opts.maxClauseDepth ?? 6;
+  const MAX_LEVELS = spec.opts.maxClauseDepth ? spec.opts.maxClauseDepth || Infinity : 6;
 
   return {
     next(clauseStack: Clause[], node: HTMLElement) {
@@ -33,12 +33,12 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
           message: 'clause is being numbered without numbering its parent clause',
         });
       }
-      if (!hasWarnedForExcessNesting && level + 1 > (spec.opts.maxClauseDepth ?? 6)) {
+      if (!hasWarnedForExcessNesting && level + 1 > MAX_LEVELS) {
         spec.warn({
           type: 'node',
           node,
           ruleId: 'max-clause-depth',
-          message: `clause exceeds maximum nesting depth of ${spec.opts.maxClauseDepth ?? 'six'}`,
+          message: `clause exceeds maximum nesting depth of ${MAX_LEVELS}`,
         });
         hasWarnedForExcessNesting = true;
       }
