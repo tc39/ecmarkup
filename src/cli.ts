@@ -116,8 +116,8 @@ const build = debounce(async function build() {
     if (args['max-clause-depth']) {
       opts.maxClauseDepth = args['max-clause-depth'];
     }
-    if (args['toc-depth']) {
-      opts.tocDepth = args['toc-depth'];
+    if (args['printed-toc-depth']) {
+      opts.tocDepth = args['printed-toc-depth'];
     }
     if (args['no-toc'] != null) {
       opts.toc = !args['no-toc'];
