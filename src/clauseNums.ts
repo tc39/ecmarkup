@@ -10,8 +10,8 @@ export default function iterator(spec: Spec): ClauseNumberIterator {
   let inAnnex = false;
   let currentLevel = 0;
   let hasWarnedForExcessNesting = false;
-  // Ecma house style calls for a maximum of 5 levels of clause division
-  const MAX_LEVELS = spec.opts.maxClauseDepth ? spec.opts.maxClauseDepth || Infinity : 6;
+  // Ecma house style calls for a maximum of 5 clause levels
+  const MAX_LEVELS = spec.opts.maxClauseDepth ? spec.opts.maxClauseDepth || Infinity : 5;
 
   return {
     next(clauseStack: Clause[], node: HTMLElement) {
