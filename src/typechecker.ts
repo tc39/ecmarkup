@@ -34,10 +34,21 @@ const getExpressionVisitor =
     }
 
     const { callee, arguments: args } = expr;
-    if (!(callee.length === 1 && callee[0].name === 'text')) {
+    let callIsMethod = false;
+    let calleeName: string;
+    if (callee.length === 1 && callee[0].name === 'text') {
+      calleeName = callee[0].contents;
+    } else if (callee.length >= 2) {
+      const last = callee[callee.length - 1];
+      if (last.name === 'text' && last.contents[0] === '.') {
+        calleeName = last.contents.slice(1);
+        callIsMethod = true;
+      } else {
+        return;
+      }
+    } else {
       return;
     }
-    const calleeName = callee[0].contents;
 
     const biblioEntry = spec.biblio.byAoid(calleeName);
     if (biblioEntry == null) {
@@ -48,20 +59,32 @@ const getExpressionVisitor =
       return;
     }
 
-    if (biblioEntry.kind === 'syntax-directed operation' && expr.name === 'call') {
-      warn(
-        callee[0].location.start.offset,
-        `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`,
-      );
-    } else if (
-      biblioEntry.kind != null &&
-      biblioEntry.kind !== 'syntax-directed operation' &&
-      expr.name === 'sdo-call'
-    ) {
-      warn(
-        callee[0].location.start.offset,
-        `${calleeName} is not a syntax-directed operation but here is being invoked as one`,
-      );
+    if (expr.name === 'call') {
+      if (biblioEntry.kind === 'syntax-directed operation') {
+        warn(
+          callee[0].location.start.offset,
+          `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`,
+        );
+      } else if (biblioEntry.kind === 'abstract method' && !callIsMethod) {
+        warn(
+          callee[0].location.start.offset,
+          `${calleeName} is a method but here it is missing a record to call it on`,
+        );
+      } else if (biblioEntry.kind !== 'abstract method' && callIsMethod) {
+        warn(
+          callee[0].location.start.offset,
+          `${calleeName} is not a method but here it is being called as one`,
+        );
+      }
+    } else {
+      // expr.name === 'sdo-call'
+
+      if (biblioEntry.kind != null && biblioEntry.kind !== 'syntax-directed operation') {
+        warn(
+          callee[0].location.start.offset,
+          `${calleeName} is not a syntax-directed operation but here is being invoked as one`,
+        );
+      }
     }
 
     if (biblioEntry.signature == null) {

@@ -952,6 +952,22 @@ describe('signature agreement', async () => {
         <h1>SDOTakesOneOrTwoArgs ( _x_, [_y_] )</h1>
         <dl class="header"></dl>
       </emu-clause>
+
+      <emu-clause id="abstract-methods">
+        <h1>Abstract Methods</h1>
+        <emu-table type="abstract methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                SomeMethod (
+                  _x_: a string
+                ) : a string
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
     `);
   });
 
@@ -1058,6 +1074,25 @@ describe('signature agreement', async () => {
     );
   });
 
+  it('extra args for abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return ${M}_obj_.SomeMethod(*"a"*, *"b"*).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SomeMethod takes 1 argument, but this invocation passes 2',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
   it('too few args', async () => {
     await assertLint(
       positioned`
@@ -1121,6 +1156,25 @@ describe('signature agreement', async () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'SDOTakesOneOrTwoArgs takes 1-2 arguments, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('too few args for abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return ${M}_obj_.SomeMethod().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SomeMethod takes 1 argument, but this invocation passes 0',
       },
       {
         extraBiblios: [biblio],
@@ -1208,6 +1262,20 @@ describe('invocation kind', async () => {
         <h1>SDO ()</h1>
         <dl class="header"></dl>
       </emu-clause>
+
+      <emu-clause id="abstract-methods">
+        <h1>Abstract Methods</h1>
+        <emu-table type="abstract methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                SomeMethod ( ) : a string
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
     `);
   });
 
@@ -1241,6 +1309,81 @@ describe('invocation kind', async () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'AO is not a syntax-directed operation but here is being invoked as one',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('abstract method invoked as SDO', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return ${M}SomeMethod of _obj_.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SomeMethod is not a syntax-directed operation but here is being invoked as one',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('abstract method invoked as AO', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}SomeMethod().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SomeMethod is a method but here it is missing a record to call it on',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('AO invoked as abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _foo_ be Something.
+          1. Return ${M}_foo_.AO().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'AO is not a method but here it is being called as one',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('SDO invoked as abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _foo_ be Something.
+          1. Return ${M}_foo_.SDO().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SDO is a syntax-directed operation and should not be invoked like a regular call',
       },
       {
         extraBiblios: [biblio],
