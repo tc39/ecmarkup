@@ -653,9 +653,9 @@ ${M}      </pre>
           <h1>Example ( )</h1>
           <dl class='header'>
             <dt>for</dt>
-            <dd>Something</dd>
+            <dd>a Something _foo_</dd>
             ${M}<dt>for</dt>
-            <dd>Something</dd>
+            <dd>a Something _foo_</dd>
             </dl>
           </emu-clause>
         `,
@@ -695,7 +695,7 @@ ${M}      </pre>
           <h1>Example ( )</h1>
           <dl class='header'>
             ${M}<dt>for</dt>
-            <dd>Something</dd>
+            <dd>a Something _foo_</dd>
           </dl>
           </emu-clause>
         `,
