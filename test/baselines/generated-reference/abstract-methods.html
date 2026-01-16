@@ -21,10 +21,15 @@
     <tbody><tr>
       <td>ResolveExport ( <var>exportName</var> [ , <var>resolveSet</var> ] )</td>
       <td><p>The abstract method ResolveExport takes argument <var>exportName</var> (a String) and optional argument <var>resolveSet</var> (a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Records</a></emu-xref>) and returns either a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref> or <emu-val>null</emu-val>.</p>It does something when called.</td>
+      <td>
+        It is defined by:
+        <emu-concrete-method-dfns for="ResolveExport"><ul><li><emu-xref href="#sec-impl-ResolveExport" id="_ref_5"><a href="#sec-impl-ResolveExport">Source Text Module Record</a></emu-xref></li><li><emu-xref href="#sec-smr-ResolveExport" id="_ref_6"><a href="#sec-smr-ResolveExport">Synthetic Module Record</a></emu-xref></li></ul></emu-concrete-method-dfns>
+      </td>
     </tr>
     <tr>
       <td>Something ( <var>exportName</var>, <ins><var>resolveSet</var></ins> )</td>
       <td><p>The abstract method Something takes arguments <var>exportName</var> (a String) and <ins><var>resolveSet</var> (a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Records</a></emu-xref>)</ins> and returns either a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref> or <emu-val>null</emu-val>.</p>It does something when called.</td>
+      <td></td>
     </tr>
     <tr>
       <td>
@@ -34,6 +39,7 @@
         <ins>NewName ( )</ins>
       </td>
       <td><p><ins>The abstract method NewName takes no arguments and returns <emu-const>unused</emu-const>.</ins></p>It does something when called.</td>
+      <td></td>
     </tr>
     <tr>
       <td>
@@ -42,12 +48,14 @@
         </del>
       </td>
       <td><del>It does something when called.</del></td>
+      <td></td>
     </tr>
     <tr>
       <td>
         <ins>AddedMethod ( )</ins>
       </td>
       <td><p><ins>The abstract method AddedMethod takes no arguments and returns <emu-const>unused</emu-const>.</ins></p><ins>It does something when called.</ins></td>
+      <td></td>
     </tr>
   </tbody></table>
 </figure></emu-table>
@@ -59,10 +67,17 @@
   <emu-alg><ol><li>Return <emu-const>unused</emu-const>.</li></ol></emu-alg>
 </emu-clause>
 
+<emu-clause id="sec-smr-ResolveExport" type="concrete method">
+  <h1><span class="secnum">2</span> ResolveExport ( <var>module</var> )</h1>
+  <p>The <emu-xref aoid="ResolveExport" id="_ref_1"><a href="#table-abstract-methods-of-module-records">ResolveExport</a></emu-xref> concrete method of a Synthetic <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref> <var>foo</var> takes argument <var>module</var> (a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref>) and returns <emu-const>unused</emu-const>. It performs the following steps when called:</p>
+
+  <emu-alg><ol><li>Do something.</li><li>Return <emu-const>unused</emu-const>.</li></ol></emu-alg>
+</emu-clause>
+
 <emu-clause id="sec-UseIt" type="abstract operation" aoid="UseIt">
-  <h1><span class="secnum">2</span> UseIt ( <var>module</var> )</h1>
+  <h1><span class="secnum">3</span> UseIt ( <var>module</var> )</h1>
   <p>The abstract operation UseIt takes argument <var>module</var> (a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref>) and returns <emu-const>unused</emu-const>. It performs the following steps when called:</p>
 
-  <emu-alg><ol><li>Let <var>result</var> be <var>module</var>.<emu-xref aoid="ResolveExport" id="_ref_1"><a href="#table-abstract-methods-of-module-records">ResolveExport</a></emu-xref>(<emu-val>"example"</emu-val>).</li><li>Perform <var>module</var>.<emu-xref aoid="NewName" id="_ref_2"><a href="#table-abstract-methods-of-module-records">NewName</a></emu-xref>().</li><li>Perform <var>module</var>.<emu-xref aoid="AddedMethod" id="_ref_3"><a href="#table-abstract-methods-of-module-records">AddedMethod</a></emu-xref>().</li><li>Return <emu-const>unused</emu-const>.</li></ol></emu-alg>
+  <emu-alg><ol><li>Let <var>result</var> be <var>module</var>.<emu-xref aoid="ResolveExport" id="_ref_2"><a href="#table-abstract-methods-of-module-records">ResolveExport</a></emu-xref>(<emu-val>"example"</emu-val>).</li><li>Perform <var>module</var>.<emu-xref aoid="NewName" id="_ref_3"><a href="#table-abstract-methods-of-module-records">NewName</a></emu-xref>().</li><li>Perform <var>module</var>.<emu-xref aoid="AddedMethod" id="_ref_4"><a href="#table-abstract-methods-of-module-records">AddedMethod</a></emu-xref>().</li><li>Return <emu-const>unused</emu-const>.</li></ol></emu-alg>
 </emu-clause>
 </div></body>

@@ -397,18 +397,20 @@ export function formatHeader(
   return { name, formattedHeader, formattedParams, formattedReturnType: returnType };
 }
 
-export function parseStructuredHeaderDl(
-  spec: Spec,
-  type: string | null,
-  dl: Element,
-): {
+export interface StructuredHeader {
   description: Element | null;
   for: Element | null;
   effects: string[];
   redefinition: boolean;
   skipGlobalChecks: boolean;
   skipReturnChecks: boolean;
-} {
+}
+
+export function parseStructuredHeaderDl(
+  spec: Spec,
+  type: string | null,
+  dl: Element,
+): StructuredHeader {
   let description = null;
   let _for = null;
   let redefinition: boolean | null = null;

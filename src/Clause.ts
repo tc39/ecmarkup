@@ -61,6 +61,8 @@ export default class Clause extends Builder {
   /** @internal */ number: string;
   /** @internal */ aoid: string | null;
   /** @internal */ type: string | null;
+  /** @internal */ for: string | null = null;
+  /** @internal */ abstractAoid: string | null = null;
   /** @internal */ notes: Note[];
   /** @internal */ editorNotes: Note[];
   /** @internal */ examples: Example[];
@@ -219,6 +221,22 @@ export default class Clause extends Builder {
       skipReturnChecks,
     } = parseStructuredHeaderDl(this.spec, type, dl);
 
+    if (_for?.textContent) {
+      const match = _for.textContent.match(
+        /^\s*(?:a|an)\s+(?<recordName>[\w ]+)\s+(?<varName>_\w+_)\s*$/,
+      );
+      if (match) {
+        this.for = match.groups!.recordName;
+      } else {
+        this.spec.warn({
+          type: 'node',
+          ruleId: 'for-parsing',
+          message: 'Unable to parse "for" contents',
+          node: _for,
+        });
+      }
+    }
+
     const paras = formatPreamble(
       this.spec,
       this.node,
@@ -245,6 +263,9 @@ export default class Clause extends Builder {
         this.node.setAttribute('aoid', name);
         this.aoid = name;
       }
+    }
+    if (type === 'concrete method') {
+      this.abstractAoid = name;
     }
 
     this.skipGlobalChecks = skipGlobalChecks;
@@ -404,6 +425,15 @@ export default class Clause extends Builder {
         }
         spec.biblio.add(op, spec.namespace);
       }
+    }
+    if (clause.type === 'concrete method' && clause.for) {
+      const cm: PartialBiblioEntry = {
+        type: 'concrete method',
+        for: clause.for,
+        abstractAoid: clause.abstractAoid!,
+        refId: clause.id,
+      };
+      spec.biblio.add(cm, spec.namespace);
     }
     spec.biblio.add(entry, spec.namespace);
 
