@@ -27,6 +27,7 @@ const knownEmuTags = new Set([
   'emu-gann',
   'emu-gprose',
   'emu-gmod',
+  'emu-concrete-method-dfns',
 ]);
 
 // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
