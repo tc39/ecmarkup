@@ -960,8 +960,8 @@ describe('signature agreement', async () => {
             <tr>
               <td>
                 SomeMethod (
-                  _x_: a string
-                ) : a string
+                  _x_: a String
+                ) : a String
               </td>
               <td></td>
             </tr>
@@ -1175,6 +1175,25 @@ describe('signature agreement', async () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'SomeMethod takes 1 argument, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('argument of the wrong type for abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return _obj_.SomeMethod(${M}~foo~).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'argument (~foo~) does not look plausibly assignable to parameter type (String)',
       },
       {
         extraBiblios: [biblio],
