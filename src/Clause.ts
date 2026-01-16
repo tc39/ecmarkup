@@ -26,6 +26,18 @@ export const SPECIAL_KINDS_MAP = new Map([
 ]);
 export const SPECIAL_KINDS = [...SPECIAL_KINDS_MAP.keys()];
 
+export function getHeaderSource(header: Element, spec: Spec): string {
+  const headerLocation = spec.locate(header);
+  if (headerLocation != null) {
+    return headerLocation.source.slice(
+      headerLocation.startTag.endOffset,
+      headerLocation.endTag.startOffset,
+    );
+  } else {
+    return header.innerHTML;
+  }
+}
+
 export function extractStructuredHeader(header: Element): Element | null {
   const dl = traverseWhile(
     header.nextElementSibling,
@@ -145,17 +157,7 @@ export default class Clause extends Builder {
 
     const type = this.type;
 
-    let headerSource;
-    const headerLocation = this.spec.locate(header);
-    if (headerLocation != null) {
-      headerSource = headerLocation.source.slice(
-        headerLocation.startTag.endOffset,
-        headerLocation.endTag.startOffset,
-      );
-    } else {
-      headerSource = header.innerHTML;
-    }
-
+    const headerSource = getHeaderSource(header, this.spec);
     const parseResult = parseH1(headerSource);
     if (parseResult.type !== 'failure') {
       try {
@@ -437,7 +439,7 @@ function parseType(type: string, offset: number): Type {
   }
 }
 
-function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
+export function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
   const ret = {
     parameters: parsedHeader.params
       .filter(p => p.wrappingTag !== 'del')

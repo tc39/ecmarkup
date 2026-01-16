@@ -335,6 +335,7 @@ export type Signature = {
 };
 export type AlgorithmType =
   | 'abstract operation'
+  | 'abstract method'
   | 'host-defined abstract operation'
   | 'implementation-defined abstract operation'
   | 'syntax-directed operation'

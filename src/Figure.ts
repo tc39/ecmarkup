@@ -11,7 +11,7 @@ export default class Figure extends Builder {
   captionElem: HTMLElement | null;
   caption: string;
 
-  static elements = ['EMU-FIGURE', 'EMU-TABLE'];
+  static elements = ['EMU-FIGURE'];
 
   constructor(spec: Spec, node: HTMLElement) {
     super(spec, node);
@@ -45,6 +45,10 @@ export default class Figure extends Builder {
 
   static async enter({ spec, node }: Context) {
     const figure = new Figure(spec, node);
+    Figure.injectFigureElement(spec, node, figure);
+  }
+
+  static injectFigureElement(spec: Spec, node: HTMLElement, figure: Figure) {
     if (figure.captionElem && figure.captionElem.parentNode) {
       figure.captionElem.parentNode.removeChild(figure.captionElem);
     }

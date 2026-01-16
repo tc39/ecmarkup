@@ -22,6 +22,7 @@ import type { Import, EmuImportElement } from './Import';
 import Clause from './Clause';
 import ClauseNumbers from './clauseNums';
 import Algorithm from './Algorithm';
+import Table from './Table';
 import Dfn from './Dfn';
 import Example from './Example';
 import Figure from './Figure';
@@ -107,6 +108,7 @@ const builders: BuilderInterface[] = [
   Clause,
   Algorithm,
   Xref,
+  Table,
   Dfn,
   Eqn,
   Grammar,
