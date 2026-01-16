@@ -4,6 +4,7 @@ import type { Context } from './Context';
 import Builder from './Builder';
 import type Clause from './Clause';
 import Xref from './Xref';
+import type { ClauseBiblioEntry } from './Biblio';
 
 export default class ConcreteMethodDfns extends Builder {
   static readonly elements = ['EMU-CONCRETE-METHOD-DFNS'] as const;
@@ -36,10 +37,12 @@ export default class ConcreteMethodDfns extends Builder {
     const ul = spec.doc.createElement('ul');
 
     for (const def of definitions) {
+      const declaration = spec.biblio.byId(def.refId!) as ClauseBiblioEntry;
+
       const li = spec.doc.createElement('li');
       const xrefNode = spec.doc.createElement('emu-xref');
       xrefNode.setAttribute('href', `#${def.refId}`);
-      xrefNode.textContent = def.for;
+      xrefNode.textContent = `${declaration.number} ${def.for}`;
       li.appendChild(xrefNode);
       ul.appendChild(li);
 
