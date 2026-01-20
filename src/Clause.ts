@@ -8,7 +8,8 @@ import { ParseError, TypeParser } from './type-parser';
 import Builder from './Builder';
 import type { ParsedHeader } from './header-parser';
 import { formatPreamble, parseStructuredHeaderDl, formatHeader, parseH1 } from './header-parser';
-import { offsetToLineAndColumn, traverseWhile } from './utils';
+import { offsetToLineAndColumn, traverseWhile, withOrdinalSuffix, zip } from './utils';
+import { serialize, typeFromExprType } from './type-logic';
 
 const aoidTypes = [
   'abstract operation',
@@ -221,21 +222,8 @@ export default class Clause extends Builder {
       skipReturnChecks,
     } = parseStructuredHeaderDl(this.spec, type, dl);
 
-    if (_for?.textContent) {
-      const match = _for.textContent.match(
-        /^\s*(?:a|an)\s+(?<recordName>[\w ]+)\s+(?<varName>_\w+_)\s*$/,
-      );
-      if (match) {
-        this.for = match.groups!.recordName;
-      } else {
-        this.spec.warn({
-          type: 'node',
-          ruleId: 'for-parsing',
-          message: 'Unable to parse "for" contents',
-          node: _for,
-        });
-      }
-    }
+    // must be saved here because we're going to clobber the element below
+    const forText = _for?.textContent;
 
     const paras = formatPreamble(
       this.spec,
@@ -266,6 +254,22 @@ export default class Clause extends Builder {
     }
     if (type === 'concrete method') {
       this.abstractAoid = name;
+
+      if (forText) {
+        const match = forText.match(
+          /^\s*(?:a|an)\s+(?<recordName>[\w\- ]+)\s+(?<varName>_\w+_)\s*$/,
+        );
+        if (match) {
+          this.for = match.groups!.recordName;
+        } else {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'for-parsing',
+            message: 'Unable to parse "for" contents',
+            node: _for,
+          });
+        }
+      }
     }
 
     this.skipGlobalChecks = skipGlobalChecks;
@@ -427,13 +431,34 @@ export default class Clause extends Builder {
       }
     }
     if (clause.type === 'concrete method' && clause.for) {
+      const abstractAoid = clause.abstractAoid!;
       const cm: PartialBiblioEntry = {
         type: 'concrete method',
         for: clause.for,
-        abstractAoid: clause.abstractAoid!,
+        abstractAoid,
         refId: clause.id,
       };
       spec.biblio.add(cm, spec.namespace);
+
+      const base = spec.biblio.byAoid(abstractAoid);
+      if (base == null) {
+        spec.warn({
+          type: 'node',
+          node: clause.header!,
+          ruleId: 'concrete-method-base',
+          message: `could not find an abstract method corresponding to concrete method ${abstractAoid}`,
+        });
+      } else if (base.signature && clause.signature) {
+        const message = warnIfSignaturesDiffer(base.signature, clause.signature);
+        if (message != null) {
+          spec.warn({
+            type: 'node',
+            node: clause.header!,
+            ruleId: 'concrete-method-base',
+            message: `signature for concrete method ${abstractAoid} differs from the signature for the corresponding abstract method: ${message}`,
+          });
+        }
+      }
     }
     spec.biblio.add(entry, spec.namespace);
 
@@ -490,4 +515,41 @@ export function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
   };
 
   return ret;
+}
+
+function warnIfSignaturesDiffer(base: Signature, derived: Signature): string | null {
+  if (base.parameters.length !== derived.parameters.length) {
+    return `base signature has ${base.parameters.length} parameters but derived signature has ${derived.parameters.length} parameters`;
+  }
+  if (base.optionalParameters.length !== derived.optionalParameters.length) {
+    return `base signature has ${base.optionalParameters.length} optional parameters but derived signature has ${derived.optionalParameters.length} optional parameters`;
+  }
+  // we use representational equality rather than type-theoretic equality because we want things like order of unions to match as well
+  // yes serializing is kind of dumb but it works, this only runs a small number of times, and it's not worth writing more comparison code
+  if (base.return != null && derived.return != null) {
+    const serializedBase = serialize(typeFromExprType(base.return));
+    const serializedDerived = serialize(typeFromExprType(derived.return));
+    if (serializedBase !== serializedDerived) {
+      return `the return type differs in the base signature (${serializedBase}) vs in the derived signature (${serializedDerived})`;
+    }
+  }
+
+  let i = 1;
+  for (const [baseP, derivedP] of zip(
+    base.parameters.concat(base.optionalParameters),
+    derived.parameters.concat(derived.optionalParameters),
+  )) {
+    if (baseP.name !== derivedP.name) {
+      return `base signature calls the ${withOrdinalSuffix(i)} parameter ${baseP.name} but derived signature calls it ${derivedP.name}`;
+    }
+    if (baseP.type != null && derivedP.type != null) {
+      const serializedBase = serialize(typeFromExprType(baseP.type));
+      const serializedDerived = serialize(typeFromExprType(derivedP.type));
+      if (serializedBase !== serializedDerived) {
+        return `the ${withOrdinalSuffix(i)} parameter's type differs in the base signature (${serializedBase}) vs in the derived signature (${serializedDerived})`;
+      }
+    }
+    ++i;
+  }
+  return null;
 }

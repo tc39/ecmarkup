@@ -830,4 +830,23 @@ describe('linting whole program', () => {
       );
     });
   });
+
+  it('concrete method without corresponding abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-test" type="concrete method">
+        ${M}<h1>Example ( )</h1>
+        <dl class='header'>
+          <dt>for</dt>
+          <dd>a Something _foo_</dd>
+          </dl>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message: 'could not find an abstract method corresponding to concrete method Example',
+      },
+    );
+  });
 });

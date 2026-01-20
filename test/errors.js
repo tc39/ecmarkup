@@ -649,6 +649,18 @@ ${M}      </pre>
 
       await assertError(
         positioned`
+          <emu-clause id="abstract-methods">
+            <h1>Abstract Methods</h1>
+            <emu-table type="abstract methods" of="Something">
+              <table>
+                <tr>
+                  <td>Example ()</td>
+                  <td></td>
+                </tr>
+              </table>
+            </emu-table>
+          </emu-clause>
+
           <emu-clause id="sec-test" type="concrete method">
           <h1>Example ( )</h1>
           <dl class='header'>

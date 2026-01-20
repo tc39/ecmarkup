@@ -2210,3 +2210,166 @@ describe('special cases', () => {
     );
   });
 });
+
+describe('concrete method vs abstract method agreement', () => {
+  let biblio;
+  before(async () => {
+    biblio = await getBiblio(`
+      <emu-clause id="abstract-methods">
+        <h1>Abstract Methods</h1>
+        <emu-table type="abstract methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                SomeMethod (
+                  _foo_: a String
+                ): a String
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+    `);
+  });
+
+  it('signature length mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-concrete-somemethod" type="concrete method">
+          ${M}<h1>SomeMethod (
+            _foo_: a String,
+            _bar_: a String,
+          ): a String</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message:
+          'signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: base signature has 1 parameters but derived signature has 2 parameters',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('signature type mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-concrete-somemethod" type="concrete method">
+          ${M}<h1>SomeMethod (
+            _foo_: a Number,
+          ): a String</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message:
+          "signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: the 1st parameter's type differs in the base signature (String) vs in the derived signature (Number)",
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('parameter name mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-concrete-somemethod" type="concrete method">
+          ${M}<h1>SomeMethod (
+            _bar_: a String,
+          ): a String</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message:
+          'signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: base signature calls the 1st parameter _foo_ but derived signature calls it _bar_',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('return type mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-concrete-somemethod" type="concrete method">
+          ${M}<h1>SomeMethod (
+            _foo_: a String,
+          ): a Number</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message:
+          'signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: the return type differs in the base signature (String) vs in the derived signature (Number)',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('negative', async () => {
+    await assertLintFree(
+      `
+      <emu-clause id="sec-concrete-somemethod" type="concrete method">
+        <h1>SomeMethod (
+          _foo_: a String,
+        ): a String</h1>
+        <dl class="header">
+          <dt>for</dt>
+          <dd>a sample _foo_</dd>
+        </dl>
+
+        <emu-alg>
+          1. Return ~unused~.
+        </emu-alg>
+      </emu-clause>
+    `,
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+});
