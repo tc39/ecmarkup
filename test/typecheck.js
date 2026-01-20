@@ -2223,7 +2223,7 @@ describe('concrete method vs abstract method agreement', () => {
               <td>
                 SomeMethod (
                   _foo_: a String
-                ): a String
+                ): either a normal completion containing a String or a throw completion
               </td>
               <td></td>
             </tr>
@@ -2240,7 +2240,7 @@ describe('concrete method vs abstract method agreement', () => {
           ${M}<h1>SomeMethod (
             _foo_: a String,
             _bar_: a String,
-          ): a String</h1>
+          ): either a normal completion containing a String or a throw completion</h1>
           <dl class="header">
             <dt>for</dt>
             <dd>a sample _foo_</dd>
@@ -2269,7 +2269,7 @@ describe('concrete method vs abstract method agreement', () => {
         <emu-clause id="sec-concrete-somemethod" type="concrete method">
           ${M}<h1>SomeMethod (
             _foo_: a Number,
-          ): a String</h1>
+          ): either a normal completion containing a String or a throw completion</h1>
           <dl class="header">
             <dt>for</dt>
             <dd>a sample _foo_</dd>
@@ -2298,7 +2298,7 @@ describe('concrete method vs abstract method agreement', () => {
         <emu-clause id="sec-concrete-somemethod" type="concrete method">
           ${M}<h1>SomeMethod (
             _bar_: a String,
-          ): a String</h1>
+          ): either a normal completion containing a String or a throw completion</h1>
           <dl class="header">
             <dt>for</dt>
             <dd>a sample _foo_</dd>
@@ -2327,7 +2327,7 @@ describe('concrete method vs abstract method agreement', () => {
         <emu-clause id="sec-concrete-somemethod" type="concrete method">
           ${M}<h1>SomeMethod (
             _foo_: a String,
-          ): a Number</h1>
+          ): a String</h1>
           <dl class="header">
             <dt>for</dt>
             <dd>a sample _foo_</dd>
@@ -2342,7 +2342,7 @@ describe('concrete method vs abstract method agreement', () => {
         ruleId: 'concrete-method-base',
         nodeType: 'h1',
         message:
-          'signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: the return type differs in the base signature (String) vs in the derived signature (Number)',
+          'signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: the return type in the base signature (a normal completion containing String or an abrupt completion) is not a generalization of the return type in the derived signature (String)',
       },
       {
         extraBiblios: [biblio],
@@ -2350,13 +2350,36 @@ describe('concrete method vs abstract method agreement', () => {
     );
   });
 
-  it('negative', async () => {
+  it('negative: identical types', async () => {
     await assertLintFree(
       `
       <emu-clause id="sec-concrete-somemethod" type="concrete method">
         <h1>SomeMethod (
           _foo_: a String,
-        ): a String</h1>
+        ): either a normal completion containing a String or a throw completion</h1>
+        <dl class="header">
+          <dt>for</dt>
+          <dd>a sample _foo_</dd>
+        </dl>
+
+        <emu-alg>
+          1. Return ~unused~.
+        </emu-alg>
+      </emu-clause>
+    `,
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('negative: return type is refinement', async () => {
+    await assertLintFree(
+      `
+      <emu-clause id="sec-concrete-somemethod" type="concrete method">
+        <h1>SomeMethod (
+          _foo_: a String,
+        ): a normal completion containing a String</h1>
         <dl class="header">
           <dt>for</dt>
           <dd>a sample _foo_</dd>

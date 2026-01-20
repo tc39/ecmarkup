@@ -14,7 +14,7 @@ import {
   parseHeader,
 } from './header-parser';
 import { offsetToLineAndColumn, traverseWhile, withOrdinalSuffix, zip } from './utils';
-import { serialize, typeFromExprType } from './type-logic';
+import { dominates, serialize, typeFromExprType } from './type-logic';
 
 const aoidTypes = [
   'abstract operation',
@@ -529,16 +529,23 @@ function warnIfSignaturesDiffer(base: Signature, derived: Signature): string | n
   if (base.optionalParameters.length !== derived.optionalParameters.length) {
     return `base signature has ${base.optionalParameters.length} optional parameters but derived signature has ${derived.optionalParameters.length} optional parameters`;
   }
-  // we use representational equality rather than type-theoretic equality because we want things like order of unions to match as well
-  // yes serializing is kind of dumb but it works, this only runs a small number of times, and it's not worth writing more comparison code
   if (base.return != null && derived.return != null) {
-    const serializedBase = serialize(typeFromExprType(base.return));
-    const serializedDerived = serialize(typeFromExprType(derived.return));
-    if (serializedBase !== serializedDerived) {
-      return `the return type differs in the base signature (${serializedBase}) vs in the derived signature (${serializedDerived})`;
+    const baseT = typeFromExprType(base.return);
+    const derivedT = typeFromExprType(derived.return);
+    if (!dominates(baseT, derivedT)) {
+      return `the return type in the base signature (${serialize(baseT)}) is not a generalization of the return type in the derived signature (${serialize(derivedT)})`;
+    }
+    if (dominates(derivedT, baseT)) {
+      const serializedBase = serialize(baseT);
+      const serializedDerived = serialize(derivedT);
+      if (serializedBase !== serializedDerived) {
+        return `the return type in the base signature (${serialize(baseT)}) is the same type as the return type in the derived type (${serialize(derivedT)}) and so should be written the same way`;
+      }
     }
   }
 
+  // we use representational equality rather than type-theoretic equality because we want things like order of unions to match as well
+  // yes serializing is kind of dumb but it works, this only runs a small number of times, and it's not worth writing more comparison code
   let i = 1;
   for (const [baseP, derivedP] of zip(
     base.parameters.concat(base.optionalParameters),

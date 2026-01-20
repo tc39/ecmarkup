@@ -170,7 +170,7 @@ export default class Table extends Figure {
     let tableEl = traverseWhile(
       node.firstElementChild,
       'nextElementSibling',
-      el => el.nodeName === 'EMU-CAPTION',
+      el => el.nodeName === 'EMU-CAPTION' || el.nodeName === 'SPAN' && el.textContent === '', // skip generated elements
     )!;
     if (!tableEl || tableEl.nodeName !== 'TABLE') {
       if (tableType) {
