@@ -608,9 +608,6 @@ export function typeFromExprType(type: BiblioType): Type {
       if (text === '*undefined*') {
         return { kind: 'undefined' };
       }
-      if (text === '*undefined*') {
-        return { kind: 'undefined' };
-      }
       break;
     }
     case 'unused': {
