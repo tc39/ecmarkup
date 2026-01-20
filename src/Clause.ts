@@ -7,7 +7,12 @@ import type { Context } from './Context';
 import { ParseError, TypeParser } from './type-parser';
 import Builder from './Builder';
 import type { ParsedHeader } from './header-parser';
-import { formatPreamble, parseStructuredHeaderDl, formatHeader, parseH1 } from './header-parser';
+import {
+  formatPreamble,
+  parseStructuredHeaderDl,
+  formatHeader,
+  parseHeader,
+} from './header-parser';
 import { offsetToLineAndColumn, traverseWhile, withOrdinalSuffix, zip } from './utils';
 import { serialize, typeFromExprType } from './type-logic';
 
@@ -161,7 +166,7 @@ export default class Clause extends Builder {
     const type = this.type;
 
     const headerSource = getHeaderSource(header, this.spec);
-    const parseResult = parseH1(headerSource);
+    const parseResult = parseHeader(headerSource);
     if (parseResult.type !== 'failure') {
       try {
         this.signature = parsedHeaderToSignature(parseResult);

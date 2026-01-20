@@ -41,7 +41,7 @@ export type ParsedHeaderOrFailure =
       errors: ParseError[];
     };
 
-export function parseH1(headerText: string): ParsedHeaderOrFailure {
+export function parseHeader(headerText: string): ParsedHeaderOrFailure {
   let offset = 0;
   const errors: ParseError[] = [];
 
