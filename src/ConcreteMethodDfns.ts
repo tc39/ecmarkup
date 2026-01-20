@@ -37,11 +37,12 @@ export default class ConcreteMethodDfns extends Builder {
     const ul = spec.doc.createElement('ul');
 
     for (const def of definitions) {
-      const declaration = spec.biblio.byId(def.refId!) as ClauseBiblioEntry;
+      const id = def.id ?? def.refId!;
+      const declaration = spec.biblio.byId(id) as ClauseBiblioEntry;
 
       const li = spec.doc.createElement('li');
       const xrefNode = spec.doc.createElement('emu-xref');
-      xrefNode.setAttribute('href', `#${def.refId}`);
+      xrefNode.setAttribute('href', `#${id}`);
       xrefNode.textContent = `${declaration.number} ${def.for}`;
       li.appendChild(xrefNode);
       ul.appendChild(li);

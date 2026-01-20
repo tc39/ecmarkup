@@ -11,7 +11,7 @@ import Figure from './Figure';
 export default class Table extends Figure {
   table: HTMLTableElement;
   tableType: null | 'abstract methods';
-  methods: Map<string, Signature>;
+  methods: Map<string, { signature: Signature; rowId: string | undefined }>;
   of: string | null = null;
 
   static elements = ['EMU-TABLE'];
@@ -46,7 +46,7 @@ export default class Table extends Figure {
     this.table = table;
     this.tableType = tableType;
     this.of = of;
-    this.methods = new Map<string, Signature>();
+    this.methods = new Map();
 
     if (tableType === 'abstract methods') {
       this.processAbstractMethodsDeclarations();
@@ -123,7 +123,17 @@ export default class Table extends Figure {
         }
       }
 
-      this.methods.set(parseResult.name, signature);
+      const rowId = tr.id || undefined;
+      if (tbody.children.length > 1 && !rowId) {
+        spec.warn({
+          type: 'node',
+          ruleId: 'abstract-method-id',
+          message: '<tr>s which define abstract methods should have their own id',
+          node: tr,
+        });
+      }
+
+      this.methods.set(parseResult.name, { signature, rowId });
 
       const { name, formattedHeader, formattedParams, formattedReturnType } = formatHeader(
         spec,
@@ -141,11 +151,13 @@ export default class Table extends Figure {
   }
 
   defineInnerBiblioEntries() {
-    for (const [name, signature] of this.methods) {
+    for (const [name, info] of this.methods) {
+      const { signature, rowId } = info;
       const biblioEntry: PartialBiblioEntry = {
         type: 'op',
         kind: 'abstract method',
         aoid: name,
+        id: rowId,
         refId: this.id!,
         signature,
         effects: [],
@@ -170,7 +182,7 @@ export default class Table extends Figure {
     let tableEl = traverseWhile(
       node.firstElementChild,
       'nextElementSibling',
-      el => el.nodeName === 'EMU-CAPTION' || el.nodeName === 'SPAN' && el.textContent === '', // skip generated elements
+      el => el.nodeName === 'EMU-CAPTION' || (el.nodeName === 'SPAN' && el.textContent === ''), // skip generated elements
     )!;
     if (!tableEl || tableEl.nodeName !== 'TABLE') {
       if (tableType) {

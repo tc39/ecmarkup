@@ -8,27 +8,82 @@ let lintLocationMarker = {};
 function positioned(literalParts, ...interpolatedParts) {
   let markerIndex = interpolatedParts.indexOf(lintLocationMarker);
   if (markerIndex < 0 || markerIndex !== interpolatedParts.lastIndexOf(lintLocationMarker)) {
-    throw new Error('alg template tag must interpolate the location marker exactly once');
+    throw new Error('positioned template tag must interpolate the location marker exactly once');
   }
-  let offset, line, column;
+  let multi = multipositioned(literalParts, ...interpolatedParts);
+  return { ...multi.positions[0], html: multi.html };
+}
+
+function multipositioned(literalParts, ...interpolatedParts) {
+  let markerIndexes = interpolatedParts
+    .map((value, index) => ({ value, index }))
+    .filter(({ value }) => value === lintLocationMarker)
+    .map(({ index }) => index);
+  if (markerIndexes === 0) {
+    throw new Error(
+      'multipositioned template tag must interpolate the location marker at least once',
+    );
+  }
+  let positions = [];
+
   let str = literalParts[0];
   for (let i = 0; i < literalParts.length - 1; ++i) {
-    if (i === markerIndex) {
-      offset = str.length;
+    if (markerIndexes.includes(i)) {
+      let offset = str.length;
       let lines = str.split('\n');
-      line = lines.length;
-      column = lines[lines.length - 1].length + 1;
+      let line = lines.length;
+      let column = lines[lines.length - 1].length + 1;
+      positions.push({ offset, line, column });
     } else {
       str += String(interpolatedParts[i]);
     }
     str += literalParts[i + 1];
   }
-  return { offset, line, column, html: str };
+  return { positions, html: str };
 }
 
-async function assertError(obj, { ruleId, nodeType, message }, opts) {
-  let { line, column, html } =
-    typeof obj === 'string' ? { line: undefined, column: undefined, html: obj } : obj;
+async function assertError(obj, errorOrErrors, opts) {
+  let html;
+  if (Array.isArray(errorOrErrors)) {
+    if (typeof obj === 'string') {
+      html = obj;
+      // no line and column for any error
+    } else if (!obj.positions) {
+      if (errorOrErrors.length !== 1) {
+        throw new Error(
+          `your source has positions for 1 error but your assertion passes ${errorOrErrors.length}`,
+        );
+      }
+      // kind of weird to pass an array of length 1 here but it might come up when copying tests, no reason to disallow
+      ({ html } = obj);
+      errorOrErrors = [{ ...errorOrErrors[0], line: obj.line, column: obj.column }];
+    } else {
+      if (errorOrErrors.length !== obj.positions.length) {
+        throw new Error(
+          `your source has positions for ${obj.positions.length} error(s) but your assertion passes ${errorOrErrors.length}`,
+        );
+      }
+      ({ html } = obj);
+      errorOrErrors = errorOrErrors.map((e, i) => ({ ...e, ...obj.positions[i] }));
+    }
+  } else {
+    let line, column;
+    if (typeof obj === 'string') {
+      html = obj;
+    } else if (obj.positions) {
+      if (obj.positions.length !== 1) {
+        throw new Error(
+          `your source has positions for ${obj.positions.length} errors but your assertion only passes 1`,
+        );
+      }
+      // kind of weird to use multipositioned for a single error but it might come up when copying tests, no reason to disallow
+      ({ line, column } = obj.positions[0]);
+      ({ html } = obj);
+    } else {
+      ({ line, column, html } = obj);
+    }
+    errorOrErrors = [{ ...errorOrErrors, line, column }];
+  }
   let warnings = [];
 
   let rootFile = 'test-example.emu';
@@ -49,8 +104,9 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
       ...opts,
     });
 
-    assert.deepStrictEqual(warnings, [
-      {
+    assert.deepStrictEqual(
+      warnings,
+      errorOrErrors.map(({ ruleId, nodeType, line, column, message }) => ({
         ruleId,
         nodeType,
         line,
@@ -58,8 +114,8 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
         message,
         file: undefined,
         source: line == null ? undefined : html,
-      },
-    ]);
+      })),
+    );
   }
 
   if (opts?.asImport === false) {
@@ -89,17 +145,15 @@ async function assertError(obj, { ruleId, nodeType, message }, opts) {
 
   assert.deepStrictEqual(
     warnings,
-    [
-      {
-        ruleId,
-        nodeType,
-        line,
-        column,
-        message,
-        file: line == null ? undefined : 'import.emu',
-        source: line == null ? undefined : html,
-      },
-    ],
+    errorOrErrors.map(({ ruleId, nodeType, line, column, message }) => ({
+      ruleId,
+      nodeType,
+      line,
+      column,
+      message,
+      file: line == null ? undefined : 'import.emu',
+      source: line == null ? undefined : html,
+    })),
     'error information inside of import',
   );
 }
@@ -141,6 +195,7 @@ async function getBiblio(html) {
 module.exports = {
   lintLocationMarker,
   positioned,
+  multipositioned,
   assertError,
   assertErrorFree,
   assertLint,
