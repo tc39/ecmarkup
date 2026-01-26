@@ -7,8 +7,14 @@ import type { Context } from './Context';
 import { ParseError, TypeParser } from './type-parser';
 import Builder from './Builder';
 import type { ParsedHeader } from './header-parser';
-import { formatPreamble, parseStructuredHeaderDl, formatHeader, parseH1 } from './header-parser';
-import { offsetToLineAndColumn, traverseWhile } from './utils';
+import {
+  formatPreamble,
+  parseStructuredHeaderDl,
+  formatHeader,
+  parseHeader,
+} from './header-parser';
+import { offsetToLineAndColumn, traverseWhile, withOrdinalSuffix, zip } from './utils';
+import { dominates, serialize, typeFromExprType } from './type-logic';
 
 const aoidTypes = [
   'abstract operation',
@@ -25,6 +31,18 @@ export const SPECIAL_KINDS_MAP = new Map([
   ['deprecated', 'Deprecated'],
 ]);
 export const SPECIAL_KINDS = [...SPECIAL_KINDS_MAP.keys()];
+
+export function getHeaderSource(header: Element, spec: Spec): string {
+  const headerLocation = spec.locate(header);
+  if (headerLocation != null) {
+    return headerLocation.source.slice(
+      headerLocation.startTag.endOffset,
+      headerLocation.endTag.startOffset,
+    );
+  } else {
+    return header.innerHTML;
+  }
+}
 
 export function extractStructuredHeader(header: Element): Element | null {
   const dl = traverseWhile(
@@ -49,6 +67,8 @@ export default class Clause extends Builder {
   /** @internal */ number: string;
   /** @internal */ aoid: string | null;
   /** @internal */ type: string | null;
+  /** @internal */ for: string | null = null;
+  /** @internal */ abstractAoid: string | null = null;
   /** @internal */ notes: Note[];
   /** @internal */ editorNotes: Note[];
   /** @internal */ examples: Example[];
@@ -145,18 +165,8 @@ export default class Clause extends Builder {
 
     const type = this.type;
 
-    let headerSource;
-    const headerLocation = this.spec.locate(header);
-    if (headerLocation != null) {
-      headerSource = headerLocation.source.slice(
-        headerLocation.startTag.endOffset,
-        headerLocation.endTag.startOffset,
-      );
-    } else {
-      headerSource = header.innerHTML;
-    }
-
-    const parseResult = parseH1(headerSource);
+    const headerSource = getHeaderSource(header, this.spec);
+    const parseResult = parseHeader(headerSource);
     if (parseResult.type !== 'failure') {
       try {
         this.signature = parsedHeaderToSignature(parseResult);
@@ -217,6 +227,9 @@ export default class Clause extends Builder {
       skipReturnChecks,
     } = parseStructuredHeaderDl(this.spec, type, dl);
 
+    // must be saved here because we're going to clobber the element below
+    const forText = _for?.textContent;
+
     const paras = formatPreamble(
       this.spec,
       this.node,
@@ -242,6 +255,25 @@ export default class Clause extends Builder {
       } else if (name != null && type != null && aoidTypes.includes(type)) {
         this.node.setAttribute('aoid', name);
         this.aoid = name;
+      }
+    }
+    if (type === 'concrete method') {
+      this.abstractAoid = name;
+
+      if (forText) {
+        const match = forText.match(
+          /^\s*(?:a|an)\s+(?<recordName>[\w\- ]+)\s+(?<varName>_\w+_)\s*$/,
+        );
+        if (match) {
+          this.for = match.groups!.recordName;
+        } else {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'for-parsing',
+            message: 'Unable to parse "for" contents',
+            node: _for,
+          });
+        }
       }
     }
 
@@ -403,6 +435,36 @@ export default class Clause extends Builder {
         spec.biblio.add(op, spec.namespace);
       }
     }
+    if (clause.type === 'concrete method' && clause.for) {
+      const abstractAoid = clause.abstractAoid!;
+      const cm: PartialBiblioEntry = {
+        type: 'concrete method',
+        for: clause.for,
+        abstractAoid,
+        refId: clause.id,
+      };
+      spec.biblio.add(cm, spec.namespace);
+
+      const base = spec.biblio.byAoid(abstractAoid);
+      if (base == null) {
+        spec.warn({
+          type: 'node',
+          node: clause.header!,
+          ruleId: 'concrete-method-base',
+          message: `could not find an abstract method corresponding to concrete method ${abstractAoid}`,
+        });
+      } else if (base.signature && clause.signature) {
+        const message = warnIfSignaturesDiffer(base.signature, clause.signature);
+        if (message != null) {
+          spec.warn({
+            type: 'node',
+            node: clause.header!,
+            ruleId: 'concrete-method-base',
+            message: `signature for concrete method ${abstractAoid} differs from the signature for the corresponding abstract method: ${message}`,
+          });
+        }
+      }
+    }
     spec.biblio.add(entry, spec.namespace);
 
     clauseStack.pop();
@@ -437,7 +499,7 @@ function parseType(type: string, offset: number): Type {
   }
 }
 
-function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
+export function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
   const ret = {
     parameters: parsedHeader.params
       .filter(p => p.wrappingTag !== 'del')
@@ -458,4 +520,48 @@ function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
   };
 
   return ret;
+}
+
+function warnIfSignaturesDiffer(base: Signature, derived: Signature): string | null {
+  if (base.parameters.length !== derived.parameters.length) {
+    return `base signature has ${base.parameters.length} parameters but derived signature has ${derived.parameters.length} parameters`;
+  }
+  if (base.optionalParameters.length !== derived.optionalParameters.length) {
+    return `base signature has ${base.optionalParameters.length} optional parameters but derived signature has ${derived.optionalParameters.length} optional parameters`;
+  }
+  if (base.return != null && derived.return != null) {
+    const baseT = typeFromExprType(base.return);
+    const derivedT = typeFromExprType(derived.return);
+    if (!dominates(baseT, derivedT)) {
+      return `the return type in the base signature (${serialize(baseT)}) is not a generalization of the return type in the derived signature (${serialize(derivedT)})`;
+    }
+    if (dominates(derivedT, baseT)) {
+      const serializedBase = serialize(baseT);
+      const serializedDerived = serialize(derivedT);
+      if (serializedBase !== serializedDerived) {
+        return `the return type in the base signature (${serialize(baseT)}) is the same type as the return type in the derived type (${serialize(derivedT)}) and so should be written the same way`;
+      }
+    }
+  }
+
+  // we use representational equality rather than type-theoretic equality because we want things like order of unions to match as well
+  // yes serializing is kind of dumb but it works, this only runs a small number of times, and it's not worth writing more comparison code
+  let i = 1;
+  for (const [baseP, derivedP] of zip(
+    base.parameters.concat(base.optionalParameters),
+    derived.parameters.concat(derived.optionalParameters),
+  )) {
+    if (baseP.name !== derivedP.name) {
+      return `base signature calls the ${withOrdinalSuffix(i)} parameter ${baseP.name} but derived signature calls it ${derivedP.name}`;
+    }
+    if (baseP.type != null && derivedP.type != null) {
+      const serializedBase = serialize(typeFromExprType(baseP.type));
+      const serializedDerived = serialize(typeFromExprType(derivedP.type));
+      if (serializedBase !== serializedDerived) {
+        return `the ${withOrdinalSuffix(i)} parameter's type differs in the base signature (${serializedBase}) vs in the derived signature (${serializedDerived})`;
+      }
+    }
+    ++i;
+  }
+  return null;
 }

@@ -295,6 +295,22 @@ describe('variables are declared and used appropriately', () => {
     it('the receiver for concrete methods is visible', async () => {
       await assertLintFree(
         `
+          <emu-clause id="abstract-methods">
+            <h1>Abstract Methods</h1>
+            <emu-table type="abstract methods" of="Declarative Environment Record">
+              <table>
+                <tr>
+                  <td>
+                    HasBinding (
+                      _N_: a String
+                    ): a Boolean
+                  </td>
+                  <td></td>
+                </tr>
+              </table>
+            </emu-table>
+          </emu-clause>
+
           <emu-clause id="sec-declarative-environment-records-hasbinding-n" type="concrete method">
             <h1>HasBinding ( _N_ )</h1>
             <dl class="header">

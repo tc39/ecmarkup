@@ -335,3 +335,11 @@ export function* zip<A, B>(
     yield [iterResultA.value, iterResultB.value];
   }
 }
+
+const pr = new Intl.PluralRules('en', { type: 'ordinal' });
+
+export function withOrdinalSuffix(n: number): string {
+  const rule = pr.select(n);
+  const suffixes = { one: 'st', two: 'nd', few: 'rd', other: 'th' };
+  return `${n}${suffixes[rule as keyof typeof suffixes]}`;
+}

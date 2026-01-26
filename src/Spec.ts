@@ -22,6 +22,7 @@ import type { Import, EmuImportElement } from './Import';
 import Clause from './Clause';
 import ClauseNumbers from './clauseNums';
 import Algorithm from './Algorithm';
+import Table from './Table';
 import Dfn from './Dfn';
 import Example from './Example';
 import Figure from './Figure';
@@ -50,6 +51,7 @@ import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/uti
 import type { AugmentedGrammarEle } from './Grammar';
 import { zip } from './utils';
 import { typecheck } from './typechecker';
+import ConcreteMethodDfns from './ConcreteMethodDfns';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -107,6 +109,8 @@ const builders: BuilderInterface[] = [
   Clause,
   Algorithm,
   Xref,
+  Table,
+  ConcreteMethodDfns,
   Dfn,
   Eqn,
   Grammar,
@@ -329,6 +333,7 @@ export default class Spec {
     namespace: string;
   }[];
   /** @internal */ _prodRefs: ProdRef[];
+  /** @internal */ _concreteMethodDfnsLists: ConcreteMethodDfns[];
   /** @internal */ _textNodes: { [s: string]: [TextNodeContext] };
   /** @internal */ _effectWorklist: Map<string, WorklistItem[]>;
   /** @internal */ _effectfulAOs: Map<string, string[]>;
@@ -375,6 +380,7 @@ export default class Spec {
     this._ntRefs = [];
     this._ntStringRefs = [];
     this._prodRefs = [];
+    this._concreteMethodDfnsLists = [];
     this._textNodes = {};
     this._effectWorklist = new Map();
     this._effectfulAOs = new Map();
@@ -552,6 +558,8 @@ export default class Spec {
       this.log('Annotating external links...');
       this.annotateExternalLinks();
     }
+    this.log('Generating concrete method definitions lists...');
+    this._concreteMethodDfnsLists.forEach(cmd => cmd.build());
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');

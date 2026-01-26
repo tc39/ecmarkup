@@ -21,6 +21,7 @@ class EnvRec {
   _byLocation: { [key: string]: BiblioEntry[] };
   _byProductionName: { [key: string]: ProductionBiblioEntry };
   _byAoid: { [key: string]: AlgorithmBiblioEntry };
+  _byAbstractMethodAoid: { [key: string]: ConcreteMethodBiblioEntry[] };
   _keys: Set<String>;
 
   constructor(parent: EnvRec | undefined, namespace: string) {
@@ -36,6 +37,7 @@ class EnvRec {
     this._byLocation = {};
     this._byProductionName = {};
     this._byAoid = {};
+    this._byAbstractMethodAoid = {};
     this._keys = new Set();
   }
 
@@ -48,6 +50,11 @@ class EnvRec {
       if (item.type === 'op') {
         this._byAoid[item.aoid] = item;
         this._keys.add(item.aoid);
+      }
+
+      if (item.type === 'concrete method') {
+        this._byAbstractMethodAoid[item.abstractAoid] ??= [];
+        this._byAbstractMethodAoid[item.abstractAoid].push(item);
       }
 
       if (item.type === 'production') {
@@ -106,6 +113,11 @@ export default class Biblio {
   byAoid(aoid: string, ns?: string) {
     ns = ns || this._location;
     return this.lookup(ns, env => env._byAoid[aoid]);
+  }
+
+  byAbstractMethodAoid(aoid: string, ns?: string) {
+    ns = ns || this._location;
+    return this.lookup(ns, env => env._byAbstractMethodAoid[aoid]);
   }
 
   getOpNames(ns: string): Set<string> {
@@ -335,6 +347,7 @@ export type Signature = {
 };
 export type AlgorithmType =
   | 'abstract operation'
+  | 'abstract method'
   | 'host-defined abstract operation'
   | 'implementation-defined abstract operation'
   | 'syntax-directed operation'
@@ -348,6 +361,12 @@ export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   skipGlobalChecks?: boolean;
   /** @internal*/ _skipReturnChecks?: boolean;
   /** @internal*/ _node?: Element;
+}
+
+export interface ConcreteMethodBiblioEntry extends BiblioEntryBase {
+  type: 'concrete method';
+  abstractAoid: string;
+  for: string;
 }
 
 export interface ProductionBiblioEntry extends BiblioEntryBase {
@@ -387,6 +406,7 @@ export interface StepBiblioEntry extends BiblioEntryBase {
 
 export type BiblioEntry =
   | AlgorithmBiblioEntry
+  | ConcreteMethodBiblioEntry
   | ProductionBiblioEntry
   | ClauseBiblioEntry
   | TermBiblioEntry

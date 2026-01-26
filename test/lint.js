@@ -781,4 +781,72 @@ describe('linting whole program', () => {
       `);
     });
   });
+
+  describe('emu-table abstract methods', () => {
+    it('missing table', async () => {
+      await assertLint(
+        positioned`
+          ${M}<emu-table type="abstract methods" of="Something">
+            <caption>Abstract Methods</caption>
+          </emu-table>
+        `,
+        {
+          ruleId: 'emu-table-missing',
+          nodeType: 'emu-table',
+          message: '<emu-table type="abstract methods"> must contain a <table> element',
+        },
+      );
+    });
+
+    it('missing of', async () => {
+      await assertLint(
+        positioned`
+          ${M}<emu-table type="abstract methods">
+            <table></table>
+          </emu-table>
+        `,
+        {
+          ruleId: 'emu-abstract-methods-invalid',
+          nodeType: 'emu-table',
+          message: '<emu-table type="abstract methods"> must have an \'of\' attribute',
+        },
+      );
+    });
+
+    it('missing description td', async () => {
+      await assertLint(
+        positioned`
+          <emu-table type="abstract methods" of="Something">
+            <table>
+              ${M}<tr><td><h1>Foo ( ): ~unused~</h1></td></tr>
+            </table>
+          </emu-table>
+        `,
+        {
+          ruleId: 'emu-abstract-methods-invalid',
+          nodeType: 'tr',
+          message: '<emu-table type="abstract methods"> <tr>s must contain at least two <td>s',
+        },
+      );
+    });
+  });
+
+  it('concrete method without corresponding abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-test" type="concrete method">
+        ${M}<h1>Example ( )</h1>
+        <dl class='header'>
+          <dt>for</dt>
+          <dd>a Something _foo_</dd>
+          </dl>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message: 'could not find an abstract method corresponding to concrete method Example',
+      },
+    );
+  });
 });

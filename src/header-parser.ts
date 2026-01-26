@@ -41,7 +41,7 @@ export type ParsedHeaderOrFailure =
       errors: ParseError[];
     };
 
-export function parseH1(headerText: string): ParsedHeaderOrFailure {
+export function parseHeader(headerText: string): ParsedHeaderOrFailure {
   let offset = 0;
   const errors: ParseError[] = [];
 
@@ -324,16 +324,7 @@ export function printSimpleParamList(params: Param[], optionalParams: Param[]) {
   return result;
 }
 
-export function formatHeader(
-  spec: Spec,
-  header: Element,
-  parseResult: ParsedHeaderOrFailure,
-): {
-  name: string | null;
-  formattedHeader: string | null;
-  formattedParams: string | null;
-  formattedReturnType: string | null;
-} {
+export function warnAllErrors(spec: Spec, header: Element, parseResult: ParsedHeaderOrFailure) {
   for (const { message, offset } of parseResult.errors) {
     const { line: nodeRelativeLine, column: nodeRelativeColumn } = offsetToLineAndColumn(
       header.innerHTML,
@@ -348,6 +339,19 @@ export function formatHeader(
       nodeRelativeLine,
     });
   }
+}
+
+export function formatHeader(
+  spec: Spec,
+  header: Element,
+  parseResult: ParsedHeaderOrFailure,
+): {
+  name: string | null;
+  formattedHeader: string | null;
+  formattedParams: string | null;
+  formattedReturnType: string | null;
+} {
+  warnAllErrors(spec, header, parseResult);
   if (parseResult.type === 'failure') {
     return { name: null, formattedHeader: null, formattedParams: null, formattedReturnType: null };
   }
@@ -397,18 +401,20 @@ export function formatHeader(
   return { name, formattedHeader, formattedParams, formattedReturnType: returnType };
 }
 
-export function parseStructuredHeaderDl(
-  spec: Spec,
-  type: string | null,
-  dl: Element,
-): {
+export interface StructuredHeader {
   description: Element | null;
   for: Element | null;
   effects: string[];
   redefinition: boolean;
   skipGlobalChecks: boolean;
   skipReturnChecks: boolean;
-} {
+}
+
+export function parseStructuredHeaderDl(
+  spec: Spec,
+  type: string | null,
+  dl: Element,
+): StructuredHeader {
   let description = null;
   let _for = null;
   let redefinition: boolean | null = null;

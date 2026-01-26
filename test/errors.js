@@ -6,6 +6,7 @@ let emu = require('../lib/ecmarkup');
 let {
   lintLocationMarker: M,
   positioned,
+  multipositioned,
   assertError,
   assertErrorFree,
   getBiblio,
@@ -649,13 +650,25 @@ ${M}      </pre>
 
       await assertError(
         positioned`
+          <emu-clause id="abstract-methods">
+            <h1>Abstract Methods</h1>
+            <emu-table type="abstract methods" of="Something">
+              <table>
+                <tr>
+                  <td>Example ()</td>
+                  <td></td>
+                </tr>
+              </table>
+            </emu-table>
+          </emu-clause>
+
           <emu-clause id="sec-test" type="concrete method">
           <h1>Example ( )</h1>
           <dl class='header'>
             <dt>for</dt>
-            <dd>Something</dd>
+            <dd>a Something _foo_</dd>
             ${M}<dt>for</dt>
-            <dd>Something</dd>
+            <dd>a Something _foo_</dd>
             </dl>
           </emu-clause>
         `,
@@ -695,7 +708,7 @@ ${M}      </pre>
           <h1>Example ( )</h1>
           <dl class='header'>
             ${M}<dt>for</dt>
-            <dd>Something</dd>
+            <dd>a Something _foo_</dd>
           </dl>
           </emu-clause>
         `,
@@ -1279,6 +1292,42 @@ ${M}      </pre>
         {
           maxClauseDepth: 2,
         },
+      );
+    });
+  });
+
+  describe('abstract methods', () => {
+    it('errors if no <tr> id for nontrivial method tables', async () => {
+      await assertError(
+        multipositioned`
+          <emu-clause id="abstract-methods">
+            <h1>Abstract Methods</h1>
+            <emu-table type="abstract methods" of="Something">
+              <table>
+                ${M}<tr>
+                  <td>Example ()</td>
+                  <td></td>
+                </tr>
+                ${M}<tr>
+                  <td>Example2 ()</td>
+                  <td></td>
+                </tr>
+              </table>
+            </emu-table>
+          </emu-clause>
+        `,
+        [
+          {
+            ruleId: 'abstract-method-id',
+            nodeType: 'tr',
+            message: '<tr>s which define abstract methods should have their own id',
+          },
+          {
+            ruleId: 'abstract-method-id',
+            nodeType: 'tr',
+            message: '<tr>s which define abstract methods should have their own id',
+          },
+        ],
       );
     });
   });

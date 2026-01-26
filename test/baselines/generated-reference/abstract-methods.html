@@ -1,0 +1,87 @@
+<!doctype html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8"></head><body><div id="shortcuts-help">
+<ul>
+  <li><span>Toggle shortcuts help</span><code>?</code></li>
+  <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+
+  <li><span>Jump to search box</span><code>/</code></li>
+  <li><span>Toggle pinning of the current clause</span><code>p</code></li>
+  <li><span>Jump to the <i>n</i><sup>th</sup> pin</span><code>1-9</code></li>
+  <li><span>Jump to the 10<sup>th</sup> pin</span><code>0</code></li>
+  <li><span>Jump to the most recent link target</span><code>`</code></li>
+</ul></div><div id="spec-container">
+<emu-table type="abstract methods" of="Module Record" id="table-abstract-methods-of-module-records" caption="Abstract Methods of Module Record"><figure><figcaption>Table 1: Abstract Methods of <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref></figcaption>
+  <table>
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody><tr id="abstract-resolveexport">
+      <td>ResolveExport ( <var>exportName</var> [ , <var>resolveSet</var> ] )</td>
+      <td><p>The abstract method ResolveExport takes argument <var>exportName</var> (a String) and optional argument <var>resolveSet</var> (a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Records</a></emu-xref>) and returns either a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref> or <emu-val>null</emu-val>.</p>It does something when called.</td>
+      <td>
+        It is defined by:
+        <emu-concrete-method-dfns for="ResolveExport"><ul><li><emu-xref href="#sec-impl-ResolveExport" id="_ref_5"><a href="#sec-impl-ResolveExport">1.1 Source Text Module Record</a></emu-xref></li><li><emu-xref href="#sec-smr-ResolveExport" id="_ref_6"><a href="#sec-smr-ResolveExport">1.2 Synthetic Module Record</a></emu-xref></li></ul></emu-concrete-method-dfns>
+      </td>
+    </tr>
+    <tr id="abstract-something">
+      <td>Something ( <var>exportName</var>, <ins><var>resolveSet</var></ins> )</td>
+      <td><p>The abstract method Something takes arguments <var>exportName</var> (a String) and <ins><var>resolveSet</var> (a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Records</a></emu-xref>)</ins> and returns either a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref> or <emu-val>null</emu-val>.</p>It does something when called.</td>
+      <td></td>
+    </tr>
+    <tr id="abstract-newname">
+      <td>
+        <del>
+          OldName ( ): <emu-const>unused</emu-const>
+        </del>
+        <ins>NewName ( )</ins>
+      </td>
+      <td><p><ins>The abstract method NewName takes no arguments and returns <emu-const>unused</emu-const>.</ins></p>It does something when called.</td>
+      <td></td>
+    </tr>
+    <tr id="abstract-deletedmethod">
+      <td>
+        <del>
+          DeletedMethod ( ): <emu-const>unused</emu-const>
+        </del>
+      </td>
+      <td><del>It does something when called.</del></td>
+      <td></td>
+    </tr>
+    <tr id="abstract-addedmethod">
+      <td>
+        <ins>AddedMethod ( )</ins>
+      </td>
+      <td><p><ins>The abstract method AddedMethod takes no arguments and returns <emu-const>unused</emu-const>.</ins></p><ins>It does something when called.</ins></td>
+      <td></td>
+    </tr>
+  </tbody></table>
+</figure></emu-table>
+
+<emu-clause id="definitions">
+  <h1><span class="secnum">1</span> Concrete Methods Definitions</h1>
+
+  <emu-clause id="sec-impl-ResolveExport" type="concrete method">
+    <h1><span class="secnum">1.1</span> ResolveExport ( <var>exportName</var> [ , <var>resolveSet</var> ] )</h1>
+    <p>The <emu-xref aoid="ResolveExport" id="_ref_0"><a href="#abstract-resolveexport">ResolveExport</a></emu-xref> concrete method of a <emu-xref href="#sourctextmodule-record"><a href="https://tc39.es/ecma262/#sourctextmodule-record">Source Text Module Record</a></emu-xref> <var>foo</var> takes argument <var>exportName</var> (a String) and optional argument <var>resolveSet</var> (a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Records</a></emu-xref>) and returns either a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref> or <emu-val>null</emu-val>. It performs the following steps when called:</p>
+
+    <emu-alg><ol><li>Return <emu-const>unused</emu-const>.</li></ol></emu-alg>
+  </emu-clause>
+
+  <emu-clause id="sec-smr-ResolveExport" type="concrete method">
+    <h1><span class="secnum">1.2</span> ResolveExport ( <var>exportName</var> [ , <var>resolveSet</var> ] )</h1>
+    <p>The <emu-xref aoid="ResolveExport" id="_ref_1"><a href="#abstract-resolveexport">ResolveExport</a></emu-xref> concrete method of a Synthetic <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref> <var>foo</var> takes argument <var>exportName</var> (a String) and optional argument <var>resolveSet</var> (a <emu-xref href="#sec-list-and-record-specification-type"><a href="https://tc39.es/ecma262/#sec-list-and-record-specification-type">List</a></emu-xref> of <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Records</a></emu-xref>) and returns either a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref> or <emu-val>null</emu-val>. It performs the following steps when called:</p>
+
+    <emu-alg><ol><li>Do something.</li><li>Return <emu-const>unused</emu-const>.</li></ol></emu-alg>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-UseIt" type="abstract operation" aoid="UseIt">
+  <h1><span class="secnum">2</span> UseIt ( <var>module</var> )</h1>
+  <p>The abstract operation UseIt takes argument <var>module</var> (a <emu-xref href="#sec-abstract-module-records"><a href="https://tc39.es/ecma262/#sec-abstract-module-records">Module Record</a></emu-xref>) and returns <emu-const>unused</emu-const>. It performs the following steps when called:</p>
+
+  <emu-alg><ol><li>Let <var>result</var> be <var>module</var>.<emu-xref aoid="ResolveExport" id="_ref_2"><a href="#abstract-resolveexport">ResolveExport</a></emu-xref>(<emu-val>"example"</emu-val>).</li><li>Perform <var>module</var>.<emu-xref aoid="NewName" id="_ref_3"><a href="#abstract-newname">NewName</a></emu-xref>().</li><li>Perform <var>module</var>.<emu-xref aoid="AddedMethod" id="_ref_4"><a href="#abstract-addedmethod">AddedMethod</a></emu-xref>().</li><li>Return <emu-const>unused</emu-const>.</li></ol></emu-alg>
+</emu-clause>
+</div></body>

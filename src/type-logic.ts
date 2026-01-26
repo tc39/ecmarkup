@@ -17,6 +17,8 @@ export type Type =
   | { kind: 'positive integer' }
   | { kind: 'concrete real'; value: string }
   | { kind: 'ES value' }
+  | { kind: 'object' }
+  | { kind: 'function' }
   | { kind: 'string' }
   | { kind: 'number' }
   | { kind: 'integral number' }
@@ -42,6 +44,8 @@ const simpleKinds = new Set<Type['kind']>([
   'positive integer',
   'ES value',
   'string',
+  'object',
+  'function',
   'number',
   'integral number',
   'bigint',
@@ -64,6 +68,8 @@ const dominateGraph: Partial<Record<Type['kind'], Type['kind'][]>> = {
   'non-negative integer': ['positive integer'],
   'ES value': [
     'string',
+    'object',
+    'function',
     'number',
     'integral number',
     'bigint',
@@ -312,6 +318,12 @@ export function serialize(type: Type): string {
     case 'string': {
       return 'String';
     }
+    case 'object': {
+      return 'Object';
+    }
+    case 'function': {
+      return 'Function';
+    }
     case 'number': {
       return 'Number';
     }
@@ -536,6 +548,12 @@ export function typeFromExprType(type: BiblioType): Type {
       if (text === '*NaN*') {
         return { kind: 'concrete number', value: 0 / 0 };
       }
+      if (text === '*true*') {
+        return { kind: 'concrete boolean', value: true };
+      }
+      if (text === '*false*') {
+        return { kind: 'concrete boolean', value: false };
+      }
       if (text.startsWith('*') && text.endsWith('*<sub>ℤ</sub>')) {
         return { kind: 'concrete bigint', value: BigInt(text.slice(1, -14)) };
       }
@@ -544,6 +562,12 @@ export function typeFromExprType(type: BiblioType): Type {
       }
       if (text === 'a String' || text === 'Strings') {
         return { kind: 'string' };
+      }
+      if (text === 'an Object' || text === 'Objects') {
+        return { kind: 'object' };
+      }
+      if (text === 'a function' || text === 'functions') {
+        return { kind: 'function' };
       }
       if (text === 'a Number' || text === 'Numbers') {
         return { kind: 'number' };

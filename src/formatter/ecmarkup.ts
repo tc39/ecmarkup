@@ -6,7 +6,7 @@ import { LineBuilder } from './line-builder';
 import { printText } from './text';
 import { printAlgorithm, printFragments } from './ecmarkdown';
 import { printGrammar } from './grammarkdown';
-import { parseH1 } from '../header-parser';
+import { parseHeader } from '../header-parser';
 import { printHeader } from './header';
 
 // prettier-ignore
@@ -283,7 +283,7 @@ export async function printElement(
       )
     ) {
       const h1 = childNodes[maybeH1Index] as Element;
-      const parseResult = parseH1(rawContent(src, h1));
+      const parseResult = parseHeader(rawContent(src, h1));
       if (parseResult.type !== 'failure' && parseResult.errors.length === 0) {
         const type = node.attrs.find(a => a.name === 'type')?.value ?? null;
         const printedHeader = printHeader(parseResult, type, indent + 2);
@@ -330,6 +330,31 @@ export async function printElement(
       }
       return [c];
     });
+  }
+
+  if (
+    node.tagName === 'td' &&
+    node.parentNode.nodeName === 'tr' &&
+    (node.parentNode.parentNode as Element)?.parentNode.nodeName === 'table' &&
+    ((node.parentNode.parentNode as Element).parentNode as Element)?.parentNode.nodeName ===
+      'emu-table' &&
+    (
+      ((node.parentNode.parentNode as Element).parentNode as Element).parentNode as Element
+    ).attrs.some(a => a.name === 'type' && a.value === 'abstract methods') &&
+    node.parentNode.childNodes.filter(n => n.nodeName !== '#text')[0] === node
+  ) {
+    const parseResult = parseHeader(rawContent(src, node));
+    if (parseResult.type !== 'failure' && parseResult.errors.length === 0) {
+      const printedHeader = printHeader(parseResult, 'abstract methods', indent + 1);
+      if (output.last !== '') {
+        output.linebreak();
+      }
+      output.appendText(printStartTag(node));
+      output.append(printedHeader);
+      output.appendText(`</td>`);
+      output.linebreak();
+      return output;
+    }
   }
 
   if (block) {

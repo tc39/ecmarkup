@@ -607,6 +607,182 @@ markEffects: true
       </table>
     </emu-table>
   </aside>
+
+  <emu-clause id="abstract-methods">
+    <h1>Abstract Methods</h1>
+    <p>A special form of `&lt;emu-table>` is available for defining a set of abstract methods on a type. Note that abstract method names must be globally unique (not just unique within a type).</p>
+
+    <p>The first two columns are assumed to be the method signature and the method description respectively.</p>
+
+    <h2>Attributes</h2>
+    <p><b>type:</b> Must be present with the value "abstract methods".</p>
+    <p><b>of:</b> Must be present; the value is the name of the type for which this table defines the methods.</p>
+    <p><b>caption:</b> Optional: If not present, will be generated based on the type name</p>
+
+    <h2>Example</h2>
+    <pre><code class="language-html">
+      &lt;emu-table type="abstract methods" of="Module Record" id="table-abstract-methods-of-module-records">
+        &lt;table>
+          &lt;thead>
+            &lt;tr>
+              &lt;th>Method&lt;/th>
+              &lt;th>Description&lt;/th>
+              &lt;th>Definitions&lt;/th>
+            &lt;/tr>
+          &lt;/thead>
+          &lt;tr>
+            &lt;td>
+              ResolveExport (
+                _exportName_: a String,
+                &lt;ins>_resolveSet_: a List of Module Records,&lt;/ins>
+              ): either a Module Record or *null*
+            &lt;/td>
+            &lt;td>It does something when called.&lt;/td>
+            &lt;td>
+              It is defined in the following places:
+              &lt;emu-concrete-method-dfns for="ResolveExport">&lt;/emu-concrete-method-dfns>
+            &lt;/td>
+          &lt;/tr>
+        &lt;/table>
+      &lt;/emu-table>
+
+      &lt;emu-clause id="definitions">
+        &lt;h1>Concrete Methods Definitions&lt;/h1>
+
+        &lt;emu-clause id="sec-impl-ResolveExport" type="concrete method">
+          &lt;h1>ResolveExport (
+            _module_: a Module Record
+          ): ~unused~&lt;/h1>
+          &lt;dl class="header">
+            &lt;dt>for&lt;/dt>
+            &lt;dd>a Source Text Module Record _foo_&lt;/dd>
+          &lt;/dl>
+
+          &lt;emu-alg>
+            1. Return ~unused~.
+          &lt;/emu-alg>
+        &lt;/emu-clause>
+
+        &lt;emu-clause id="sec-smr-ResolveExport" type="concrete method">
+          &lt;h1>ResolveExport (
+            _module_: a Module Record
+          ): ~unused~&lt;/h1>
+          &lt;dl class="header">
+            &lt;dt>for&lt;/dt>
+            &lt;dd>a Synthetic Module Record _foo_&lt;/dd>
+          &lt;/dl>
+
+          &lt;emu-alg>
+            1. Do something.
+            1. Return ~unused~.
+          &lt;/emu-alg>
+        &lt;/emu-clause>
+      &lt;/emu-clause>
+
+      &lt;emu-clause id="sec-UseIt" type="abstract operation">
+        &lt;h1>UseIt(
+          _module_: a Module Record
+        ): ~unused~&lt;/h1>
+        &lt;dl class="header">&lt;/dl>
+
+        &lt;emu-alg>
+          1. Let _result_ be _module_.ResolveExport(*"example"*).
+          1. Perform _module_.NewName().
+          1. Perform _module_.AddedMethod().
+          1. Return ~unused~.
+        &lt;/emu-alg>
+      &lt;/emu-clause>
+    </code></pre>
+
+    <h3>Result</h3>
+    <aside class="result">
+      <emu-table type="abstract methods" of="Module Record" id="table-abstract-methods-of-module-records">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Description</th>
+              <th>Definitions</th>
+            </tr>
+          </thead>
+          <tr>
+            <td>
+              ResolveExport (
+                _exportName_: a String,
+                <ins>_resolveSet_: a List of Module Records,</ins>
+              ): either a Module Record or *null*
+            </td>
+            <td>It does something when called.</td>
+            <td>
+              It is defined in the following places:
+              <emu-concrete-method-dfns for="ResolveExport"></emu-concrete-method-dfns>
+            </td>
+          </tr>
+        </table>
+      </emu-table>
+
+      <emu-clause id="concrete-method-definitions">
+        <h1>Concrete Methods Definitions</h1>
+
+        <emu-clause id="sec-impl-ResolveExport" type="concrete method">
+          <h1>
+            ResolveExport (
+              _module_: a Module Record,
+            ): ~unused~
+          </h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a Source Text Module Record _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+
+        <emu-clause id="sec-smr-ResolveExport" type="concrete method">
+          <h1>
+            ResolveExport (
+              _module_: a Module Record,
+            ): ~unused~
+          </h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a Synthetic Module Record _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Do something.
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      </emu-clause>
+
+      <emu-clause id="sec-UseIt" type="abstract operation">
+        <h1>
+          UseIt (
+            _module_: a Module Record,
+          ): ~unused~
+        </h1>
+        <dl class="header"></dl>
+
+        <emu-alg>
+          1. Let _result_ be _module_.ResolveExport(*"example"*).
+          1. Perform _module_.NewName().
+          1. Perform _module_.AddedMethod().
+          1. Return ~unused~.
+        </emu-alg>
+      </emu-clause>
+    </aside>
+
+    <emu-clause id="emu-concrete-method-dfns">
+      <h1>emu-concrete-method-dfns</h1>
+      <p>Expands to a bulleted list of the places within this specification and any imported biblios that provide concrete definitions for this abstract method. See above for usage example.</p>
+
+      <h2>Attributes</h2>
+      <p><b>for:</b> The method name.</p>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="emu-example">

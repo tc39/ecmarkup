@@ -952,6 +952,22 @@ describe('signature agreement', async () => {
         <h1>SDOTakesOneOrTwoArgs ( _x_, [_y_] )</h1>
         <dl class="header"></dl>
       </emu-clause>
+
+      <emu-clause id="abstract-methods">
+        <h1>Abstract Methods</h1>
+        <emu-table type="abstract methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                SomeMethod (
+                  _x_: a String
+                ) : a String
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
     `);
   });
 
@@ -1058,6 +1074,25 @@ describe('signature agreement', async () => {
     );
   });
 
+  it('extra args for abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return ${M}_obj_.SomeMethod(*"a"*, *"b"*).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SomeMethod takes 1 argument, but this invocation passes 2',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
   it('too few args', async () => {
     await assertLint(
       positioned`
@@ -1121,6 +1156,44 @@ describe('signature agreement', async () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'SDOTakesOneOrTwoArgs takes 1-2 arguments, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('too few args for abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return ${M}_obj_.SomeMethod().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SomeMethod takes 1 argument, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('argument of the wrong type for abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return _obj_.SomeMethod(${M}~foo~).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'argument (~foo~) does not look plausibly assignable to parameter type (String)',
       },
       {
         extraBiblios: [biblio],
@@ -1208,6 +1281,20 @@ describe('invocation kind', async () => {
         <h1>SDO ()</h1>
         <dl class="header"></dl>
       </emu-clause>
+
+      <emu-clause id="abstract-methods">
+        <h1>Abstract Methods</h1>
+        <emu-table type="abstract methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                SomeMethod ( ) : a string
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
     `);
   });
 
@@ -1241,6 +1328,81 @@ describe('invocation kind', async () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'AO is not a syntax-directed operation but here is being invoked as one',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('abstract method invoked as SDO', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return ${M}SomeMethod of _obj_.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SomeMethod is not a syntax-directed operation but here is being invoked as one',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('abstract method invoked as AO', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}SomeMethod().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SomeMethod is a method but here it is missing a record to call it on',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('AO invoked as abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _foo_ be Something.
+          1. Return ${M}_foo_.AO().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'AO is not a method but here it is being called as one',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('SDO invoked as abstract method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _foo_ be Something.
+          1. Return ${M}_foo_.SDO().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'SDO is a syntax-directed operation and should not be invoked like a regular call',
       },
       {
         extraBiblios: [biblio],
@@ -2044,6 +2206,192 @@ describe('special cases', () => {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
         message: 'expected Completion to be passed exactly one argument',
+      },
+    );
+  });
+});
+
+describe('concrete method vs abstract method agreement', () => {
+  let biblio;
+  before(async () => {
+    biblio = await getBiblio(`
+      <emu-clause id="abstract-methods">
+        <h1>Abstract Methods</h1>
+        <emu-table type="abstract methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                SomeMethod (
+                  _foo_: a String
+                ): either a normal completion containing a String or a throw completion
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+    `);
+  });
+
+  it('signature length mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-concrete-somemethod" type="concrete method">
+          ${M}<h1>SomeMethod (
+            _foo_: a String,
+            _bar_: a String,
+          ): either a normal completion containing a String or a throw completion</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message:
+          'signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: base signature has 1 parameters but derived signature has 2 parameters',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('signature type mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-concrete-somemethod" type="concrete method">
+          ${M}<h1>SomeMethod (
+            _foo_: a Number,
+          ): either a normal completion containing a String or a throw completion</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message:
+          "signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: the 1st parameter's type differs in the base signature (String) vs in the derived signature (Number)",
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('parameter name mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-concrete-somemethod" type="concrete method">
+          ${M}<h1>SomeMethod (
+            _bar_: a String,
+          ): either a normal completion containing a String or a throw completion</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message:
+          'signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: base signature calls the 1st parameter _foo_ but derived signature calls it _bar_',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('return type mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-concrete-somemethod" type="concrete method">
+          ${M}<h1>SomeMethod (
+            _foo_: a String,
+          ): a String</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'concrete-method-base',
+        nodeType: 'h1',
+        message:
+          'signature for concrete method SomeMethod differs from the signature for the corresponding abstract method: the return type in the base signature (a normal completion containing String or an abrupt completion) is not a generalization of the return type in the derived signature (String)',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('negative: identical types', async () => {
+    await assertLintFree(
+      `
+      <emu-clause id="sec-concrete-somemethod" type="concrete method">
+        <h1>SomeMethod (
+          _foo_: a String,
+        ): either a normal completion containing a String or a throw completion</h1>
+        <dl class="header">
+          <dt>for</dt>
+          <dd>a sample _foo_</dd>
+        </dl>
+
+        <emu-alg>
+          1. Return ~unused~.
+        </emu-alg>
+      </emu-clause>
+    `,
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('negative: return type is refinement', async () => {
+    await assertLintFree(
+      `
+      <emu-clause id="sec-concrete-somemethod" type="concrete method">
+        <h1>SomeMethod (
+          _foo_: a String,
+        ): a normal completion containing a String</h1>
+        <dl class="header">
+          <dt>for</dt>
+          <dd>a sample _foo_</dd>
+        </dl>
+
+        <emu-alg>
+          1. Return ~unused~.
+        </emu-alg>
+      </emu-clause>
+    `,
+      {
+        extraBiblios: [biblio],
       },
     );
   });
