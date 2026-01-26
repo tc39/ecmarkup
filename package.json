@@ -1,6 +1,6 @@
 {
 	"name": "ecmarkup",
-	"version": "23.0.0",
+	"version": "23.0.1",
 	"description": "Custom element definitions and core utilities for markup that specifies ECMAScript and related technologies.",
 	"main": "lib/ecmarkup.js",
 	"typings": "lib/ecmarkup.d.ts",
