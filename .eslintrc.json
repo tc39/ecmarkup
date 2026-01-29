@@ -12,14 +12,41 @@
     "node": true,
     "es6": true
   },
-  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "sourceType": "script",
+    "sourceType": "module",
     "ecmaVersion": 2020
   },
   "overrides": [
     {
+      "files": ["*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "extends": [
+        "plugin:@typescript-eslint/eslint-recommended"
+      ],
+      "parserOptions": {
+        "//": "NB project is relative to the directory you run eslint from, see https://github.com/typescript-eslint/typescript-eslint/tree/main/packages/parser#parseroptionsproject",
+        "project": "./tsconfig.json"
+      },
+      "rules": {
+        "@typescript-eslint/consistent-type-imports": "error",
+        "@typescript-eslint/no-use-before-define": [
+          "error",
+          {
+            "functions": false,
+            "typedefs": false
+          }
+        ],
+        "@typescript-eslint/no-unnecessary-type-assertion": "error",
+        "@typescript-eslint/no-unused-vars": "error",
+        "@typescript-eslint/no-explicit-any": "error",
+        "no-unused-vars": "off"
+      }
+    },
+    {
       "files": ["js/**/*"],
+      "parserOptions": {
+        "sourceType": "script"
+      },
       "env": {
         "node": false,
         "browser": true,
@@ -45,13 +72,12 @@
     },
     {
       "files": ["test/**/*"],
-      "env": {
-        "mocha": true
+      "parserOptions": {
+        "project": "./test/tsconfig.json"
       }
     }
   ],
   "rules": {
-    "@typescript-eslint/consistent-type-imports": "error",
     "prettier/prettier": "error",
     "arrow-body-style": "error",
     "prefer-arrow-callback": "error",

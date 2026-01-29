@@ -73,8 +73,8 @@ export function collectAlgorithmDiagnostics(
     let tree;
     try {
       tree = parseAlgorithm(algorithmSource);
-    } catch (e: any) {
-      warnEmdFailure(report, element, e);
+    } catch (e) {
+      warnEmdFailure(report, element, e as SyntaxError & { line?: number; column?: number });
     }
     const parsedSteps: Map<OrderedListItemNode, Seq> = new Map();
     let allNodesParsedSuccessfully = true;

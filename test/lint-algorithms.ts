@@ -1,5 +1,5 @@
 import { describe, it } from 'node:test';
-import { assertLint, assertLintFree, lintLocationMarker as M, positioned } from './utils.js';
+import { assertLint, assertLintFree, lintLocationMarker as M, positioned } from './utils.ts';
 
 const nodeType = 'emu-alg';
 

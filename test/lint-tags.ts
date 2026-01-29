@@ -1,5 +1,5 @@
 import { describe, it } from 'node:test';
-import { assertLint, assertLintFree, positioned, lintLocationMarker as M } from './utils.js';
+import { assertLint, assertLintFree, positioned, lintLocationMarker as M } from './utils.ts';
 
 describe('tags', () => {
   it('unknown "emu-" tags', async () => {

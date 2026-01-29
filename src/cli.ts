@@ -186,7 +186,7 @@ const build = debounce(async function build() {
       utils.logVerbose(warned ? 'Completed with errors.' : 'Done.');
     }
 
-    const pending: Promise<any>[] = [];
+    const pending: Promise<void>[] = [];
     if (args['write-biblio']) {
       if (args.verbose) {
         utils.logVerbose('Writing biblio file to ' + args['write-biblio']);
@@ -281,9 +281,9 @@ const build = debounce(async function build() {
         }
       }
     }
-  } catch (e: any) {
+  } catch (e) {
     if (args.watch) {
-      process.stderr.write(e.stack);
+      process.stderr.write(e instanceof Error ? e.stack ?? e.message : String(e));
     } else {
       throw e;
     }

@@ -3,6 +3,8 @@ import { describe, it } from 'node:test';
 import fs from 'fs';
 import path from 'path';
 
+import type { EcmarkupError, Options } from '../lib/ecmarkup.js';
+import type { ExportedBiblio } from '../lib/Biblio.js';
 import * as emu from '../lib/ecmarkup.js';
 
 import ecma262biblio from './ecma262biblio.json' with { type: 'json' };
@@ -15,7 +17,7 @@ const files = fs
   .readdirSync(SOURCES_DIR)
   .filter(f => f.endsWith('.html') && !f.endsWith('.bad.html'));
 
-function build(file, options) {
+function build(file: string, options: Options) {
   return emu.build(
     file,
     file =>
@@ -23,28 +25,28 @@ function build(file, options) {
         fs.readFile(file, 'utf-8', (err, data) => (err ? reject(err) : resolve(data))),
       ),
     {
-      extraBiblios: [ecma262biblio],
+      extraBiblios: [ecma262biblio as ExportedBiblio],
       ...options,
     },
   );
 }
 
 describe('baselines', () => {
-  let rebaseline = !!process.env.npm_config_update_baselines;
-  let dirToWriteOnFailure = rebaseline ? REFERENCE_DIR : LOCAL_DIR;
-  let optionsSets = [{ lintSpec: false }];
-  for (let file of files) {
+  const rebaseline = !!process.env.npm_config_update_baselines;
+  const dirToWriteOnFailure = rebaseline ? REFERENCE_DIR : LOCAL_DIR;
+  const optionsSets = [{ lintSpec: false }];
+  for (const file of files) {
     const reference = REFERENCE_DIR + file;
     const sourcePath = SOURCES_DIR + file;
     it(sourcePath, async () => {
-      let expectedFiles = new Map();
+      const expectedFiles = new Map();
 
       (function walk(f) {
         if (!fs.existsSync(f)) {
           return;
         }
         if (fs.lstatSync(f).isDirectory()) {
-          for (let file of fs.readdirSync(f)) {
+          for (const file of fs.readdirSync(f)) {
             walk(path.join(f, file));
           }
         } else {
@@ -52,9 +54,9 @@ describe('baselines', () => {
         }
       })(reference);
 
-      let spec = await build(sourcePath, {});
+      const spec = await build(sourcePath, {});
 
-      let actualFiles = handleSingleFileOutput(spec.generatedFiles);
+      const actualFiles = handleSingleFileOutput(spec.generatedFiles);
 
       let threw = true;
       try {
@@ -65,8 +67,8 @@ describe('baselines', () => {
         threw = false;
       } finally {
         if (threw) {
-          for (let [fileToWrite, contents] of actualFiles) {
-            let toWrite = path.resolve(dirToWriteOnFailure, path.join(file, fileToWrite));
+          for (const [fileToWrite, contents] of actualFiles) {
+            const toWrite = path.resolve(dirToWriteOnFailure, path.join(file, fileToWrite ?? ''));
             fs.mkdirSync(path.dirname(toWrite), { recursive: true });
             fs.writeFileSync(toWrite, contents, 'utf8');
           }
@@ -83,28 +85,28 @@ describe('baselines', () => {
         return;
       }
 
-      let contents = fs.readFileSync(sourcePath, 'utf8');
-      let expectedWarnings = [...contents.matchAll(/<!--\s+EXPECT_WARNING(.*?)-->/g)].map(m =>
+      const contents = fs.readFileSync(sourcePath, 'utf8');
+      const expectedWarnings = [...contents.matchAll(/<!--\s+EXPECT_WARNING(.*?)-->/g)].map(m =>
         JSON.parse(m[1]),
       );
-      let warningProps = new Set(expectedWarnings.flatMap(obj => Object.keys(obj)));
-      function pickFromWarning(warning) {
+      const warningProps = new Set(expectedWarnings.flatMap(obj => Object.keys(obj)));
+      function pickFromWarning(warning: EcmarkupError) {
         if (warningProps.size === 0) {
           // No warnings are expected, so "pick" the entire object.
           return warning;
         }
-        let picks = {};
-        for (let [key, value] of Object.entries(warning)) {
+        const picks: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(warning)) {
           if (warningProps.has(key)) picks[key] = value;
         }
         return picks;
       }
 
-      for (let options of optionsSets) {
-        let warnings = [];
-        let warn = warning => warnings.push(warning);
-        let spec = await build(sourcePath, { ...options, warn });
-        let actualFiles = handleSingleFileOutput(spec.generatedFiles);
+      for (const options of optionsSets) {
+        const warnings: EcmarkupError[] = [];
+        const warn = (warning: EcmarkupError) => warnings.push(warning);
+        const spec = await build(sourcePath, { ...options, warn });
+        const actualFiles = handleSingleFileOutput(spec.generatedFiles);
         assert.deepStrictEqual(
           actualFiles,
           expectedFiles,
@@ -120,10 +122,10 @@ describe('baselines', () => {
   }
 });
 
-function handleSingleFileOutput(files) {
+function handleSingleFileOutput(files: Map<string | null, string | Buffer>) {
   if (files.size === 1 && files.has(null)) {
     // i.e. single-file output
-    files.set('', files.get(null));
+    files.set('', files.get(null)!);
     files.delete(null);
   }
   return files;

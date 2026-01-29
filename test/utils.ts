@@ -1,36 +1,56 @@
 import assert from 'assert';
+import type { EcmarkupError, Options } from '../lib/ecmarkup.js';
 import * as emu from '../lib/ecmarkup.js';
+import type { ExportedBiblio } from '../lib/Biblio.js';
 
-let lintLocationMarker = {};
+type Position = { offset: number; line: number; column: number };
+type PositionedResult = Position & { html: string };
+type MultiPositionedResult = { positions: Position[]; html: string };
+type ErrorDescriptor = {
+  ruleId: string;
+  nodeType: string;
+  message: string;
+  line?: number;
+  column?: number;
+};
+type PositionedInput = string | PositionedResult | MultiPositionedResult;
 
-function positioned(literalParts, ...interpolatedParts) {
-  let markerIndex = interpolatedParts.indexOf(lintLocationMarker);
+const lintLocationMarker = {};
+
+function positioned(
+  literalParts: TemplateStringsArray,
+  ...interpolatedParts: unknown[]
+): PositionedResult {
+  const markerIndex = interpolatedParts.indexOf(lintLocationMarker);
   if (markerIndex < 0 || markerIndex !== interpolatedParts.lastIndexOf(lintLocationMarker)) {
     throw new Error('positioned template tag must interpolate the location marker exactly once');
   }
-  let multi = multipositioned(literalParts, ...interpolatedParts);
+  const multi = multipositioned(literalParts, ...interpolatedParts);
   return { ...multi.positions[0], html: multi.html };
 }
 
-function multipositioned(literalParts, ...interpolatedParts) {
-  let markerIndexes = interpolatedParts
+function multipositioned(
+  literalParts: TemplateStringsArray,
+  ...interpolatedParts: unknown[]
+): MultiPositionedResult {
+  const markerIndexes = interpolatedParts
     .map((value, index) => ({ value, index }))
     .filter(({ value }) => value === lintLocationMarker)
     .map(({ index }) => index);
-  if (markerIndexes === 0) {
+  if (markerIndexes.length === 0) {
     throw new Error(
       'multipositioned template tag must interpolate the location marker at least once',
     );
   }
-  let positions = [];
+  const positions = [];
 
   let str = literalParts[0];
   for (let i = 0; i < literalParts.length - 1; ++i) {
     if (markerIndexes.includes(i)) {
-      let offset = str.length;
-      let lines = str.split('\n');
-      let line = lines.length;
-      let column = lines[lines.length - 1].length + 1;
+      const offset = str.length;
+      const lines = str.split('\n');
+      const line = lines.length;
+      const column = lines[lines.length - 1].length + 1;
       positions.push({ offset, line, column });
     } else {
       str += String(interpolatedParts[i]);
@@ -40,13 +60,19 @@ function multipositioned(literalParts, ...interpolatedParts) {
   return { positions, html: str };
 }
 
-async function assertError(obj, errorOrErrors, opts) {
-  let html;
+async function assertError(
+  obj: PositionedInput,
+  errorOrErrors: ErrorDescriptor | ErrorDescriptor[],
+  opts: Options & { asImport?: boolean | 'only' } = {},
+) {
+  let html: string;
+  let errors: ErrorDescriptor[];
   if (Array.isArray(errorOrErrors)) {
     if (typeof obj === 'string') {
       html = obj;
+      errors = errorOrErrors;
       // no line and column for any error
-    } else if (!obj.positions) {
+    } else if (!('positions' in obj)) {
       if (errorOrErrors.length !== 1) {
         throw new Error(
           `your source has positions for 1 error but your assertion passes ${errorOrErrors.length}`,
@@ -54,7 +80,7 @@ async function assertError(obj, errorOrErrors, opts) {
       }
       // kind of weird to pass an array of length 1 here but it might come up when copying tests, no reason to disallow
       ({ html } = obj);
-      errorOrErrors = [{ ...errorOrErrors[0], line: obj.line, column: obj.column }];
+      errors = [{ ...errorOrErrors[0], line: obj.line, column: obj.column }];
     } else {
       if (errorOrErrors.length !== obj.positions.length) {
         throw new Error(
@@ -62,13 +88,13 @@ async function assertError(obj, errorOrErrors, opts) {
         );
       }
       ({ html } = obj);
-      errorOrErrors = errorOrErrors.map((e, i) => ({ ...e, ...obj.positions[i] }));
+      errors = errorOrErrors.map((e, i) => ({ ...e, ...obj.positions[i] }));
     }
   } else {
-    let line, column;
+    let line: number | undefined, column: number | undefined;
     if (typeof obj === 'string') {
       html = obj;
-    } else if (obj.positions) {
+    } else if ('positions' in obj) {
       if (obj.positions.length !== 1) {
         throw new Error(
           `your source has positions for ${obj.positions.length} errors but your assertion only passes 1`,
@@ -80,11 +106,11 @@ async function assertError(obj, errorOrErrors, opts) {
     } else {
       ({ line, column, html } = obj);
     }
-    errorOrErrors = [{ ...errorOrErrors, line, column }];
+    errors = [{ ...errorOrErrors, line, column }];
   }
-  let warnings = [];
+  let warnings: EcmarkupError[] = [];
 
-  let rootFile = 'test-example.emu';
+  const rootFile = 'test-example.emu';
   if (opts?.asImport !== 'only') {
     await emu.build(rootFile, async () => html, {
       copyright: false,
@@ -104,7 +130,7 @@ async function assertError(obj, errorOrErrors, opts) {
 
     assert.deepStrictEqual(
       warnings,
-      errorOrErrors.map(({ ruleId, nodeType, line, column, message }) => ({
+      errors.map(({ ruleId, nodeType, line, column, message }) => ({
         ruleId,
         nodeType,
         line,
@@ -123,8 +149,8 @@ async function assertError(obj, errorOrErrors, opts) {
   // because location information is complicated in imports, do it again in an emu-import
   warnings = [];
 
-  let importWrapper = `<emu-import href="./import.emu"></emu-import>`;
-  let fetch = name => (name === rootFile ? importWrapper : html);
+  const importWrapper = `<emu-import href="./import.emu"></emu-import>`;
+  const fetch = async (name: string) => (name === rootFile ? importWrapper : html);
   await emu.build(rootFile, fetch, {
     copyright: false,
     assets: 'none',
@@ -143,7 +169,7 @@ async function assertError(obj, errorOrErrors, opts) {
 
   assert.deepStrictEqual(
     warnings,
-    errorOrErrors.map(({ ruleId, nodeType, line, column, message }) => ({
+    errors.map(({ ruleId, nodeType, line, column, message }) => ({
       ruleId,
       nodeType,
       line,
@@ -156,13 +182,13 @@ async function assertError(obj, errorOrErrors, opts) {
   );
 }
 
-async function assertErrorFree(html, opts) {
+async function assertErrorFree(html: string, opts: Options = {}) {
   if (typeof html !== 'string') {
     throw new Error(
       "assertErrorFree expects a string; did you forget to remove the 'positioned' tag?",
     );
   }
-  let warnings = [];
+  const warnings: EcmarkupError[] = [];
 
   await emu.build('test-example.emu', async () => html, {
     copyright: false,
@@ -174,20 +200,24 @@ async function assertErrorFree(html, opts) {
   assert.deepStrictEqual(warnings, []);
 }
 
-async function assertLint(a, b, opts = {}) {
+async function assertLint(
+  a: PositionedInput,
+  b: ErrorDescriptor | ErrorDescriptor[],
+  opts: Options = {},
+) {
   await assertError(a, b, { lintSpec: true, ...opts });
 }
 
-async function assertLintFree(html, opts = {}) {
+async function assertLintFree(html: string, opts: Options = {}) {
   await assertErrorFree(html, { lintSpec: true, ...opts });
 }
 
-async function getBiblio(html) {
-  let upstream = await emu.build('root.html', () => html, {
+async function getBiblio(html: string): Promise<ExportedBiblio> {
+  const upstream = await emu.build('root.html', async () => html, {
     assets: 'none',
     location: 'https://example.com/spec/',
   });
-  return upstream.exportBiblio();
+  return upstream.exportBiblio()!;
 }
 
 export {

@@ -1,5 +1,5 @@
 import { describe, it } from 'node:test';
-import { assertError, positioned, lintLocationMarker as M } from './utils.js';
+import { assertError, positioned, lintLocationMarker as M } from './utils.ts';
 import { TypeParser } from '../lib/type-parser.js';
 import assert from 'assert';
 

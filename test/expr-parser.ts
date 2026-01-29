@@ -5,10 +5,11 @@ import {
   lintLocationMarker as M,
   assertLintFree,
   getBiblio,
-} from './utils.js';
+} from './utils.ts';
 import { parse as parseExpr } from '../lib/expr-parser.js';
 import assert from 'assert';
 import { parseFragment } from 'ecmarkdown';
+import type { ExportedBiblio } from '../lib/Biblio.js';
 
 describe('expression parsing', () => {
   describe('valid', () => {
@@ -296,7 +297,7 @@ describe('expression parsing', () => {
   });
 
   describe('handling of <del>', () => {
-    let biblio;
+    let biblio: ExportedBiblio;
     before(async () => {
       biblio = await getBiblio(`
         <emu-clause id="del-complex" type="abstract operation">
@@ -353,12 +354,12 @@ describe('expression parsing', () => {
   });
 
   describe('parse trees', () => {
-    function parse(src, sdoNames = new Set()) {
-      let tree = parseExpr(parseFragment(src), sdoNames);
+    function parse(src: string, sdoNames: Set<string> = new Set()) {
+      const tree = parseExpr(parseFragment(src), sdoNames);
       return JSON.parse(JSON.stringify(tree, (k, v) => (k === 'location' ? undefined : v)));
     }
     it('is able to handle `a.[[b]` nodes in SDO calls', async () => {
-      let tree = parse('Perform SDO of _A_.[[B]] with argument _c_.[[D]].', new Set(['SDO']));
+      const tree = parse('Perform SDO of _A_.[[B]] with argument _c_.[[D]].', new Set(['SDO']));
       assert.deepStrictEqual(tree, {
         name: 'seq',
         items: [

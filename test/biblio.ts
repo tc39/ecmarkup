@@ -2,21 +2,36 @@ import assert from 'assert';
 import { describe, it, beforeEach } from 'node:test';
 import { JSDOM } from 'jsdom';
 import BiblioModule from '../lib/Biblio.js';
+import type { AlgorithmBiblioEntry, TermBiblioEntry } from '../lib/Biblio.js';
 import { build } from '../lib/ecmarkup.js';
 
 const Biblio = BiblioModule.default;
 const location = 'https://tc39.github.io/ecma262/';
 
+// Interface for testing Biblio internals
+interface TestOpEntry {
+  type: 'op';
+  aoid: string;
+  refId: string;
+}
+
+interface TestBiblio {
+  add(entry: TestOpEntry, ns?: string | null): void;
+  byAoid(aoid: string, ns?: string): AlgorithmBiblioEntry | undefined;
+  localEntries(): unknown[];
+  getDefinedWords(ns: string): Record<string, AlgorithmBiblioEntry | TermBiblioEntry>;
+}
+
 describe('Biblio', () => {
-  let biblio;
+  let biblio: TestBiblio;
 
   beforeEach(() => {
-    biblio = new Biblio(location);
+    biblio = new Biblio(location) as unknown as TestBiblio;
   });
 
   it('is created with a root namespace named "external"', () => {
     const opEntry = {
-      type: 'op',
+      type: 'op' as const,
       aoid: 'aoid',
       refId: 'clauseId',
     };
@@ -27,7 +42,7 @@ describe('Biblio', () => {
 
   it("is created with a nested namespace for the doc's location", () => {
     const opEntry = {
-      type: 'op',
+      type: 'op' as const,
       aoid: 'aoid',
       refId: 'clauseId',
     };
@@ -39,13 +54,13 @@ describe('Biblio', () => {
 
   it('localEntries includes only the local scope', () => {
     const opEntry1 = {
-      type: 'op',
+      type: 'op' as const,
       aoid: 'aoid1',
       refId: 'clauseId',
     };
 
     const opEntry2 = {
-      type: 'op',
+      type: 'op' as const,
       aoid: 'aoid2',
       refId: 'clauseId',
     };
@@ -61,13 +76,13 @@ describe('Biblio', () => {
 
   it('getDefinedWords de-dupes by key', () => {
     const opEntry1 = {
-      type: 'op',
+      type: 'op' as const,
       aoid: 'aoid',
       refId: 'clauseId',
     };
 
     const opEntry2 = {
-      type: 'op',
+      type: 'op' as const,
       aoid: 'aoid',
       refId: 'clauseId',
     };
@@ -75,14 +90,14 @@ describe('Biblio', () => {
     biblio.add(opEntry1, location);
     biblio.add(opEntry2, 'external');
 
-    let results = biblio.getDefinedWords(location);
+    const results = biblio.getDefinedWords(location);
     assert.equal(results.aoid, opEntry1);
   });
 
   it('can import an exported biblio', async () => {
-    let spec1 = await build(
+    const spec1 = await build(
       'root.html',
-      () => `
+      async () => `
         <emu-clause id="c">
           <h1>Clause C</h1>
           <p>A definition of <dfn variants="examples">example</dfn>.</p>
@@ -98,11 +113,11 @@ describe('Biblio', () => {
         },
       },
     );
-    let spec1Biblio = spec1.exportBiblio();
+    const spec1Biblio = spec1.exportBiblio();
 
-    let spec2 = await build(
+    const spec2 = await build(
       'root.html',
-      () => `
+      async () => `
         <emu-clause id="d">
           <h1>Clause D</h1>
           <p>Terms like example or examples are crosslinked.</p>
@@ -112,7 +127,7 @@ describe('Biblio', () => {
         copyright: false,
         assets: 'none',
         toc: false,
-        extraBiblios: [spec1Biblio],
+        extraBiblios: [spec1Biblio!],
         location: 'https://example.com/spec2/',
         warn: e => {
           console.error('Error:', e);
@@ -120,17 +135,17 @@ describe('Biblio', () => {
         },
       },
     );
-    let renderedSpec2 = new JSDOM(spec2.toHTML()).window;
+    const renderedSpec2 = new JSDOM((spec2 as unknown as { toHTML(): string }).toHTML()).window;
     assert.equal(
-      renderedSpec2.document.querySelector('p').innerHTML,
+      renderedSpec2.document.querySelector('p')!.innerHTML,
       'Terms like <emu-xref href="#c"><a href="https://example.com/spec/#c">example</a></emu-xref> or <emu-xref href="#c"><a href="https://example.com/spec/#c">examples</a></emu-xref> are crosslinked.',
     );
   });
 
   it('propagates effects from exported biblios', async () => {
-    let spec1 = await build(
+    const spec1 = await build(
       'root.html',
-      () => `
+      async () => `
         <emu-clause id="sec-user-code" type="abstract operation">
           <h1>UserCode ( )</h1>
           <dl class="header">
@@ -150,11 +165,11 @@ describe('Biblio', () => {
         },
       },
     );
-    let spec1Biblio = spec1.exportBiblio();
+    const spec1Biblio = spec1.exportBiblio();
 
-    let spec2 = await build(
+    const spec2 = await build(
       'root.html',
-      () => `
+      async () => `
         <emu-clause id="foo" aoid="Foo">
           <h1>Clause D</h1>
           <emu-alg>
@@ -174,7 +189,7 @@ describe('Biblio', () => {
         copyright: false,
         assets: 'none',
         toc: false,
-        extraBiblios: [spec1Biblio],
+        extraBiblios: [spec1Biblio!],
         markEffects: true,
         location: 'https://example.com/spec2/',
         warn: e => {
@@ -183,13 +198,13 @@ describe('Biblio', () => {
         },
       },
     );
-    let renderedSpec2 = new JSDOM(spec2.toHTML()).window;
+    const renderedSpec2 = new JSDOM((spec2 as unknown as { toHTML(): string }).toHTML()).window;
     assert.equal(
-      renderedSpec2.document.querySelector('emu-alg').innerHTML,
+      renderedSpec2.document.querySelector('emu-alg')!.innerHTML,
       '<ol><li><emu-xref aoid="UserCode"><a href="https://example.com/spec/#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol>',
     );
     assert.equal(
-      renderedSpec2.document.querySelector('#calls-foo').innerHTML,
+      renderedSpec2.document.querySelector('#calls-foo')!.innerHTML,
       '<ol><li><emu-xref aoid="Foo" id="_ref_0"><a href="#foo" class="e-user-code">Foo</a></emu-xref>().</li></ol>',
     );
   });

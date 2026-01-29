@@ -733,11 +733,11 @@ describe('entities', () => {
   });
 });
 
-async function assertRoundTrips(src) {
+async function assertRoundTrips(src: string) {
   await assertDocFormatsAs(src, src);
 }
 
-async function assertDocFormatsAs(src, result) {
+async function assertDocFormatsAs(src: string, result: string) {
   const withDoctype = await printDocument(src);
   assert.strictEqual(withDoctype.replace(/^<!DOCTYPE html>\n+/, ''), result);
 
@@ -745,8 +745,8 @@ async function assertDocFormatsAs(src, result) {
   assert.strictEqual(doubleFormatted, withDoctype, 'result changed after formatting again');
 }
 
-function dedentKeepingTrailingNewline(strings, ...exprs) {
-  let lastIsWhitespace = strings[strings.length - 1].match(/\n\s*$/);
+function dedentKeepingTrailingNewline(strings: TemplateStringsArray, ...exprs: unknown[]) {
+  const lastIsWhitespace = strings[strings.length - 1].match(/\n\s*$/);
   let dedented = dedent(strings, ...exprs);
   if (lastIsWhitespace) {
     dedented += '\n';

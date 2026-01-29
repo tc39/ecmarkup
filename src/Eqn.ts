@@ -51,8 +51,8 @@ export default class Eqn extends Builder {
     let contents;
     try {
       contents = emd.fragment(node.innerHTML);
-    } catch (e: any) {
-      utils.warnEmdFailure(spec.warn, node, e);
+    } catch (e) {
+      utils.warnEmdFailure(spec.warn, node, e as SyntaxError & { line?: number; column?: number });
       node.innerHTML = utils.wrapEmdFailure(node.innerHTML);
       return;
     }

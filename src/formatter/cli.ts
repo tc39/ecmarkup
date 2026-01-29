@@ -158,8 +158,8 @@ async function expand(pattern: string) {
 async function stat(path: string) {
   try {
     return await fs.stat(path);
-  } catch (error: any) {
-    if (error.code !== 'ENOENT') {
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
       throw error;
     }
     return null;

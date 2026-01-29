@@ -5,10 +5,11 @@ import {
   positioned,
   lintLocationMarker as M,
   getBiblio,
-} from './utils.js';
+} from './utils.ts';
+import type { ExportedBiblio } from '../lib/Biblio.js';
 
 describe('typechecking completions', () => {
-  let biblio;
+  let biblio: ExportedBiblio;
   before(async () => {
     biblio = await getBiblio(`
       <emu-clause id="sec-normalcompletion" type="abstract operation">
@@ -558,7 +559,7 @@ describe('typechecking completions', () => {
     });
 
     it('negative', async () => {
-      async function assertStepIsConsideredAbrupt(step) {
+      async function assertStepIsConsideredAbrupt(step: string) {
         await assertLintFree(
           `
             <emu-clause id="example" type="abstract operation">
@@ -919,7 +920,7 @@ describe('typechecking completions', () => {
 });
 
 describe('signature agreement', async () => {
-  let biblio;
+  let biblio: ExportedBiblio;
   before(async () => {
     biblio = await getBiblio(`
       <emu-clause id="example" type="abstract operation">
@@ -1201,7 +1202,7 @@ describe('signature agreement', async () => {
   });
 
   it("<del>'d params don't contribute to signature", async () => {
-    let biblio = await getBiblio(`
+    const biblio = await getBiblio(`
       <emu-clause id="del-complex" type="abstract operation">
         <h1>
         DelExample (
@@ -1268,7 +1269,7 @@ describe('signature agreement', async () => {
 });
 
 describe('invocation kind', async () => {
-  let biblio;
+  let biblio: ExportedBiblio;
   before(async () => {
     biblio = await getBiblio(`
       <emu-clause id="example" type="abstract operation">
@@ -1432,7 +1433,7 @@ describe('invocation kind', async () => {
 });
 
 describe('negation', async () => {
-  let biblio;
+  let biblio: ExportedBiblio;
   before(async () => {
     biblio = await getBiblio(`
       <emu-clause id="example" type="abstract operation">
@@ -1507,11 +1508,11 @@ describe('negation', async () => {
 
 describe('type system', () => {
   async function assertTypeError(
-    paramType,
-    arg,
-    messageForParam,
-    messageForReturn,
-    extraBiblios = [],
+    paramType: string,
+    arg: string,
+    messageForParam: string,
+    messageForReturn: string | null,
+    extraBiblios: ExportedBiblio[] = [],
   ) {
     await assertLint(
       positioned`
@@ -1577,7 +1578,11 @@ describe('type system', () => {
     }
   }
 
-  async function assertNoTypeError(paramType, arg, extraBiblios = []) {
+  async function assertNoTypeError(
+    paramType: string,
+    arg: string,
+    extraBiblios: ExportedBiblio[] = [],
+  ) {
     await assertLintFree(
       `
         <emu-clause id="example" type="abstract operation">
@@ -1596,7 +1601,7 @@ describe('type system', () => {
     );
   }
 
-  let completionBiblio;
+  let completionBiblio: ExportedBiblio;
   before(async () => {
     completionBiblio = await getBiblio(`
       <emu-clause id="normal-completion" type="abstract operation">
@@ -1898,7 +1903,7 @@ describe('type system', () => {
   });
 
   it('call', async () => {
-    let biblio = await getBiblio(`
+    const biblio = await getBiblio(`
       <emu-clause id="sec-returns-number" type="abstract operation">
         <h1>
           ReturnsNumber (): a Number
@@ -1942,7 +1947,7 @@ describe('type system', () => {
   });
 
   it('non-strict type overlap', async () => {
-    let biblio = await getBiblio(`
+    const biblio = await getBiblio(`
       <emu-clause id="sec-returns-number" type="abstract operation">
         <h1>
           ReturnsListOfNumberOrString (): a List of either Numbers or Strings
@@ -2211,7 +2216,7 @@ describe('special cases', () => {
 });
 
 describe('concrete method vs abstract method agreement', () => {
-  let biblio;
+  let biblio: ExportedBiblio;
   before(async () => {
     biblio = await getBiblio(`
       <emu-clause id="abstract-methods">

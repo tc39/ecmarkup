@@ -1276,10 +1276,10 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
     const solarizedStyle = this.doc.createElement('style');
     solarizedStyle.textContent = `
       @import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
-        (hljs as any).versionString
+        (hljs as unknown as { versionString: string }).versionString
       }/styles/base16/solarized-light.min.css");
       @import url("https://cdnjs.cloudflare.com/ajax/libs/highlight.js/${
-        (hljs as any).versionString
+        (hljs as unknown as { versionString: string }).versionString
       }/styles/a11y-dark.min.css") (prefers-color-scheme: dark);
     `;
     this.doc.head.appendChild(solarizedStyle);
@@ -1340,18 +1340,20 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
       return;
     }
 
-    let data: any;
+    let data: unknown;
     try {
       data = yaml.safeLoad(block.textContent!);
-    } catch (e: any) {
-      if (typeof e?.mark.line === 'number' && typeof e?.mark.column === 'number') {
+    } catch (e) {
+      const yamlError = e as { mark?: { line?: number; column?: number }; reason?: string };
+      const mark = yamlError?.mark;
+      if (typeof mark?.line === 'number' && typeof mark?.column === 'number') {
         this.warn({
           type: 'contents',
           ruleId: 'invalid-metadata',
-          message: `metadata block failed to parse: ${e.reason}`,
+          message: `metadata block failed to parse: ${yamlError.reason}`,
           node: block,
-          nodeRelativeLine: e.mark.line + 1,
-          nodeRelativeColumn: e.mark.column + 1,
+          nodeRelativeLine: mark.line + 1,
+          nodeRelativeColumn: mark.column + 1,
         });
       } else {
         this.warn({

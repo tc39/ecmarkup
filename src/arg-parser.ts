@@ -30,9 +30,9 @@ export function parse<T extends readonly OptionDefinition[]>(
   try {
     // @ts-ignore the types are wrong about mutability
     args = commandLineArgs(options, { argv });
-  } catch (e: any) {
-    if (e?.name === 'UNKNOWN_OPTION') {
-      fail(`Unknown option ${e.optionName}`);
+  } catch (e) {
+    if (e != null && typeof e === 'object' && 'name' in e && e.name === 'UNKNOWN_OPTION') {
+      fail(`Unknown option ${(e as unknown as { optionName: string }).optionName}`);
     }
     throw e;
   }

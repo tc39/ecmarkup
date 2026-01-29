@@ -1,5 +1,7 @@
 import assert from 'assert';
 import { describe, it } from 'node:test';
+import type { EcmarkupError } from '../lib/ecmarkup.js';
+import type { ExportedBiblio } from '../lib/Biblio.js';
 import * as emu from '../lib/ecmarkup.js';
 
 import {
@@ -9,7 +11,7 @@ import {
   assertError,
   assertErrorFree,
   getBiblio,
-} from './utils.js';
+} from './utils.ts';
 
 describe('errors', () => {
   it('no contributors', async () => {
@@ -439,15 +441,15 @@ ${M}      </pre>
   });
 
   it('error in nested import', async () => {
-    let warnings = [];
+    const warnings: EcmarkupError[] = [];
 
-    let { line, column, html } = positioned`
+    const { line, column, html } = positioned`
       <emu-clause id="example">
         <h1>Title</h1>
         <emu-note type="${M}unknown"></emu-note>
       </emu-clause>
     `;
-    let fetch = name => {
+    const fetch = async (name: string) => {
       switch (name.replace(/\\/g, '/')) {
         case 'foo/index.html': {
           return `<emu-import href="bar/one.html"></emu-import>`;
@@ -473,7 +475,7 @@ ${M}      </pre>
           line: e.line,
           column: e.column,
           message: e.message,
-          file: e.file.replace(/\\/g, '/'),
+          file: e.file!.replace(/\\/g, '/'),
           source: e.source,
         }),
     });
@@ -1060,11 +1062,11 @@ ${M}      </pre>
 
   it('old-style biblio', async () => {
     await assert.rejects(async () => {
-      const fetch = () => '';
+      const fetch = async () => '';
       await emu.build('index.html', fetch, {
         copyright: false,
         assets: 'none',
-        extraBiblios: [{ 'https://tc39.es/ecma262/': [] }],
+        extraBiblios: [{ 'https://tc39.es/ecma262/': [] } as unknown as ExportedBiblio],
       });
     }, /old-style biblio/);
   });
@@ -1180,7 +1182,7 @@ ${M}      </pre>
     });
 
     it('negative: external biblio', async () => {
-      let upstream = await getBiblio(`
+      const upstream = await getBiblio(`
         <emu-grammar type="definition">
           Foo : \`a\`
         </emu-grammar>

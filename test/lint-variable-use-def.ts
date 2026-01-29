@@ -5,7 +5,7 @@ import {
   positioned,
   lintLocationMarker as M,
   getBiblio,
-} from './utils.js';
+} from './utils.ts';
 
 describe('variables are declared and used appropriately', () => {
   describe('variables must be declared', () => {
@@ -580,7 +580,7 @@ describe('variables are declared and used appropriately', () => {
     });
 
     it('loop variables are visible within the loop', async () => {
-      let biblio = await getBiblio(`
+      const biblio = await getBiblio(`
         <emu-grammar type="definition">
           CaseClause : \`a\`
         </emu-grammar>

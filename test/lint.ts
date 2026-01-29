@@ -5,7 +5,7 @@ import {
   positioned,
   lintLocationMarker as M,
   getBiblio,
-} from './utils.js';
+} from './utils.ts';
 
 describe('linting whole program', () => {
   describe('grammar validity', () => {
@@ -89,7 +89,7 @@ describe('linting whole program', () => {
     });
 
     it('negative: nonterminal defined upstream', async () => {
-      let upstream = await getBiblio(`
+      const upstream = await getBiblio(`
         <emu-grammar type="definition">
           Bar: \`a\`
         </emu-grammar>
@@ -251,7 +251,7 @@ describe('linting whole program', () => {
     });
 
     it('negative: productions defined in biblio', async () => {
-      let upstream = await getBiblio(`
+      const upstream = await getBiblio(`
         <emu-grammar type="definition">
           Statement: EmptyStatement
         </emu-grammar>

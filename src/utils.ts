@@ -62,8 +62,8 @@ export function emdTextNode(spec: Spec, node: Text, namespace: string) {
       spec._ntStringRefs = spec._ntStringRefs.concat(nonterminals);
     }
     processed = emd.emit(parts);
-  } catch (e: any) {
-    warnEmdFailure(spec.warn, node, e);
+  } catch (e) {
+    warnEmdFailure(spec.warn, node, e as SyntaxError & { line?: number; column?: number });
     processed = wrapEmdFailure(c);
   }
 

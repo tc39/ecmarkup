@@ -414,7 +414,7 @@ export type BiblioEntry =
   | StepBiblioEntry;
 
 // see https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
-type Unkey<T, S extends string> = T extends any ? Omit<T, S> : never;
+type Unkey<T, S extends string> = T extends unknown ? Omit<T, S> : never;
 
 type NonExportedKeys = 'location' | 'referencingIds' | 'namespace';
 export type PartialBiblioEntry = Unkey<BiblioEntry, NonExportedKeys>;

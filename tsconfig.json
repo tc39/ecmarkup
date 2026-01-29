@@ -5,6 +5,7 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "strict": true,
+        "noImplicitAny": true,
         "declaration": true,
         "stripInternal": true,
         "outDir": "lib",

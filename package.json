@@ -18,6 +18,7 @@
 		"test-published-files": "npm pack && tar zxvf \"ecmarkup-$npm_package_version.tgz\" && cp -r test package/test && cd package && npm test && cd ..",
 		"posttest-published-files": "rm -rf \"ecmarkup-$npm_package_version.tgz\" package",
 		"lint": "eslint --ext .js,.ts js src test",
+		"typecheck": "tsc --noEmit && tsc -p test",
 		"format": "prettier --write ."
 	},
 	"bin": {
@@ -70,7 +71,7 @@
 		"@types/command-line-usage": "^5.0.2",
 		"@types/js-yaml": "^3.12.1",
 		"@types/jsdom": "^16.2.13",
-		"@types/node": "^13.1.8",
+		"@types/node": "^24.10.13",
 		"@types/parse5": "^6.0.2",
 		"@typescript-eslint/eslint-plugin": "^8.6.0",
 		"@typescript-eslint/parser": "^8.6.0",

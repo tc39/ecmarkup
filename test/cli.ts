@@ -38,7 +38,6 @@ describe('ecmarkup#cli', { timeout: 4000 }, () => {
 });
 
 describe('emu-format --check', { timeout: 4000 }, () => {
-
   it('exits cleanly if the file needs no formatting', () => {
     execSync(`${execPath} ./bin/emu-format.js --check test/format-good.html`, {
       encoding: 'utf8',
