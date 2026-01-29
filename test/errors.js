@@ -1,6 +1,7 @@
 'use strict';
 
 let assert = require('assert');
+let { describe, it } = require('node:test');
 let emu = require('../lib/ecmarkup');
 
 let {

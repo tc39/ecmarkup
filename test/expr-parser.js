@@ -1,5 +1,6 @@
 'use strict';
 
+let { describe, it, before } = require('node:test');
 let {
   assertLint,
   positioned,

@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('assert');
+const { describe, it, beforeEach } = require('node:test');
 const { JSDOM } = require('jsdom');
 const BiblioModule = require('../lib/Biblio');
 const build = require('../lib/ecmarkup').build;

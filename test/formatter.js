@@ -1,6 +1,7 @@
 'use strict';
 
 let assert = require('assert');
+let { describe, it } = require('node:test');
 // the more common `dedent` has bug: https://github.com/dmnd/dedent/issues/24
 let dedent = require('dedent-js');
 

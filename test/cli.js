@@ -1,12 +1,11 @@
 'use strict';
 
 const assert = require('assert');
+const { describe, it } = require('node:test');
 const execSync = require('child_process').execSync;
 const execPath = process.execPath.includes(' ') ? `"${process.execPath}"` : process.execPath;
 
-describe('ecmarkup#cli', function () {
-  this.timeout(4000); // Increase timeout for CLI tests as startup time can be variable.
-
+describe('ecmarkup#cli', { timeout: 4000 }, () => {
   it('exits cleanly on success', () => {
     execSync(`${execPath} ./bin/ecmarkup.js test/baselines/sources/example.html`, {
       encoding: 'utf8',
@@ -39,8 +38,7 @@ describe('ecmarkup#cli', function () {
   });
 });
 
-describe('emu-format --check', function () {
-  this.timeout(4000);
+describe('emu-format --check', { timeout: 4000 }, () => {
 
   it('exits cleanly if the file needs no formatting', () => {
     execSync(`${execPath} ./bin/emu-format.js --check test/format-good.html`, {

@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('assert');
+const { describe, it, beforeEach } = require('node:test');
 const sectionNums = require('../lib/clauseNums').default;
 
 describe('clause id generation', () => {
@@ -10,7 +11,7 @@ describe('clause id generation', () => {
     iter = sectionNums({ opts: {} });
   });
 
-  specify('generating clause ids', () => {
+  it('generating clause ids', () => {
     const CLAUSE = { nodeName: 'EMU-CLAUSE', hasAttribute: () => false };
     const ANNEX = { nodeName: 'EMU-ANNEX', hasAttribute: () => false };
     assert.strictEqual(iter.next([], CLAUSE), '1');

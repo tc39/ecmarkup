@@ -1,5 +1,6 @@
 'use strict';
 
+let { describe, it } = require('node:test');
 let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
 
 describe('tags', () => {
