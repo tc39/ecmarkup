@@ -88,6 +88,6 @@
 		"printWidth": 100
 	},
 	"engines": {
-		"node": ">= 18"
+		"node": ">= 24"
 	}
 }
