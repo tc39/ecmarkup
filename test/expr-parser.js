@@ -1,16 +1,14 @@
-'use strict';
-
-let { describe, it, before } = require('node:test');
-let {
+import { describe, it, before } from 'node:test';
+import {
   assertLint,
   positioned,
-  lintLocationMarker: M,
+  lintLocationMarker as M,
   assertLintFree,
   getBiblio,
-} = require('./utils.js');
-let { parse: parseExpr } = require('../lib/expr-parser.js');
-let assert = require('assert');
-let { parseFragment } = require('ecmarkdown');
+} from './utils.js';
+import { parse as parseExpr } from '../lib/expr-parser.js';
+import assert from 'assert';
+import { parseFragment } from 'ecmarkdown';
 
 describe('expression parsing', () => {
   describe('valid', () => {

@@ -1,17 +1,15 @@
-'use strict';
+import assert from 'assert';
+import { describe, it } from 'node:test';
+import * as emu from '../lib/ecmarkup.js';
 
-let assert = require('assert');
-let { describe, it } = require('node:test');
-let emu = require('../lib/ecmarkup');
-
-let {
-  lintLocationMarker: M,
+import {
+  lintLocationMarker as M,
   positioned,
   multipositioned,
   assertError,
   assertErrorFree,
   getBiblio,
-} = require('./utils.js');
+} from './utils.js';
 
 describe('errors', () => {
   it('no contributors', async () => {

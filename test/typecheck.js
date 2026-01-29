@@ -1,13 +1,11 @@
-'use strict';
-
-let { describe, it, before } = require('node:test');
-let {
+import { describe, it, before } from 'node:test';
+import {
   assertLint,
   assertLintFree,
   positioned,
-  lintLocationMarker: M,
+  lintLocationMarker as M,
   getBiblio,
-} = require('./utils.js');
+} from './utils.js';
 
 describe('typechecking completions', () => {
   let biblio;

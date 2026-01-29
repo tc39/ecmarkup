@@ -1,11 +1,9 @@
-'use strict';
-
-let assert = require('assert');
-let { describe, it } = require('node:test');
+import assert from 'assert';
+import { describe, it } from 'node:test';
 // the more common `dedent` has bug: https://github.com/dmnd/dedent/issues/24
-let dedent = require('dedent-js');
+import dedent from 'dedent-js';
 
-let { printDocument } = require('../lib/formatter/ecmarkup');
+import { printDocument } from '../lib/formatter/ecmarkup.js';
 
 describe('document formatting', () => {
   it('indentation', async () => {

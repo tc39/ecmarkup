@@ -1,10 +1,8 @@
-'use strict';
-
-const assert = require('assert');
-const { describe, it, beforeEach } = require('node:test');
-const { JSDOM } = require('jsdom');
-const BiblioModule = require('../lib/Biblio');
-const build = require('../lib/ecmarkup').build;
+import assert from 'assert';
+import { describe, it, beforeEach } from 'node:test';
+import { JSDOM } from 'jsdom';
+import BiblioModule from '../lib/Biblio.js';
+import { build } from '../lib/ecmarkup.js';
 
 const Biblio = BiblioModule.default;
 const location = 'https://tc39.github.io/ecma262/';

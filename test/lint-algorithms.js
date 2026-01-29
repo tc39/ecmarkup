@@ -1,7 +1,5 @@
-'use strict';
-
-let { describe, it } = require('node:test');
-let { assertLint, assertLintFree, lintLocationMarker: M, positioned } = require('./utils.js');
+import { describe, it } from 'node:test';
+import { assertLint, assertLintFree, lintLocationMarker as M, positioned } from './utils.js';
 
 const nodeType = 'emu-alg';
 

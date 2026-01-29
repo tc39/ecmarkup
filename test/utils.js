@@ -1,7 +1,5 @@
-'use strict';
-
-let assert = require('assert');
-let emu = require('../lib/ecmarkup');
+import assert from 'assert';
+import * as emu from '../lib/ecmarkup.js';
 
 let lintLocationMarker = {};
 
@@ -192,7 +190,7 @@ async function getBiblio(html) {
   return upstream.exportBiblio();
 }
 
-module.exports = {
+export {
   lintLocationMarker,
   positioned,
   multipositioned,

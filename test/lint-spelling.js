@@ -1,7 +1,5 @@
-'use strict';
-
-let { describe, it } = require('node:test');
-let { assertLint, assertLintFree, positioned, lintLocationMarker: M } = require('./utils.js');
+import { describe, it } from 'node:test';
+import { assertLint, assertLintFree, positioned, lintLocationMarker as M } from './utils.js';
 
 describe('spelling', () => {
   it('*this* object', async () => {

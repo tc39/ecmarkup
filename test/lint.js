@@ -1,13 +1,11 @@
-'use strict';
-
-let { describe, it } = require('node:test');
-let {
+import { describe, it } from 'node:test';
+import {
   assertLint,
   assertLintFree,
   positioned,
-  lintLocationMarker: M,
+  lintLocationMarker as M,
   getBiblio,
-} = require('./utils.js');
+} from './utils.js';
 
 describe('linting whole program', () => {
   describe('grammar validity', () => {

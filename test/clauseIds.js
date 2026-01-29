@@ -1,8 +1,7 @@
-'use strict';
-
-const assert = require('assert');
-const { describe, it, beforeEach } = require('node:test');
-const sectionNums = require('../lib/clauseNums').default;
+import assert from 'assert';
+import { describe, it, beforeEach } from 'node:test';
+import clauseNumsModule from '../lib/clauseNums.js';
+const sectionNums = clauseNumsModule.default;
 
 describe('clause id generation', () => {
   let iter;

@@ -1,8 +1,7 @@
-'use strict';
+import assert from 'assert';
+import { describe, it } from 'node:test';
+import { execSync } from 'child_process';
 
-const assert = require('assert');
-const { describe, it } = require('node:test');
-const execSync = require('child_process').execSync;
 const execPath = process.execPath.includes(' ') ? `"${process.execPath}"` : process.execPath;
 
 describe('ecmarkup#cli', { timeout: 4000 }, () => {

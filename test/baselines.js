@@ -1,10 +1,11 @@
-'use strict';
-const assert = require('assert');
-const { describe, it } = require('node:test');
-const fs = require('fs');
-const path = require('path');
+import assert from 'assert';
+import { describe, it } from 'node:test';
+import fs from 'fs';
+import path from 'path';
 
-const emu = require('../lib/ecmarkup');
+import * as emu from '../lib/ecmarkup.js';
+
+import ecma262biblio from './ecma262biblio.json' with { type: 'json' };
 
 const SOURCES_DIR = 'test/baselines/sources/';
 const LOCAL_DIR = 'test/baselines/generated-local/';
@@ -13,8 +14,6 @@ const REFERENCE_DIR = 'test/baselines/generated-reference/';
 const files = fs
   .readdirSync(SOURCES_DIR)
   .filter(f => f.endsWith('.html') && !f.endsWith('.bad.html'));
-
-const ecma262biblio = require('./ecma262biblio.json');
 
 function build(file, options) {
   return emu.build(

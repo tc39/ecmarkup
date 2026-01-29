@@ -1,9 +1,7 @@
-'use strict';
-
-let { describe, it } = require('node:test');
-let { assertError, positioned, lintLocationMarker: M } = require('./utils.js');
-let { TypeParser } = require('../lib/type-parser.js');
-let assert = require('assert');
+import { describe, it } from 'node:test';
+import { assertError, positioned, lintLocationMarker as M } from './utils.js';
+import { TypeParser } from '../lib/type-parser.js';
+import assert from 'assert';
 
 describe('type parsing', () => {
   describe('errors', () => {
