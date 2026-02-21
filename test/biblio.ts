@@ -208,4 +208,89 @@ describe('Biblio', () => {
       '<ol><li><emu-xref aoid="Foo" id="_ref_0"><a href="#foo" class="e-user-code">Foo</a></emu-xref>().</li></ol>',
     );
   });
+
+  it('parses built-in function headers', () => {
+    async function getBiblioFor(h1: string) {
+      const spec = await build(
+        'root.html',
+        async () => `
+          <emu-clause id="sec-array.prototype.some" type="built-in function">
+            <h1>${h1}</h1>
+          </emu-clause>
+        `,
+        {
+          copyright: false,
+          assets: 'none',
+          location: 'https://example.com/spec/',
+          warn: e => {
+            console.error('Error:', e);
+            throw new Error(e.message);
+          },
+        },
+      );
+      const biblio = spec.exportBiblio()!;
+      return biblio.entries.filter(e => e.type === 'built-in function');
+    }
+
+    it('simple', async () => {
+      const biblio = await getBiblioFor('Array.prototype.some ( _callback_ [ , _thisArg_ ] )');
+      assert.deepStrictEqual(biblio, [
+        {
+          name: 'Array.prototype.some',
+          type: 'built-in function',
+          params: {
+            type: 'normal',
+            required: ['callback'],
+            optional: ['thisArg'],
+            rest: null,
+          },
+        },
+      ]);
+    });
+
+    it('rest', async () => {
+      const biblio = await getBiblioFor('String.raw ( _template_, ..._substitutions_ )');
+      assert.deepStrictEqual(biblio, [
+        {
+          name: 'String.raw',
+          type: 'built-in function',
+          params: {
+            type: 'normal',
+            required: ['template'],
+            optional: [],
+            rest: 'substitutions',
+          },
+        },
+      ]);
+    });
+
+    it('special', async () => {
+      const biblio = await getBiblioFor('AsyncFunction ( ..._parameterArgs_, _bodyArg_ )');
+      assert.deepStrictEqual(biblio, [
+        {
+          name: 'AsyncFunction',
+          type: 'built-in function',
+          params: {
+            type: 'special',
+          },
+        },
+      ]);
+    });
+
+    it('weird names', async () => {
+      const biblio = await getBiblioFor('%AsyncIteratorPrototype% [ %Symbol.asyncIterator% ] ( )');
+      assert.deepStrictEqual(biblio, [
+        {
+          name: '%AsyncIteratorPrototype% [ %Symbol.asyncIterator% ]',
+          type: 'built-in function',
+          params: {
+            type: 'normal',
+            required: [],
+            optional: [],
+            rest: null,
+          },
+        },
+      ]);
+    });
+  });
 });

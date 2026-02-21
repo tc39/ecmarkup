@@ -1,4 +1,4 @@
-import { extractStructuredHeader } from '../Clause';
+import { extractStructuredHeader, parseParams, VALID_BUILTIN_NAME_REGEX } from '../Clause';
 import type { Warning } from '../Spec';
 
 import { offsetToLineAndColumn } from '../utils';
@@ -12,6 +12,10 @@ export function collectHeaderDiagnostics(
   for (const { element, contents } of headers) {
     if (extractStructuredHeader(element) !== null) {
       // these will be handled by header-parser.ts
+      continue;
+    }
+    if (element.getAttribute('type') === 'built-in function') {
+      // these will be handled by Clause.ts
       continue;
     }
     if (!/\(.*\)$/.test(contents) || / Operator \( `[^`]+` \)$/.test(contents)) {
@@ -47,13 +51,7 @@ export function collectHeaderDiagnostics(
       // ForIn/OfHeadEvaluation
       /^[A-Za-z][A-Za-z0-9/]*\s*$/,
 
-      // CreateForInIterator
-      // Object.fromEntries
-      // _NativeError_ [ %whatever% ]
-      // Array.prototype [ %Symbol.iterator% ]
-      // %ForInIteratorPrototype%.next
-      // Object.prototype.__defineGetter__
-      /^([%_]?)[A-Za-z][A-Za-z0-9/]*\1(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ %[a-zA-Z0-9_$.]+% \])*\s*$/,
+      VALID_BUILTIN_NAME_REGEX,
     ].some(r => r.test(name));
 
     if (!nameMatches) {
@@ -73,24 +71,7 @@ export function collectHeaderDiagnostics(
       });
     }
 
-    const paramsMatches =
-      params.match(/\[/g)?.length === params.match(/\]/g)?.length &&
-      [
-        // Foo ( )
-        /^ $/,
-
-        // Object ( . . . )
-        /^ \. \. \. $/,
-
-        // String.raw ( _template_, ..._substitutions_ )
-        // Function ( _p1_, _p2_, &hellip; , _pn_, _body_ )
-        // Function ( ..._parameterArgs_, _bodyArg_ )
-        /^ (_[A-Za-z0-9]+_, )*(\.\.\.|&hellip;|…)(_[A-Za-z0-9]+_| )(, _[A-Za-z0-9]+_)* $/,
-
-        // Example ( _foo_ [ , _bar_ ] )
-        // Example ( [ _foo_ ] )
-        /^ (\[ )?_[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*( \[ , _[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*)*( \])* $/,
-      ].some(r => r.test(params));
+    const paramsMatches = parseParams(params);
 
     if (!paramsMatches) {
       const { line, column } = offsetToLineAndColumn(contents, name.length);

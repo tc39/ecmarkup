@@ -1332,4 +1332,52 @@ ${M}      </pre>
       );
     });
   });
+
+  it('errors for malformed built-in functions', () => {
+    it('no params', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-array.prototype.some" type="built-in function">
+            ${M}<h1>Foo</h1>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'unparseable-builtin',
+          nodeType: 'h1',
+          message: 'expected built-in function header to contain parameter list',
+        },
+      );
+    });
+
+    it('bad name', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-array.prototype.some" type="built-in function">
+            ${M}<h1>Foo Bar ( )</h1>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'unparseable-builtin',
+          nodeType: 'h1',
+          message:
+            'expected built-in function name to look like "Object.fromEntries", "_NativeError_ [ %whatever% ]", etc, but found "Foo Bar"',
+        },
+      );
+    });
+
+    it('bad params', async () => {
+      await assertError(
+        positioned`
+          <emu-clause id="sec-array.prototype.some" type="built-in function">
+            <h1>Foo ${M}( _x_ _y_ )</h1>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'unparseable-builtin',
+          nodeType: 'h1',
+          message: 'failed to parse parameter list for built-in function',
+        },
+      );
+    });
+  });
 });
