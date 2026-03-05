@@ -371,6 +371,7 @@ export interface BuiltInFunction extends BiblioEntryBase {
   type: 'built-in function';
   name: string;
   params: ParsedParams;
+  clause: string;
 }
 
 export interface ConcreteMethodBiblioEntry extends BiblioEntryBase {

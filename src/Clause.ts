@@ -179,6 +179,7 @@ export default class Clause extends Builder {
               type: 'built-in function',
               name: headerSource, // we include the "get " or "set " mostly out of convenience
               params: { type: 'accessor' },
+              clause: this.id,
             });
           }
         }
@@ -219,6 +220,7 @@ export default class Clause extends Builder {
               type: 'built-in function',
               name,
               params: parsedParams,
+              clause: this.id,
             });
           }
         }

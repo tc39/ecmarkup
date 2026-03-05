@@ -214,7 +214,7 @@ describe('Biblio', () => {
       const spec = await build(
         'root.html',
         async () => `
-          <emu-clause id="sec-array.prototype.some" type="built-in function">
+          <emu-clause id="sec-example-builtin" type="built-in function">
             <h1>${h1}</h1>
           </emu-clause>
         `,
@@ -244,6 +244,7 @@ describe('Biblio', () => {
             optional: ['thisArg'],
             rest: null,
           },
+          clause: 'sec-example-builtin',
         },
       ]);
     });
@@ -260,6 +261,7 @@ describe('Biblio', () => {
             optional: [],
             rest: 'substitutions',
           },
+          clause: 'sec-example-builtin',
         },
       ]);
     });
@@ -273,6 +275,7 @@ describe('Biblio', () => {
           params: {
             type: 'special',
           },
+          clause: 'sec-example-builtin',
         },
       ]);
     });
@@ -289,6 +292,7 @@ describe('Biblio', () => {
             optional: [],
             rest: null,
           },
+          clause: 'sec-example-builtin',
         },
       ]);
     });
@@ -302,6 +306,7 @@ describe('Biblio', () => {
           params: {
             type: 'accessor',
           },
+          clause: 'sec-example-builtin',
         },
       ]);
     });
@@ -315,6 +320,7 @@ describe('Biblio', () => {
           params: {
             type: 'accessor',
           },
+          clause: 'sec-example-builtin',
         },
       ]);
     });
