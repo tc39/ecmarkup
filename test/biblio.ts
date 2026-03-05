@@ -292,5 +292,31 @@ describe('Biblio', () => {
         },
       ]);
     });
+
+    it('getter', async () => {
+      const biblio = await getBiblioFor('get Array [ %Symbol.species% ]');
+      assert.deepStrictEqual(biblio, [
+        {
+          name: 'get Array [ %Symbol.species% ]',
+          type: 'built-in function',
+          params: {
+            type: 'accessor',
+          },
+        },
+      ]);
+    });
+
+    it('setter', async () => {
+      const biblio = await getBiblioFor('set Object.prototype.__proto__');
+      assert.deepStrictEqual(biblio, [
+        {
+          name: 'set Object.prototype.__proto__',
+          type: 'built-in function',
+          params: {
+            type: 'accessor',
+          },
+        },
+      ]);
+    });
   });
 });

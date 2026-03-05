@@ -157,7 +157,32 @@ export default class Clause extends Builder {
       headerH1 = null;
     } else if (this.type === 'built-in function') {
       const headerSource = getHeaderSource(headerH1, this.spec);
-      if (!/\(.*\)$/.test(headerSource)) {
+      if (headerSource.startsWith('get ') || headerSource.startsWith('set ')) {
+        if (/\(.*\)$/.test(headerSource)) {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'accessor-with-parameters',
+            message: `expected accessor header not to contain parameter list`,
+            node: headerH1,
+          });
+        } else {
+          const name = headerSource.substring(4);
+          if (!VALID_BUILTIN_NAME_REGEX.test(name)) {
+            this.spec.warn({
+              type: 'node',
+              ruleId: 'unparseable-builtin',
+              message: `expected built-in function name to look like "Object.fromEntries", "_NativeError_ [ %whatever% ]", etc, but found ${JSON.stringify(name)}`,
+              node: headerH1,
+            });
+          } else {
+            this.spec.biblio.add({
+              type: 'built-in function',
+              name: headerSource, // we include the "get " or "set " mostly out of convenience
+              params: { type: 'accessor' },
+            });
+          }
+        }
+      } else if (!/\(.*\)$/.test(headerSource)) {
         this.spec.warn({
           type: 'node',
           ruleId: 'unparseable-builtin',

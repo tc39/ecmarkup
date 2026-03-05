@@ -365,7 +365,8 @@ export interface AlgorithmBiblioEntry extends BiblioEntryBase {
 
 export type ParsedParams =
   | { type: 'normal'; required: string[]; optional: string[]; rest: string | null }
-  | { type: 'special' };
+  | { type: 'special' }
+  | { type: 'accessor' };
 export interface BuiltInFunction extends BiblioEntryBase {
   type: 'built-in function';
   name: string;
