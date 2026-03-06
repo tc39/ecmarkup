@@ -266,11 +266,25 @@ describe('Biblio', () => {
       ]);
     });
 
-    it('special', async () => {
+    it('special: rest', async () => {
       const biblio = await getBiblioFor('AsyncFunction ( ..._parameterArgs_, _bodyArg_ )');
       assert.deepStrictEqual(biblio, [
         {
           name: 'AsyncFunction',
+          type: 'built-in function',
+          params: {
+            type: 'special',
+          },
+          clause: 'sec-example-builtin',
+        },
+      ]);
+    });
+
+    it('special: unspecified', async () => {
+      const biblio = await getBiblioFor('Object ( . . . )');
+      assert.deepStrictEqual(biblio, [
+        {
+          name: 'Object',
           type: 'built-in function',
           params: {
             type: 'special',

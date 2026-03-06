@@ -166,7 +166,7 @@ export default class Clause extends Builder {
             node: headerH1,
           });
         } else {
-          const name = headerSource.substring(4);
+          const name = headerSource.substring(4 /* 'get '.length */);
           if (!VALID_BUILTIN_NAME_REGEX.test(name)) {
             this.spec.warn({
               type: 'node',
