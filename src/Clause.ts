@@ -1,7 +1,7 @@
 import type Note from './Note';
 import type Example from './Example';
 import type Spec from './Spec';
-import type { AlgorithmType, PartialBiblioEntry, Signature, Type } from './Biblio';
+import type { AlgorithmType, PartialBiblioEntry, Signature, Type, ParsedParams } from './Biblio';
 import type { Context } from './Context';
 
 import { ParseError, TypeParser } from './type-parser';
@@ -31,6 +31,15 @@ export const SPECIAL_KINDS_MAP = new Map([
   ['deprecated', 'Deprecated'],
 ]);
 export const SPECIAL_KINDS = [...SPECIAL_KINDS_MAP.keys()];
+
+// eval
+// Object.fromEntries
+// _NativeError_ [ %whatever% ]
+// Array.prototype [ %Symbol.iterator% ]
+// %ForInIteratorPrototype%.next
+// Object.prototype.__defineGetter__
+export const VALID_BUILTIN_NAME_REGEX =
+  /^([%_]?)[A-Za-z][A-Za-z0-9/]*\1(\.[A-Za-z][A-Za-z0-9]*|\.__[a-z][A-Za-z0-9]*__| \[ %[a-zA-Z0-9_$.]+% \])*\s*$/;
 
 export function getHeaderSource(header: Element, spec: Spec): string {
   const headerLocation = spec.locate(header);
@@ -146,6 +155,76 @@ export default class Clause extends Builder {
         node: header!,
       });
       headerH1 = null;
+    } else if (this.type === 'built-in function') {
+      const headerSource = getHeaderSource(headerH1, this.spec);
+      if (headerSource.startsWith('get ') || headerSource.startsWith('set ')) {
+        if (/\(.*\)$/.test(headerSource)) {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'accessor-with-parameters',
+            message: `expected accessor header not to contain parameter list`,
+            node: headerH1,
+          });
+        } else {
+          const name = headerSource.substring(4 /* 'get '.length */);
+          if (!VALID_BUILTIN_NAME_REGEX.test(name)) {
+            this.spec.warn({
+              type: 'node',
+              ruleId: 'unparseable-builtin',
+              message: `expected built-in function name to look like "Object.fromEntries", "_NativeError_ [ %whatever% ]", etc, but found ${JSON.stringify(name)}`,
+              node: headerH1,
+            });
+          } else {
+            this.spec.biblio.add({
+              type: 'built-in function',
+              name: headerSource, // we include the "get " or "set " mostly out of convenience
+              params: { type: 'accessor' },
+              clause: this.id,
+            });
+          }
+        }
+      } else if (!/\(.*\)$/.test(headerSource)) {
+        this.spec.warn({
+          type: 'node',
+          ruleId: 'unparseable-builtin',
+          message: `expected built-in function header to contain parameter list`,
+          node: headerH1,
+        });
+      } else {
+        const name = headerSource.substring(0, headerSource.indexOf('(')).trim();
+        if (!VALID_BUILTIN_NAME_REGEX.test(name)) {
+          this.spec.warn({
+            type: 'node',
+            ruleId: 'unparseable-builtin',
+            message: `expected built-in function name to look like "Object.fromEntries", "_NativeError_ [ %whatever% ]", etc, but found ${JSON.stringify(name)}`,
+            node: headerH1,
+          });
+        } else {
+          const params = headerSource.substring(
+            headerSource.indexOf('(') + 1,
+            headerSource.length - 1,
+          );
+          const parsedParams = parseParams(params);
+          if (parsedParams == null) {
+            const { line, column } = offsetToLineAndColumn(headerSource, headerSource.indexOf('('));
+            this.spec.warn({
+              type: 'contents',
+              ruleId: 'unparseable-builtin',
+              message: `failed to parse parameter list for built-in function`,
+              node: headerH1,
+              nodeRelativeLine: line,
+              nodeRelativeColumn: column,
+            });
+          } else {
+            this.spec.biblio.add({
+              type: 'built-in function',
+              name,
+              params: parsedParams,
+              clause: this.id,
+            });
+          }
+        }
+      }
     } else {
       this.buildStructuredHeader(headerH1, header!);
     }
@@ -563,5 +642,73 @@ function warnIfSignaturesDiffer(base: Signature, derived: Signature): string | n
     }
     ++i;
   }
+  return null;
+}
+
+// takes as argument the string between the parentheses
+export function parseParams(params: string): ParsedParams | null {
+  if (params.match(/\[/g)?.length !== params.match(/\]/g)?.length) {
+    return null;
+  }
+
+  // Foo ( )
+  if (/^ $/.test(params)) {
+    return { type: 'normal', required: [], optional: [], rest: null };
+  }
+
+  // Object ( . . . )
+  if (/^ \. \. \. $/.test(params)) {
+    return { type: 'special' };
+  }
+
+  // Patterns with ..., &hellip;, or …
+  if (
+    /^ (_[A-Za-z0-9]+_, )*(\.\.\.|&hellip;|…)(_[A-Za-z0-9]+_| )(, _[A-Za-z0-9]+_)* $/.test(params)
+  ) {
+    // Trailing ..._rest_ with no params after it
+    const restMatch = params.match(/^ ((?:_[A-Za-z0-9]+_, )*)\.\.\.(_[A-Za-z0-9]+_) $/);
+    if (restMatch) {
+      const required = [...restMatch[1].matchAll(/_([A-Za-z0-9]+)_/g)].map(m => m[1]);
+      const rest = restMatch[2].slice(1, -1);
+      return { type: 'normal', required, optional: [], rest };
+    }
+    // &hellip; / …, or ... with trailing params: special
+    return { type: 'special' };
+  }
+
+  // Example ( _foo_, _bar_ [ , _baz_ [ , _qux_ ] ] )
+  // Example ( [ _foo_ [ , _bar_ ] ] )
+  // using this horrible regex and then a manual parse really is simpler than just parsing manually
+  if (
+    /^ (\[ )?_[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*( \[ , _[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*)*( \])* $/.test(
+      params,
+    )
+  ) {
+    const trimmed = params.trim();
+    const required: string[] = [];
+    const optional: string[] = [];
+    let bracketDepth = 0;
+    let pos = 0;
+
+    while (pos < trimmed.length) {
+      if (trimmed[pos] === '[') {
+        bracketDepth++;
+        pos++;
+      } else if (trimmed[pos] === ']') {
+        bracketDepth--;
+        pos++;
+      } else if (trimmed[pos] === '_') {
+        const end = trimmed.indexOf('_', pos + 1);
+        const name = trimmed.substring(pos + 1, end);
+        (bracketDepth > 0 ? optional : required).push(name);
+        pos = end + 1;
+      } else {
+        pos++;
+      }
+    }
+
+    return { type: 'normal', required, optional, rest: null };
+  }
+
   return null;
 }

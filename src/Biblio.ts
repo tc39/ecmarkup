@@ -363,6 +363,17 @@ export interface AlgorithmBiblioEntry extends BiblioEntryBase {
   /** @internal*/ _node?: Element;
 }
 
+export type ParsedParams =
+  | { type: 'normal'; required: string[]; optional: string[]; rest: string | null }
+  | { type: 'special' }
+  | { type: 'accessor' };
+export interface BuiltInFunction extends BiblioEntryBase {
+  type: 'built-in function';
+  name: string;
+  params: ParsedParams;
+  clause: string;
+}
+
 export interface ConcreteMethodBiblioEntry extends BiblioEntryBase {
   type: 'concrete method';
   abstractAoid: string;
@@ -406,6 +417,7 @@ export interface StepBiblioEntry extends BiblioEntryBase {
 
 export type BiblioEntry =
   | AlgorithmBiblioEntry
+  | BuiltInFunction
   | ConcreteMethodBiblioEntry
   | ProductionBiblioEntry
   | ClauseBiblioEntry

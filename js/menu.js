@@ -250,6 +250,8 @@ function getKey(item) {
       return item.id;
     case 'concrete method':
       return item.abstractAoid;
+    case 'built-in function':
+      return null;
     default:
       throw new Error("Can't get key for " + item.type);
   }
