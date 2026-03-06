@@ -80,3 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }),
   );
 });
+
+window.addEventListener('beforeprint', () => {
+  if (!document.body.classList.contains('oldtoc')) {
+    document.getElementById('metadata-block').before(document.getElementById('menu'));
+  }
+});
+
+window.addEventListener('afterprint', () => {
+  if (!document.body.classList.contains('oldtoc')) {
+    document.getElementById('spec-container').before(document.getElementById('menu'));
+  }
+});
