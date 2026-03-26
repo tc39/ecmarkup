@@ -143,9 +143,10 @@ export function checkVariableUsage(
       preceding.querySelector('emu-alg') == null &&
       preceding.textContent != null
     ) {
+      const isParameter = preceding.nodeName === 'H1';
       // `__` is for <del>_x_</del><ins>_y_</ins>, which has textContent `_x__y_`
       for (const name of preceding.textContent.matchAll(/(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g)) {
-        scope.declare(name[1], null, undefined, true);
+        scope.declare(name[1], null, isParameter ? 'parameter' : undefined, !isParameter);
       }
     }
     preceding = previousOrParent(preceding, parentClause);

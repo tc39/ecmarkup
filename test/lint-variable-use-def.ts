@@ -699,6 +699,54 @@ describe('variables cannot be redeclared', () => {
       `,
     );
   });
+
+  it('parameters cannot be redeclared', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            Example (
+              _x_: ~foo~,
+            ): ~foo~ or ~bar~
+          </h1>
+          <dl class="header"></dl>
+          <emu-alg>
+            1. Let ${M}_x_ be ~bar~.
+            1. Return _x_.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 're-declaration',
+        nodeType: 'emu-alg',
+        message: '"x" is already declared',
+      },
+    );
+  });
+
+  it('optional parameters cannot be redeclared', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            Example (
+              optional _x_: ~foo~,
+            ): ~foo~ or ~bar~
+          </h1>
+          <dl class="header"></dl>
+          <emu-alg>
+            1. If _x_ is not present, let ${M}_x_ be ~bar~.
+            1. Return _x_.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 're-declaration',
+        nodeType: 'emu-alg',
+        message: '"x" is already declared',
+      },
+    );
+  });
 });
 
 describe('closures must not capture reassigned variables', () => {
