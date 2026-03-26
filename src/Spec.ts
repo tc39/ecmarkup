@@ -655,7 +655,7 @@ export default class Spec {
 
       if (this.opts.printable) {
         // Ecma guidance directs three levels of clause in ToC
-        new Toc(this).build(3);
+        new Toc(this).build(this.opts.tocDepth ?? 3);
       } else {
         ({ js: tocJs, eles: commonEles } = makeMenu(this));
       }
