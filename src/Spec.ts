@@ -627,7 +627,6 @@ export default class Spec {
       // front cover
       const frontCover = document.createElement('div');
 
-      frontCover.classList.add('full-page-svg');
       frontCover.setAttribute('id', 'front-cover');
 
       const versionNode = this.doc.querySelector('h1.version');
@@ -642,10 +641,20 @@ export default class Spec {
       // inside cover
       const insideCover = document.createElement('div');
 
-      insideCover.classList.add('full-page-svg');
       insideCover.setAttribute('id', 'inside-cover');
 
       frontCover.after(insideCover);
+
+      // back cover
+      const backCover = document.createElement('div');
+
+      backCover.setAttribute('id', 'back-cover');
+      backCover.append(
+        document.createElement('hr'),
+        document.createElement('hr'),
+        document.createElement('hr'),
+      );
+      wrapper.after(backCover);
     }
 
     let commonEles: HTMLElement[] = [];

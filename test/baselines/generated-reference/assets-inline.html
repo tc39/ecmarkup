@@ -3394,8 +3394,28 @@ li.menu-search-result-term::before {
   }
 }
 
-@page :first, :nth(2) {
+@page toc, copyright, intro {
+  --page-number-style: lower-roman;
+}
+
+@page front-cover {
+  background-image: url('../img/print-front-cover.svg');
   margin: 0;
+
+  @bottom-right {
+    content: none;
+  }
+}
+
+@page inside-cover {
+  background-image: url('../img/print-inside-cover.svg');
+}
+
+@page front-cover, inside-cover {
+  background-color: transparent;
+  background-position: top center;
+  background-repeat: no-repeat;
+  page-break-after: always;
 
   @top-left {
     content: none;
@@ -3408,41 +3428,6 @@ li.menu-search-result-term::before {
   @bottom-left {
     content: none;
   }
-
-  @bottom-right {
-    content: none;
-  }
-}
-
-@page toc, copyright, intro {
-  --page-number-style: lower-roman;
-}
-
-@page :blank {
-  @bottom-left {
-    content: none;
-  }
-
-  @bottom-right {
-    content: none;
-  }
-}
-
-@page front-cover {
-  background-image: url('../img/print-front-cover.svg');
-}
-
-@page inside-cover {
-  background-image: url('../img/print-inside-cover.svg');
-}
-
-@page front-cover, inside-cover {
-  background-color: transparent;
-  background-position: center;
-  background-repeat: no-repeat;
-  margin: 0;
-  padding: 0;
-  page-break-after: always;
 }
 
 html, body {
@@ -3754,7 +3739,7 @@ emu-figure img {
 }
 
 #toc > h2::after {
-  content: 'page';
+  content: 'Page';
   float: right;
   font-size: 10pt;
   text-align: right;
@@ -3818,11 +3803,12 @@ a[data-print-href]::after {
   width: auto;
 }
 
-emu-annex > h1 {
+#spec-container > emu-annex > h1 {
+  font-size: 14pt;
   text-align: center;
 }
 
-emu-annex > h1 span {
+#spec-container > emu-annex > h1 span {
   display: block;
 }
 
@@ -3847,7 +3833,6 @@ emu-annex > h1 .secnum {
   page: front-cover;
   position: relative;
   width: 210mm;
-  height: 297mm;
 }
 
 #front-cover h1 {
@@ -3899,6 +3884,16 @@ h1.version {
 
 #inside-cover {
   page: inside-cover;
+}
+
+#back-cover {
+  float: bottom;
+  page: back-cover;
+}
+
+#back-cover hr {
+  border-width: 0.25pt;
+  margin: 0.75pt auto;
 }
 
 #toc {
