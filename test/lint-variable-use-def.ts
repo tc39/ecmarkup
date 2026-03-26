@@ -748,3 +748,120 @@ describe('variables cannot be redeclared', () => {
     );
   });
 });
+
+describe('closures must not capture reassigned variables', () => {
+  it('set after capture is an error', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. Let _closure_ be a new Abstract Closure with no parameters that captures _x_ and performs the following steps when called:
+            1. Return _x_.
+          1. Set ${M}_x_ to 1.
+          1. Return _closure_.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'set-captured-variable',
+        nodeType: 'emu-alg',
+        message: '"x" cannot be reassigned after being captured by a closure',
+      },
+    );
+  });
+
+  it('set before capture is not an error', async () => {
+    await assertLintFree(
+      `
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. Set _x_ to 1.
+          1. Let _closure_ be a new Abstract Closure with no parameters that captures _x_ and performs the following steps when called:
+            1. Return _x_.
+          1. Return _closure_.
+        </emu-alg>
+      `,
+    );
+  });
+
+  it('set inside closure is an error', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. Let _closure_ be a new Abstract Closure with no parameters that captures _x_ and performs the following steps when called:
+            1. Set ${M}_x_ to 1.
+            1. Return _x_.
+          1. Return _closure_.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'set-captured-variable',
+        nodeType: 'emu-alg',
+        message: '"x" cannot be reassigned after being captured by a closure',
+      },
+    );
+  });
+
+  it('set between two closures that capture is an error', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. Let _b_ be a new Abstract Closure with no parameters that captures _x_ and performs the following steps when called:
+            1. Return _x_.
+          1. Set ${M}_x_ to 1.
+          1. Let _c_ be a new Abstract Closure with no parameters that captures _x_ and performs the following steps when called:
+            1. Return _x_.
+          1. Do something with _b_ and _c_.
+        </emu-alg>
+      `,
+      {
+        ruleId: 'set-captured-variable',
+        nodeType: 'emu-alg',
+        message: '"x" cannot be reassigned after being captured by a closure',
+      },
+    );
+  });
+
+  it('capturing "constant" variables is not an error', async () => {
+    await assertLintFree(
+      `
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. Let _closure_ be a new Abstract Closure with no parameters that captures _x_ and performs the following steps when called:
+            1. Return _x_.
+          1. Return _closure_.
+        </emu-alg>
+      `,
+    );
+  });
+
+  it('capturing variables whose values is mutated is not an error', async () => {
+    await assertLintFree(
+      `
+        <emu-alg>
+          1. Let _x_ be a new Record.
+          1. Let _closure_ be a new Abstract Closure with no parameters that captures _x_ and performs the following steps when called:
+            1. Return _x_.
+          1. Set _x_.[[Value]] to 1.
+          1. Return _closure_.
+        </emu-alg>
+      `,
+    );
+  });
+
+  it('reassignment of non-captured variable is fine', async () => {
+    await assertLintFree(
+      `
+        <emu-alg>
+          1. Let _x_ be 0.
+          1. Let _y_ be 1.
+          1. Let _closure_ be a new Abstract Closure with no parameters that captures _x_ and performs the following steps when called:
+            1. Return _x_.
+          1. Set _y_ to 2.
+          1. Return _closure_.
+        </emu-alg>
+      `,
+    );
+  });
+});

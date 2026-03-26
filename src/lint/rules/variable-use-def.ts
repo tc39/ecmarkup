@@ -41,10 +41,12 @@ type VarKind =
 class Scope {
   declare vars: Map<string, { kind: VarKind; used: boolean; node: HasLocation | null }>;
   declare strictScopes: Set<string>[];
+  declare captured: Set<string>;
   declare report: Reporter;
   constructor(report: Reporter) {
     this.vars = new Map();
     this.strictScopes = [new Set()];
+    this.captured = new Set();
     this.report = report;
 
     // TODO remove this when regex state objects become less dumb
@@ -318,12 +320,14 @@ function walkAlgorithm(
             const name = v.contents;
             scope.use(v);
             acScope.declare(name, v, 'abstract closure capture');
+            scope.captured.add(name);
           }
         }
       }
 
       // we have a lint rule elsewhere which checks there are substeps for closures, but we can't guarantee that rule hasn't tripped this run, so we still need to guard
       if (step.sublist != null && step.sublist.name === 'ol') {
+        acScope.captured = new Set(scope.captured);
         walkAlgorithm(algorithmSource, step.sublist, parsed, acScope, report);
         for (const [name, { node, kind, used }] of acScope.vars) {
           if (kind === 'abstract closure capture' && !used) {
@@ -399,6 +403,29 @@ function walkAlgorithm(
             }
             continue;
           }
+        }
+      }
+    }
+
+    // detect "Set _x_ to" reassignments of variables captured by a closure
+    for (let i = 1; i < expr.items.length - 1; ++i) {
+      const prev = expr.items[i - 1];
+      const cur = expr.items[i];
+      const next = expr.items[i + 1];
+      if (
+        isVariable(cur) &&
+        prev.name === 'text' &&
+        /\bset $/i.test(prev.contents) &&
+        next.name === 'text' &&
+        /^ to\b/.test(next.contents)
+      ) {
+        if (scope.captured.has(cur.contents)) {
+          report({
+            ruleId: 'set-captured-variable',
+            message: `${JSON.stringify(cur.contents)} cannot be reassigned after being captured by a closure`,
+            line: cur.location.start.line,
+            column: cur.location.start.column,
+          });
         }
       }
     }
