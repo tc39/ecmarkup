@@ -36,18 +36,18 @@ describe('ecmarkup#cli', { timeout: 4000 }, () => {
     });
   });
 
-  it('--minify produces smaller output', () => {
-    const normal = execSync(
+  it('minifies by default and --no-minify disables it', () => {
+    const minified = execSync(
       `${execPath} ./bin/ecmarkup.js test/baselines/sources/example.html`,
       { encoding: 'utf8' },
     );
-    const minified = execSync(
-      `${execPath} ./bin/ecmarkup.js --minify test/baselines/sources/example.html`,
+    const unminified = execSync(
+      `${execPath} ./bin/ecmarkup.js --no-minify test/baselines/sources/example.html`,
       { encoding: 'utf8' },
     );
     assert(
-      minified.length < normal.length,
-      `Expected minified (${minified.length}) to be smaller than normal (${normal.length})`,
+      minified.length < unminified.length,
+      `Expected minified (${minified.length}) to be smaller than unminified (${unminified.length})`,
     );
   });
 });

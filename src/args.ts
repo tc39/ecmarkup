@@ -60,9 +60,9 @@ export const options = [
     description: 'Enforce some style and correctness checks',
   },
   {
-    name: 'minify',
+    name: 'no-minify',
     type: Boolean,
-    description: 'Minify generated HTML, CSS, and SVG output',
+    description: 'Disable minification of generated output',
   },
   {
     name: 'error-formatter',

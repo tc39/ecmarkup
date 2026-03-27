@@ -183,7 +183,7 @@ const build = debounce(async function build() {
 
     const spec = await ecmarkup.build(args.files[0], utils.readFile, opts);
 
-    if (args.minify) {
+    if (!args['no-minify']) {
       spec.generatedFiles = await minifyGeneratedFiles(
         spec.generatedFiles,
         args.verbose ? utils.logVerbose : undefined,
