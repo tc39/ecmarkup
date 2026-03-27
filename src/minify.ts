@@ -2,6 +2,7 @@ import { minify as htmlMinify } from 'html-minifier-terser';
 import * as CleanCSS from 'clean-css';
 import { optimize as svgoOptimize, type Config as SvgoConfig, type PluginConfig } from 'svgo';
 import { minify as terserMinify } from 'terser';
+import * as path from 'path';
 
 type GeneratedFiles = Map<string | null, string | Buffer>;
 type Log = (str: string) => void;
@@ -44,7 +45,7 @@ export async function minifyGeneratedFiles(
   const result: GeneratedFiles = new Map();
 
   for (const [key, value] of files) {
-    const ext = key != null ? key.substring(key.lastIndexOf('.')) : null;
+    const ext = key != null ? path.extname(key) : null;
 
     if (ext === '.html' || key === null) {
       const html = typeof value === 'string' ? value : (value as Buffer).toString('utf-8');
