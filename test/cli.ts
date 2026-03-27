@@ -35,6 +35,21 @@ describe('ecmarkup#cli', { timeout: 4000 }, () => {
       });
     });
   });
+
+  it('--minify produces smaller output', () => {
+    const normal = execSync(
+      `${execPath} ./bin/ecmarkup.js test/baselines/sources/example.html`,
+      { encoding: 'utf8' },
+    );
+    const minified = execSync(
+      `${execPath} ./bin/ecmarkup.js --minify test/baselines/sources/example.html`,
+      { encoding: 'utf8' },
+    );
+    assert(
+      minified.length < normal.length,
+      `Expected minified (${minified.length}) to be smaller than normal (${normal.length})`,
+    );
+  });
 });
 
 describe('emu-format --check', { timeout: 4000 }, () => {
