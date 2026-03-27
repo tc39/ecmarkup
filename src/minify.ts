@@ -48,22 +48,22 @@ export async function minifyGeneratedFiles(
     const ext = key != null ? path.extname(key) : null;
 
     if (ext === '.html' || key === null) {
-      const html = typeof value === 'string' ? value : (value as Buffer).toString('utf-8');
+      const html = typeof value === 'string' ? value : value.toString('utf-8');
       log?.(`Minifying ${key ?? 'stdout'}...`);
       const minified = await htmlMinify(html, htmlMinifierOptions);
       result.set(key, minified);
     } else if (ext === '.css') {
-      const css = typeof value === 'string' ? value : (value as Buffer).toString('utf-8');
+      const css = typeof value === 'string' ? value : value.toString('utf-8');
       log?.(`Minifying ${key}...`);
       const output = cleanCss.minify(css);
       result.set(key, output.styles);
     } else if (ext === '.svg') {
-      const svg = typeof value === 'string' ? value : (value as Buffer).toString('utf-8');
+      const svg = typeof value === 'string' ? value : value.toString('utf-8');
       log?.(`Minifying ${key}...`);
       const optimized = svgoOptimize(svg, svgoConfig);
       result.set(key, Buffer.from(optimized.data, 'utf-8'));
     } else if (ext === '.js') {
-      const js = typeof value === 'string' ? value : (value as Buffer).toString('utf-8');
+      const js = typeof value === 'string' ? value : value.toString('utf-8');
       log?.(`Minifying ${key}...`);
       const output = await terserMinify(js);
       result.set(key, output.code!);

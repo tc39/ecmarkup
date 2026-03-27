@@ -37,10 +37,9 @@ describe('ecmarkup#cli', { timeout: 4000 }, () => {
   });
 
   it('minifies by default and --no-minify disables it', () => {
-    const minified = execSync(
-      `${execPath} ./bin/ecmarkup.js test/baselines/sources/example.html`,
-      { encoding: 'utf8' },
-    );
+    const minified = execSync(`${execPath} ./bin/ecmarkup.js test/baselines/sources/example.html`, {
+      encoding: 'utf8',
+    });
     const unminified = execSync(
       `${execPath} ./bin/ecmarkup.js --no-minify test/baselines/sources/example.html`,
       { encoding: 'utf8' },
