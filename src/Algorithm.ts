@@ -82,7 +82,9 @@ export default class Algorithm extends Builder {
     const earlyExitRe = /\b(?:return|throw)\b|[\s(]\?\s/i;
     // skip the final step of the algorithm, since that's not an early exit
     // TODO: also skip the final step of an AC
-    for (const li of node.querySelectorAll('emu-alg > ol > li:not(:last-child), emu-alg > ol > li > ol li')) {
+    for (const li of node.querySelectorAll(
+      'emu-alg > ol > li:not(:last-child), emu-alg > ol > li > ol li',
+    )) {
       // only check the li's own text, not text from nested sub-steps
       let text = '';
       for (const child of li.childNodes) {
