@@ -1111,7 +1111,9 @@ function doShortcut(e) {
       location = 'multipage/' + hash;
     }
   } else if (e.key === 'u') {
-    document.documentElement.classList.toggle('show-ao-annotations');
+    document.documentElement.classList.toggle('show-uc-annotations');
+  } else if (e.key === 'r') {
+    document.documentElement.classList.toggle('show-early-exits');
   } else if (e.key === '?') {
     document.getElementById('shortcuts-help').classList.toggle('active');
   }
