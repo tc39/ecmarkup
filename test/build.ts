@@ -30,7 +30,7 @@ describe('ecmarkup#build', () => {
 
   describe('minify option', () => {
     async function buildWithMinify(minify?: boolean) {
-      const spec = await build('root.html', file => fetch(file), {
+      const spec = await build('root.html', async file => fetch(file), {
         toc: false,
         copyright: false,
         assets: 'none',
