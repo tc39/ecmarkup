@@ -1112,7 +1112,7 @@ function doShortcut(e) {
     }
   } else if (e.key === 'u') {
     document.documentElement.classList.toggle('show-uc-annotations');
-  } else if (e.key === 'r') {
+  } else if (e.key === 'e') {
     document.documentElement.classList.toggle('show-early-exits');
   } else if (e.key === '?') {
     document.getElementById('shortcuts-help').classList.toggle('active');
