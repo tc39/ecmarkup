@@ -75,6 +75,8 @@
 
   --attributes-tag-foreground-color: #884400;
 
+  --ac-body-border-color: #ddd;
+
   --figure-background: #fff;
 }
 
@@ -156,6 +158,8 @@
       --normative-optional-border-color: #ff6600;
 
       --attributes-tag-foreground-color: #e6a96d;
+
+      --ac-body-border-color: #555;
 
       --figure-background: #fff;
     }
@@ -494,6 +498,12 @@ emu-alg ol.nested-once ol ol ol ol,
 /* depth 7+ */
 emu-alg ol.nested-lots ol {
   list-style-type: lower-roman;
+}
+
+emu-alg ol.ac-body {
+  border-left: 6px double var(--ac-body-border-color);
+  border-radius: 0 0 0 10px;
+  margin-bottom: 5px;
 }
 
 emu-eqn {
