@@ -41,6 +41,7 @@ export interface Options {
   printable?: boolean;
   markEffects?: boolean;
   lintSpec?: boolean;
+  minify?: boolean;
   cssOut?: never;
   jsOut?: never;
   assets?: 'none' | 'inline' | 'external';

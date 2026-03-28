@@ -8,7 +8,6 @@ import * as utils from './utils';
 import { options } from './args';
 import { parse } from './arg-parser';
 import type { ExportedBiblio } from './Biblio';
-import { minifyGeneratedFiles } from './minify';
 
 const debounce: (_: () => Promise<void>) => () => Promise<void> = require('promise-debounce');
 
@@ -130,6 +129,9 @@ const build = debounce(async function build() {
     if (args['assets-dir'] != null) {
       opts.assetsDir = args['assets-dir'];
     }
+    if (args['no-minify']) {
+      opts.minify = false;
+    }
 
     let warned = false;
 
@@ -182,13 +184,6 @@ const build = debounce(async function build() {
     }
 
     const spec = await ecmarkup.build(args.files[0], utils.readFile, opts);
-
-    if (!args['no-minify']) {
-      spec.generatedFiles = await minifyGeneratedFiles(
-        spec.generatedFiles,
-        args.verbose ? utils.logVerbose : undefined,
-      );
-    }
 
     if (args.verbose) {
       utils.logVerbose(warned ? 'Completed with errors.' : 'Done.');

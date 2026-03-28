@@ -26,6 +26,7 @@ function build(file: string, options: Options) {
       ),
     {
       extraBiblios: [ecma262biblio as ExportedBiblio],
+      minify: false,
       ...options,
     },
   );

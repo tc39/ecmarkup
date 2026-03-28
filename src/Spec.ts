@@ -47,6 +47,7 @@ import {
 import { lint } from './lint/lint';
 import { CancellationToken } from 'prex';
 import type { JSDOM } from 'jsdom';
+import { minifyGeneratedFiles } from './minify';
 import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/utils';
 import type { AugmentedGrammarEle } from './Grammar';
 import { zip } from './utils';
@@ -700,6 +701,10 @@ export default class Spec {
       ? path.join(this.opts.outfile!, 'index.html')
       : this.opts.outfile ?? null;
     this.generatedFiles.set(file, this.toHTML());
+
+    if (this.opts.minify || this.opts.minify === undefined) {
+      this.generatedFiles = await minifyGeneratedFiles(this.generatedFiles, this.log);
+    }
 
     return this;
   }
