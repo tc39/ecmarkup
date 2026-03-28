@@ -61,7 +61,7 @@ export async function minifyGeneratedFiles(
       const svg = typeof value === 'string' ? value : value.toString('utf-8');
       log?.(`Minifying ${key}...`);
       const optimized = svgoOptimize(svg, svgoConfig);
-      result.set(key, Buffer.from(optimized.data, 'utf-8'));
+      result.set(key, optimized.data);
     } else if (ext === '.js') {
       const js = typeof value === 'string' ? value : value.toString('utf-8');
       log?.(`Minifying ${key}...`);
