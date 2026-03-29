@@ -501,9 +501,9 @@ emu-alg ol.nested-lots ol {
 }
 
 emu-alg ol.ac-body {
-  border-left: 6px double var(--ac-body-border-color);
-  border-radius: 0 0 0 10px;
-  margin-bottom: 5px;
+  border-left: 3px solid var(--ac-body-border-color);
+  border-radius: 0 0 0 20px;
+  padding-bottom: 5px;
 }
 
 emu-eqn {
