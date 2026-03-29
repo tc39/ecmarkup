@@ -60,6 +60,11 @@ export const options = [
     description: 'Enforce some style and correctness checks',
   },
   {
+    name: 'no-minify',
+    type: Boolean,
+    description: 'Disable minification of generated output',
+  },
+  {
     name: 'error-formatter',
     type: String,
     typeLabel: '{underline formatter}',

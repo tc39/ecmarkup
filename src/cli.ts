@@ -129,6 +129,9 @@ const build = debounce(async function build() {
     if (args['assets-dir'] != null) {
       opts.assetsDir = args['assets-dir'];
     }
+    if (args['no-minify']) {
+      opts.minify = false;
+    }
 
     let warned = false;
 

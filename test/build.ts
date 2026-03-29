@@ -27,4 +27,42 @@ describe('ecmarkup#build', () => {
     assert.equal(typeof result, 'string');
     assert(result.includes(`<div id="spec-container">`));
   });
+
+  describe('minify option', () => {
+    async function buildWithMinify(minify?: boolean) {
+      const spec = await build('root.html', async file => fetch(file), {
+        toc: false,
+        copyright: false,
+        assets: 'none',
+        minify,
+      });
+      return spec.generatedFiles.get(null) as string;
+    }
+
+    it('minifies by default when option is omitted', async () => {
+      const defaultOutput = await buildWithMinify(undefined);
+      const unminified = await buildWithMinify(false);
+      assert(
+        defaultOutput.length < unminified.length,
+        `Expected default (${defaultOutput.length}) to be smaller than unminified (${unminified.length})`,
+      );
+    });
+
+    it('minifies when minify is true', async () => {
+      const minified = await buildWithMinify(true);
+      const unminified = await buildWithMinify(false);
+      assert(
+        minified.length < unminified.length,
+        `Expected minified (${minified.length}) to be smaller than unminified (${unminified.length})`,
+      );
+    });
+
+    it('does not minify when minify is false', async () => {
+      const unminified = await buildWithMinify(false);
+      assert(
+        unminified.includes(`<div id="spec-container">`),
+        'Expected unminified output to preserve whitespace and attribute quotes',
+      );
+    });
+  });
 });

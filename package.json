@@ -50,6 +50,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"chalk": "^4.1.2",
+		"clean-css": "^5.3.3",
 		"command-line-args": "^5.2.0",
 		"command-line-usage": "^6.1.1",
 		"dedent-js": "^1.0.1",
@@ -59,16 +60,21 @@
 		"grammarkdown": "^3.3.2",
 		"highlight.js": "11.0.1",
 		"html-escape": "^1.0.2",
+		"html-minifier-terser": "^7.2.0",
 		"js-yaml": "^3.13.1",
 		"jsdom": "^25.0.1",
 		"nwsapi": "2.2.0",
 		"parse5": "^6.0.1",
 		"prex": "^0.4.7",
-		"promise-debounce": "^1.0.1"
+		"promise-debounce": "^1.0.1",
+		"svgo": "^4.0.1",
+		"terser": "^5.46.1"
 	},
 	"devDependencies": {
+		"@types/clean-css": "^4.2.11",
 		"@types/command-line-args": "^5.2.0",
 		"@types/command-line-usage": "^5.0.2",
+		"@types/html-minifier-terser": "^7.0.2",
 		"@types/js-yaml": "^3.12.1",
 		"@types/jsdom": "^16.2.13",
 		"@types/node": "^24.10.13",
