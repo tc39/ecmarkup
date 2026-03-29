@@ -1,6 +1,6 @@
 import { minify as htmlMinify } from 'html-minifier-terser';
 import * as CleanCSS from 'clean-css';
-import { optimize as svgoOptimize, type Config as SvgoConfig, type PluginConfig } from 'svgo';
+import { optimize as svgoOptimize, type Config as SvgoConfig } from 'svgo';
 import { minify as terserMinify } from 'terser';
 import * as path from 'path';
 
@@ -30,10 +30,7 @@ const cleanCss = new CleanCSS({ level: 2 });
 
 const svgoConfig: SvgoConfig = {
   multipass: true,
-  plugins: [
-    { name: 'preset-default' },
-    'removeViewBox',
-  ],
+  plugins: [{ name: 'preset-default' }, 'removeViewBox'],
 };
 
 export async function minifyGeneratedFiles(
