@@ -119,6 +119,16 @@ export default class Algorithm extends Builder {
       }
     }
 
+    for (const step of node.querySelectorAll('li')) {
+      if (/\ba new Abstract Closure\b/.test(ownTextContent(step))) {
+        for (const ol of step.children) {
+          if (ol.tagName === 'OL') {
+            ol.classList.add('ac-body');
+          }
+        }
+      }
+    }
+
     for (const step of node.querySelectorAll(kindSelector)) {
       // prettier-ignore
       const attributes = SPECIAL_KINDS
@@ -151,6 +161,15 @@ export default class Algorithm extends Builder {
   }
 
   static readonly elements = ['EMU-ALG'] as const;
+}
+
+function ownTextContent(el: Element): string {
+  let text = '';
+  for (const child of el.childNodes) {
+    if (child.nodeType === 1 && (child as Element).tagName === 'OL') continue;
+    text += child.textContent;
+  }
+  return text;
 }
 
 function getStepNumbers(item: Element) {
