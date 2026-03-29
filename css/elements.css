@@ -464,9 +464,15 @@ emu-val {
 
 emu-alg li.early-exit::before {
   display: none;
+  border: 2pt solid var(--annotation-foreground-color);
+  font-size: small;
   color: var(--annotation-foreground-color);
+  padding: 0 0.25em;
+  background-color: var(--background-color);
   content: '⏎';
   margin-right: 0.25em;
+  line-height: 16px;
+  vertical-align: middle;
 }
 
 html.show-early-exits emu-alg li.early-exit::before {
