@@ -79,7 +79,9 @@ export default class Algorithm extends Builder {
     node.innerHTML = html;
 
     // mark steps containing early exits (return/throw/?) with the early-exit class
-    const earlyExitRe = /\b(?:return|throw)\b|[\s(]\?\s/i;
+    const earlyExitIndicator = /\b(?:return|throw)\b|[\s(]\?\s/i;
+    // these are macros in ECMA-262 that expand to steps that include a return/throw/?
+    const earlyExitMacro = /\bIfAbrupt(?:CloseIterator|CloseAsyncIterator|RejectPromise)\(/;
     const acRe = /\ba new Abstract Closure\b/i;
     for (const ol of node.querySelectorAll('ol')) {
       const isTopLevel = ol.parentElement === node;
@@ -91,7 +93,7 @@ export default class Algorithm extends Builder {
       for (let i = 0; i < items.length; i++) {
         if (i === items.length - 1 && (isTopLevel || isACBody)) continue;
         const text = ownTextContent(items[i]);
-        if (earlyExitRe.test(text)) {
+        if (earlyExitIndicator.test(text) || earlyExitMacro.test(text)) {
           items[i].classList.add('early-exit');
         }
       }
