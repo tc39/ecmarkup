@@ -78,6 +78,27 @@ export default class Algorithm extends Builder {
     html = html.replace(/[ \t]+([»}])/g, '&nbsp;$1');
     node.innerHTML = html;
 
+    // mark steps containing early exits (return/throw/?) with the early-exit class
+    const earlyExitIndicator = /\b(?:return|throw)\b|[\s(]\?\s/i;
+    // these are macros in ECMA-262 that expand to steps that include a return/throw/?
+    const earlyExitMacro = /\bIfAbrupt(?:CloseIterator|CloseAsyncIterator|RejectPromise)\(/;
+    const acRe = /\ba new Abstract Closure\b/i;
+    for (const ol of node.querySelectorAll('ol')) {
+      const isTopLevel = ol.parentElement === node;
+      const isACBody =
+        !isTopLevel &&
+        ol.parentElement?.tagName === 'LI' &&
+        acRe.test(ownTextContent(ol.parentElement));
+      const items = ol.children;
+      for (let i = 0; i < items.length; i++) {
+        if (i === items.length - 1 && (isTopLevel || isACBody)) continue;
+        const text = ownTextContent(items[i]);
+        if (earlyExitIndicator.test(text) || earlyExitMacro.test(text)) {
+          items[i].classList.add('early-exit');
+        }
+      }
+    }
+
     const labeledStepEntries: StepBiblioEntry[] = [];
     const replaces = node.getAttribute('replaces-step');
     if (replaces) {
@@ -151,6 +172,16 @@ export default class Algorithm extends Builder {
   }
 
   static readonly elements = ['EMU-ALG'] as const;
+}
+
+// get text content of an element excluding nested <ol> children
+function ownTextContent(el: Element): string {
+  let text = '';
+  for (const child of el.childNodes) {
+    if (child.nodeType === 1 && (child as Element).tagName === 'OL') continue;
+    text += child.textContent;
+  }
+  return text;
 }
 
 function getStepNumbers(item: Element) {

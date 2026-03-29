@@ -5,7 +5,7 @@
   --link-foreground-color: #206ca7;
   --link-hover-foreground-color: #239dee;
 
-  --user-code-foreground-color: brown;
+  --annotation-foreground-color: brown;
 
   --var-foreground-color: #218379;
 
@@ -87,7 +87,7 @@
       --link-foreground-color: #439de2;
       --link-hover-foreground-color: #80cafb;
 
-      --user-code-foreground-color: brown;
+      --annotation-foreground-color: brown;
 
       --var-foreground-color: #4fb6ab;
 
@@ -333,9 +333,9 @@ span.e-user-code {
 a.e-user-code::before,
 span.e-user-code::before {
   display: none;
-  color: var(--user-code-foreground-color);
+  color: var(--annotation-foreground-color);
   background-color: var(--background-color);
-  border: 2pt solid var(--user-code-foreground-color);
+  border: 2pt solid var(--annotation-foreground-color);
   padding: 0.3ex;
   margin: 0 0.25em 0 0;
   line-height: normal;
@@ -350,12 +350,12 @@ span.e-user-code::before {
 
 a.e-user-code:hover::before,
 span.e-user-code:hover::before {
-  background-color: var(--user-code-foreground-color);
+  background-color: var(--annotation-foreground-color);
   color: var(--background-color);
 }
 
-html.show-ao-annotations a.e-user-code::before,
-html.show-ao-annotations span.e-user-code::before {
+html.show-uc-annotations a.e-user-code::before,
+html.show-uc-annotations span.e-user-code::before {
   display: inline-block;
 }
 
@@ -456,6 +456,23 @@ emu-const {
 
 emu-val {
   font-weight: bold;
+}
+
+emu-alg li.early-exit::before {
+  display: none;
+  border: 2pt solid var(--annotation-foreground-color);
+  font-size: small;
+  color: var(--annotation-foreground-color);
+  padding: 0 0.25em;
+  background-color: var(--background-color);
+  content: '⏎';
+  margin-right: 0.25em;
+  line-height: 16px;
+  vertical-align: middle;
+}
+
+html.show-early-exits emu-alg li.early-exit::before {
+  display: inline-block;
 }
 
 /* depth 1 */
