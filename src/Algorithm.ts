@@ -4,7 +4,7 @@ import type { PartialBiblioEntry, StepBiblioEntry } from './Biblio';
 
 import Builder from './Builder';
 import { SPECIAL_KINDS_MAP, SPECIAL_KINDS } from './Clause';
-import { warnEmdFailure, wrapEmdFailure } from './utils';
+import { isAbstractClosureHeader, ownTextContent, warnEmdFailure, wrapEmdFailure } from './utils';
 import { collectNonterminalsFromEmd } from './lint/utils';
 import * as emd from 'ecmarkdown';
 
@@ -116,6 +116,16 @@ export default class Algorithm extends Builder {
         // The biblio entries for labeled steps in replacement algorithms will be modified in-place by a subsequent pass
         labeledStepEntries.push(entry as StepBiblioEntry);
         context.spec.labeledStepsToBeRectified.add(step.id);
+      }
+    }
+
+    for (const step of node.querySelectorAll('li')) {
+      if (isAbstractClosureHeader(ownTextContent(step))) {
+        for (const ol of step.children) {
+          if (ol.tagName === 'OL') {
+            ol.classList.add('ac-body');
+          }
+        }
       }
     }
 

@@ -8,7 +8,7 @@ import type {
 import type { Reporter } from '../algorithm-error-reporter-type';
 import type { Seq } from '../../expr-parser';
 import { walk as walkExpr } from '../../expr-parser';
-import { offsetToLineAndColumn } from '../../utils';
+import { isAbstractClosureHeader, offsetToLineAndColumn } from '../../utils';
 
 /*
 Ecmaspeak scope rules are a bit weird.
@@ -244,10 +244,7 @@ function walkAlgorithm(
     }
 
     // handle abstract closures
-    if (
-      last?.name === 'text' &&
-      / performs the following steps (atomically )?when called:$/.test(last.contents)
-    ) {
+    if (last?.name === 'text' && isAbstractClosureHeader(last.contents)) {
       if (first.name === 'text' && first.contents === 'Let ' && isVariable(expr.items[1])) {
         const closureName = expr.items[1];
         scope.declare(closureName.contents, closureName);

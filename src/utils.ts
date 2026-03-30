@@ -284,10 +284,7 @@ export function doesEffectPropagateToParent(node: Element, effect: string) {
     // This is super hacky. It's checking the output of ecmarkdown.
     if (parent.tagName !== 'LI') continue;
 
-    if (
-      effect === 'user-code' &&
-      /be a new (\w+ )*Abstract Closure/.test(parent.textContent ?? '')
-    ) {
+    if (effect === 'user-code' && isAbstractClosureHeader(ownTextContent(parent))) {
       return false;
     }
 
@@ -342,4 +339,18 @@ export function withOrdinalSuffix(n: number): string {
   const rule = pr.select(n);
   const suffixes = { one: 'st', two: 'nd', few: 'rd', other: 'th' };
   return `${n}${suffixes[rule as keyof typeof suffixes]}`;
+}
+
+const acHeaderRe = / performs the following steps (atomically )?when called:$/;
+export function isAbstractClosureHeader(text: string): boolean {
+  return acHeaderRe.test(text);
+}
+
+export function ownTextContent(el: Element): string {
+  let text = '';
+  for (const child of el.childNodes) {
+    if (child.nodeType === 1 && (child as Element).tagName === 'OL') continue;
+    text += child.textContent;
+  }
+  return text;
 }
