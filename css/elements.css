@@ -471,7 +471,7 @@ emu-alg li.exit:not(emu-alg ol.ac-body > li:last-child):not(emu-alg > ol > li:la
   background-color: var(--background-color);
   content: '⏎';
   margin-right: 0.25em;
-  line-height: 16px;
+  line-height: 15px;
   vertical-align: middle;
 }
 
