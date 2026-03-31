@@ -1,0 +1,34 @@
+<pre class=metadata>
+toc: false
+copyright: false
+assets: none
+</pre>
+
+<emu-clause id="sec-marked-exits" type="abstract operation">
+  <h1>MarkedExits ( )</h1>
+  <dl class="header"></dl>
+  <emu-alg>
+    1. Return *true*.
+    1. If _x_ is *true*, return ~unused~.
+    1. Throw a *TypeError* exception.
+    1. If _x_ is *true*, throw _x_.
+    1. Let _x_ be ? Foo().
+    1. Perform ? Bar().
+    1. IfAbruptCloseIterator(_x_, _iteratorRecord_).
+    1. IfAbruptCloseAsyncIterator(_x_, _iteratorRecord_).
+    1. IfAbruptRejectPromise(_x_, _capability_).
+  </emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-exempt-exits" type="abstract operation">
+  <h1>ExemptExits ( )</h1>
+  <dl class="header"></dl>
+  <emu-alg>
+    1. Let _x_ be ! Foo(*"throw"*).
+    1. Perform Bar(~return~).
+    1. NOTE: This step mentions return but is not marked.
+    1. Assert: This step mentions throw but is not marked.
+    1. NOTE: Even ? Baz() does not get marked here.
+    1. Assert: Even IfAbruptCloseIterator(_x_, _y_) is not marked.
+  </emu-alg>
+</emu-clause>
