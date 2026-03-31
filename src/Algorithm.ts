@@ -78,7 +78,7 @@ export default class Algorithm extends Builder {
     html = html.replace(/[ \t]+([»}])/g, '&nbsp;$1');
     node.innerHTML = html;
 
-    // mark steps containing early exits (return/throw/?) with the early-exit class
+    // mark algorithm-terminating steps (return/throw/?) with the `exit` class
     const earlyExitIndicator = /\b(?:return|throw)\b|[\s(]\?\s/i;
     // these are macros in ECMA-262 that expand to steps that include a return/throw/?
     const earlyExitMacro = /\bIfAbrupt(?:CloseIterator|CloseAsyncIterator|RejectPromise)\(/;

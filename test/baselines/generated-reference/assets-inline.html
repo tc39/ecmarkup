@@ -2082,7 +2082,8 @@ emu-val {
   font-weight: bold;
 }
 
-emu-alg li.exit:not(emu-alg ol.ac-body > li:last-child):not(emu-alg > ol > li:last-child)::before {
+/* prefix algorithm-terminating steps with an indicator when dynamically enabled */
+emu-alg li.exit::before {
   display: none;
   border: 2pt solid var(--annotation-foreground-color);
   font-size: small;
