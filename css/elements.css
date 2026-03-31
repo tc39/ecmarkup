@@ -462,7 +462,7 @@ emu-val {
   font-weight: bold;
 }
 
-emu-alg li.early-exit::before {
+emu-alg li.exit:not(emu-alg ol.ac-body > li:last-child):not(emu-alg > ol > li:last-child)::before {
   display: none;
   border: 2pt solid var(--annotation-foreground-color);
   font-size: small;
@@ -475,9 +475,10 @@ emu-alg li.early-exit::before {
   vertical-align: middle;
 }
 
-html.show-early-exits emu-alg li.early-exit::before {
+html.show-early-exits emu-alg li.exit:not(emu-alg ol.ac-body > li:last-child):not(emu-alg > ol > li:last-child)::before {
   display: inline-block;
 }
+
 
 /* depth 1 */
 emu-alg ol,

@@ -349,8 +349,9 @@ export function isAbstractClosureHeader(text: string): boolean {
 export function ownTextContent(el: Element): string {
   let text = '';
   for (const child of el.childNodes) {
-    if (child.nodeType === 1 && (child as Element).tagName === 'OL') continue;
-    text += child.textContent;
+    if (child.nodeType === 3) {
+      text += child.textContent;
+    }
   }
   return text;
 }
