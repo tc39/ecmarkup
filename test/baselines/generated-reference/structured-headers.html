@@ -3,6 +3,7 @@
 <ul>
   <li><span>Toggle shortcuts help</span><code>?</code></li>
   <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+  <li><span>Toggle early exit annotations</span><code>e</code></li>
 
   <li><span>Jump to search box</span><code>/</code></li>
   <li><span>Toggle pinning of the current clause</span><code>p</code></li>
@@ -69,12 +70,12 @@
     <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-oDKnYE2s"><emu-t>this</emu-t></emu-rhs>
 </emu-production>
 </emu-grammar>
-    <emu-alg><ol><li>Return <emu-val>true</emu-val>.</li></ol></emu-alg>
+    <emu-alg><ol><li class="exit">Return <emu-val>true</emu-val>.</li></ol></emu-alg>
     <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
     <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="_ditw-4g" id="prod-_G-zA61Z"><emu-t>that</emu-t></emu-rhs>
 </emu-production>
 </emu-grammar>
-    <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+    <emu-alg><ol><li class="exit">Return <emu-val>false</emu-val>.</li></ol></emu-alg>
   </emu-clause>
   <emu-clause id="sec-isthat" type="sdo" aoid="IsThat">
     <h1><span class="secnum">6.2</span> IsThat</h1>
@@ -83,12 +84,12 @@
     <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="jo4mwtvh" id="prod-QDgm4qgx"><emu-t>this</emu-t></emu-rhs>
 </emu-production>
 </emu-grammar>
-    <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+    <emu-alg><ol><li class="exit">Return <emu-val>false</emu-val>.</li></ol></emu-alg>
     <emu-grammar><emu-production name="PrimaryExpression" collapsed="">
     <emu-nt><a href="#prod-PrimaryExpression">PrimaryExpression</a></emu-nt> <emu-geq>:</emu-geq> <emu-rhs a="_ditw-4g" id="prod-6qiWXvFG"><emu-t>that</emu-t></emu-rhs>
 </emu-production>
 </emu-grammar>
-    <emu-alg><ol><li>Return <emu-val>true</emu-val>.</li></ol></emu-alg>
+    <emu-alg><ol><li class="exit">Return <emu-val>true</emu-val>.</li></ol></emu-alg>
   </emu-clause>
 </emu-clause>
 
@@ -101,6 +102,6 @@
 <emu-clause id="sec-example-single-line-return-type" type="abstract operation" aoid="ExampleA4">
   <h1><span class="secnum">8</span> ExampleA4 ( )</h1>
   <p>The abstract operation ExampleA4 takes no arguments and returns <emu-val>false</emu-val>. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Return <emu-val>false</emu-val>.</li></ol></emu-alg>
+  <emu-alg><ol><li class="exit">Return <emu-val>false</emu-val>.</li></ol></emu-alg>
 </emu-clause>
 </div></body>

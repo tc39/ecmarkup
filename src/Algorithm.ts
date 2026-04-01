@@ -78,6 +78,21 @@ export default class Algorithm extends Builder {
     html = html.replace(/[ \t]+([»}])/g, '&nbsp;$1');
     node.innerHTML = html;
 
+    // mark algorithm-terminating steps (return/throw/?) with the `exit` class
+    const earlyExitIndicator = /\b(?:return|throw)\b|[\s(]\?\s/i;
+    // these are macros in ECMA-262 that expand to steps that include a return/throw/?
+    const earlyExitMacro = /\bIfAbrupt(?:CloseIterator|CloseAsyncIterator|RejectPromise)\(/;
+    const note = /^(?:NOTE|Assert): /;
+    for (const ol of node.querySelectorAll('ol')) {
+      const items = ol.children;
+      for (let i = 0; i < items.length; i++) {
+        const text = ownTextContent(items[i]);
+        if ((earlyExitIndicator.test(text) || earlyExitMacro.test(text)) && !note.test(text)) {
+          items[i].classList.add('exit');
+        }
+      }
+    }
+
     const labeledStepEntries: StepBiblioEntry[] = [];
     const replaces = node.getAttribute('replaces-step');
     if (replaces) {

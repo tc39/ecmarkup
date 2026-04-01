@@ -1,0 +1,26 @@
+<!doctype html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8"></head><body><div id="shortcuts-help">
+<ul>
+  <li><span>Toggle shortcuts help</span><code>?</code></li>
+  <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+  <li><span>Toggle early exit annotations</span><code>e</code></li>
+
+  <li><span>Jump to search box</span><code>/</code></li>
+  <li><span>Toggle pinning of the current clause</span><code>p</code></li>
+  <li><span>Jump to the <i>n</i><sup>th</sup> pin</span><code>1-9</code></li>
+  <li><span>Jump to the 10<sup>th</sup> pin</span><code>0</code></li>
+  <li><span>Jump to the most recent link target</span><code>`</code></li>
+</ul></div><div id="spec-container">
+
+<emu-clause id="sec-marked-exits" type="abstract operation" aoid="MarkedExits">
+  <h1><span class="secnum">1</span> MarkedExits ( )</h1>
+  <p>The abstract operation MarkedExits takes no arguments. It performs the following steps when called:</p>
+  <emu-alg><ol><li class="exit">Return <emu-val>true</emu-val>.</li><li class="exit">If <var>x</var> is <emu-val>true</emu-val>, return <emu-const>unused</emu-const>.</li><li class="exit">Throw a <emu-val>TypeError</emu-val> exception.</li><li class="exit">If <var>x</var> is <emu-val>true</emu-val>, throw <var>x</var>.</li><li class="exit">Let <var>x</var> be ?&nbsp;Foo().</li><li class="exit">Perform ?&nbsp;Bar().</li><li class="exit"><emu-xref aoid="IfAbruptCloseIterator"><a href="https://tc39.es/ecma262/#sec-ifabruptcloseiterator">IfAbruptCloseIterator</a></emu-xref>(<var>x</var>, <var>iteratorRecord</var>).</li><li class="exit">IfAbruptCloseAsyncIterator(<var>x</var>, <var>iteratorRecord</var>).</li><li class="exit"><emu-xref aoid="IfAbruptRejectPromise"><a href="https://tc39.es/ecma262/#sec-ifabruptrejectpromise">IfAbruptRejectPromise</a></emu-xref>(<var>x</var>, <var>capability</var>).</li></ol></emu-alg>
+</emu-clause>
+
+<emu-clause id="sec-exempt-exits" type="abstract operation" aoid="ExemptExits">
+  <h1><span class="secnum">2</span> ExemptExits ( )</h1>
+  <p>The abstract operation ExemptExits takes no arguments. It performs the following steps when called:</p>
+  <emu-alg><ol><li>Let <var>x</var> be !&nbsp;Foo(<emu-val>"throw"</emu-val>).</li><li>Perform Bar(<emu-const>return</emu-const>).</li><li>NOTE: This step mentions return but is not marked.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: This step mentions throw but is not marked.</li><li>NOTE: Even ?&nbsp;Baz() does not get marked here.</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: Even <emu-xref aoid="IfAbruptCloseIterator"><a href="https://tc39.es/ecma262/#sec-ifabruptcloseiterator">IfAbruptCloseIterator</a></emu-xref>(<var>x</var>, <var>y</var>) is not marked.</li></ol></emu-alg>
+</emu-clause>
+</div></body>

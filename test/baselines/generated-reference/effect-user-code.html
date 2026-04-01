@@ -3,6 +3,7 @@
 <ul>
   <li><span>Toggle shortcuts help</span><code>?</code></li>
   <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+  <li><span>Toggle early exit annotations</span><code>e</code></li>
 
   <li><span>Jump to search box</span><code>/</code></li>
   <li><span>Toggle pinning of the current clause</span><code>p</code></li>
@@ -105,19 +106,19 @@
 <emu-clause id="sec-rendered-meta" type="abstract operation" aoid="RenderedMeta">
   <h1><span class="secnum">16</span> RenderedMeta ( )</h1>
   <p>The abstract operation RenderedMeta takes no arguments. emu-meta tags with the effects attribute that aren't surrounding what ecmarkup recognizes as invocations are changed into span tags to be rendered. The effects list is prefixed with e- and changed into class names. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Perform ?&nbsp;<span class="e-user-code"><var>O</var>.<var class="field">[[Call]]</var>()</span>.</li></ol></emu-alg>
+  <emu-alg><ol><li class="exit">Perform ?&nbsp;<span class="e-user-code"><var>O</var>.<var class="field">[[Call]]</var>()</span>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-make-abstract-closure" type="abstract operation" aoid="MakeAbstractClosure">
   <h1><span class="secnum">17</span> MakeAbstractClosure ( )</h1>
   <p>The abstract operation MakeAbstractClosure takes no arguments. The user-code effect doesn't propagate through <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> boundaries by recognizing the "be a new <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref>" <emu-xref href="#substring"><a href="https://tc39.es/ecma262/#substring">substring</a></emu-xref>. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Let <var>closure</var> be a new <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> that captures nothing and performs the following steps when called:<ol class="ac-body"><li><emu-xref aoid="UserCode" id="_ref_13"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li>Return <var>closure</var>.</li></ol></emu-alg>
+  <emu-alg><ol><li>Let <var>closure</var> be a new <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> that captures nothing and performs the following steps when called:<ol class="ac-body"><li><emu-xref aoid="UserCode" id="_ref_13"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li class="exit">Return <var>closure</var>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-make-special-abstract-closure" type="abstract operation" aoid="MakeJobAbstractClosure">
   <h1><span class="secnum">18</span> MakeJobAbstractClosure ( )</h1>
   <p>The abstract operation MakeJobAbstractClosure takes no arguments. The user-code effect doesn't propagate through specialized <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> boundaries by recognizing the "be a new Something <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref>" <emu-xref href="#substring"><a href="https://tc39.es/ecma262/#substring">substring</a></emu-xref>. It performs the following steps when called:</p>
-  <emu-alg><ol><li>Let <var>closure</var> be a new <emu-xref href="#job"><a href="https://tc39.es/ecma262/#job">Job</a></emu-xref> <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> that captures nothing and performs the following steps when called:<ol class="ac-body"><li><emu-xref aoid="UserCode" id="_ref_14"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li>Return <var>closure</var>.</li></ol></emu-alg>
+  <emu-alg><ol><li>Let <var>closure</var> be a new <emu-xref href="#job"><a href="https://tc39.es/ecma262/#job">Job</a></emu-xref> <emu-xref href="#sec-abstract-closure"><a href="https://tc39.es/ecma262/#sec-abstract-closure">Abstract Closure</a></emu-xref> that captures nothing and performs the following steps when called:<ol class="ac-body"><li><emu-xref aoid="UserCode" id="_ref_14"><a href="#sec-user-code" class="e-user-code">UserCode</a></emu-xref>().</li></ol></li><li class="exit">Return <var>closure</var>.</li></ol></emu-alg>
 </emu-clause>
 
 <emu-clause id="sec-call-make-abstract-closure" type="abstract operation" aoid="CallMakeAbstractClosure">
