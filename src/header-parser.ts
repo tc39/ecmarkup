@@ -105,6 +105,13 @@ export function parseHeader(headerText: string): ParsedHeaderOrFailure {
   let type: 'single-line' | 'multi-line';
   const params: Param[] = [];
   const optionalParams: Param[] = [];
+
+  function checkDuplicateParam(paramName: string, paramNameOffset: number) {
+    if (params.some(p => p.name === paramName) || optionalParams.some(p => p.name === paramName)) {
+      errors.push({ message: `duplicate parameter ${JSON.stringify(paramName)}`, offset: paramNameOffset });
+    }
+  }
+
   if (text[0] === '\n') {
     // multiline: parse for parameter types
     type = 'multi-line';
@@ -142,8 +149,9 @@ export function parseHeader(headerText: string): ParsedHeaderOrFailure {
         errors.push({ message: 'expected parameter name', offset });
         return { type: 'failure', errors };
       }
-      offset += match[0].length;
       const paramName = match[0].trimRight();
+      checkDuplicateParam(paramName, offset);
+      offset += match[0].length;
 
       ({ match, text } = eat(text, /^:+ */i));
       if (!match) {
@@ -216,8 +224,9 @@ export function parseHeader(headerText: string): ParsedHeaderOrFailure {
         errors.push({ message: 'expected parameter name', offset });
         return { type: 'failure', errors };
       }
-      offset += match[0].length;
       const paramName = match[0].trimRight();
+      checkDuplicateParam(paramName, offset);
+      offset += match[0].length;
 
       (optional ? optionalParams : params).push({
         name: paramName,

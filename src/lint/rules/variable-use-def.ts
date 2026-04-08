@@ -144,8 +144,11 @@ export function checkVariableUsage(
       preceding.textContent != null
     ) {
       const isParameter = preceding.nodeName === 'H1';
+      const seen = new Set<string>();
       // `__` is for <del>_x_</del><ins>_y_</ins>, which has textContent `_x__y_`
       for (const name of preceding.textContent.matchAll(/(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g)) {
+        if (seen.has(name[1])) continue;
+        seen.add(name[1]);
         scope.declare(name[1], null, isParameter ? 'parameter' : undefined, !isParameter);
       }
     }
