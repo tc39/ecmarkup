@@ -152,8 +152,20 @@ export function checkVariableUsage(
     ) {
       const isParameter = preceding.nodeName === 'H1';
       // `__` is for <del>_x_</del><ins>_y_</ins>, which has textContent `_x__y_`
-      for (const name of preceding.textContent.matchAll(/(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g)) {
-        scope.declare(name[1], null, isParameter ? 'parameter' : undefined, !isParameter);
+      const content = preceding.textContent;
+      for (const name of content.matchAll(/(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g)) {
+        if (isParameter) {
+          const { line, column } = offsetToLineAndColumn(content, name.index);
+          scope.declare(
+            name[1],
+            { location: { start: { line, column } } },
+            'parameter',
+            false,
+            preceding,
+          );
+        } else {
+          scope.declare(name[1], null, undefined, true);
+        }
       }
     }
     preceding = previousOrParent(preceding, parentClause);
