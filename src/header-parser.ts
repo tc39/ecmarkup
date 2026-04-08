@@ -108,7 +108,10 @@ export function parseHeader(headerText: string): ParsedHeaderOrFailure {
 
   function checkDuplicateParam(paramName: string, paramNameOffset: number) {
     if (params.some(p => p.name === paramName) || optionalParams.some(p => p.name === paramName)) {
-      errors.push({ message: `duplicate parameter ${JSON.stringify(paramName)}`, offset: paramNameOffset });
+      errors.push({
+        message: `duplicate parameter ${JSON.stringify(paramName)}`,
+        offset: paramNameOffset,
+      });
     }
   }
 
