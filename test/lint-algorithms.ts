@@ -524,6 +524,36 @@ describe('linting algorithms', () => {
     });
   });
 
+  describe('for each of', () => {
+    const ruleId = 'for-each-of';
+    it('rejects "in" instead of "of"', async () => {
+      await assertLint(
+        positioned`
+        <emu-alg>
+          1. Let _y_ be a List.
+          1. For each String _x_ ${M}in _y_, do foo.
+        </emu-alg>`,
+        {
+          ruleId,
+          nodeType,
+          message: 'expected "of" instead of "in" in "for each"',
+        },
+      );
+    });
+
+    it('negative', async () => {
+      await assertLintFree(`
+        <emu-alg>
+          1. Let _y_ be a List.
+          1. Let _S_ be a Set.
+          1. For each String _x_ of _y_, do foo.
+          1. For each element _x_ of _y_, do foo.
+          1. For each integer _x_ such that _x_ &in; _S_, do foo.
+        </emu-alg>
+      `);
+    });
+  });
+
   describe('if/else consistency', () => {
     const ruleId = 'if-else-consistency';
     it('rejects single-line if with multiline else', async () => {

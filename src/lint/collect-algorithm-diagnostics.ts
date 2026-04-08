@@ -11,6 +11,7 @@ import lintAlgorithmStepNumbering from './rules/algorithm-step-numbering';
 import lintAlgorithmStepLabels from './rules/algorithm-step-labels';
 import lintEnumCasing from './rules/enum-casing';
 import lintForEachElement from './rules/for-each-element';
+import lintForEachOf from './rules/for-each-of';
 import lintStepAttributes from './rules/step-attributes';
 import lintIfElseConsistency from './rules/if-else-consistency';
 import { checkVariableUsage } from './rules/variable-use-def';
@@ -30,6 +31,7 @@ const stepRules: LineRule[] = [
   lintAlgorithmStepLabels,
   lintEnumCasing,
   lintForEachElement,
+  lintForEachOf,
   lintStepAttributes,
   lintIfElseConsistency,
 ];
