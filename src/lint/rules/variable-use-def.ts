@@ -5,8 +5,8 @@ import type {
   OrderedListItemNode,
   TextNode,
 } from 'ecmarkdown';
-import type { Reporter } from '../algorithm-error-reporter-type';
 import type { Seq } from '../../expr-parser';
+import type { Warning } from '../../Spec';
 import { walk as walkExpr } from '../../expr-parser';
 import { isAbstractClosureHeader, offsetToLineAndColumn } from '../../utils';
 
@@ -42,12 +42,14 @@ class Scope {
   declare vars: Map<string, { kind: VarKind; used: boolean; node: HasLocation | null }>;
   declare strictScopes: Set<string>[];
   declare captured: Set<string>;
-  declare report: Reporter;
-  constructor(report: Reporter) {
+  declare report: (e: Warning) => void;
+  declare node: Element;
+  constructor(report: (e: Warning) => void, node: Element) {
     this.vars = new Map();
     this.strictScopes = [new Set()];
     this.captured = new Set();
     this.report = report;
+    this.node = node;
 
     // TODO remove this when regex state objects become less dumb
     for (const name of ['captures', 'input', 'startIndex', 'endIndex']) {
@@ -69,15 +71,18 @@ class Scope {
     nameNode: HasLocation | null,
     kind: VarKind = 'variable',
     mayBeShadowed: boolean = false,
+    node: Element = this.node,
   ): void {
     if (this.declared(name)) {
       for (const scope of this.strictScopes) {
         if (scope.has(name)) {
           this.report({
+            type: 'contents',
             ruleId: 're-declaration',
             message: `${JSON.stringify(name)} is already declared`,
-            line: nameNode!.location.start.line,
-            column: nameNode!.location.start.column,
+            node,
+            nodeRelativeLine: nameNode!.location.start.line,
+            nodeRelativeColumn: nameNode!.location.start.column,
           });
           return;
         }
@@ -100,10 +105,12 @@ class Scope {
       this.vars.get(name)!.used = true;
     } else {
       this.report({
+        type: 'contents',
         ruleId: 'use-before-def',
         message: `could not find a preceding declaration for ${JSON.stringify(name)}`,
-        line: use.location.start.line,
-        column: use.location.start.column,
+        node: this.node,
+        nodeRelativeLine: use.location.start.line,
+        nodeRelativeColumn: use.location.start.column,
       });
     }
   }
@@ -114,13 +121,13 @@ export function checkVariableUsage(
   containingAlgorithm: Element,
   steps: OrderedListNode,
   parsed: Map<OrderedListItemNode, Seq>,
-  report: Reporter,
+  report: (e: Warning) => void,
 ) {
   if (containingAlgorithm.hasAttribute('replaces-step')) {
     // TODO someday lint these by doing the rewrite (conceptually)
     return;
   }
-  const scope = new Scope(report);
+  const scope = new Scope(report, containingAlgorithm);
 
   let parentClause = containingAlgorithm.parentElement;
   while (parentClause != null) {
@@ -152,16 +159,18 @@ export function checkVariableUsage(
     preceding = previousOrParent(preceding, parentClause);
   }
 
-  walkAlgorithm(algorithmSource, steps, parsed, scope, report);
+  walkAlgorithm(algorithmSource, steps, parsed, scope);
 
   for (const [name, { kind, used, node }] of scope.vars) {
     if (!used && node != null && kind !== 'parameter' && kind !== 'abstract closure parameter') {
       const message = `${JSON.stringify(name)} is declared here, but never referred to`;
       report({
+        type: 'contents',
         ruleId: 'unused-declaration',
         message,
-        line: node.location.start.line,
-        column: node.location.start.column,
+        node: containingAlgorithm,
+        nodeRelativeLine: node.location.start.line,
+        nodeRelativeColumn: node.location.start.column,
       });
     }
   }
@@ -172,7 +181,6 @@ function walkAlgorithm(
   steps: OrderedListNode | UnorderedListNode,
   parsed: Map<OrderedListItemNode, Seq>,
   scope: Scope,
-  report: Reporter,
 ) {
   if (steps.name === 'ul') {
     // unordered lists can refer to variables, but only that
@@ -185,7 +193,7 @@ function walkAlgorithm(
         }
       }
       if (step.sublist != null) {
-        walkAlgorithm(algorithmSource, step.sublist, parsed, scope, report);
+        walkAlgorithm(algorithmSource, step.sublist, parsed, scope);
       }
     }
     return;
@@ -213,11 +221,13 @@ function walkAlgorithm(
           findDeclaredAttrOffset(extraDeclarations.value, name);
         if (scope.declared(name)) {
           const message = `${JSON.stringify(name)} is already declared and does not need an explict annotation`;
-          report({
+          scope.report({
+            type: 'contents',
             ruleId: 'unnecessary-declared-var',
             message,
-            line,
-            column,
+            node: scope.node,
+            nodeRelativeLine: line,
+            nodeRelativeColumn: column,
           });
         } else {
           scope.declare(
@@ -250,17 +260,24 @@ function walkAlgorithm(
         scope.declare(closureName.contents, closureName);
       }
       // everything in an AC needs to be captured explicitly
-      const acScope = new Scope(report);
+      const acScope = new Scope(scope.report, scope.node);
       const paramsIndex = expr.items.findIndex(
         p => p.name === 'text' && p.contents.endsWith(' with parameters '),
       );
       if (paramsIndex !== -1 && paramsIndex < expr.items.length - 1) {
         const paramList = expr.items[paramsIndex + 1];
         if (paramList.name !== 'paren') {
-          report({
+          const { line, column } = offsetToLineAndColumn(
+            algorithmSource,
+            paramList.location.start.offset,
+          );
+          scope.report({
+            type: 'contents',
             ruleId: 'bad-ac',
             message: `expected to find a parenthesized list of parameter names here`,
-            ...offsetToLineAndColumn(algorithmSource, paramList.location.start.offset),
+            node: scope.node,
+            nodeRelativeLine: line,
+            nodeRelativeColumn: column,
           });
           continue;
         }
@@ -271,30 +288,51 @@ function walkAlgorithm(
           if (varName) {
             if (item.name === 'text' && item.contents === '...') {
               if (i < paramList.items.length - 2) {
-                report({
+                const { line, column } = offsetToLineAndColumn(
+                  algorithmSource,
+                  item.location.start.offset,
+                );
+                scope.report({
+                  type: 'contents',
                   ruleId: 'bad-ac',
                   message: `expected rest param to come last`,
-                  ...offsetToLineAndColumn(algorithmSource, item.location.start.offset),
+                  node: scope.node,
+                  nodeRelativeLine: line,
+                  nodeRelativeColumn: column,
                 });
                 continue stepLoop;
               }
               continue;
             }
             if (item.name !== 'underscore') {
-              report({
+              const { line, column } = offsetToLineAndColumn(
+                algorithmSource,
+                item.location.start.offset,
+              );
+              scope.report({
+                type: 'contents',
                 ruleId: 'bad-ac',
                 message: `expected to find a parameter name here`,
-                ...offsetToLineAndColumn(algorithmSource, item.location.start.offset),
+                node: scope.node,
+                nodeRelativeLine: line,
+                nodeRelativeColumn: column,
               });
               continue stepLoop;
             }
             acScope.declare(item.contents, item, 'abstract closure parameter');
           } else {
             if (item.name !== 'text' || item.contents !== ', ') {
-              report({
+              const { line, column } = offsetToLineAndColumn(
+                algorithmSource,
+                item.location.start.offset,
+              );
+              scope.report({
+                type: 'contents',
                 ruleId: 'bad-ac',
                 message: `expected to find ", " here`,
-                ...offsetToLineAndColumn(algorithmSource, item.location.start.offset),
+                node: scope.node,
+                nodeRelativeLine: line,
+                nodeRelativeColumn: column,
               });
               continue stepLoop;
             }
@@ -325,14 +363,16 @@ function walkAlgorithm(
       // we have a lint rule elsewhere which checks there are substeps for closures, but we can't guarantee that rule hasn't tripped this run, so we still need to guard
       if (step.sublist != null && step.sublist.name === 'ol') {
         acScope.captured = new Set(scope.captured);
-        walkAlgorithm(algorithmSource, step.sublist, parsed, acScope, report);
+        walkAlgorithm(algorithmSource, step.sublist, parsed, acScope);
         for (const [name, { node, kind, used }] of acScope.vars) {
           if (kind === 'abstract closure capture' && !used) {
-            report({
+            scope.report({
+              type: 'contents',
               ruleId: 'unused-capture',
               message: `closure captures ${JSON.stringify(name)}, but never uses it`,
-              line: node!.location.start.line,
-              column: node!.location.start.column,
+              node: scope.node,
+              nodeRelativeLine: node!.location.start.line,
+              nodeRelativeColumn: node!.location.start.column,
             });
           }
         }
@@ -417,11 +457,13 @@ function walkAlgorithm(
         /^ to\b/.test(next.contents)
       ) {
         if (scope.captured.has(cur.contents)) {
-          report({
+          scope.report({
+            type: 'contents',
             ruleId: 'set-captured-variable',
             message: `${JSON.stringify(cur.contents)} cannot be reassigned after being captured by a closure`,
-            line: cur.location.start.line,
-            column: cur.location.start.column,
+            node: scope.node,
+            nodeRelativeLine: cur.location.start.line,
+            nodeRelativeColumn: cur.location.start.column,
           });
         }
       }
@@ -435,7 +477,7 @@ function walkAlgorithm(
     }, expr);
 
     if (step.sublist != null) {
-      walkAlgorithm(algorithmSource, step.sublist, parsed, scope, report);
+      walkAlgorithm(algorithmSource, step.sublist, parsed, scope);
     }
 
     for (const decl of loopVars) {
