@@ -147,6 +147,7 @@ export function checkVariableUsage(
       const seen = new Set<string>();
       // `__` is for <del>_x_</del><ins>_y_</ins>, which has textContent `_x__y_`
       for (const name of preceding.textContent.matchAll(/(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g)) {
+        // We avoid dealing with parameter re-declaration here because tracking location information is annoying. It's handled in `checkDuplicateParam` in header-parser instead.
         if (seen.has(name[1])) continue;
         seen.add(name[1]);
         scope.declare(name[1], null, isParameter ? 'parameter' : undefined, !isParameter);
