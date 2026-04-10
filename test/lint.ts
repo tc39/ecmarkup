@@ -424,6 +424,30 @@ describe('linting whole program', () => {
           </emu-clause>
       `);
     });
+
+    it('duplicate parameters', async () => {
+      await assertLint(
+        positioned`
+          <emu-clause id="example" type="abstract operation">
+            <h1>
+              Example (
+                _x_: ~foo~,
+                ${M}_x_: ~bar~,
+              ): ~foo~ or ~bar~
+            </h1>
+            <dl class="header"></dl>
+            <emu-alg>
+              1. Return _x_.
+            </emu-alg>
+          </emu-clause>
+        `,
+        {
+          ruleId: 'header-format',
+          nodeType: 'h1',
+          message: 'duplicate parameter "_x_"',
+        },
+      );
+    });
   });
 
   describe('closing tags', () => {
