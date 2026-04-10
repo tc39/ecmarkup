@@ -13,6 +13,7 @@ import lintEnumCasing from './rules/enum-casing';
 import lintForEachElement from './rules/for-each-element';
 import lintStepAttributes from './rules/step-attributes';
 import lintIfElseConsistency from './rules/if-else-consistency';
+import lintAlgorithmSpelling from './rules/algorithm-spelling';
 import { checkVariableUsage } from './rules/variable-use-def';
 import type { Seq } from '../expr-parser';
 import { parse } from '../expr-parser';
@@ -32,6 +33,7 @@ const stepRules: LineRule[] = [
   lintForEachElement,
   lintStepAttributes,
   lintIfElseConsistency,
+  lintAlgorithmSpelling,
 ];
 
 export function collectAlgorithmDiagnostics(
