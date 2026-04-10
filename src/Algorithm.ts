@@ -81,7 +81,7 @@ export default class Algorithm extends Builder {
     // mark algorithm-terminating steps (return/throw/?) with the `exit` class
     const earlyExitIndicator = /\b(?:return|throw)\b|[\s(]\?\s/i;
     // these are macros in ECMA-262 that expand to steps that include a return/throw/?
-    const earlyExitMacro = /\bIfAbrupt(?:CloseIterator|CloseAsyncIterator|RejectPromise)\(/;
+    const earlyExitMacro = /\bIfAbrupt(?:CloseIterators?|CloseAsyncIterator|RejectPromise)\(/;
     const note = /^(?:NOTE|Assert): /;
     for (const ol of node.querySelectorAll('ol')) {
       const items = ol.children;
