@@ -199,7 +199,7 @@ describe('algorithm spelling', () => {
       {
         ruleId,
         nodeType,
-        message: 'prefer "if _a_ or _b_" over "if _a_ or if _b_" (same for "and")',
+        message: 'prefer "if _a_ or _b_" over "if _a_ or if _b_"',
       },
     );
 
@@ -212,7 +212,7 @@ describe('algorithm spelling', () => {
       {
         ruleId,
         nodeType,
-        message: 'prefer "if _a_ or _b_" over "if _a_ or if _b_" (same for "and")',
+        message: 'prefer "if _a_ and _b_" over "if _a_ and if _b_"',
       },
     );
   });
