@@ -109,7 +109,7 @@ export default function (
     if (!otherPattern.test(stepSource)) {
       report({
         ruleId,
-        message: 'prefer "if _a_ or _b_" over "if _a_ or if _b_" (same for "and")',
+        message: `prefer "if _a_ ${orIfMatch[1]} _b_" over "if _a_ ${orIfMatch[1]} if _b_"`,
         ...offsetToLineAndColumn(algorithmSource, baseOffset + orIfMatch.index),
       });
     }
