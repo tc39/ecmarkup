@@ -53,3 +53,27 @@ let maybeToggleMultipage = e => {
   }
 };
 document.addEventListener('keypress', maybeToggleMultipage);
+
+let maybeSetMultipagePreference = e => {
+  if (!(e.target instanceof HTMLElement)) {
+    return;
+  }
+  let target = e.target;
+  let toggler = target.closest('[data-prefer-multipage]');
+  if (!toggler || target.isContentEditable) {
+    return;
+  }
+  switch (target.nodeName.toLowerCase()) {
+    case 'textarea':
+    case 'select':
+      return;
+    case 'input': {
+      let isCheckable = target.type === 'checkbox' || target.type === 'radio';
+      if (toggler !== target || !isCheckable || !target.checked) {
+        return;
+      }
+    }
+  }
+  storage.preferMultipage = toggler.dataset.preferMultipage;
+};
+document.addEventListener('click', maybeSetMultipagePreference);
