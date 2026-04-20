@@ -687,8 +687,7 @@ export default class Spec {
       this.doc.body.insertBefore(ele, this.doc.body.firstChild);
     }
 
-    const jsContents =
-      (await concatJs(sdoJs, tocJs)) + `\n;let usesMultipage = ${!!this.opts.multipage}`;
+    const jsContents = await concatJs(sdoJs, tocJs);
     const jsSha = sha(jsContents);
 
     await this.buildAssets(jsContents, jsSha);
@@ -1010,8 +1009,6 @@ export default class Spec {
       htmlEle = src.substring(0, src.length - '<head></head><body></body></html>'.length);
     }
 
-    const head = this.doc.head.cloneNode(true) as HTMLHeadElement;
-
     const containedMap = JSON.stringify(Object.fromEntries(sectionToContainedIds)).replace(
       /[\\`$]/g,
       '\\$&',
@@ -1035,9 +1032,12 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
         path.relative(this.opts.outfile!, multipageLocationOnDisk) +
         '?cache=' +
         sha(multipageJsContents);
-      multipageScript.setAttribute('defer', '');
-      head.insertBefore(multipageScript, head.querySelector('script'));
+      // fetch in parallel, but evaluate ASAP in case of redirect
+      multipageScript.setAttribute('async', '');
+      this.doc.head.insertBefore(multipageScript, this.doc.head.querySelector('script'));
     }
+
+    const head = this.doc.head.cloneNode(true) as HTMLHeadElement;
 
     for (const { name, eles } of sections) {
       this.log(`Generating section ${name}...`);
