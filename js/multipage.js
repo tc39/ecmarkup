@@ -7,13 +7,49 @@ for (let [section, ids] of Object.entries(multipageMap)) {
     }
   }
 }
-if (location.hash) {
-  let targetSec = idToSection[location.hash.substring(1)];
-  if (targetSec != null) {
-    let match = location.pathname.match(/([^/]+)\.html?$/);
-    if ((match != null && match[1] !== targetSec) || location.pathname.endsWith('/multipage/')) {
-      window.navigating = true;
-      location = (targetSec === 'index' ? './' : targetSec + '.html') + location.hash;
-    }
+let pathParts = location.pathname.split('/');
+let isMultipage = pathParts[pathParts.length - 2] === 'multipage';
+let activeSec = isMultipage ? pathParts[pathParts.length - 1].replace(/\.html$/, '') : undefined;
+let activeSecHash =
+  activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
+let storage = typeof localStorage !== 'undefined' ? localStorage : Object.create(null);
+
+{
+  let resolvedHash = location.hash || activeSecHash || '';
+  let targetSec = resolvedHash ? idToSection[resolvedHash.substring(1)] : undefined;
+  let preferMultipage = storage.preferMultipage;
+  if (isMultipage && preferMultipage === 'false') {
+    window.navigating = true;
+    location = pathParts.slice(0, -2).join('/') + '/' + resolvedHash;
+  } else if (
+    isMultipage
+      ? targetSec != null && (activeSec || 'index') !== targetSec
+      : preferMultipage === 'true'
+  ) {
+    window.navigating = true;
+    location = 'multipage/' + targetSec + '.html' + location.hash;
   }
 }
+let maybeToggleMultipage = e => {
+  if (!(e.target instanceof HTMLElement)) {
+    return;
+  }
+  let target = e.target;
+  let name = target.nodeName.toLowerCase();
+  if (name === 'textarea' || name === 'input' || name === 'select' || target.isContentEditable) {
+    return;
+  }
+  if (e.altKey || e.ctrlKey || e.metaKey || e.key !== 'm') {
+    return;
+  }
+  let hash = location.hash;
+  if (isMultipage) {
+    storage.preferMultipage = 'false';
+    location = pathParts.slice(0, -2).join('/') + '/' + (hash || activeSecHash || '');
+  } else {
+    storage.preferMultipage = 'true';
+    let targetSec = hash ? idToSection[hash.substring(1)] : undefined;
+    location = 'multipage/' + (targetSec ? targetSec + '.html' : '') + hash;
+  }
+};
+document.addEventListener('keypress', maybeToggleMultipage);

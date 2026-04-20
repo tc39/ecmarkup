@@ -553,7 +553,7 @@ Menu.prototype.getDocumentKey = function () {
   let dir = location.pathname.replace(/[^/]*$/, '');
   // Multipage pages live at <root>/multipage/<page>.html; fold them onto the
   // document root so every page of one spec shares a single set of pins.
-  if (usesMultipage && dir.endsWith('/multipage/')) {
+  if (isMultipage && dir.endsWith('/multipage/')) {
     dir = dir.slice(0, -'multipage/'.length);
   }
   return dir;
@@ -1150,11 +1150,11 @@ function sortByClauseNumber(clause1, clause2) {
 
 function makeLinkToId(id) {
   let hash = '#' + id;
-  if (typeof idToSection === 'undefined' || !idToSection[id]) {
-    return hash;
+  if (typeof isMultipage !== 'undefined' && isMultipage && idToSection[id]) {
+    let targetSec = idToSection[id];
+    return (targetSec === 'index' ? './' : targetSec + '.html') + hash;
   }
-  let targetSec = idToSection[id];
-  return (targetSec === 'index' ? './' : targetSec + '.html') + hash;
+  return hash;
 }
 
 function doShortcut(e) {
@@ -1169,23 +1169,9 @@ function doShortcut(e) {
   if (e.altKey || e.ctrlKey || e.metaKey) {
     return;
   }
-  if (e.key === 'm' && usesMultipage) {
-    let pathParts = location.pathname.split('/');
-    let hash = location.hash;
-    if (pathParts[pathParts.length - 2] === 'multipage') {
-      if (hash === '') {
-        let sectionName = pathParts[pathParts.length - 1];
-        if (sectionName.endsWith('.html')) {
-          sectionName = sectionName.slice(0, -5);
-        }
-        if (idToSection['sec-' + sectionName] !== undefined) {
-          hash = '#sec-' + sectionName;
-        }
-      }
-      location = pathParts.slice(0, -2).join('/') + '/' + hash;
-    } else {
-      location = 'multipage/' + hash;
-    }
+  if (e.key === 'm') {
+    // handled by multipage.js `maybeToggleMultipage`
+    return;
   } else if (e.key === 'u') {
     document.documentElement.classList.toggle('show-uc-annotations');
   } else if (e.key === 'e') {
