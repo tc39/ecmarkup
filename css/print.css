@@ -1,10 +1,14 @@
-@font-face {
-  font-family: "Arial Plus";
-  src: local("Arial");
+.no-print {
+  display: none !important;
 }
 
 @font-face {
-  font-family: "Arial Plus";
+  font-family: 'Arial Plus';
+  src: local('Arial');
+}
+
+@font-face {
+  font-family: 'Arial Plus';
   unicode-range: U+30;
   font-style: normal;
   font-weight: 400;
@@ -12,15 +16,15 @@
 }
 
 @font-face {
-  font-family: "Arial Plus";
+  font-family: 'Arial Plus';
   unicode-range: U+221e;
   font-style: normal;
   font-weight: 400;
-  src: local("DejaVu Math TeX Gyre");
+  src: local('DejaVu Math TeX Gyre');
 }
 
 @font-face {
-  font-family: "Arial Plus";
+  font-family: 'Arial Plus';
   unicode-range: U+30;
   font-style: normal;
   font-weight: 700;
@@ -28,15 +32,15 @@
 }
 
 @font-face {
-  font-family: "Arial Plus";
+  font-family: 'Arial Plus';
   unicode-range: U+221e;
   font-style: normal;
   font-weight: 700;
-  src: local("DejaVu Math TeX Gyre");
+  src: local('DejaVu Math TeX Gyre');
 }
 
 @font-face {
-  font-family: "Arial Plus";
+  font-family: 'Arial Plus';
   unicode-range: U+30;
   font-style: italic;
   font-weight: 400;
@@ -44,15 +48,15 @@
 }
 
 @font-face {
-  font-family: "Arial Plus";
+  font-family: 'Arial Plus';
   unicode-range: U+221e;
   font-style: italic;
   font-weight: 400;
-  src: local("DejaVu Math TeX Gyre");
+  src: local('DejaVu Math TeX Gyre');
 }
 
 @font-face {
-  font-family: "Arial Plus";
+  font-family: 'Arial Plus';
   unicode-range: U+30;
   font-style: italic;
   font-weight: 700;
@@ -60,11 +64,11 @@
 }
 
 @font-face {
-  font-family: "Arial Plus";
+  font-family: 'Arial Plus';
   unicode-range: U+221e;
   font-style: italic;
   font-weight: 700;
-  src: local("DejaVu Math TeX Gyre");
+  src: local('DejaVu Math TeX Gyre');
 }
 
 :root {
@@ -186,18 +190,27 @@
   page-break-after: always;
 }
 
-html, body {
+html,
+body {
   background-color: initial;
 }
 
 body {
-  font-family: 'Arial Plus', Arial, Helvetica, sans-serif, "DejaVu Math TeX Gyre", Symbola, monospace;
+  font-family: 'Arial Plus', Arial, Helvetica, sans-serif, 'DejaVu Math TeX Gyre', Symbola,
+    monospace;
   font-size: 10pt;
   color: #000;
   line-height: 1.15;
 }
 
-h1, h2, h3, h4, h5, h6 { -prince-bookmark-level: none } /* see https://www.princexml.com/doc/prince-output/#pdf-bookmarks */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  -prince-bookmark-level: none;
+} /* see https://www.princexml.com/doc/prince-output/#pdf-bookmarks */
 
 .copyright-notice + h1.title {
   break-before: recto;
@@ -217,8 +230,12 @@ p {
   text-wrap: pretty;
   overflow-wrap: break-word;
   hyphens: auto;
-  orphans: 2, -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
-  widows: 2, -prince-prefer 3;
+  orphans:
+    2,
+    -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
+  widows:
+    2,
+    -prince-prefer 3;
 }
 
 h1 {
@@ -294,7 +311,8 @@ emu-table td p {
   overflow: hidden;
 }
 
-emu-nt, emu-t {
+emu-nt,
+emu-t {
   display: initial;
 }
 
@@ -310,7 +328,9 @@ emu-intro {
   page: intro;
 }
 
-emu-intro, emu-clause, emu-annex {
+emu-intro,
+emu-clause,
+emu-annex {
   margin-top: 4ex;
 }
 
@@ -335,7 +355,9 @@ emu-clause > p:first-of-type + emu-alg {
   break-before: avoid;
 }
 
-emu-intro emu-intro, emu-clause emu-clause, emu-annex emu-annex {
+emu-intro emu-intro,
+emu-clause emu-clause,
+emu-annex emu-annex {
   margin-top: 3.5ex;
 }
 
@@ -351,56 +373,80 @@ emu-annex emu-annex emu-annex emu-annex emu-annex {
   margin-top: 3.2ex;
 }
 
-emu-intro h1, emu-clause h1 , emu-annex h1 {
+emu-intro h1,
+emu-clause h1,
+emu-annex h1 {
   break-after: avoid;
   font-size: 12pt;
   -prince-bookmark-level: 1;
   -prince-bookmark-label: content();
 }
 
-emu-clause emu-clause h1, emu-annex emu-annex h1 {
+emu-clause emu-clause h1,
+emu-annex emu-annex h1 {
   -prince-bookmark-level: 2;
   -prince-bookmark-state: closed;
 }
 
-emu-clause emu-clause h1, emu-annex emu-annex h1,
-emu-intro h2, emu-clause h2, emu-annex h2 {
+emu-clause emu-clause h1,
+emu-annex emu-annex h1,
+emu-intro h2,
+emu-clause h2,
+emu-annex h2 {
   font-size: 11pt;
 }
 
-emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex h1 {
+emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex h1 {
   -prince-bookmark-level: 3;
 }
 
-emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex h1 {
+emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex h1 {
   -prince-bookmark-level: 4;
 }
 
-emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
+emu-clause emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
   -prince-bookmark-level: 5;
 }
 
-emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
+emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
   -prince-bookmark-level: 6;
 }
 
-emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex h1,
-emu-clause emu-clause h2, emu-annex emu-annex h2,
-emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex h1,
-emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex h2,
-emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex h1,
-emu-clause emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex emu-annex h2,
-emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1, emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1,
-emu-clause emu-clause emu-clause emu-clause emu-clause h2, emu-annex emu-annex emu-annex emu-annex emu-annex h2 {
+emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause h2,
+emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause h2,
+emu-annex emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause emu-clause h2,
+emu-annex emu-annex emu-annex emu-annex h2,
+emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1,
+emu-clause emu-clause emu-clause emu-clause emu-clause h2,
+emu-annex emu-annex emu-annex emu-annex emu-annex h2 {
   font-size: 10pt;
 }
 
-emu-clause ol, emu-clause ul, emu-clause dl, emu-annex ol, emu-annex ul, emu-annex dl {
+emu-clause ol,
+emu-clause ul,
+emu-clause dl,
+emu-annex ol,
+emu-annex ul,
+emu-annex dl {
   margin-left: 0;
   padding-left: 1.75em;
 }
 
-emu-clause ol ol, emu-clause ul ul {
+emu-clause ol ol,
+emu-clause ul ul {
   padding-left: 2em;
 }
 
@@ -425,7 +471,8 @@ emu-table th {
   overflow-wrap: break-word;
 }
 
-caption, table > figcaption {
+caption,
+table > figcaption {
   caption-side: top;
   color: #000;
   font-weight: bold;
@@ -571,7 +618,8 @@ emu-annex > h1 .secnum {
   margin: 0 0 1lh;
 }
 
-.copyright-notice { /* ecma mandated */
+.copyright-notice {
+  /* ecma mandated */
   font-style: italic;
   border: 1px solid black;
   padding: 1em;
@@ -607,7 +655,10 @@ h1.shortname {
   margin-top: 0;
 }
 
-h1.shortname a:link, h1.shortname a:visited, h1.shortname a:hover, h1.shortname a:active {
+h1.shortname a:link,
+h1.shortname a:visited,
+h1.shortname a:hover,
+h1.shortname a:active {
   color: black;
 }
 
