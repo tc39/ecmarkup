@@ -1172,9 +1172,8 @@ function doShortcut(e) {
   if (e.altKey || e.ctrlKey || e.metaKey) {
     return;
   }
-  if (e.key === 'm') {
-    // handled by multipage.js `maybeToggleMultipage`
-    return;
+  if (e.key === 'm' && typeof toggleMultipage !== 'undefined') {
+    toggleMultipage();
   } else if (e.key === 'u') {
     document.documentElement.classList.toggle('show-uc-annotations');
   } else if (e.key === 'e') {
@@ -3276,7 +3275,18 @@ li.menu-search-result-term::before {
   background: var(--figure-background);
   width: 500px;
 }
+
+/* Other dynamic elements */
+:root[data-multipage-preference=''] [data-multipage-preference=''],
+:root[data-multipage-preference='single-page'] [data-multipage-preference='single-page'],
+:root[data-multipage-preference='multi-page'] [data-multipage-preference='multi-page'] {
+  font-weight: bold;
+}
 </style><style>@media print {
+.no-print {
+  display: none !important;
+}
+
 @font-face {
   font-family: 'Arial Plus';
   src: local('Arial');

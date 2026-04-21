@@ -61,6 +61,7 @@
         "multipageMap": "readonly",
         "isMultipage": "readonly",
         "idToSection": "readonly",
+        "toggleMultipage": "readonly",
         "sdoMap": "readonly",
         "biblio": "readonly",
         "debounce": "writable",
