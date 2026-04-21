@@ -1,4 +1,6 @@
 'use strict';
+
+// initialize globals
 let idToSection = Object.create(null);
 for (let [section, ids] of Object.entries(multipageMap)) {
   for (let id of ids) {
@@ -13,67 +15,94 @@ let activeSec = isMultipage ? pathParts[pathParts.length - 1].replace(/\.html$/,
 let activeSecHash =
   activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
 let storage = typeof localStorage !== 'undefined' ? localStorage : Object.create(null);
+let toggleMultipage = () => {
+  let hash = location.hash;
+  if (isMultipage) {
+    location = pathParts.slice(0, -2).join('/') + '/' + (hash || activeSecHash || '');
+  } else {
+    let targetSec = hash ? idToSection[hash.substring(1)] : undefined;
+    location = 'multipage/' + (targetSec ? targetSec + '.html' : '') + hash;
+  }
+};
 
-{
+// redirect to single-page/multi-page per preference, except from internal links
+(() => {
+  let referrer;
+  try {
+    referrer = new URL(document.referrer);
+  } catch (_err) {
+    // ignore
+  }
+  if (referrer) {
+    let referrerPathParts = referrer.pathname.split('/');
+    let referrerPathPrefixEnd =
+      referrerPathParts[referrerPathParts.length - 2] === 'multipage'
+        ? -2
+        : referrerPathParts.findLastIndex(part => part !== '') + 1;
+    let referrerPathPrefix = referrerPathParts.slice(0, referrerPathPrefixEnd).join('/');
+    let pathPrefixEnd = isMultipage ? -2 : pathParts.findLastIndex(part => part !== '') + 1;
+    let pathPrefix = pathParts.slice(0, pathPrefixEnd).join('/');
+    if (referrer.host === location.host && referrerPathPrefix === pathPrefix) {
+      return;
+    }
+  }
   let resolvedHash = location.hash || activeSecHash || '';
   let targetSec = resolvedHash ? idToSection[resolvedHash.substring(1)] : undefined;
-  let preferMultipage = storage.preferMultipage;
-  if (isMultipage && preferMultipage === 'false') {
+  let multipagePreference = storage.multipagePreference;
+  if (isMultipage && multipagePreference === 'single-page') {
     window.navigating = true;
     location = pathParts.slice(0, -2).join('/') + '/' + resolvedHash;
   } else if (
     isMultipage
       ? targetSec != null && (activeSec || 'index') !== targetSec
-      : preferMultipage === 'true'
+      : multipagePreference === 'multi-page'
   ) {
     window.navigating = true;
-    location = 'multipage/' + targetSec + '.html' + location.hash;
+    location = 'multipage/' + (targetSec ? targetSec + '.html' : '') + location.hash;
   }
-}
-let maybeToggleMultipage = e => {
-  if (!(e.target instanceof HTMLElement)) {
-    return;
-  }
-  let target = e.target;
-  let name = target.nodeName.toLowerCase();
-  if (name === 'textarea' || name === 'input' || name === 'select' || target.isContentEditable) {
-    return;
-  }
-  if (e.altKey || e.ctrlKey || e.metaKey || e.key !== 'm') {
-    return;
-  }
-  let hash = location.hash;
-  if (isMultipage) {
-    storage.preferMultipage = 'false';
-    location = pathParts.slice(0, -2).join('/') + '/' + (hash || activeSecHash || '');
-  } else {
-    storage.preferMultipage = 'true';
-    let targetSec = hash ? idToSection[hash.substring(1)] : undefined;
-    location = 'multipage/' + (targetSec ? targetSec + '.html' : '') + hash;
-  }
-};
-document.addEventListener('keypress', maybeToggleMultipage);
+})();
 
-let maybeSetMultipagePreference = e => {
-  if (!(e.target instanceof HTMLElement)) {
-    return;
+// enable preference togglers
+document.documentElement.dataset.multipagePreference = storage.multipagePreference || '';
+if (typeof localStorage !== 'undefined') {
+  let enableToggles = () => {
+    for (let el of document.querySelectorAll('[disabled][data-multipage-preference]')) {
+      el.disabled = false;
+    }
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', enableToggles);
+  } else {
+    enableToggles();
   }
-  let target = e.target;
-  let toggler = target.closest('[data-prefer-multipage]');
-  if (!toggler || target.isContentEditable) {
-    return;
-  }
-  switch (target.nodeName.toLowerCase()) {
-    case 'textarea':
-    case 'select':
+  document.addEventListener('click', e => {
+    if (!(e.target instanceof HTMLElement)) {
       return;
-    case 'input': {
-      let isCheckable = target.type === 'checkbox' || target.type === 'radio';
-      if (toggler !== target || !isCheckable || !target.checked) {
+    }
+    let target = e.target;
+    let toggler = target.closest('[data-multipage-preference]');
+    if (!toggler || target.isContentEditable) {
+      return;
+    }
+    switch (target.nodeName.toLowerCase()) {
+      case 'textarea':
+      case 'select':
         return;
+      case 'input': {
+        let isCheckable = target.type === 'checkbox' || target.type === 'radio';
+        if (toggler !== target || !isCheckable || !target.checked) {
+          return;
+        }
       }
     }
-  }
-  storage.preferMultipage = toggler.dataset.preferMultipage;
-};
-document.addEventListener('click', maybeSetMultipagePreference);
+    let multipagePreference = toggler.dataset.multipagePreference;
+    if (multipagePreference !== (storage.multipagePreference || '')) {
+      storage.multipagePreference = multipagePreference;
+      document.documentElement.dataset.multipagePreference = multipagePreference;
+      if (multipagePreference === (isMultipage ? 'single-page' : 'multi-page')) {
+        toggleMultipage();
+      }
+    }
+    e.preventDefault();
+  });
+}

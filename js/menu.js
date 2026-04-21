@@ -1093,9 +1093,8 @@ function doShortcut(e) {
   if (e.altKey || e.ctrlKey || e.metaKey) {
     return;
   }
-  if (e.key === 'm') {
-    // handled by multipage.js `maybeToggleMultipage`
-    return;
+  if (e.key === 'm' && typeof toggleMultipage !== 'undefined') {
+    toggleMultipage();
   } else if (e.key === 'u') {
     document.documentElement.classList.toggle('show-uc-annotations');
   } else if (e.key === 'e') {
