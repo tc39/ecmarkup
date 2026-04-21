@@ -1335,7 +1335,13 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
   <li><span>Jump to the <i>n</i><sup>th</sup> pin</span><code>1-9</code></li>
   <li><span>Jump to the 10<sup>th</sup> pin</span><code>0</code></li>
   <li><span>Jump to the most recent link target</span><code>\`</code></li>
-</ul>`;
+</ul>
+<fieldset>
+  <legend>Multipage preference</legend>
+  <button type="button" data-multipage-preference="">No preference</button>
+  <button type="button" data-multipage-preference="single-page">Always single-page</button>
+  <button type="button" data-multipage-preference="multi-page">Always multi-page</button>
+</fieldset>`;
     return shortcutsHelp;
   }
 
