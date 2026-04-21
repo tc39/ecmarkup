@@ -1,3 +1,7 @@
+.no-print {
+  display: none !important;
+}
+
 @font-face {
   font-family: 'Arial Plus';
   src: local('Arial');
