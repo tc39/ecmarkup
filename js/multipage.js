@@ -81,7 +81,7 @@ if (typeof localStorage !== 'undefined') {
     }
     let target = e.target;
     let toggler = target.closest('[data-multipage-preference]');
-    if (!toggler || target.isContentEditable) {
+    if (target.isContentEditable || !toggler || toggler === document.documentElement) {
       return;
     }
     switch (target.nodeName.toLowerCase()) {
