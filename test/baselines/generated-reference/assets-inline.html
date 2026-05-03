@@ -626,7 +626,8 @@ Menu.prototype.unpinAll = function () {
 };
 
 Menu.prototype.pinListClick = function (event) {
-  if (event?.target?.classList.contains('unpin')) {
+  let target = event?.target?.closest('.unpin');
+  if (target && event.currentTarget?.contains(target)) {
     let id = event.target.parentNode.dataset.sectionId;
     if (id) {
       this.removePinEntry(id);
