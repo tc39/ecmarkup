@@ -261,7 +261,7 @@
 /* Generic classes */
 
 .cancellation-button::after {
-  content: '\2716';
+  content: '\1F5D9';
 }
 
 /* Elements */
@@ -1576,8 +1576,6 @@ li.menu-search-result[data-kind]::before {
 
 #references-pane-close {
   float: right;
-  font-size: inherit;
-  height: 100%;
 
   border: none;
   background: transparent;
