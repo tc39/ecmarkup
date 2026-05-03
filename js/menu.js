@@ -509,7 +509,7 @@ Menu.prototype.addPinEntry = function (id) {
   }
 
   let link = `<a href="${makeLinkToId(entry.id)}">${text}</a>`;
-  this.$pinList.innerHTML += `<li data-section-id="${id}">${link}<button class="unpin">\u{2716}</button></li>`;
+  this.$pinList.innerHTML += `<li data-section-id="${id}">${link}<button class="cancellation-button unpin"></button></li>`;
 
   if (Object.keys(this._pinnedIds).length === 0) {
     this.showPins();
@@ -763,8 +763,9 @@ let referencePane = {
       this.dragStart(e);
     });
 
-    this.$closeButton = document.createElement('span');
+    this.$closeButton = document.createElement('button');
     this.$closeButton.setAttribute('id', 'references-pane-close');
+    this.$closeButton.classList.add('cancellation-button');
     this.$closeButton.addEventListener('click', () => {
       this.deactivate();
     });
