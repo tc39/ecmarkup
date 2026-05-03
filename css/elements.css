@@ -1389,7 +1389,7 @@ a.menu-pane-header-production {
   overflow-y: auto;
 }
 
-#menu-search-results li::before {
+li.menu-search-result::before {
   display: none;
   width: 40px;
   text-align: right;
@@ -1397,21 +1397,9 @@ a.menu-pane-header-production {
   color: var(--control-dimmed-foreground-color);
   font-size: 75%;
 }
-#menu-search-results li.menu-search-result-clause::before {
+li.menu-search-result[data-kind]::before {
   display: inline-block;
-  content: 'clause';
-}
-#menu-search-results li.menu-search-result-op::before {
-  display: inline-block;
-  content: 'op';
-}
-#menu-search-results li.menu-search-result-prod::before {
-  display: inline-block;
-  content: 'prod';
-}
-#menu-search-results li.menu-search-result-term::before {
-  display: inline-block;
-  content: 'term';
+  content: attr(data-kind);
 }
 
 #menu-search-results ul {

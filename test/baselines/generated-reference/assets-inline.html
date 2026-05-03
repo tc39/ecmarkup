@@ -285,30 +285,30 @@ Search.prototype.displayResults = function (results) {
       let key = result.key;
       let entry = result.entry;
       let id = entry.id;
-      let cssClass = '';
+      let kind = '';
       let text = '';
 
       if (entry.type === 'clause') {
         let number = entry.number ? entry.number + ' ' : '';
         text = number + key;
-        cssClass = 'clause';
+        kind = 'clause';
         id = entry.id;
       } else if (entry.type === 'production') {
         text = key;
-        cssClass = 'prod';
+        kind = 'prod';
         id = entry.id;
       } else if (entry.type === 'op') {
         text = key;
-        cssClass = 'op';
+        kind = 'op';
         id = entry.id || entry.refId;
       } else if (entry.type === 'term') {
         text = key;
-        cssClass = 'term';
+        kind = 'term';
         id = entry.id || entry.refId;
       }
 
       if (text) {
-        html += `<li class=menu-search-result-${cssClass}><a href="${makeLinkToId(id)}">${text}</a></li>`;
+        html += `<li class="menu-search-result"${kind ? ` data-kind="${kind}"` : ''}><a href="${makeLinkToId(id)}">${text}</a></li>`;
       }
     });
 
@@ -3069,7 +3069,7 @@ a.menu-pane-header-production {
   overflow-y: auto;
 }
 
-#menu-search-results li::before {
+li.menu-search-result::before {
   display: none;
   width: 40px;
   text-align: right;
@@ -3077,21 +3077,9 @@ a.menu-pane-header-production {
   color: var(--control-dimmed-foreground-color);
   font-size: 75%;
 }
-#menu-search-results li.menu-search-result-clause::before {
+li.menu-search-result[data-kind]::before {
   display: inline-block;
-  content: 'clause';
-}
-#menu-search-results li.menu-search-result-op::before {
-  display: inline-block;
-  content: 'op';
-}
-#menu-search-results li.menu-search-result-prod::before {
-  display: inline-block;
-  content: 'prod';
-}
-#menu-search-results li.menu-search-result-term::before {
-  display: inline-block;
-  content: 'term';
+  content: attr(data-kind);
 }
 
 #menu-search-results ul {
