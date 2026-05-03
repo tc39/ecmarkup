@@ -1,5 +1,13 @@
 'use strict';
 
+let parseSpecPath = url => {
+  let pathParts = url.pathname.split('/');
+  let isMultipage = pathParts[pathParts.length - 2] === 'multipage';
+  let pathPrefixEnd = isMultipage ? -2 : pathParts.findLastIndex(part => part !== '') + 1;
+  let pathPrefix = pathParts.slice(0, pathPrefixEnd).join('/');
+  return { pathParts, pathPrefix, isMultipage };
+};
+
 // initialize globals
 let idToSection = Object.create(null);
 for (let [section, ids] of Object.entries(multipageMap)) {
@@ -9,8 +17,7 @@ for (let [section, ids] of Object.entries(multipageMap)) {
     }
   }
 }
-let pathParts = location.pathname.split('/');
-let isMultipage = pathParts[pathParts.length - 2] === 'multipage';
+let { pathParts, pathPrefix, isMultipage } = parseSpecPath(location);
 let activeSec = isMultipage ? pathParts[pathParts.length - 1].replace(/\.html$/, '') : undefined;
 let activeSecHash =
   activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
@@ -25,27 +32,19 @@ let toggleMultipage = () => {
   }
 };
 
-// redirect to single-page/multi-page per preference, except from internal links
+// redirect to single-page/multi-page per preference
 (() => {
+  // ...except from internal links
   let referrer;
   try {
     referrer = new URL(document.referrer);
   } catch (_err) {
     // ignore
   }
-  if (referrer) {
-    let referrerPathParts = referrer.pathname.split('/');
-    let referrerPathPrefixEnd =
-      referrerPathParts[referrerPathParts.length - 2] === 'multipage'
-        ? -2
-        : referrerPathParts.findLastIndex(part => part !== '') + 1;
-    let referrerPathPrefix = referrerPathParts.slice(0, referrerPathPrefixEnd).join('/');
-    let pathPrefixEnd = isMultipage ? -2 : pathParts.findLastIndex(part => part !== '') + 1;
-    let pathPrefix = pathParts.slice(0, pathPrefixEnd).join('/');
-    if (referrer.host === location.host && referrerPathPrefix === pathPrefix) {
-      return;
-    }
+  if (referrer && referrer.host === location.host) {
+    if (parseSpecPath(referrer).pathPrefix === pathPrefix) return;
   }
+
   let resolvedHash = location.hash || activeSecHash || '';
   let targetSec = resolvedHash ? idToSection[resolvedHash.substring(1)] : undefined;
   let multipagePreference = storage.multipagePreference;
