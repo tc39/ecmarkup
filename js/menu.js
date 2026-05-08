@@ -9,14 +9,17 @@ function Search(menu) {
 
   document.addEventListener('keydown', this.documentKeydown.bind(this));
 
-  this.$searchBox.addEventListener(
-    'keydown',
-    debounce(this.searchBoxKeydown.bind(this), { stopPropagation: true }),
-  );
-  this.$searchBox.addEventListener(
-    'keyup',
-    debounce(this.searchBoxKeyup.bind(this), { stopPropagation: true }),
-  );
+  let requestHandleSearchBoxEvent = debounce(this.handleSearchBoxEvent.bind(this));
+
+  this.$searchBox.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter') e.preventDefault();
+    requestHandleSearchBoxEvent(e);
+  });
+  this.$searchBox.addEventListener('input', e => {
+    e.stopPropagation();
+    requestHandleSearchBoxEvent(e);
+  });
 
   // Perform an initial search if the box is not empty.
   if (this.$searchBox.value) {
@@ -54,23 +57,15 @@ Search.prototype.documentKeydown = function (e) {
   }
 };
 
-Search.prototype.searchBoxKeydown = function (e) {
-  e.stopPropagation();
-  e.preventDefault();
-  if (e.keyCode === 191 && e.target.value.length === 0) {
-    e.preventDefault();
-  } else if (e.keyCode === 13) {
-    e.preventDefault();
-    this.selectResult();
+Search.prototype.handleSearchBoxEvent = function (e) {
+  switch (e.type) {
+    case 'keydown':
+      if (e.key === 'Enter') this.selectResult();
+      break;
+    case 'input':
+      this.search(e.target.value);
+      break;
   }
-};
-
-Search.prototype.searchBoxKeyup = function (e) {
-  if (e.keyCode === 13 || e.keyCode === 9) {
-    return;
-  }
-
-  this.search(e.target.value);
 };
 
 Search.prototype.triggerSearch = function () {

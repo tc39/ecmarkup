@@ -317,7 +317,7 @@ describe('variables are declared and used appropriately', () => {
               <dd>a Declarative Environment Record _envRec_</dd>
             </dl>
             <emu-alg>
-              1. If _envRec_ has a binding for the name that is the value of _N_, return *true*.
+              1. If _envRec_ has a binding for _N_, return *true*.
               1. Return *false*.
             </emu-alg>
           </emu-clause>
