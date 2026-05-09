@@ -1,7 +1,6 @@
 import type { Reporter } from '../algorithm-error-reporter-type';
 import type { OrderedListItemNode } from 'ecmarkdown';
 import type { Seq } from '../../expr-parser';
-import { walk as walkExpr } from '../../expr-parser';
 import { offsetToLineAndColumn } from '../../utils';
 
 const ruleId = 'prefer-throw-shorthand';
@@ -16,34 +15,27 @@ export default function (
   algorithmSource: string,
   parsedSteps: Map<OrderedListItemNode, Seq>,
 ) {
-  if (step.contents.length === 0) {
-    return;
-  }
   const stepSeq = parsedSteps.get(step);
   if (stepSeq == null) {
     return;
   }
-  const stepSource = algorithmSource.slice(
-    step.contents[0].location.start.offset,
-    step.contents[step.contents.length - 1].location.end.offset,
-  );
-  const baseOffset = step.contents[0].location.start.offset;
-
-  walkExpr(expr => {
+  const items = stepSeq.items;
+  for (let i = 1; i < items.length; ++i) {
+    const item = items[i];
     if (
-      expr.name === 'call' &&
-      expr.callee.length === 1 &&
-      expr.callee[0].name === 'text' &&
-      expr.callee[0].contents === 'ThrowCompletion'
+      item.name === 'call' &&
+      item.callee.length === 1 &&
+      item.callee[0].name === 'text' &&
+      item.callee[0].contents === 'ThrowCompletion'
     ) {
-      const textBefore = stepSource.slice(0, expr.callee[0].location.start.offset - baseOffset);
-      if (/\breturn\s+$/i.test(textBefore)) {
+      const prev = items[i - 1];
+      if (prev.name === 'text' && /\breturn\s+$/i.test(prev.contents)) {
         report({
           ruleId,
           message: 'prefer "throw _x_" over "return ThrowCompletion(_x_)"',
-          ...offsetToLineAndColumn(algorithmSource, expr.callee[0].location.start.offset),
+          ...offsetToLineAndColumn(algorithmSource, item.callee[0].location.start.offset),
         });
       }
     }
-  }, stepSeq);
+  }
 }
