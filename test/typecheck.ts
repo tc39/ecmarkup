@@ -191,7 +191,7 @@ describe('typechecking completions', () => {
           <dl class="header">
           </dl>
           <emu-alg>
-            1. If some condition holds, return ThrowCompletion(*null*).
+            1. If some condition holds, throw *null*.
             1. Else if some other condition holds, return ReturnCompletion(*null*).
             1. Return NormalCompletion(*null*).
           </emu-alg>
