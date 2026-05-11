@@ -660,12 +660,11 @@ p.ECMAaddress {
   margin: 0;
 }
 
-[id*=terms-and-definitions] dfn {
+[id*='terms-and-definitions'] dfn {
   font-style: normal;
 }
 
-[id*=terms-and-definitions] emu-clause h1 {
-  font-size: 10pt;
+[id*='terms-and-definitions'] emu-clause h1 {
   -prince-bookmark-level: none;
 }
 

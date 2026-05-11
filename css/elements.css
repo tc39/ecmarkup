@@ -920,15 +920,15 @@ emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex {
   margin-top: 0;
 }
 
-[id*="terms-and-definitions"] emu-clause h1 {
+[id*='terms-and-definitions'] emu-clause h1 {
   font-size: 1rem;
 }
 
-[id*="terms-and-definitions"] emu-clause h1 + p {
+[id*='terms-and-definitions'] emu-clause h1 + p {
   margin-top: 0;
 }
 
-[id*="terms-and-definitions"] emu-clause .secnum {
+[id*='terms-and-definitions'] emu-clause .secnum {
   display: block;
 }
 
