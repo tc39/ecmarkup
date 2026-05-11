@@ -164,7 +164,9 @@ markEffects: true
 
 <emu-clause id="clauses">
   <h1>Clauses</h1>
-  <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in descendent text nodes as well. Text nodes are parsed as Ecmarkdown Fragments.</p>
+  <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in descendent text nodes as well. Text nodes are parsed as Ecmarkdown Fragments. Clauses always begin with an `&lt;h1>` element.</p>
+
+  <!-- TODO Ecma house style supports clauses without a title (therefore numbered only) as long as all clauses as that level and lower are also numbered only. -->
 
   <emu-clause id="emu-intro">
     <h1>emu-intro</h1>
@@ -254,6 +256,42 @@ markEffects: true
         <p>This clause is normative optional.</p>
       </emu-clause>
     </aside>
+
+    <emu-clause id="terms">
+      <h1>Terms and definitions</h1>
+      <p>Ecmarkup produces special formatting behaviour for an `&lt;emu-clause>` with an ID ending in `terms-and-definitions`. No action is required on an editor's part to properly format that clause as long as it uses similar markup to any other clause, i.e. an `&lt;h1>` element followed by one or more `&lt;p>` or `&lt;emu-clause>` elements.</p>
+      <p>Using a `&lt;dfn>` element in the clause title is optional, and will allow ecmarkup to link back to the term anywhere it is used in the rest of the document. See <emu-xref href="#definitions">definitions</emu-xref>.</p>
+
+      <h2>Example</h2>
+      <pre><code class="language-html">
+      &lt;emu-clause id="sec-terms-and-definitions">
+        &lt;h1>Terms and definitions&lt;/h1>
+        &lt;emu-clause id="term-technical-definition">
+          &lt;h1>technical definition&lt;/h1>
+          &lt;p>descriptive text aligning with Ecma house style, providing text that could be swapped in for the term without impacting readability&lt;/p>
+        &lt;/emu-clause>
+        &lt;emu-clause id="term-ecma">
+          &lt;h1>&lt;dfn>Ecma International&lt;/dfn>&lt;/h1>
+          &lt;p>international standards organization responsible for technology-related standards since 1959&lt;/p>
+        &lt;/emu-clause>
+      &lt;/emu-clause></code></pre>
+
+      <h3>Result</h3>
+      <aside class="result">
+        <emu-clause id="sec-terms-and-definitions">
+          <h1>Terms and definitions</h1>
+          <emu-clause id="term-technical-definition">
+            <h1>technical definition</h1>
+            <p>descriptive text aligning with Ecma house style, providing text that could be swapped in for the term without impacting readability</p>
+          </emu-clause>
+
+          <emu-clause id="term-ecma">
+            <h1><dfn>Ecma International</dfn></h1>
+            <p>international standards organization responsible for technology-related standards since 1959</p>
+          </emu-clause>
+        </emu-clause>
+      </aside>
+    </emu-clause>
   </emu-clause>
 
   <emu-clause id="emu-annex">
@@ -270,7 +308,7 @@ markEffects: true
 
 <emu-clause id="definitions">
   <h1>Definitions</h1>
-  <p>Terms can be defined using the `&lt;dfn>` element. Any uses of that term will be automatically linked to the clause containing the definition, or, if the `&lt;dfn>` element has an `id`, to the `&lt;dfn>` itself. This can be suppressed with the <a href="#emu-not-ref">`emu-not-ref`</a> element.</p>
+  <p>Terms can be defined <em>inline</em> using the `&lt;dfn>` element. Any uses of that term will be automatically linked to the clause containing the definition, or, if the `&lt;dfn>` element has an `id`, to the `&lt;dfn>` itself. This can be suppressed with the <a href="#emu-not-ref">`emu-not-ref`</a> element.</p>
   <p>When the term starts with a lowercase English letter, usages of the term with the first letter capitalized will also link.</p>
 
   <h2>Attributes</h2>
@@ -1103,3 +1141,47 @@ markEffects: true
     <p>Create a code listing using `&lt;pre>&lt;code>`. The `code` element takes a class of `javascript`, `html`, or any other language provided by <a href="https://highlightjs.org/">highlightjs</a>. Ecmarkup will trim any leading blank lines and also normalize the indentation based on the indentation of the first line.</p>
   </emu-clause>
 </emu-clause>
+
+<emu-annex id="document-structure">
+  <h1>Required structure for Ecma documents</h1>
+
+  <p>Ecmarkup supports producing a document aligned with Ecma house style. If the ecmarkup document is intended to be formally released by Ecma International, there are some structural requirements it shall follow.</p>
+  <p>Each `&lt;emu-intro>`, `&lt;emu-clause>`, and `&lt;emu-annex>` element shall have a unique ID, optionally beginning with the prefix `sec-`.</p>
+
+  <emu-annex id="technical-report">
+    <h1>Technical Reports</h1>
+
+    <emu-note>
+      <p>This section is a work in progress.</p>
+    </emu-note>
+
+    <p>Ecma technical reports begin with an unnumbered introduction (using a single `&lt;emu-intro>` element), then the following numbered clauses:</p>
+
+    <ol>
+      <li>Scope</li>
+      <li>References</li>
+      <li>Terms and definitions</li>
+    </ol>
+
+    <p>(Refer to the Ecma house style guide for more detailed information.)</p>
+  </emu-annex>
+
+  <emu-annex id="standard">
+    <h1>Standards</h1>
+
+    <emu-note>
+      <p>This section is a work in progress.</p>
+    </emu-note>
+
+    <p>Ecma standards conforming to Ecma house style begin with an unnumbered introduction clause (using a single `&lt;emu-intro>` element), followed by the following numbered clauses:</p>
+
+    <ol>
+      <li>Scope</li>
+      <li>Normative references</li>
+      <li>Informative references</li>
+      <li>Terms and definitions</li>
+    </ol>
+
+    <p>(Refer to the Ecma house style guide for more detailed information.)</p>
+  </emu-annex>
+</emu-annex>

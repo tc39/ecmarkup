@@ -256,12 +256,12 @@
 
 html {
   background-color: var(--background-color);
+  font-size: 18px;
 }
 
 body {
   display: flex;
   word-wrap: break-word;
-  font-size: 18px;
   line-height: 1.5;
   font-family:
     'IBM Plex Serif',
@@ -918,6 +918,18 @@ emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex {
 #spec-container > emu-clause:first-of-type,
 #spec-container > emu-annex:first-of-type {
   margin-top: 0;
+}
+
+[id*="terms-and-definitions"] emu-clause h1 {
+  font-size: 1rem;
+}
+
+[id*="terms-and-definitions"] emu-clause h1 + p {
+  margin-top: 0;
+}
+
+[id*="terms-and-definitions"] emu-clause .secnum {
+  display: block;
 }
 
 /* Figures and tables */
