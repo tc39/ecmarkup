@@ -15,6 +15,7 @@ const RAW_CONTENT_ELEMENTS = new Set([
   'script',
   'style',
   'code',
+  'emu-val',
 ]);
 
 // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
@@ -84,7 +85,7 @@ export async function printDocument(src: string): Promise<string> {
   output.appendLine(`<!DOCTYPE html>`);
 
   for (const comment of leadingComments) {
-    output.append(await printChildNodes(src, [comment], false, false, 0));
+    output.append(await printChildNodes(src, [comment], 'block', false, false, 0));
     output.linebreak();
   }
 
@@ -119,8 +120,8 @@ export async function printDocument(src: string): Promise<string> {
     output.append(await printElement(src, head, 0));
     output.append(await printElement(src, body, 0));
   } else {
-    output.append(await printChildNodes(src, head.childNodes, false, false, 0));
-    output.append(await printChildNodes(src, body.childNodes, false, false, 0));
+    output.append(await printChildNodes(src, head.childNodes, 'block', false, false, 0));
+    output.append(await printChildNodes(src, body.childNodes, 'block', false, false, 0));
   }
   while (output.lines[0] === '') {
     output.lines.shift();
@@ -166,7 +167,7 @@ export async function printElement(
   if (PARAGRAPH_LIKE_ELEMENTS.has(node.tagName)) {
     output.firstLineIsPartial = false;
     output.appendText(printStartTag(node));
-    const body = await printChildNodes(src, childNodes, false, false, indent + 1);
+    const body = await printChildNodes(src, childNodes, 'block', false, false, indent + 1);
     body.trim();
     if (body.lines.length > 1) {
       output.linebreak();
@@ -288,7 +289,14 @@ export async function printElement(
         const type = node.attrs.find(a => a.name === 'type')?.value ?? null;
         const printedHeader = printHeader(parseResult, type, indent + 2);
         output.append(
-          await printChildNodes(src, childNodes.slice(0, maybeH1Index), true, true, indent + 1),
+          await printChildNodes(
+            src,
+            childNodes.slice(0, maybeH1Index),
+            'block',
+            true,
+            true,
+            indent + 1,
+          ),
         );
         if (output.last !== '') {
           output.linebreak();
@@ -301,7 +309,9 @@ export async function printElement(
         dropLeadingLinebreaks = false;
       }
     }
-    output.append(await printChildNodes(src, childNodes, dropLeadingLinebreaks, true, indent + 1));
+    output.append(
+      await printChildNodes(src, childNodes, 'block', dropLeadingLinebreaks, true, indent + 1),
+    );
     --output.indent;
     output.appendLine(`</${node.tagName}>`);
 
@@ -360,13 +370,14 @@ export async function printElement(
   if (block) {
     output.appendLine(printStartTag(node));
     ++output.indent;
-    output.append(await printChildNodes(src, childNodes, true, true, indent + 1));
+    output.append(await printChildNodes(src, childNodes, 'block', true, true, indent + 1));
     --output.indent;
     output.appendLine(`</${node.nodeName}>`);
   } else {
     output.appendText(printStartTag(node));
     ++output.indent;
-    output.append(await printChildNodes(src, childNodes, false, true, indent + 1));
+    const flowContext = node.tagName === 'emu-note' ? 'block' : 'inline';
+    output.append(await printChildNodes(src, childNodes, flowContext, false, true, indent + 1));
     --output.indent;
     const trailingSpace = output.last.endsWith(' ');
     if (trailingSpace) {
@@ -383,12 +394,14 @@ export async function printElement(
 async function printChildNodes(
   src: string,
   nodes: Node[],
+  flowContext: 'block' | 'inline',
   dropLeadingLinebreaks: boolean,
   dropTrailingLinebreaks: boolean,
   indent: number,
 ): Promise<LineBuilder> {
   const output = new LineBuilder(indent);
   let skipNextElement = false;
+  let inlineRunFirstLine = 0;
   for (let i = 0; i < nodes.length; ++i) {
     const node = nodes[i];
     if (node.nodeName === '#comment') {
@@ -464,12 +477,83 @@ async function printChildNodes(
           }
         }
       } else {
+        const inlineRunEnded = flowContext === 'block' && isBlockElement(ele);
+        if (inlineRunEnded) {
+          fixAsciiQuotes(output.lines, inlineRunFirstLine);
+        }
         output.append(await printElement(src, ele, indent));
+        if (inlineRunEnded) {
+          inlineRunFirstLine = output.lines.length;
+        }
       }
     }
   }
+  if (flowContext === 'block') {
+    fixAsciiQuotes(output.lines, inlineRunFirstLine);
+  }
 
   return output;
+}
+
+// this regular expression is not perfect, but generally follows
+// https://html.spec.whatwg.org/multipage/parsing.html#tokenization
+// (and spec source text tends to avoid the sort of edge cases that would
+// reveal its flaws)
+const rHtmlTag = (() => {
+  const SPACE_CHAR = '[\\t\\n\\f ]';
+  const TOKEN_CHAR = '[^\\t\\n\\f />]';
+  const ATTR = `(?=${TOKEN_CHAR}|=)${TOKEN_CHAR}*(?:=${SPACE_CHAR}*(?:"[^"]*"|'[^']*'|(?!"|')${TOKEN_CHAR}*)?)?`;
+  return new RegExp(
+    String.raw`(</?([a-z]${TOKEN_CHAR}*))((?:${SPACE_CHAR}*${ATTR})*)${SPACE_CHAR}*/?>`,
+    'gi',
+  );
+})();
+
+const rMaybeAsciiQuoted = new RegExp(
+  String.raw`${'`'}(?:[^${'`'}\\]|\\.)*${'`'}|<(${[...RAW_CONTENT_ELEMENTS].join('|')})\b[^>]*>.*?</\1\b[^>]*>|=".*?"|\*".*?"\*|"(.*?)"`,
+  'gi',
+);
+
+function fixAsciiQuotes(lines: string[], i: number = 0) {
+  for (let inComment = false; i < lines.length; i++) {
+    let line = lines[i];
+
+    // handle multi-line comments
+    const preservedPrefix = inComment ? line.match(/^.*?-->/)?.[0] || line : '';
+    if (preservedPrefix) {
+      inComment = false;
+      line = line.substring(preservedPrefix.length);
+    } else if (inComment) {
+      continue;
+    }
+
+    // replace escapes/comments and tags with placeholders (in that order)
+    const placeholders: string[] = [];
+    line = line.replace(/&\d|<!--.*?-->/g, c => `&${placeholders.push(c) - 1};`);
+    line = line.replace(rHtmlTag, (tag, prefix, name, attrs) => {
+      if (RAW_CONTENT_ELEMENTS.has(name)) {
+        // keep the tag name but replace any attributes with a placeholder
+        return attrs ? `${prefix}&${placeholders.push(tag.slice(prefix.length, -1)) - 1};>` : tag;
+      }
+      return `&${placeholders.push(tag) - 1};`;
+    });
+
+    const preservedSuffix = line.match(/<!--.*/)?.[0] || '';
+    if (preservedSuffix) {
+      inComment = true;
+      line = line.slice(0, -preservedSuffix.length);
+    }
+
+    // replace remaining ASCII quotes
+    line = line.replace(rMaybeAsciiQuoted, (m, _tagName, asciiQuoted) =>
+      asciiQuoted === undefined ? m : `“${asciiQuoted}”`,
+    );
+
+    // replace the line, with placeholders restored in reverse order
+    line = line.replace(/&(\d+);/g, (_m, i) => placeholders[i]);
+    line = line.replace(/&(\d+);/g, (_m, i) => placeholders[i]);
+    lines[i] = preservedPrefix + line + preservedSuffix;
+  }
 }
 
 function isBlockElement(element: Element) {
