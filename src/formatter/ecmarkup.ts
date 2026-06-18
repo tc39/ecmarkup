@@ -193,7 +193,9 @@ export async function printElement(
       bad(node, 'failed to parse algorithm');
     }
     output.appendLine(printStartTag(node));
-    output.append(await printAlgorithm(contents, parsed, indent + 1));
+    const steps = await printAlgorithm(contents, parsed, indent + 1);
+    fixAsciiQuotes(steps.lines);
+    output.append(steps);
     output.appendLine(`</${node.tagName}>`);
     return output;
   }
