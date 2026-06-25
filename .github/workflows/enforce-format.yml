@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: Enforce spec format
+    name: Enforce format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,6 +21,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Enforce code format
+        run: |
+          npm run format
+          if ! git diff-index --quiet HEAD; then
+            echo "You need to run \`npm run format\`"
+            exit 1
+          fi
 
       - name: Build
         run: npm run build
