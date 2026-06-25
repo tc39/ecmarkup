@@ -188,11 +188,11 @@
 
 html, body {
   background-color: initial;
+  font-size: 10pt;
 }
 
 body {
   font-family: 'Arial Plus', Arial, Helvetica, sans-serif, "DejaVu Math TeX Gyre", Symbola, monospace;
-  font-size: 10pt;
   color: #000;
   line-height: 1.15;
 }
@@ -660,20 +660,12 @@ p.ECMAaddress {
   margin: 0;
 }
 
-#sec-terms-and-definitions dfn {
+[id*='terms-and-definitions'] dfn {
   font-style: normal;
 }
 
-#sec-terms-and-definitions h1 .secnum {
-  display: block;
-}
-
-#sec-terms-and-definitions > h1 > .secnum {
-  display: inline;
-}
-
-#sec-terms-and-definitions h1 + p {
-  margin-top: 0;
+[id*='terms-and-definitions'] emu-clause h1 {
+  -prince-bookmark-level: none;
 }
 
 p.adoption-info {

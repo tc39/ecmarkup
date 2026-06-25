@@ -1875,12 +1875,12 @@ let biblio = JSON.parse(`{"refsByClause":{},"entries":[{"type":"clause","id":"se
 
 html {
   background-color: var(--background-color);
+  font-size: 18px;
 }
 
 body {
   display: flex;
   word-wrap: break-word;
-  font-size: 18px;
   line-height: 1.5;
   font-family:
     'IBM Plex Serif',
@@ -2581,6 +2581,18 @@ emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex {
 #spec-container > emu-clause:first-of-type,
 #spec-container > emu-annex:first-of-type {
   margin-top: 0;
+}
+
+[id*='terms-and-definitions'] emu-clause h1 {
+  font-size: 1rem;
+}
+
+[id*='terms-and-definitions'] emu-clause h1 + p {
+  margin-top: 0;
+}
+
+[id*='terms-and-definitions'] emu-clause .secnum {
+  display: block;
 }
 
 /* Figures and tables */
@@ -3492,11 +3504,11 @@ li.menu-search-result-term::before {
 
 html, body {
   background-color: initial;
+  font-size: 10pt;
 }
 
 body {
   font-family: 'Arial Plus', Arial, Helvetica, sans-serif, "DejaVu Math TeX Gyre", Symbola, monospace;
-  font-size: 10pt;
   color: #000;
   line-height: 1.15;
 }
@@ -3964,20 +3976,12 @@ p.ECMAaddress {
   margin: 0;
 }
 
-#sec-terms-and-definitions dfn {
+[id*='terms-and-definitions'] dfn {
   font-style: normal;
 }
 
-#sec-terms-and-definitions h1 .secnum {
-  display: block;
-}
-
-#sec-terms-and-definitions > h1 > .secnum {
-  display: inline;
-}
-
-#sec-terms-and-definitions h1 + p {
-  margin-top: 0;
+[id*='terms-and-definitions'] emu-clause h1 {
+  -prince-bookmark-level: none;
 }
 
 p.adoption-info {

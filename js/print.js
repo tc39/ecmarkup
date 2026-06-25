@@ -30,7 +30,7 @@ PDF.subject = shortname.innerHTML + (version ? ', ' + version.innerHTML : '');
 /**
  * Terms and definitions section should not have every term listed in the table of contents.
  * */
-const terms = document.querySelector('#toc a[href="#sec-terms-and-definitions"]');
+const terms = document.querySelector('#toc a[href*="#terms-and-definitions"]');
 
 if (terms) {
   (terms.parentElement.querySelector('ol.toc') || document.createElement('i')).remove();
