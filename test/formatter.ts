@@ -261,16 +261,18 @@ describe('document formatting', () => {
     );
   });
 
-  it('<script>, <style>, and <pre> whitespace is preserved', async () => {
+  it('whitespace and inner ASCII quotes are preserved inside <script>, <style>, and <pre>', async () => {
     await assertRoundTrips(
       `<script>
     content
+    "quoted content"
 </script>
 <style>
     content
+    "quoted content"
 </style>
 <pre>
-    content
+    "content"
 </pre>
 `,
     );
@@ -322,6 +324,39 @@ describe('document formatting', () => {
 <P> this   does   not </P>
 <p>this also gets formatted</p>
 `,
+    );
+  });
+
+  it('replaces ASCII quotes', async () => {
+    await assertDocFormatsAs(
+      `
+      <div>
+        "quotes" can span "<em class="foo">inline elements</em>"
+        <!-- ...but <comment> contents are "left alone" -->
+        <!--
+          (even when "multi-line")
+        --> and quotes can "follow comments"
+      </div>
+      <emu-alg>
+        1. [x="a"] Assert: Quotes are also "detected" in "algorithm steps".
+      </emu-alg>
+      `,
+      dedentKeepingTrailingNewline`
+      <div>
+        “quotes” can span “<em class="foo">inline elements</em>”
+        <!-- ...but <comment> contents are "left alone" -->
+        <!-- (even when "multi-line") --> and quotes can “follow comments”
+      </div>
+      <emu-alg>
+        1. [x="a"] Assert: Quotes are also “detected” in “algorithm steps”.
+      </emu-alg>
+      `,
+    );
+  });
+
+  it('preserves ASCII quotes that are code', async () => {
+    await assertRoundTrips(
+      `<p>ASCII quotes are not replaced in <code data-media-type="text/plain">"code elements"</code>, <emu-val>"emu-val elements"</emu-val>, ${'`'}"backtick spans"${'`'}, or *"inline language strings"*.</p>\n`,
     );
   });
 });

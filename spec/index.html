@@ -51,8 +51,8 @@ markEffects: true
       <tr><td>`--watch`</td><td></td><td>Rebuild when files change.</td></tr>
       <tr><td>`--verbose`</td><td></td><td>Print verbose logging info.</td></tr>
       <tr><td>`--write-biblio`</td><td></td><td>Emit a biblio file to the specified path.</td></tr>
-      <tr><td>`--assets`</td><td>`assets`</td><td>"none" for no CSS/JS/etc, "inline" for inline CSS/JS/etc, "external" for external CSS/JS/etc.</td></tr>
-      <tr><td>`--assets-dir`</td><td>`assetsDir`</td><td>Directory in which to place assets when using `--assets=external`. Defaults to "assets".</td></tr>
+      <tr><td>`--assets`</td><td>`assets`</td><td>“none” for no CSS/JS/etc, “inline” for inline CSS/JS/etc, “external” for external CSS/JS/etc.</td></tr>
+      <tr><td>`--assets-dir`</td><td>`assetsDir`</td><td>Directory in which to place assets when using `--assets=external`. Defaults to “assets”.</td></tr>
       <tr><td>`--lint-spec`</td><td>`lintSpec`</td><td>Enforce some style and correctness checks.</td></tr>
       <tr><td>`--error-formatter`</td><td></td><td>The <a href="https://eslint.org/docs/user-guide/formatters/">eslint formatter</a> to be used for printing warnings and errors when using `--verbose`. Either the name of a built-in eslint formatter or the package name of an installed eslint compatible formatter.</td></tr>
       <tr><td>`--max-clause-depth N`</td><td></td><td>Warn when clauses exceed a nesting depth of N, and cause those clauses to be numbered by incrementing their parent clause's number rather than by nesting a new number within their parent clause.</td></tr>
@@ -66,29 +66,29 @@ markEffects: true
     <emu-caption>Document options</emu-caption>
     <table>
       <tr><th>Command Line Option</th><th>Front-Matter Key</th><th>Description</th></tr>
-      <tr><td></td><td>`title`</td><td>Document title, for example "ECMAScript 2016" or "Async Functions".</td></tr>
-      <tr><td></td><td>`status`</td><td>Document status. Can be "proposal", "draft", or "standard". Defaults to "proposal".</td></tr>
-      <tr><td></td><td>`stage`</td><td><a href="https://tc39.es/process-document/">TC39 proposal stage</a>. If present and `status` is "proposal", `version` defaults to "Stage <var>stage</var> Draft".</td></tr>
-      <tr><td></td><td>`version`</td><td>Document version, for example "6&lt;sup>th&lt;/sup> Edition" (which renders like "6<sup>th</sup> Edition") or "Draft 1".</td></tr>
-      <tr><td></td><td>`date`</td><td>Timestamp of document rendering, used for various pieces of boilerplate. Defaults to the value of <a href="https://reproducible-builds.org/docs/source-date-epoch/">the `SOURCE_DATE_EPOCH` environment variable</a> (as a number of second since the POSIX epoch) if it exists, otherwise to the current date and time. Required for documents with "standard" status, should reflect adoption date.</td></tr>
-      <tr><td></td><td>`shortname`</td><td>Document shortname, for example "ECMA-262". If present and `status` is "draft", `version` defaults to "Draft <var>shortname</var>".</td></tr>
+      <tr><td></td><td>`title`</td><td>Document title, for example “ECMAScript 2016” or “Async Functions”.</td></tr>
+      <tr><td></td><td>`status`</td><td>Document status. Can be “proposal”, “draft”, or “standard”. Defaults to “proposal”.</td></tr>
+      <tr><td></td><td>`stage`</td><td><a href="https://tc39.es/process-document/">TC39 proposal stage</a>. If present and `status` is “proposal”, `version` defaults to “Stage <var>stage</var> Draft”.</td></tr>
+      <tr><td></td><td>`version`</td><td>Document version, for example “6&lt;sup>th&lt;/sup> Edition” (which renders like “6<sup>th</sup> Edition”) or “Draft 1”.</td></tr>
+      <tr><td></td><td>`date`</td><td>Timestamp of document rendering, used for various pieces of boilerplate. Defaults to the value of <a href="https://reproducible-builds.org/docs/source-date-epoch/">the `SOURCE_DATE_EPOCH` environment variable</a> (as a number of second since the POSIX epoch) if it exists, otherwise to the current date and time. Required for documents with “standard” status, should reflect adoption date.</td></tr>
+      <tr><td></td><td>`shortname`</td><td>Document shortname, for example “ECMA-262”. If present and `status` is “draft”, `version` defaults to “Draft <var>shortname</var>”.</td></tr>
       <tr><td></td><td>`description`</td><td>Brief description to be used for link previews in social media and the like.</td></tr>
       <tr><td></td><td>`location`</td><td>URL of this document. Used in conjunction with the biblio file to support inbound references from other documents.</td></tr>
       <tr><td></td><td>`copyright`</td><td>Emit copyright and software license information. Boolean, default true.</td></tr>
-      <tr><td></td><td>`contributors`</td><td>Contributors to this specification, i.e. those who own the copyright. If your proposal includes text from any Ecma specification, this should include "Ecma International".</td></tr>
-      <tr><td></td><td>`committee`</td><td>Ecma Technical Committee number. Required for documents with "standard" status, expects e.g. "39". Appends adoption information to &lt;emu-intro> element.</td></tr>
+      <tr><td></td><td>`contributors`</td><td>Contributors to this specification, i.e. those who own the copyright. If your proposal includes text from any Ecma specification, this should include “Ecma International”.</td></tr>
+      <tr><td></td><td>`committee`</td><td>Ecma Technical Committee number. Required for documents with “standard” status, expects e.g. “39”. Appends adoption information to &lt;emu-intro> element.</td></tr>
       <tr><td>`--no-toc`</td><td>`toc`</td><td>Emit table of contents. Boolean, default true.</td></tr>
       <tr><td>`--printable`</td><td>`printable`</td><td>Make the output suitable for printing. Boolean, default false.</td></tr>
       <tr><td>`--load-biblio`</td><td>`extraBiblios`</td><td>Extra biblio.json file(s) to load. This should contain either an object as exported by `--write-biblio` or an array of such objects.</td></tr>
-      <tr><td></td><td>`boilerplate`</td><td>An object with `address` and/or `copyright` and/or `license` fields containing paths to files containing the corresponding content for populating an element with class "copyright-and-software-license" (or if not found, an appended <emu-xref href="#emu-annex" title></emu-xref> with that id) when `copyright` is true or set to `alternative`. Absent fields are assumed to reference files in a "boilerplate" directory sibling of the directory containing the ecmarkup executable.</td></tr>
-      <tr><td>`--mark-effects`</td><td>`markEffects`</td><td>Propagate and render <a href="#effects">effects</a> like "user code".</td></tr>
+      <tr><td></td><td>`boilerplate`</td><td>An object with `address` and/or `copyright` and/or `license` fields containing paths to files containing the corresponding content for populating an element with class “copyright-and-software-license” (or if not found, an appended <emu-xref href="#emu-annex" title></emu-xref> with that id) when `copyright` is true or set to `alternative`. Absent fields are assumed to reference files in a “boilerplate” directory sibling of the directory containing the ecmarkup executable.</td></tr>
+      <tr><td>`--mark-effects`</td><td>`markEffects`</td><td>Propagate and render <a href="#effects">effects</a> like “user code”.</td></tr>
     </table>
   </emu-table>
 </emu-clause>
 
 <emu-clause id="stylesheets-and-scripts">
   <h1>Stylesheets and other assets</h1>
-  <p>Ecmarkup requires CSS styles and other assets. By default all assets are inlined into the document. You can override this by setting assets to "none" (for example if you want to manually link to external assets) or "external". When using "external" the default directory for assets is `assets` in the same directory as the output file, but you can override this with `--assets-dir`.</p>
+  <p>Ecmarkup requires CSS styles and other assets. By default all assets are inlined into the document. You can override this by setting assets to “none” (for example if you want to manually link to external assets) or “external”. When using “external” the default directory for assets is `assets` in the same directory as the output file, but you can override this with `--assets-dir`.</p>
 </emu-clause>
 
 <emu-clause id="editorial-conventions">
@@ -188,14 +188,14 @@ markEffects: true
     <p><b>number:</b> Optional: An explicit clause number, overriding the default auto-incrementing number. Can be a nested number, as in `number="2.1"`.</p>
     <p><b>type:</b> Optional: Type of feature described by the clause.</p>
     <ul>
-      <li>"abstract operation"</li>
-      <li>"built-in function"</li>
-      <li>"concrete method"</li>
-      <li>"host-defined abstract operation"</li>
-      <li>"implementation-defined abstract operation"</li>
-      <li>"internal method"</li>
-      <li>"numeric method"</li>
-      <li>"sdo" or "syntax-directed operation"</li>
+      <li>“abstract operation”</li>
+      <li>“built-in function”</li>
+      <li>“concrete method”</li>
+      <li>“host-defined abstract operation”</li>
+      <li>“implementation-defined abstract operation”</li>
+      <li>“internal method”</li>
+      <li>“numeric method”</li>
+      <li>“sdo” or “syntax-directed operation”</li>
     </ul>
 
     <emu-clause id="emu-clause-legacy-attributes" legacy>
@@ -207,16 +207,16 @@ markEffects: true
       <h1>Structured Headers</h1>
       <p>A clause describing an operation or method may have a <dfn>structured header</dfn> to document its signature and metadata. Such a structure consists of:</p>
       <ol>
-        <li>an <code>&lt;h1&gt;</code> element containing the name of the operation followed by a parenthesized list of parameters, each appearing on a comma-terminated line of its own and consisting of a name and value constraints separated by a colon and optionally preceded with "optional"</li>
+        <li>an <code>&lt;h1&gt;</code> element containing the name of the operation followed by a parenthesized list of parameters, each appearing on a comma-terminated line of its own and consisting of a name and value constraints separated by a colon and optionally preceded with “optional”</li>
         <li>
-          a <code>&lt;dl&gt;</code> element with class "header" and a collection of optional key-value pairs expressed using <code>&lt;dt&gt;</code> and <code>&lt;dd&gt;</code> elements:
+          a <code>&lt;dl&gt;</code> element with class “header” and a collection of optional key-value pairs expressed using <code>&lt;dt&gt;</code> and <code>&lt;dd&gt;</code> elements:
           <ul>
             <li><b>description:</b> An explanation of the operation's behaviour.</li>
-            <li><b>effects:</b> A list of "effects" associated with the clause (and transitively with those referencing it), separated by commas with optional whitespace. The only currently-known effect is "user-code", which indicates that the operation or method can evaluate non-implementation code (such as custom getters).</li>
-            <li><b>for:</b> The type of value to which a clause of type "concrete method" or "internal method" applies.</li>
-            <li><b>redefinition:</b> If "true", the name of the operation will not automatically link (i.e., it will not automatically be given an aoid).</li>
-            <li><b>skip global checks:</b> If "true", disables consistency checks for this AO which require knowing every callsite.</li>
-            <li><b>skip return checks:</b> If "true", disables checking that the returned values from this AO correspond to its declared return type. Adding this to an AO which does not require it will produce a warning.</li>
+            <li><b>effects:</b> A list of “effects” associated with the clause (and transitively with those referencing it), separated by commas with optional whitespace. The only currently-known effect is “user-code”, which indicates that the operation or method can evaluate non-implementation code (such as custom getters).</li>
+            <li><b>for:</b> The type of value to which a clause of type “concrete method” or “internal method” applies.</li>
+            <li><b>redefinition:</b> If “true”, the name of the operation will not automatically link (i.e., it will not automatically be given an aoid).</li>
+            <li><b>skip global checks:</b> If “true”, disables consistency checks for this AO which require knowing every callsite.</li>
+            <li><b>skip return checks:</b> If “true”, disables checking that the returned values from this AO correspond to its declared return type. Adding this to an AO which does not require it will produce a warning.</li>
           </ul>
         </li>
       </ol>
@@ -287,13 +287,13 @@ markEffects: true
   <h3>Result</h3>
   <aside class="result">
     <p>A <dfn id="swordfish" variants="swordfishes,Xiphias gladius">swordfish</dfn> is large fish characterized by a long, pointed bill.</p>
-    <p>The Latin name for swordfishes, <em>Xiphias gladius</em>, comes from the Greek word "ξίφος" (xiphos, "sword") and from the Latin word "gladius" ("sword").</p>
+    <p>The Latin name for swordfishes, <em>Xiphias gladius</em>, comes from the Greek word “ξίφος” (xiphos, “sword”) and from the Latin word “gladius” (“sword”).</p>
   </aside>
 </emu-clause>
 
 <emu-clause id="effects">
   <h1>Effects</h1>
-  <p>Abstract operations can be marked as having effects that propagate to their invocation sites. Subject to the following rules, calls to such operations are given a class of the effect name prefixed with “e-”. When using `markEffects`, the CSS includes styling for the "user-code" effect via class name `e-user-code` that is off by default but can be togged by pressing <kbd>u</kbd>.</p>
+  <p>Abstract operations can be marked as having effects that propagate to their invocation sites. Subject to the following rules, calls to such operations are given a class of the effect name prefixed with “e-”. When using `markEffects`, the CSS includes styling for the “user-code” effect via class name `e-user-code` that is off by default but can be togged by pressing <kbd>u</kbd>.</p>
 
   <p>Within an algorithm, an `emu-meta` element enclosing an operation invocation can be used to indicate either the origination of effects or the absence of effects using a list of effect names separated by commas with optional whitespace in an <b>effects</b> or <b>suppress-effects</b> attribute (respectively).</p>
   <pre><code class="language-html">
@@ -469,7 +469,7 @@ markEffects: true
   <p>Non-normative explanatory text. Comes in two types - regular notes and Editor's notes. Regular notes are intended for the implementers and end users of this specification. Editor's notes are notes to and from the Editors and will generally be removed prior to a specification being finalized and ratified.</p>
 
   <h2>Attributes</h2>
-  <p><b>type:</b> The type of note, either blank or "editor".</p>
+  <p><b>type:</b> The type of note, either blank or “editor”.</p>
 
   <h2>Example</h2>
   <pre><code class="language-html">
@@ -617,7 +617,7 @@ markEffects: true
     <p>The first two columns are assumed to be the method signature and the method description respectively.</p>
 
     <h2>Attributes</h2>
-    <p><b>type:</b> Must be present with the value "abstract methods".</p>
+    <p><b>type:</b> Must be present with the value “abstract methods”.</p>
     <p><b>of:</b> Must be present; the value is the name of the type for which this table defines the methods.</p>
     <p><b>caption:</b> Optional: If not present, will be generated based on the type name</p>
 
@@ -871,8 +871,8 @@ markEffects: true
   <p><b>primary:</b> Optional: Deprecated in favor of type="definition".</p>
   <p><b>type:</b> Optional: Disposition of the grammar. If absent, it is considered to reference productions defined elsewhere.</p>
   <ul>
-    <li>"definition": The grammar is an authoritative source for productions which should be the target of references.</li>
-    <li>"example": Deprecated in favor of the <b>example</b> attribute.</li>
+    <li>“definition”: The grammar is an authoritative source for productions which should be the target of references.</li>
+    <li>“example”: Deprecated in favor of the <b>example</b> attribute.</li>
   </ul>
 
   <h2>Example</h2>
@@ -993,8 +993,8 @@ markEffects: true
     <p><b>primary:</b> Optional: The production is authoritative and should be the target of references.</p>
     <p><b>type:</b> Optional: Type of production. If absent, the production is considered syntactic.</p>
     <ul>
-      <li>"lexical": The production is part of a lexical grammar, and should render with the LHS and RHS separated by two colons “<b>::</b>”.</li>
-      <li>"regexp": Deprecated because the ECMAScript regular expression grammar is considered to be lexical. Productions with this type render with the LHS and RHS separated by three colons “<b>:::</b>”.</li>
+      <li>“lexical”: The production is part of a lexical grammar, and should render with the LHS and RHS separated by two colons “<b>::</b>”.</li>
+      <li>“regexp”: Deprecated because the ECMAScript regular expression grammar is considered to be lexical. Productions with this type render with the LHS and RHS separated by three colons “<b>:::</b>”.</li>
     </ul>
   </emu-clause>
 
@@ -1029,13 +1029,13 @@ markEffects: true
   <emu-clause id="emu-gmod">
     <h1>emu-gmod</h1>
 
-    <p>Contains well-known modifiers to a right-hand side of a production. The only well-known modifier at present is the "but not" modifier. See the Identifier example <emu-xref href="#grammar">above</emu-xref>.</p>
+    <p>Contains well-known modifiers to a right-hand side of a production. The only well-known modifier at present is the “but not” modifier. See the Identifier example <emu-xref href="#grammar">above</emu-xref>.</p>
   </emu-clause>
 
   <emu-clause id="emu-gann">
     <h1>emu-gann</h1>
 
-    <p>Contains well-known annotations to to a right-hand side of a production. The only well-known modifiers at present are "lookahead" and "empty". See the ExpressionStatement example <emu-xref href="#grammar">above</emu-xref>. Any text inside a gann element is wrapped in square brackets.</p>
+    <p>Contains well-known annotations to to a right-hand side of a production. The only well-known modifiers at present are “lookahead” and “empty”. See the ExpressionStatement example <emu-xref href="#grammar">above</emu-xref>. Any text inside a gann element is wrapped in square brackets.</p>
   </emu-clause>
 
   <emu-clause id="emu-gprose">
@@ -1071,7 +1071,7 @@ markEffects: true
 
   <emu-clause id="ins-del">
     <h1>Indicating Changes</h1>
-    <p>The `ins` and `del` HTML elements can be used to mark insertions and deletions respectively. When adding or removing block content (such as entire list items, paragraphs, clauses, grammar RHSes, etc.), use a class of "block".</p>
+    <p>The `ins` and `del` HTML elements can be used to mark insertions and deletions respectively. When adding or removing block content (such as entire list items, paragraphs, clauses, grammar RHSes, etc.), use a class of “block”.</p>
 
     <h2>Inline Example</h2>
     <pre><code class="language-html">ECMAScript &lt;del>6&lt;/del>&lt;ins>2015&lt;/ins> &lt;del>will be ratified&lt;/del>&lt;ins>was ratified&lt;/ins> in June, 2015.</code></pre>
