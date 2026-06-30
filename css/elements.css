@@ -56,13 +56,13 @@
   --control-dialog-fade-color: rgba(255, 255, 255, 0.6);
 
   --control-link-foreground-color: #1567a2;
+  --control-danger-foreground-color: #bb1212;
 
   --control-input-background-color: #bbb;
   --control-input-border-color: #999;
 
   --menu-header-background-color: #bbb;
   --menu-revealed-link-foreground-color: #206ca7;
-  --menu-unpin-hover-foreground-color: #bb1212;
 
   --menu-trace-list-foreground-color: #999;
   --menu-trace-list-background-color: #222;
@@ -140,13 +140,13 @@
       --control-dialog-fade-color: rgba(0, 0, 0, 0.6);
 
       --control-link-foreground-color: #7ebce9;
+      --control-danger-foreground-color: #f29c9c;
 
       --control-input-background-color: #606060;
       --control-input-border-color: #a0a0a0;
 
       --menu-header-background-color: #404040;
       --menu-revealed-link-foreground-color: #9bd0f7;
-      --menu-unpin-hover-foreground-color: #f29c9c;
 
       --menu-trace-list-foreground-color: #222;
       --menu-trace-list-background-color: #999;
@@ -257,6 +257,14 @@
   font-display: swap;
   src: local(IBM Plex Mono Bold Italic), local(IBMPlexMono-BoldItalic);
 }
+
+/* Generic classes */
+
+.cancellation-button::after {
+  content: '\1F5D9';
+}
+
+/* Elements */
 
 html {
   background-color: var(--background-color);
@@ -1149,8 +1157,15 @@ tr.del > td {
   display: block;
 }
 
-#menu-pins .unpin-all {
+#menu-pins button {
   border: none;
+  background: transparent;
+  color: var(--foreground-color);
+
+  cursor: pointer;
+}
+
+#menu-pins .unpin-all {
   background: var(--control-dark-background-color);
   border-radius: 4px;
   height: 18px;
@@ -1160,6 +1175,7 @@ tr.del > td {
 }
 #menu-pins .unpin-all:hover {
   background: var(--control-background-color);
+  color: var(--control-danger-foreground-color);
 }
 
 #menu-pins-list {
@@ -1188,28 +1204,16 @@ tr.del > td {
   text-align: center;
   padding: 1px 3px;
   border-radius: 4px;
-  background: none;
-  border: none;
 }
-#menu-pins-list > li::before,
-#menu-pins-list > li > .unpin:hover {
-  background: var(--control-dark-background-color);
-}
-
-#menu-pins-list > li > .unpin,
-#menu-pins .unpin-all {
-  cursor: pointer;
-  color: var(--foreground-color);
-}
-#menu-pins-list > li > .unpin:hover,
-#menu-pins .unpin-all:hover {
-  color: var(--menu-unpin-hover-foreground-color);
-}
-
 #menu-pins-list > li::before {
+  background: var(--control-dark-background-color);
   content: counter(pins-counter);
   counter-increment: pins-counter;
   font-size: 16px;
+}
+#menu-pins-list > li > .unpin:hover {
+  background: var(--control-dark-background-color);
+  color: var(--control-danger-foreground-color);
 }
 
 #menu-toc > ol {
@@ -1588,6 +1592,7 @@ li.menu-search-result-term::before {
 }
 
 #references-pane > .menu-pane-header {
+  padding-right: 2px;
   cursor: row-resize;
 }
 
@@ -1595,10 +1600,17 @@ li.menu-search-result-term::before {
   display: flex;
 }
 
-#references-pane-close::after {
-  content: '\2716';
+#references-pane-close {
   float: right;
+
+  border: none;
+  background: transparent;
+  color: var(--foreground-color);
+
   cursor: pointer;
+}
+#references-pane-close:hover {
+  background: var(--control-dark-background-color);
 }
 
 #references-pane table tbody {
