@@ -708,19 +708,13 @@ Menu.prototype.loadPinEntries = function () {
     return;
   }
 
-  // Prune on every load (this also completes legacy-array migration and TTL
-  // cleanup), then persist so the cleanup sticks even for documents with no pins.
-  let store = this.prunePinStore(this.parsePinEntries(window.localStorage[PIN_STORAGE_KEY]));
-  let entry = store[this.pinDocumentPath()];
-  this.writePinStore(store);
-  if (!entry) return;
-
-  // addPinEntry only updates in-memory state + the DOM (and drops ids missing from
-  // this document); commit once afterwards to bump lastUsed and store the cleaned
-  // set of ids.
+  let store = this.parsePinEntries(window.localStorage[PIN_STORAGE_KEY]);
+  let entry = store[this.pinDocumentPath()] || { pins: [] };
+  // Update in-memory state (including dropping missing ids) and the DOM.
   for (let i = 0; i < entry.pins.length; i++) {
     this.addPinEntry(entry.pins[i]);
   }
+  // Bump lastUsed and commit any schema migration that was performed.
   this.persistPinEntries();
 };
 
