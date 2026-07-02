@@ -537,18 +537,18 @@ Menu.prototype.pinListClick = function (event) {
   }
 };
 
-// All per-document pins live under this one key, as an object of
-// { [documentPath]: { pins: string[], lastUsed: <ms epoch> } } (see #702).
+// All per-document pins live in one storage entry, as an object of
+// { [documentKey]: { pins: string[], lastUsed: <ms epoch> } } (see #702).
 const PIN_STORAGE_KEY = 'pinEntries';
 // Forget a document's pins if it hasn't been visited in this long, so that the
 // unique-per-PR paths used by preview deployments don't grow localStorage without
 // bound.
 const PIN_TTL_MS = 180 * 24 * 60 * 60 * 1000; // 180 days
 
-// Identify the current document by path so pins in one spec/preview never clobber
-// another served from the same origin. Returns the path only; the localStorage key
-// is the constant above.
-Menu.prototype.pinDocumentPath = function () {
+// Return the key associated with the current document in the object persisted at
+// PIN_STORAGE_KEY (used to prevent pins in one spec/preview from clobbering those in
+// other documents served from the same origin).
+Menu.prototype.getDocumentKey = function () {
   // Directory of the current document (drop any filename such as index.html / foo.html).
   let dir = location.pathname.replace(/[^/]*$/, '');
   // Multipage pages live at <root>/multipage/<page>.html; fold them onto the
@@ -580,7 +580,7 @@ Menu.prototype.parsePinEntries = function (raw) {
     for (let spec of ['ecma262', 'ecma402', 'ecma404', 'ecma426']) {
       migrated['/' + spec + '/'] = { pins: parsed, lastUsed };
     }
-    migrated[this.pinDocumentPath()] = { pins: parsed, lastUsed };
+    migrated[this.getDocumentKey()] = { pins: parsed, lastUsed };
     return migrated;
   }
   return parsed && typeof parsed === 'object' ? parsed : {};
@@ -609,13 +609,13 @@ Menu.prototype.persistPinEntries = function () {
   }
 
   let store = this.prunePinStore(this.parsePinEntries(raw));
-  let path = this.pinDocumentPath();
+  let key = this.getDocumentKey();
   let ids = Object.keys(this._pinnedIds);
   if (ids.length === 0) {
     // Don't leave an empty entry lingering once the last pin is removed.
-    delete store[path];
+    delete store[key];
   } else {
-    store[path] = { pins: ids, lastUsed: Date.now() };
+    store[key] = { pins: ids, lastUsed: Date.now() };
   }
   try {
     window.localStorage[PIN_STORAGE_KEY] = JSON.stringify(store);
@@ -635,7 +635,7 @@ Menu.prototype.loadPinEntries = function () {
   }
 
   let store = this.parsePinEntries(raw);
-  let entry = store[this.pinDocumentPath()] || { pins: [] };
+  let entry = store[this.getDocumentKey()] || { pins: [] };
   // Update in-memory state (including dropping missing ids) and the DOM.
   for (let i = 0; i < entry.pins.length; i++) {
     this.addPinEntry(entry.pins[i]);
