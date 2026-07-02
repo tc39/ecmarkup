@@ -682,14 +682,6 @@ Menu.prototype.prunePinStore = function (store) {
   return store;
 };
 
-Menu.prototype.writePinStore = function (store) {
-  try {
-    window.localStorage[PIN_STORAGE_KEY] = JSON.stringify(store);
-  } catch (e) {
-    // localStorage may be full or unavailable; pins are best-effort, so ignore.
-  }
-};
-
 Menu.prototype.persistPinEntries = function () {
   try {
     if (!window.localStorage) return;
@@ -706,7 +698,11 @@ Menu.prototype.persistPinEntries = function () {
   } else {
     store[path] = { pins: ids, lastUsed: Date.now() };
   }
-  this.writePinStore(store);
+  try {
+    window.localStorage[PIN_STORAGE_KEY] = JSON.stringify(store);
+  } catch (e) {
+    // localStorage may be full or unavailable; pins are best-effort, so ignore.
+  }
 };
 
 Menu.prototype.loadPinEntries = function () {
