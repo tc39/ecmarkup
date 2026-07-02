@@ -2,10 +2,12 @@
 
 function parseSpecPath(url) {
   let pathParts = url.pathname.split('/');
-  let isMultipage = pathParts[pathParts.length - 2] === 'multipage';
+  let partCount = pathParts.length;
+  let isMultipage = pathParts[partCount - 2] === 'multipage';
+  let section = isMultipage ? pathParts[partCount - 1].replace(/\.html$/, '') : undefined;
   let pathPrefixEnd = isMultipage ? -2 : pathParts.findLastIndex(part => part !== '') + 1;
   let pathPrefix = pathParts.slice(0, pathPrefixEnd).join('/');
-  return { pathParts, pathPrefix, isMultipage };
+  return { pathParts, pathPrefix, isMultipage, section };
 };
 
 // initialize globals
@@ -17,15 +19,14 @@ for (let [section, ids] of Object.entries(multipageMap)) {
     }
   }
 }
-let { pathParts, pathPrefix, isMultipage } = parseSpecPath(location);
-let activeSec = isMultipage ? pathParts[pathParts.length - 1].replace(/\.html$/, '') : undefined;
+let { pathPrefix, isMultipage, section: activeSec } = parseSpecPath(location);
 let activeSecHash =
   activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
-let storage = typeof localStorage !== 'undefined' ? localStorage : Object.create(null);
+let storage = window.localStorage || Object.create(null);
 let toggleMultipage = () => {
   let hash = location.hash;
   if (isMultipage) {
-    location = pathParts.slice(0, -2).join('/') + '/' + (hash || activeSecHash || '');
+    location = pathPrefix + '/' + (hash || activeSecHash || '');
   } else {
     let targetSec = hash ? idToSection[hash.substring(1)] : undefined;
     location = 'multipage/' + (targetSec ? targetSec + '.html' : '') + hash;
@@ -50,7 +51,7 @@ let toggleMultipage = () => {
   let multipagePreference = storage.multipagePreference;
   if (isMultipage && multipagePreference === 'single-page') {
     window.navigating = true;
-    location = pathParts.slice(0, -2).join('/') + '/' + resolvedHash;
+    location = pathPrefix + '/' + resolvedHash;
   } else if (
     isMultipage
       ? targetSec != null && (activeSec || 'index') !== targetSec
@@ -63,7 +64,7 @@ let toggleMultipage = () => {
 
 // enable preference togglers
 document.documentElement.dataset.multipagePreference = storage.multipagePreference || '';
-if (typeof localStorage !== 'undefined') {
+if (window.localStorage) {
   let enableToggles = () => {
     for (let el of document.querySelectorAll('[disabled][data-multipage-preference]')) {
       el.disabled = false;

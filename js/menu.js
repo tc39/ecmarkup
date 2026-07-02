@@ -1149,12 +1149,12 @@ function sortByClauseNumber(clause1, clause2) {
 }
 
 function makeLinkToId(id) {
-  let hash = '#' + id;
-  if (typeof isMultipage !== 'undefined' && isMultipage && idToSection[id]) {
-    let targetSec = idToSection[id];
-    return (targetSec === 'index' ? './' : targetSec + '.html') + hash;
+  let path = '';
+  if (typeof isMultipage !== 'undefined' && isMultipage) {
+    let targetSec = typeof idToSection !== 'undefined' && idToSection[id];
+    path = targetSec === 'index' ? './' : targetSec ? targetSec + '.html' : '';
   }
-  return hash;
+  return path + '#' + id;
 }
 
 function doShortcut(e) {
