@@ -559,10 +559,10 @@ Menu.prototype.pinDocumentPath = function () {
   return dir;
 };
 
-// Read the store as { path: { pins, lastUsed } }, migrating the legacy global
-// `pinEntries` array (attributing it to the current document) if present.
-Menu.prototype.readPinStore = function () {
-  let raw = window.localStorage[PIN_STORAGE_KEY];
+// Parse the raw stored value into a store of { path: { pins, lastUsed } },
+// migrating the legacy global `pinEntries` array (attributing it to the current
+// document) if present.
+Menu.prototype.parsePinEntries = function (raw) {
   if (!raw) return {};
   let parsed;
   try {
@@ -605,7 +605,7 @@ Menu.prototype.persistPinEntries = function () {
     return;
   }
 
-  let store = this.prunePinStore(this.readPinStore());
+  let store = this.prunePinStore(this.parsePinEntries(window.localStorage[PIN_STORAGE_KEY]));
   let path = this.pinDocumentPath();
   let ids = Object.keys(this._pinnedIds);
   if (ids.length === 0) {
@@ -626,7 +626,7 @@ Menu.prototype.loadPinEntries = function () {
 
   // Prune on every load (this also completes legacy-array migration and TTL
   // cleanup), then persist so the cleanup sticks even for documents with no pins.
-  let store = this.prunePinStore(this.readPinStore());
+  let store = this.prunePinStore(this.parsePinEntries(window.localStorage[PIN_STORAGE_KEY]));
   let entry = store[this.pinDocumentPath()];
   this.writePinStore(store);
   if (!entry) return;
