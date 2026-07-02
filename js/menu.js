@@ -560,8 +560,7 @@ Menu.prototype.pinDocumentPath = function () {
 };
 
 // Parse the raw stored value into a store of { path: { pins, lastUsed } },
-// migrating the legacy global `pinEntries` array (attributing it to the current
-// document) if present.
+// migrating the legacy global `pinEntries` array if present.
 Menu.prototype.parsePinEntries = function (raw) {
   if (!raw) return {};
   let parsed;
@@ -571,9 +570,18 @@ Menu.prototype.parsePinEntries = function (raw) {
     return {};
   }
   if (Array.isArray(parsed)) {
-    // Legacy format: one global array of ids shared across all documents. Ids not
-    // in this document are dropped later by addPinEntry().
-    return { [this.pinDocumentPath()]: { pins: parsed, lastUsed: Date.now() } };
+    // Legacy format: one global array of ids shared across all documents. We can't
+    // know which document each id came from, so attribute them to all likely
+    // documents (the current one plus the official spec drafts), trusting
+    // addPinEntry to drop ids missing from a given document and prunePinStore to
+    // eventually forget any we guessed wrong.
+    let lastUsed = Date.now();
+    let migrated = {};
+    for (let spec of ['ecma262', 'ecma402', 'ecma404', 'ecma426']) {
+      migrated['/' + spec + '/'] = { pins: parsed, lastUsed };
+    }
+    migrated[this.pinDocumentPath()] = { pins: parsed, lastUsed };
+    return migrated;
   }
   return parsed && typeof parsed === 'object' ? parsed : {};
 };
