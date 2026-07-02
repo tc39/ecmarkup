@@ -599,13 +599,16 @@ Menu.prototype.prunePinStore = function (store) {
 };
 
 Menu.prototype.persistPinEntries = function () {
+  let raw;
   try {
-    if (!window.localStorage) return;
+    raw = window.localStorage[PIN_STORAGE_KEY];
   } catch (e) {
+    // localStorage may be unavailable (disabled, private mode, etc.); pins are
+    // best-effort, so give up rather than risk throwing.
     return;
   }
 
-  let store = this.prunePinStore(this.parsePinEntries(window.localStorage[PIN_STORAGE_KEY]));
+  let store = this.prunePinStore(this.parsePinEntries(raw));
   let path = this.pinDocumentPath();
   let ids = Object.keys(this._pinnedIds);
   if (ids.length === 0) {
@@ -622,13 +625,16 @@ Menu.prototype.persistPinEntries = function () {
 };
 
 Menu.prototype.loadPinEntries = function () {
+  let raw;
   try {
-    if (!window.localStorage) return;
+    raw = window.localStorage[PIN_STORAGE_KEY];
   } catch (e) {
+    // localStorage may be unavailable (disabled, private mode, etc.); nothing to
+    // restore in that case.
     return;
   }
 
-  let store = this.parsePinEntries(window.localStorage[PIN_STORAGE_KEY]);
+  let store = this.parsePinEntries(raw);
   let entry = store[this.pinDocumentPath()] || { pins: [] };
   // Update in-memory state (including dropping missing ids) and the DOM.
   for (let i = 0; i < entry.pins.length; i++) {
