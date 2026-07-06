@@ -93,7 +93,7 @@ markEffects: true
 
 <emu-clause id="multipage">
   <h1>Multipage</h1>
-  <p>Multi-page builds support a sticky preference for accessing the resulting document as a single page or as multiple pages. It can be set by embedding elements (such as <code>&lt;a&gt;</code> or <code>&lt;button&gt;</code>) with attribute <code>data-multipage-preference</code> set to either an empty string (for the default lack of preference), "single-page", or "multi-page". When such an element is clicked, the corresponding preference is written into <code>localStorage</code> and a navigation is triggered if necessary. From that point forward, loading any page directly or from an external link will respect that preference and redirect as necessary.</p>
+  <p>Multi-page builds support a sticky preference for accessing the resulting document as a single page or as multiple pages, which is either an empty string (for the default lack of preference), “single-page”, or “multi-page”. It can be read from the <code>data-multipage-preference</code> attribute of the document element or by calling `getMultipagePreference(window.localStorage)`, and set by calling `setMultipagePreference(window.localStorage, preference)` (which also triggers a navigation as necessary unless provided with a truthy third argument). From that point forward, loading any page directly or from an external link will respect that preference and redirect as necessary.</p>
   <emu-note>Links <em>internal</em> to the document are not subject to such redirection, allowing free alternation between single-page and multi-page experiences.</emu-note>
 </emu-clause>
 

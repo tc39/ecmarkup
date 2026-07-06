@@ -66,7 +66,7 @@ function getMultipagePreference(storage) {
   return '';
 }
 
-function setMultipagePreference(storage, preference) {
+function setMultipagePreference(storage, preference, skipNavigation) {
   let preferencesByPathPrefix = parseMultipagePreferences(storage) || {};
   let oldPreference = getMultipagePreference(storage);
 
@@ -78,7 +78,7 @@ function setMultipagePreference(storage, preference) {
     // storage may be full or unavailable.
   }
 
-  if (preference === oldPreference) return;
+  if (skipNavigation || preference === oldPreference) return;
   if (preference === (isMultipage ? 'single-page' : 'multi-page')) {
     toggleMultipage();
   }
@@ -134,40 +134,17 @@ function toggleMultipage() {
 })();
 
 // enable preference togglers
+document.documentElement.dataset.multipagePreference = getMultipagePreference(window.localStorage);
 if (window.localStorage) {
   let storage = window.localStorage;
-  let enableToggles = () => {
-    for (let el of document.querySelectorAll('[disabled][data-multipage-preference]')) {
-      el.disabled = false;
-    }
-  };
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', enableToggles);
-  } else {
-    enableToggles();
-  }
   document.addEventListener('click', e => {
-    if (!(e.target instanceof HTMLElement)) {
-      return;
-    }
     let target = e.target;
-    let toggler = target.closest('[data-multipage-preference]');
-    if (target.isContentEditable || !toggler || toggler === document.documentElement) {
+    if (!target.matches?.('#shortcuts-help button[data-multipage-preference]')) {
       return;
     }
-    switch (target.nodeName.toLowerCase()) {
-      case 'textarea':
-      case 'select':
-        return;
-      case 'input': {
-        let isCheckable = target.type === 'checkbox' || target.type === 'radio';
-        if (toggler !== target || !isCheckable || !target.checked) {
-          return;
-        }
-      }
-    }
-    let newMultipagePreference = toggler.dataset.multipagePreference;
-    setMultipagePreference(storage, newMultipagePreference);
+    let preference = target.dataset.multipagePreference;
+    document.documentElement.dataset.multipagePreference = preference;
+    setMultipagePreference(storage, preference);
     e.preventDefault();
   });
 }
