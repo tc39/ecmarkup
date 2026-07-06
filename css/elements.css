@@ -1677,8 +1677,8 @@ li.menu-search-result-term::before {
 }
 
 /* Other dynamic elements */
-:root[data-multipage-preference=''] [data-multipage-preference=''],
-:root[data-multipage-preference='single-page'] [data-multipage-preference='single-page'],
-:root[data-multipage-preference='multi-page'] [data-multipage-preference='multi-page'] {
+:root[data-multipage-preference=''] [data-set-multipage-preference=''],
+:root[data-multipage-preference='single-page'] [data-set-multipage-preference='single-page'],
+:root[data-multipage-preference='multi-page'] [data-set-multipage-preference='multi-page'] {
   font-weight: bold;
 }

@@ -1338,9 +1338,9 @@ ${this.opts.multipage ? `<li><span>Navigate to/from multipage</span><code>m</cod
 </ul>
 <fieldset>
   <legend>Multipage preference</legend>
-  <button type="button" data-multipage-preference="">No preference</button>
-  <button type="button" data-multipage-preference="single-page">Always single-page</button>
-  <button type="button" data-multipage-preference="multi-page">Always multi-page</button>
+  <button type="button" disabled data-set-multipage-preference="">No preference</button>
+  <button type="button" disabled data-set-multipage-preference="single-page">Always single-page</button>
+  <button type="button" disabled data-set-multipage-preference="multi-page">Always multi-page</button>
 </fieldset>`;
     return shortcutsHelp;
   }

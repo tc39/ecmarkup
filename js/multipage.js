@@ -27,6 +27,10 @@ const MULTIPAGE_PREFERENCE_STORAGE_KEY = 'multipagePreference';
 // the unique-per-PR paths used by preview deployments don't grow localStorage
 // without bound.
 const MULTIPAGE_PREFERENCE_TTL_MS = 180 * 24 * 60 * 60 * 1000; // 180 days
+// For styling, the document element exposes the current preference and buttons
+// for updating it expose their associated value (cf. css/elements.css).
+const MULTIPAGE_PREFERENCE_ATTR = 'data-multipage-preference';
+const SET_MULTIPAGE_PREFERENCE_ATTR = 'data-set-multipage-preference';
 
 function parseMultipagePreferences(storage) {
   try {
@@ -134,17 +138,37 @@ function toggleMultipage() {
 })();
 
 // enable preference togglers
-document.documentElement.dataset.multipagePreference = getMultipagePreference(window.localStorage);
+document.documentElement.setAttribute(
+  MULTIPAGE_PREFERENCE_ATTR,
+  getMultipagePreference(window.localStorage),
+);
 if (window.localStorage) {
   let storage = window.localStorage;
-  document.addEventListener('click', e => {
-    let target = e.target;
-    if (!target.matches?.('#shortcuts-help button[data-multipage-preference]')) {
-      return;
-    }
-    let preference = target.dataset.multipagePreference;
-    document.documentElement.dataset.multipagePreference = preference;
-    setMultipagePreference(storage, preference);
-    e.preventDefault();
-  });
+  let enableToggles = container => {
+    container.addEventListener('click', e => {
+      let target = e.target.closest?.(`[${SET_MULTIPAGE_PREFERENCE_ATTR}]`);
+      let preference = target?.getAttribute(SET_MULTIPAGE_PREFERENCE_ATTR);
+      if (typeof preference !== 'string') {
+        return;
+      }
+      document.documentElement.setAttribute(MULTIPAGE_PREFERENCE_ATTR, preference);
+      setMultipagePreference(storage, preference);
+    });
+    // Work around a bug where contents are sometimes empty.
+    setTimeout(() => {
+      for (let el of container.querySelectorAll(`[${SET_MULTIPAGE_PREFERENCE_ATTR}]`)) {
+        el.disabled = false;
+      }
+    }, 0);
+  };
+
+  let shortcuts = document.getElementById('shortcuts-help');
+  if (shortcuts) {
+    enableToggles(shortcuts);
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      shortcuts = document.getElementById('shortcuts-help');
+      if (shortcuts) enableToggles(shortcuts);
+    });
+  }
 }
