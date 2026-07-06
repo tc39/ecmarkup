@@ -100,6 +100,13 @@ function toggleMultipage() {
 
 // redirect to single-page/multi-page per preference
 (() => {
+  let { pathPrefix, isMultipage, section: activeSec } = parseSpecPath(location);
+  let activeSecHash =
+    activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
+  let hash = location.hash;
+  let resolvedHash = hash || activeSecHash || '';
+  let targetSec = resolvedHash ? idToSection[resolvedHash.substring(1)] : undefined;
+
   // ...except from internal links
   let referrer;
   try {
@@ -110,13 +117,6 @@ function toggleMultipage() {
   if (referrer && referrer.host === location.host) {
     if (parseSpecPath(referrer).pathPrefix === pathPrefix) return;
   }
-
-  let { pathPrefix, isMultipage, section: activeSec } = parseSpecPath(location);
-  let activeSecHash =
-    activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
-  let hash = location.hash;
-  let resolvedHash = hash || activeSecHash || '';
-  let targetSec = resolvedHash ? idToSection[resolvedHash.substring(1)] : undefined;
 
   let storage = window.localStorage || Object.create(null);
   let multipagePreference = getMultipagePreference(storage);
