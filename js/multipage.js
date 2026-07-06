@@ -1,16 +1,16 @@
 'use strict';
 
+// Duplicates menu.js for fault tolerance.
 function parseSpecPath(url) {
   let pathParts = url.pathname.split('/');
   let partCount = pathParts.length;
   let isMultipage = pathParts[partCount - 2] === 'multipage';
   let section = isMultipage ? pathParts[partCount - 1].replace(/\.html$/, '') : undefined;
   let pathPrefixEnd = isMultipage ? -2 : pathParts.findLastIndex(part => part !== '') + 1;
-  let pathPrefix = pathParts.slice(0, pathPrefixEnd).join('/');
+  let pathPrefix = pathParts.slice(0, pathPrefixEnd).join('/') + '/';
   return { pathParts, pathPrefix, isMultipage, section };
-};
+}
 
-// initialize globals
 let idToSection = Object.create(null);
 for (let [section, ids] of Object.entries(multipageMap)) {
   for (let id of ids) {
@@ -19,19 +19,20 @@ for (let [section, ids] of Object.entries(multipageMap)) {
     }
   }
 }
-let { pathPrefix, isMultipage, section: activeSec } = parseSpecPath(location);
-let activeSecHash =
-  activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
-let storage = window.localStorage || Object.create(null);
-let toggleMultipage = () => {
+
+function toggleMultipage() {
+  let { pathPrefix, isMultipage, section: activeSec } = parseSpecPath(location);
+  let activeSecHash =
+    activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
   let hash = location.hash;
+
   if (isMultipage) {
-    location = pathPrefix + '/' + (hash || activeSecHash || '');
+    location = pathPrefix + (hash || activeSecHash || '');
   } else {
     let targetSec = hash ? idToSection[hash.substring(1)] : undefined;
     location = 'multipage/' + (targetSec ? targetSec + '.html' : '') + hash;
   }
-};
+}
 
 // redirect to single-page/multi-page per preference
 (() => {
@@ -46,12 +47,18 @@ let toggleMultipage = () => {
     if (parseSpecPath(referrer).pathPrefix === pathPrefix) return;
   }
 
-  let resolvedHash = location.hash || activeSecHash || '';
+  let { pathPrefix, isMultipage, section: activeSec } = parseSpecPath(location);
+  let activeSecHash =
+    activeSec && idToSection['sec-' + activeSec] != null ? '#sec-' + activeSec : undefined;
+  let hash = location.hash;
+  let resolvedHash = hash || activeSecHash || '';
   let targetSec = resolvedHash ? idToSection[resolvedHash.substring(1)] : undefined;
+
+  let storage = window.localStorage || Object.create(null);
   let multipagePreference = storage.multipagePreference;
   if (isMultipage && multipagePreference === 'single-page') {
     window.navigating = true;
-    location = pathPrefix + '/' + resolvedHash;
+    location = pathPrefix + resolvedHash;
   } else if (
     isMultipage
       ? targetSec != null && (activeSec || 'index') !== targetSec
@@ -63,8 +70,8 @@ let toggleMultipage = () => {
 })();
 
 // enable preference togglers
-document.documentElement.dataset.multipagePreference = storage.multipagePreference || '';
 if (window.localStorage) {
+  let storage = window.localStorage;
   let enableToggles = () => {
     for (let el of document.querySelectorAll('[disabled][data-multipage-preference]')) {
       el.disabled = false;

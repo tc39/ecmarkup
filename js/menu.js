@@ -1,4 +1,18 @@
 'use strict';
+
+// Duplicates multipage.js for fault tolerance.
+function parseSpecPath(url) {
+  let pathParts = url.pathname.split('/');
+  let partCount = pathParts.length;
+  let isMultipage = pathParts[partCount - 2] === 'multipage';
+  let section = isMultipage ? pathParts[partCount - 1].replace(/\.html$/, '') : undefined;
+  let pathPrefixEnd = isMultipage ? -2 : pathParts.findLastIndex(part => part !== '') + 1;
+  let pathPrefix = pathParts.slice(0, pathPrefixEnd).join('/') + '/';
+  return { pathParts, pathPrefix, isMultipage, section };
+}
+
+let { pathPrefix, isMultipage } = parseSpecPath(location);
+
 function Search(menu) {
   this.menu = menu;
   this.$search = document.getElementById('menu-search');
@@ -538,26 +552,12 @@ Menu.prototype.pinListClick = function (event) {
 };
 
 // All per-document pins live in one storage entry, as an object of
-// { [documentKey]: { pins: string[], lastUsed: <ms epoch> } } (see #702).
+// { [pathPrefix]: { pins: string[], lastUsed: <ms epoch> } } (see #702).
 const PIN_STORAGE_KEY = 'pinEntries';
 // Forget a document's pins if it hasn't been visited in this long, so that the
 // unique-per-PR paths used by preview deployments don't grow localStorage without
 // bound.
 const PIN_TTL_MS = 180 * 24 * 60 * 60 * 1000; // 180 days
-
-// Return the key associated with the current document in the object persisted at
-// PIN_STORAGE_KEY (used to prevent pins in one spec/preview from clobbering those in
-// other documents served from the same origin).
-Menu.prototype.getDocumentKey = function () {
-  // Directory of the current document (drop any filename such as index.html / foo.html).
-  let dir = location.pathname.replace(/[^/]*$/, '');
-  // Multipage pages live at <root>/multipage/<page>.html; fold them onto the
-  // document root so every page of one spec shares a single set of pins.
-  if (isMultipage && dir.endsWith('/multipage/')) {
-    dir = dir.slice(0, -'multipage/'.length);
-  }
-  return dir;
-};
 
 // Parse the raw stored value into a store of { path: { pins, lastUsed } },
 // migrating the legacy global `pinEntries` array if present.
@@ -580,7 +580,7 @@ Menu.prototype.parsePinEntries = function (raw) {
     for (let spec of ['ecma262', 'ecma402', 'ecma404', 'ecma426']) {
       migrated['/' + spec + '/'] = { pins: parsed, lastUsed };
     }
-    migrated[this.getDocumentKey()] = { pins: parsed, lastUsed };
+    migrated[pathPrefix] = { pins: parsed, lastUsed };
     return migrated;
   }
   return parsed && typeof parsed === 'object' ? parsed : {};
@@ -589,10 +589,10 @@ Menu.prototype.parsePinEntries = function (raw) {
 // Drop documents not visited within PIN_TTL_MS. Mutates and returns `store`.
 Menu.prototype.prunePinStore = function (store) {
   let now = Date.now();
-  for (let path of Object.keys(store)) {
-    let entry = store[path];
+  for (let pathPrefix of Object.keys(store)) {
+    let entry = store[pathPrefix];
     if (!entry || typeof entry.lastUsed !== 'number' || now - entry.lastUsed > PIN_TTL_MS) {
-      delete store[path];
+      delete store[pathPrefix];
     }
   }
   return store;
@@ -609,7 +609,7 @@ Menu.prototype.persistPinEntries = function () {
   }
 
   let store = this.prunePinStore(this.parsePinEntries(raw));
-  let key = this.getDocumentKey();
+  let key = pathPrefix;
   let ids = Object.keys(this._pinnedIds);
   if (ids.length === 0) {
     // Don't leave an empty entry lingering once the last pin is removed.
@@ -635,7 +635,7 @@ Menu.prototype.loadPinEntries = function () {
   }
 
   let store = this.parsePinEntries(raw);
-  let entry = store[this.getDocumentKey()] || { pins: [] };
+  let entry = store[pathPrefix] || { pins: [] };
   // Update in-memory state (including dropping missing ids) and the DOM.
   for (let i = 0; i < entry.pins.length; i++) {
     this.addPinEntry(entry.pins[i]);
@@ -1150,7 +1150,7 @@ function sortByClauseNumber(clause1, clause2) {
 
 function makeLinkToId(id) {
   let path = '';
-  if (typeof isMultipage !== 'undefined' && isMultipage) {
+  if (isMultipage) {
     let targetSec = typeof idToSection !== 'undefined' && idToSection[id];
     path = targetSec === 'index' ? './' : targetSec ? targetSec + '.html' : '';
   }
