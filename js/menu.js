@@ -201,30 +201,30 @@ Search.prototype.displayResults = function (results) {
       let key = result.key;
       let entry = result.entry;
       let id = entry.id;
-      let cssClass = '';
+      let kind = '';
       let text = '';
 
       if (entry.type === 'clause') {
         let number = entry.number ? entry.number + ' ' : '';
         text = number + key;
-        cssClass = 'clause';
+        kind = 'clause';
         id = entry.id;
       } else if (entry.type === 'production') {
         text = key;
-        cssClass = 'prod';
+        kind = 'prod';
         id = entry.id;
       } else if (entry.type === 'op') {
         text = key;
-        cssClass = 'op';
+        kind = 'op';
         id = entry.id || entry.refId;
       } else if (entry.type === 'term') {
         text = key;
-        cssClass = 'term';
+        kind = 'term';
         id = entry.id || entry.refId;
       }
 
       if (text) {
-        html += `<li class=menu-search-result-${cssClass}><a href="${makeLinkToId(id)}">${text}</a></li>`;
+        html += `<li class="menu-search-result"${kind ? ` data-kind="${kind}"` : ''}><a href="${makeLinkToId(id)}">${text}</a></li>`;
       }
     });
 

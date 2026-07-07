@@ -1389,43 +1389,17 @@ a.menu-pane-header-production {
   overflow-y: auto;
 }
 
-li.menu-search-result-clause::before {
-  content: 'clause';
+li.menu-search-result::before {
+  display: none;
   width: 40px;
-  display: inline-block;
   text-align: right;
   padding-right: 1ex;
   color: var(--control-dimmed-foreground-color);
   font-size: 75%;
 }
-li.menu-search-result-op::before {
-  content: 'op';
-  width: 40px;
+li.menu-search-result[data-kind]::before {
   display: inline-block;
-  text-align: right;
-  padding-right: 1ex;
-  color: var(--control-dimmed-foreground-color);
-  font-size: 75%;
-}
-
-li.menu-search-result-prod::before {
-  content: 'prod';
-  width: 40px;
-  display: inline-block;
-  text-align: right;
-  padding-right: 1ex;
-  color: var(--control-dimmed-foreground-color);
-  font-size: 75%;
-}
-
-li.menu-search-result-term::before {
-  content: 'term';
-  width: 40px;
-  display: inline-block;
-  text-align: right;
-  padding-right: 1ex;
-  color: var(--control-dimmed-foreground-color);
-  font-size: 75%;
+  content: attr(data-kind);
 }
 
 #menu-search-results ul {
