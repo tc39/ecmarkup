@@ -36,7 +36,7 @@ export default function (
       /^ in\b/.test(next.contents) &&
       // Iterating over an interval is a valid construction where "in" is correct, in either the
       // "inclusive interval from _a_ to _b_" shorthand or the full "interval from _a_ ... to _b_ ..." form.
-      !/^ in the (?:inclusive )?interval from\b/.test(next.contents)
+      !/^ in the (?:inclusive )?interval\b/.test(next.contents)
     ) {
       report({
         ruleId,
