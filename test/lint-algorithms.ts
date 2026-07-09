@@ -549,6 +549,11 @@ describe('linting algorithms', () => {
           1. For each String _x_ of _y_, do foo.
           1. For each element _x_ of _y_, do foo.
           1. For each integer _x_ such that _x_ &in; _S_, do foo.
+          1. For each integer _k_ in the inclusive interval from 1 to 10, do foo.
+          1. For each integer _k_ in the interval from 1 (inclusive) to 10 (inclusive), do foo.
+          1. For each integer _k_ in the interval from 1 (inclusive) to 10 (exclusive), do foo.
+          1. For each integer _k_ in the interval from 1 (exclusive) to 10 (inclusive), do foo.
+          1. For each integer _k_ in the interval from 1 (exclusive) to 10 (exclusive), do foo.
         </emu-alg>
       `);
     });
