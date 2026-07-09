@@ -26,22 +26,24 @@ export default function (
   // Find the loop variable (underscore), then check the text after it
   for (let i = 1; i < stepSeq.items.length - 1; i++) {
     const item = stepSeq.items[i];
-    if (item.name === 'underscore') {
-      const next = stepSeq.items[i + 1];
-      if (
-        next.name === 'text' &&
-        /^ in\b/.test(next.contents) &&
-        // Iterating over an interval is a valid construction where "in" is correct, in either the
-        // "inclusive interval from _a_ to _b_" shorthand or the full "interval from _a_ ... to _b_ ..." form.
-        !/^ in the (?:inclusive )?interval from\b/.test(next.contents)
-      ) {
-        report({
-          ruleId,
-          ...offsetToLineAndColumn(algorithmSource, next.location.start.offset + 1),
-          message: 'expected "of" instead of "in" in "for each"',
-        });
-      }
-      break;
+    if (item.name !== 'underscore') {
+      continue;
     }
+
+    const next = stepSeq.items[i + 1];
+    if (
+      next.name === 'text' &&
+      /^ in\b/.test(next.contents) &&
+      // Iterating over an interval is a valid construction where "in" is correct, in either the
+      // "inclusive interval from _a_ to _b_" shorthand or the full "interval from _a_ ... to _b_ ..." form.
+      !/^ in the (?:inclusive )?interval from\b/.test(next.contents)
+    ) {
+      report({
+        ruleId,
+        ...offsetToLineAndColumn(algorithmSource, next.location.start.offset + 1),
+        message: 'expected "of" instead of "in" in "for each"',
+      });
+    }
+    break;
   }
 }
