@@ -7,6 +7,7 @@ const ruleId = 'for-each-of';
 
 /*
 Checks that "For each" loops use "of", not "in".
+Exception: iterating over an interval, e.g. "in the inclusive interval from _a_ to _b_", correctly uses "in".
 */
 export default function (
   report: Reporter,
@@ -27,7 +28,13 @@ export default function (
     const item = stepSeq.items[i];
     if (item.name === 'underscore') {
       const next = stepSeq.items[i + 1];
-      if (next.name === 'text' && /^ in\b/.test(next.contents)) {
+      if (
+        next.name === 'text' &&
+        /^ in\b/.test(next.contents) &&
+        // Iterating over an interval is a valid construction where "in" is correct, in either the
+        // "inclusive interval from _a_ to _b_" shorthand or the full "interval from _a_ ... to _b_ ..." form.
+        !/^ in the (?:inclusive )?interval from\b/.test(next.contents)
+      ) {
         report({
           ruleId,
           ...offsetToLineAndColumn(algorithmSource, next.location.start.offset + 1),
