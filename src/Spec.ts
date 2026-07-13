@@ -53,6 +53,7 @@ import type { AugmentedGrammarEle } from './Grammar';
 import { zip } from './utils';
 import { typecheck } from './typechecker';
 import ConcreteMethodDfns from './ConcreteMethodDfns';
+import InternalMethodDfns from './InternalMethodDfns';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -112,6 +113,7 @@ const builders: BuilderInterface[] = [
   Xref,
   Table,
   ConcreteMethodDfns,
+  InternalMethodDfns,
   Dfn,
   Eqn,
   Grammar,
@@ -335,6 +337,7 @@ export default class Spec {
   }[];
   /** @internal */ _prodRefs: ProdRef[];
   /** @internal */ _concreteMethodDfnsLists: ConcreteMethodDfns[];
+  /** @internal */ _internalMethodDfnsLists: InternalMethodDfns[];
   /** @internal */ _textNodes: { [s: string]: [TextNodeContext] };
   /** @internal */ _effectWorklist: Map<string, WorklistItem[]>;
   /** @internal */ _effectfulAOs: Map<string, string[]>;
@@ -382,6 +385,7 @@ export default class Spec {
     this._ntStringRefs = [];
     this._prodRefs = [];
     this._concreteMethodDfnsLists = [];
+    this._internalMethodDfnsLists = [];
     this._textNodes = {};
     this._effectWorklist = new Map();
     this._effectfulAOs = new Map();
@@ -561,6 +565,8 @@ export default class Spec {
     }
     this.log('Generating concrete method definitions lists...');
     this._concreteMethodDfnsLists.forEach(cmd => cmd.build());
+    this.log('Generating internal method definitions lists...');
+    this._internalMethodDfnsLists.forEach(cmd => cmd.build());
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');

@@ -8,9 +8,17 @@ import { ParseError } from './type-parser';
 import { offsetToLineAndColumn, traverseWhile } from './utils';
 import Figure from './Figure';
 
+type MethodsTableType = 'abstract methods' | 'internal methods';
+
+function methodsInvalidRuleId(tableType: MethodsTableType): string {
+  return tableType === 'internal methods'
+    ? 'emu-internal-methods-invalid'
+    : 'emu-abstract-methods-invalid';
+}
+
 export default class Table extends Figure {
   table: HTMLTableElement;
-  tableType: null | 'abstract methods';
+  tableType: null | MethodsTableType;
   methods: Map<string, { signature: Signature; rowId: string | undefined }>;
   of: string | null = null;
 
@@ -20,21 +28,22 @@ export default class Table extends Figure {
     spec: Spec,
     node: HTMLElement,
     table: HTMLTableElement,
-    tableType: null | 'abstract methods',
+    tableType: null | MethodsTableType,
   ) {
     let of: string | null = null;
-    if (tableType === 'abstract methods') {
+    if (tableType != null) {
       of = node.getAttribute('of');
 
       if (of) {
         if (!node.getAttribute('caption')) {
-          node.setAttribute('caption', `Abstract Methods of ${of}`);
+          const label = tableType === 'internal methods' ? 'Internal Methods' : 'Abstract Methods';
+          node.setAttribute('caption', `${label} of ${of}`);
         }
       } else {
         spec.warn({
           type: 'node',
-          ruleId: 'emu-abstract-methods-invalid',
-          message: `<emu-table type="abstract methods"> must have an 'of' attribute`,
+          ruleId: methodsInvalidRuleId(tableType),
+          message: `<emu-table type="${tableType}"> must have an 'of' attribute`,
           node,
         });
         tableType = null;
@@ -48,22 +57,24 @@ export default class Table extends Figure {
     this.of = of;
     this.methods = new Map();
 
-    if (tableType === 'abstract methods') {
-      this.processAbstractMethodsDeclarations();
+    if (tableType != null) {
+      this.processMethodsDeclarations();
       this.defineInnerBiblioEntries();
     }
   }
 
-  private processAbstractMethodsDeclarations() {
+  private processMethodsDeclarations() {
     const { spec, table } = this;
+    const tableType = this.tableType!;
+    const methodLabel = tableType === 'internal methods' ? 'internal method' : 'abstract method';
     const tbody = table.querySelector('tbody')!;
 
     for (const tr of tbody.children as HTMLCollectionOf<HTMLTableRowElement>) {
       if (tr.childElementCount < 2) {
         spec.warn({
           type: 'node',
-          ruleId: 'emu-abstract-methods-invalid',
-          message: `<emu-table type="abstract methods"> <tr>s must contain at least two <td>s`,
+          ruleId: methodsInvalidRuleId(tableType),
+          message: `<emu-table type="${tableType}"> <tr>s must contain at least two <td>s`,
           node: tr,
         });
         continue;
@@ -128,7 +139,7 @@ export default class Table extends Figure {
         spec.warn({
           type: 'node',
           ruleId: 'abstract-method-id',
-          message: '<tr>s which define abstract methods should have their own id',
+          message: `<tr>s which define ${methodLabel}s should have their own id`,
           node: tr,
         });
       }
@@ -143,7 +154,7 @@ export default class Table extends Figure {
       if (formattedHeader !== null) header.innerHTML = formattedHeader;
 
       const para = spec.doc.createElement('p');
-      let paraText = `The abstract method ${name} takes ${formattedParams} and returns ${formattedReturnType}.`;
+      let paraText = `The ${methodLabel} ${name} takes ${formattedParams} and returns ${formattedReturnType}.`;
       if (header.nodeName === 'INS') paraText = `<ins>${paraText}</ins>`;
       para.innerHTML = paraText;
       tr.children[1].insertBefore(para, tr.children[1].firstChild);
@@ -155,7 +166,7 @@ export default class Table extends Figure {
       const { signature, rowId } = info;
       const biblioEntry: PartialBiblioEntry = {
         type: 'op',
-        kind: 'abstract method',
+        kind: this.tableType === 'internal methods' ? 'internal method' : 'abstract method',
         aoid: name,
         id: rowId,
         refId: this.id!,
@@ -169,7 +180,7 @@ export default class Table extends Figure {
   static async enter({ spec, node }: Context) {
     let tableType = node.getAttribute('type');
 
-    if (tableType && tableType !== 'abstract methods') {
+    if (tableType && tableType !== 'abstract methods' && tableType !== 'internal methods') {
       spec.warn({
         type: 'node',
         ruleId: 'emu-table-invalid-type',
@@ -202,7 +213,7 @@ export default class Table extends Figure {
       spec,
       node,
       tableEl as HTMLTableElement,
-      tableType === 'abstract methods' ? 'abstract methods' : null,
+      tableType === 'abstract methods' || tableType === 'internal methods' ? tableType : null,
     );
 
     Figure.injectFigureElement(spec, node, table);

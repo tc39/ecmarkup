@@ -1,0 +1,72 @@
+<!doctype html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8"></head><body><div id="shortcuts-help">
+<ul>
+  <li><span>Toggle shortcuts help</span><code>?</code></li>
+  <li><span>Toggle "can call user code" annotations</span><code>u</code></li>
+  <li><span>Toggle early exit annotations</span><code>e</code></li>
+
+  <li><span>Jump to search box</span><code>/</code></li>
+  <li><span>Toggle pinning of the current clause</span><code>p</code></li>
+  <li><span>Jump to the <i>n</i><sup>th</sup> pin</span><code>1-9</code></li>
+  <li><span>Jump to the 10<sup>th</sup> pin</span><code>0</code></li>
+  <li><span>Jump to the most recent link target</span><code>`</code></li>
+</ul></div><div id="spec-container">
+<emu-table type="internal methods" of="Object" id="table-internal-methods-of-objects" caption="Internal Methods of Object"><figure><figcaption>Table 1: Internal Methods of Object</figcaption>
+  <table>
+    <thead>
+      <tr>
+        <th>Internal Method</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody><tr id="table-internal-methods-getprototypeof">
+      <td><var class="field">[[GetPrototypeOf]]</var> ( )</td>
+      <td><p>The internal method <var class="field">[[GetPrototypeOf]]</var> takes no arguments and returns a <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">normal completion containing</a></emu-xref> either an Object or <emu-val>null</emu-val>.</p>Determine the object that provides inherited properties for this object.</td>
+      <td>
+        It is defined by:
+        <emu-internal-method-dfns for="[[GetPrototypeOf]]"><ul><li><emu-xref href="#sec-ordinary-getprototypeof" id="_ref_0"><a href="#sec-ordinary-getprototypeof">1.1 ordinary object</a></emu-xref></li><li><emu-xref href="#sec-proxy-getprototypeof" id="_ref_1"><a href="#sec-proxy-getprototypeof">1.2 Proxy exotic object</a></emu-xref></li></ul></emu-internal-method-dfns>
+      </td>
+    </tr>
+    <tr id="table-internal-methods-setprototypeof">
+      <td><var class="field">[[SetPrototypeOf]]</var> ( <var>V</var> )</td>
+      <td><p>The internal method <var class="field">[[SetPrototypeOf]]</var> takes argument <var>V</var> (an Object or <emu-val>null</emu-val>) and returns a <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">normal completion containing</a></emu-xref> a Boolean.</p>Associate this object with another object that provides inherited properties.</td>
+      <td>
+        It is defined by:
+        <emu-internal-method-dfns for="[[SetPrototypeOf]]"><ul><li><emu-xref href="#sec-ordinary-setprototypeof" id="_ref_2"><a href="#sec-ordinary-setprototypeof">1.3 ordinary object</a></emu-xref></li></ul></emu-internal-method-dfns>
+      </td>
+    </tr>
+  </tbody></table>
+</figure></emu-table>
+
+<emu-clause id="definitions">
+  <h1><span class="secnum">1</span> Internal Method Definitions</h1>
+
+  <emu-clause id="sec-ordinary-getprototypeof" type="internal method">
+    <h1><span class="secnum">1.1</span> <var class="field">[[GetPrototypeOf]]</var> ( )</h1>
+    <p>The <var class="field">[[GetPrototypeOf]]</var> internal method of an <emu-xref href="#ordinary-object"><a href="https://tc39.es/ecma262/#ordinary-object">ordinary object</a></emu-xref> <var>O</var> takes no arguments and returns a <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">normal completion containing</a></emu-xref> either an Object or <emu-val>null</emu-val>. It performs the following steps when called:</p>
+
+    <emu-alg><ol><li class="exit">Return <emu-val>null</emu-val>.</li></ol></emu-alg>
+  </emu-clause>
+
+  <emu-clause id="sec-proxy-getprototypeof" type="internal method">
+    <h1><span class="secnum">1.2</span> <var class="field">[[GetPrototypeOf]]</var> ( )</h1>
+    <p>The <var class="field">[[GetPrototypeOf]]</var> internal method of a <emu-xref href="#proxy-exotic-object"><a href="https://tc39.es/ecma262/#proxy-exotic-object">Proxy exotic object</a></emu-xref> <var>O</var> takes no arguments and returns a <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">normal completion containing</a></emu-xref> either an Object or <emu-val>null</emu-val>. It performs the following steps when called:</p>
+
+    <emu-alg><ol><li class="exit">Return <emu-val>null</emu-val>.</li></ol></emu-alg>
+  </emu-clause>
+
+  <emu-clause id="sec-ordinary-setprototypeof" type="internal method">
+    <h1><span class="secnum">1.3</span> <var class="field">[[SetPrototypeOf]]</var> ( <var>V</var> )</h1>
+    <p>The <var class="field">[[SetPrototypeOf]]</var> internal method of an <emu-xref href="#ordinary-object"><a href="https://tc39.es/ecma262/#ordinary-object">ordinary object</a></emu-xref> <var>O</var> takes argument <var>V</var> (an Object or <emu-val>null</emu-val>) and returns a <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">normal completion containing</a></emu-xref> a Boolean. It performs the following steps when called:</p>
+
+    <emu-alg><ol><li class="exit">Return <emu-val>true</emu-val>.</li></ol></emu-alg>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-useit" type="abstract operation" aoid="UseIt">
+  <h1><span class="secnum">2</span> UseIt ( <var>O</var> )</h1>
+  <p>The abstract operation UseIt takes argument <var>O</var> (an Object) and returns either a <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">normal completion containing</a></emu-xref> either an Object or <emu-val>null</emu-val>, or a <emu-xref href="#sec-completion-record-specification-type"><a href="https://tc39.es/ecma262/#sec-completion-record-specification-type">throw completion</a></emu-xref>. It performs the following steps when called:</p>
+
+  <emu-alg><ol><li class="exit">Let <var>proto</var> be ?&nbsp;<var>O</var>.<var class="field">[[GetPrototypeOf]]</var>().</li><li class="exit">Let <var>status</var> be ?&nbsp;<var>O</var>.<var class="field">[[SetPrototypeOf]]</var>(<var>proto</var>).</li><li><emu-xref href="#assert"><a href="https://tc39.es/ecma262/#assert">Assert</a></emu-xref>: <var>status</var> is a Boolean.</li><li class="exit">Return <var>proto</var>.</li></ol></emu-alg>
+</emu-clause>
+</div></body>

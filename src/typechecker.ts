@@ -35,42 +35,49 @@ const getExpressionVisitor =
 
     const { callee, arguments: args } = expr;
     let callIsMethod = false;
+    let calleeIsInternalMethod = false;
     let calleeName: string;
-    if (callee.length === 1 && callee[0].name === 'text') {
-      calleeName = callee[0].contents;
-    } else if (callee.length >= 2) {
-      const last = callee[callee.length - 1];
-      if (last.name === 'text' && last.contents[0] === '.') {
-        calleeName = last.contents.slice(1);
-        callIsMethod = true;
-      } else {
-        return;
-      }
+    const last = callee[callee.length - 1];
+    if (callee.length === 1 && last.name === 'text') {
+      calleeName = last.contents;
+    } else if (last.name === 'double-brackets') {
+      // internal methods, e.g. `_obj_.[[GetPrototypeOf]]()`
+      calleeName = `[[${last.contents}]]`;
+      calleeIsInternalMethod = true;
+      // a receiver is present when there's something before the `[[...]]`
+      callIsMethod = callee.length >= 2;
+    } else if (callee.length >= 2 && last.name === 'text' && last.contents[0] === '.') {
+      calleeName = last.contents.slice(1);
+      callIsMethod = true;
     } else {
       return;
     }
 
     const biblioEntry = spec.biblio.byAoid(calleeName);
     if (biblioEntry == null) {
-      if (!['toUppercase', 'toLowercase'].includes(calleeName)) {
+      // an unknown `[[Foo]]()` is not necessarily an error: `[[Foo]]` may be a slot holding a
+      // closure rather than an internal method declared in an "internal methods" table
+      if (!calleeIsInternalMethod && !['toUppercase', 'toLowercase'].includes(calleeName)) {
         // TODO make the spec not do this
         warn(callee[0].location.start.offset, `could not find definition for ${calleeName}`);
       }
       return;
     }
 
+    const isMethodKind =
+      biblioEntry.kind === 'abstract method' || biblioEntry.kind === 'internal method';
     if (expr.name === 'call') {
       if (biblioEntry.kind === 'syntax-directed operation') {
         warn(
           callee[0].location.start.offset,
           `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`,
         );
-      } else if (biblioEntry.kind === 'abstract method' && !callIsMethod) {
+      } else if (isMethodKind && !callIsMethod) {
         warn(
           callee[0].location.start.offset,
           `${calleeName} is a method but here it is missing a record to call it on`,
         );
-      } else if (biblioEntry.kind !== 'abstract method' && callIsMethod) {
+      } else if (!isMethodKind && callIsMethod) {
         warn(
           callee[0].location.start.offset,
           `${calleeName} is not a method but here it is being called as one`,

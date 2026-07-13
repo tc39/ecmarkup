@@ -968,6 +968,22 @@ describe('signature agreement', async () => {
           </table>
         </emu-table>
       </emu-clause>
+
+      <emu-clause id="internal-methods">
+        <h1>Internal Methods</h1>
+        <emu-table type="internal methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                [[SomeInternalMethod]] (
+                  _x_: a String
+                ) : a String
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
     `);
   });
 
@@ -1201,6 +1217,63 @@ describe('signature agreement', async () => {
     );
   });
 
+  it('extra args for internal method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return ${M}_obj_.[[SomeInternalMethod]](*"a"*, *"b"*).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: '[[SomeInternalMethod]] takes 1 argument, but this invocation passes 2',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('too few args for internal method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return ${M}_obj_.[[SomeInternalMethod]]().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: '[[SomeInternalMethod]] takes 1 argument, but this invocation passes 0',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('argument of the wrong type for internal method', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Let _obj_ be a Something.
+          1. Return _obj_.[[SomeInternalMethod]](${M}~foo~).
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: 'argument (~foo~) does not look plausibly assignable to parameter type (String)',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
   it("<del>'d params don't contribute to signature", async () => {
     const biblio = await getBiblio(`
       <emu-clause id="del-complex" type="abstract operation">
@@ -1289,6 +1362,20 @@ describe('invocation kind', async () => {
             <tr>
               <td>
                 SomeMethod ( ) : a string
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+
+      <emu-clause id="internal-methods">
+        <h1>Internal Methods</h1>
+        <emu-table type="internal methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                [[SomeInternalMethod]] ( ) : a string
               </td>
               <td></td>
             </tr>
@@ -1410,6 +1497,24 @@ describe('invocation kind', async () => {
     );
   });
 
+  it('internal method invoked as AO', async () => {
+    await assertLint(
+      positioned`
+        <emu-alg>
+          1. Return ${M}[[SomeInternalMethod]]().
+        </emu-alg>
+      `,
+      {
+        ruleId: 'typecheck',
+        nodeType: 'emu-alg',
+        message: '[[SomeInternalMethod]] is a method but here it is missing a record to call it on',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
   it('negative', async () => {
     await assertLintFree(
       `
@@ -1420,8 +1525,11 @@ describe('invocation kind', async () => {
         <dl class="header">
         </dl>
         <emu-alg example>
+          1. Let _obj_ be a Something.
           1. Perform AO().
           1. Perform SDO of _foo_.
+          1. Perform _obj_.SomeMethod().
+          1. Perform _obj_.[[SomeInternalMethod]]().
         </emu-alg>
         </emu-clause>
       `,
@@ -2384,6 +2492,111 @@ describe('concrete method vs abstract method agreement', () => {
         <h1>SomeMethod (
           _foo_: a String,
         ): a normal completion containing a String</h1>
+        <dl class="header">
+          <dt>for</dt>
+          <dd>a sample _foo_</dd>
+        </dl>
+
+        <emu-alg>
+          1. Return ~unused~.
+        </emu-alg>
+      </emu-clause>
+    `,
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+});
+
+describe('internal method vs essential internal method agreement', () => {
+  let biblio: ExportedBiblio;
+  before(async () => {
+    biblio = await getBiblio(`
+      <emu-clause id="internal-methods">
+        <h1>Internal Methods</h1>
+        <emu-table type="internal methods" of="Something">
+          <table>
+            <tr>
+              <td>
+                [[SomeMethod]] (
+                  _foo_: a String
+                ): either a normal completion containing a String or a throw completion
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </emu-table>
+      </emu-clause>
+    `);
+  });
+
+  it('signature length mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-internal-somemethod" type="internal method">
+          ${M}<h1>[[SomeMethod]] (
+            _foo_: a String,
+            _bar_: a String,
+          ): either a normal completion containing a String or a throw completion</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'internal-method-base',
+        nodeType: 'h1',
+        message:
+          'signature for internal method [[SomeMethod]] differs from the signature for the corresponding internal method: base signature has 1 parameters but derived signature has 2 parameters',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('return type mismatch', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-internal-somemethod" type="internal method">
+          ${M}<h1>[[SomeMethod]] (
+            _foo_: a String,
+          ): a String</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a sample _foo_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return ~unused~.
+          </emu-alg>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'internal-method-base',
+        nodeType: 'h1',
+        message:
+          'signature for internal method [[SomeMethod]] differs from the signature for the corresponding internal method: the return type in the base signature (a normal completion containing String or an abrupt completion) is not a generalization of the return type in the derived signature (String)',
+      },
+      {
+        extraBiblios: [biblio],
+      },
+    );
+  });
+
+  it('negative: identical types', async () => {
+    await assertLintFree(
+      `
+      <emu-clause id="sec-internal-somemethod" type="internal method">
+        <h1>[[SomeMethod]] (
+          _foo_: a String,
+        ): either a normal completion containing a String or a throw completion</h1>
         <dl class="header">
           <dt>for</dt>
           <dd>a sample _foo_</dd>

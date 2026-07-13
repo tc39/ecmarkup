@@ -22,6 +22,7 @@ class EnvRec {
   _byProductionName: { [key: string]: ProductionBiblioEntry };
   _byAoid: { [key: string]: AlgorithmBiblioEntry };
   _byAbstractMethodAoid: { [key: string]: ConcreteMethodBiblioEntry[] };
+  _byInternalMethodAoid: { [key: string]: InternalMethodBiblioEntry[] };
   _keys: Set<String>;
 
   constructor(parent: EnvRec | undefined, namespace: string) {
@@ -38,6 +39,7 @@ class EnvRec {
     this._byProductionName = {};
     this._byAoid = {};
     this._byAbstractMethodAoid = {};
+    this._byInternalMethodAoid = {};
     this._keys = new Set();
   }
 
@@ -55,6 +57,11 @@ class EnvRec {
       if (item.type === 'concrete method') {
         this._byAbstractMethodAoid[item.abstractAoid] ??= [];
         this._byAbstractMethodAoid[item.abstractAoid].push(item);
+      }
+
+      if (item.type === 'internal method') {
+        this._byInternalMethodAoid[item.abstractAoid] ??= [];
+        this._byInternalMethodAoid[item.abstractAoid].push(item);
       }
 
       if (item.type === 'production') {
@@ -118,6 +125,11 @@ export default class Biblio {
   byAbstractMethodAoid(aoid: string, ns?: string) {
     ns = ns || this._location;
     return this.lookup(ns, env => env._byAbstractMethodAoid[aoid]);
+  }
+
+  byInternalMethodAoid(aoid: string, ns?: string) {
+    ns = ns || this._location;
+    return this.lookup(ns, env => env._byInternalMethodAoid[aoid]);
   }
 
   getOpNames(ns: string): Set<string> {
@@ -348,6 +360,7 @@ export type Signature = {
 export type AlgorithmType =
   | 'abstract operation'
   | 'abstract method'
+  | 'internal method'
   | 'host-defined abstract operation'
   | 'implementation-defined abstract operation'
   | 'syntax-directed operation'
@@ -376,6 +389,12 @@ export interface BuiltInFunction extends BiblioEntryBase {
 
 export interface ConcreteMethodBiblioEntry extends BiblioEntryBase {
   type: 'concrete method';
+  abstractAoid: string;
+  for: string;
+}
+
+export interface InternalMethodBiblioEntry extends BiblioEntryBase {
+  type: 'internal method';
   abstractAoid: string;
   for: string;
 }
@@ -419,6 +438,7 @@ export type BiblioEntry =
   | AlgorithmBiblioEntry
   | BuiltInFunction
   | ConcreteMethodBiblioEntry
+  | InternalMethodBiblioEntry
   | ProductionBiblioEntry
   | ClauseBiblioEntry
   | TermBiblioEntry

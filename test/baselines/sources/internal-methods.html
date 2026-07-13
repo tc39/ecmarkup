@@ -1,0 +1,96 @@
+<pre class=metadata>
+toc: false
+copyright: false
+assets: none
+</pre>
+<emu-table type="internal methods" of="Object" id="table-internal-methods-of-objects">
+  <table>
+    <thead>
+      <tr>
+        <th>Internal Method</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tr id="table-internal-methods-getprototypeof">
+      <td>
+        [[GetPrototypeOf]] (
+        ): a normal completion containing either an Object or *null*
+      </td>
+      <td>Determine the object that provides inherited properties for this object.</td>
+      <td>
+        It is defined by:
+        <emu-internal-method-dfns for="[[GetPrototypeOf]]"></emu-internal-method-dfns>
+      </td>
+    </tr>
+    <tr id="table-internal-methods-setprototypeof">
+      <td>
+        [[SetPrototypeOf]] (
+          _V_: an Object or *null*,
+        ): a normal completion containing a Boolean
+      </td>
+      <td>Associate this object with another object that provides inherited properties.</td>
+      <td>
+        It is defined by:
+        <emu-internal-method-dfns for="[[SetPrototypeOf]]"></emu-internal-method-dfns>
+      </td>
+    </tr>
+  </table>
+</emu-table>
+
+<emu-clause id="definitions">
+  <h1>Internal Method Definitions</h1>
+
+  <emu-clause id="sec-ordinary-getprototypeof" type="internal method">
+    <h1>[[GetPrototypeOf]] (
+    ): a normal completion containing either an Object or *null*</h1>
+    <dl class="header">
+      <dt>for</dt>
+      <dd>an ordinary object _O_</dd>
+    </dl>
+
+    <emu-alg>
+      1. Return *null*.
+    </emu-alg>
+  </emu-clause>
+
+  <emu-clause id="sec-proxy-getprototypeof" type="internal method">
+    <h1>[[GetPrototypeOf]] (
+    ): a normal completion containing either an Object or *null*</h1>
+    <dl class="header">
+      <dt>for</dt>
+      <dd>a Proxy exotic object _O_</dd>
+    </dl>
+
+    <emu-alg>
+      1. Return *null*.
+    </emu-alg>
+  </emu-clause>
+
+  <emu-clause id="sec-ordinary-setprototypeof" type="internal method">
+    <h1>[[SetPrototypeOf]] (
+      _V_: an Object or *null*,
+    ): a normal completion containing a Boolean</h1>
+    <dl class="header">
+      <dt>for</dt>
+      <dd>an ordinary object _O_</dd>
+    </dl>
+
+    <emu-alg>
+      1. Return *true*.
+    </emu-alg>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-useit" type="abstract operation">
+  <h1>UseIt (
+    _O_: an Object,
+  ): either a normal completion containing either an Object or *null*, or a throw completion</h1>
+  <dl class="header"></dl>
+
+  <emu-alg>
+    1. Let _proto_ be ? _O_.[[GetPrototypeOf]]().
+    1. Let _status_ be ? _O_.[[SetPrototypeOf]](_proto_).
+    1. Assert: _status_ is a Boolean.
+    1. Return _proto_.
+  </emu-alg>
+</emu-clause>
