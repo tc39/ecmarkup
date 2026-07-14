@@ -794,12 +794,12 @@ markEffects: true
 
   <emu-clause id="internal-methods">
     <h1>Internal Methods</h1>
-    <p>Internal methods (whose names are written with double square brackets, e.g. `[[GetPrototypeOf]]`) work just like <emu-xref href="#abstract-methods">abstract methods</emu-xref>, except that they are defined in an `&lt;emu-table>` with the type "internal methods", the implementing clauses have the type "internal method", and their implementations are collected with `&lt;emu-internal-method-dfns>`. Internal methods are invoked as e.g. `_obj_.[[GetPrototypeOf]]()`. Internal method names must be globally unique (not just unique within a type).</p>
+    <p>Internal methods (whose names are written with double square brackets, e.g. `[[GetPrototypeOf]]`) work just like <emu-xref href="#abstract-methods">abstract methods</emu-xref>, except that they are defined in an `&lt;emu-table>` with the type “internal methods”, the implementing clauses have the type “internal method”, and their implementations are collected with `&lt;emu-internal-method-dfns>`. Internal methods are invoked as e.g. `_obj_.[[GetPrototypeOf]]()`. Internal method names must be globally unique (not just unique within a type).</p>
 
     <p>The first two columns are assumed to be the method signature and the method description respectively.</p>
 
     <h2>Attributes</h2>
-    <p><b>type:</b> Must be present with the value "internal methods".</p>
+    <p><b>type:</b> Must be present with the value “internal methods”.</p>
     <p><b>of:</b> Must be present; the value is the name of the type for which this table defines the methods.</p>
     <p><b>caption:</b> Optional: If not present, will be generated based on the type name</p>
 
@@ -871,10 +871,7 @@ markEffects: true
             </tr>
           </thead>
           <tr>
-            <td>
-              [[GetPrototypeOf]] (
-              ): a normal completion containing either an Object or *null*
-            </td>
+            <td>[[GetPrototypeOf]] ( ): a normal completion containing either an Object or *null*</td>
             <td>It determines the object that provides inherited properties for this object.</td>
             <td>
               It is defined in the following places:
@@ -888,10 +885,7 @@ markEffects: true
         <h1>Internal Method Definitions</h1>
 
         <emu-clause id="sec-ordinary-getprototypeof" type="internal method">
-          <h1>
-            [[GetPrototypeOf]] (
-            ): a normal completion containing either an Object or *null*
-          </h1>
+          <h1>[[GetPrototypeOf]] ( ): a normal completion containing either an Object or *null*</h1>
           <dl class="header">
             <dt>for</dt>
             <dd>an ordinary object _O_</dd>
@@ -903,10 +897,7 @@ markEffects: true
         </emu-clause>
 
         <emu-clause id="sec-proxy-getprototypeof" type="internal method">
-          <h1>
-            [[GetPrototypeOf]] (
-            ): a normal completion containing either an Object or *null*
-          </h1>
+          <h1>[[GetPrototypeOf]] ( ): a normal completion containing either an Object or *null*</h1>
           <dl class="header">
             <dt>for</dt>
             <dd>a Proxy exotic object _O_</dd>
