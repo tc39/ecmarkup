@@ -341,7 +341,7 @@ export default class Clause extends Builder {
 
       if (forText) {
         const match = forText.match(
-          /^\s*(?:a|an)\s+(?<recordName>[\w\- ]+)\s+(?<varName>_\w+_)\s*$/,
+          /^\s*(?:a|an)\s+(?<recordName>[\w\- ]+?)(?:\s+(?<varName>_\w+_))?(?:\s+\(.*\))?\s*$/,
         );
         if (match) {
           this.for = match.groups!.recordName;
