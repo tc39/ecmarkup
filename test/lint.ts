@@ -936,7 +936,8 @@ describe('linting whole program', () => {
       {
         ruleId: 'internal-method-base',
         nodeType: 'h1',
-        message: 'could not find an internal method definition corresponding to internal method [[Example]]',
+        message:
+          'could not find an internal method definition corresponding to internal method [[Example]]',
       },
     );
   });
