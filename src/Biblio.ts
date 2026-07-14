@@ -21,8 +21,10 @@ class EnvRec {
   _byLocation: { [key: string]: BiblioEntry[] };
   _byProductionName: { [key: string]: ProductionBiblioEntry };
   _byAoid: { [key: string]: AlgorithmBiblioEntry };
-  _byAbstractMethodAoid: { [key: string]: ConcreteMethodBiblioEntry[] };
-  _byInternalMethodAoid: { [key: string]: InternalMethodBiblioEntry[] };
+  // concrete and internal method definitions, keyed by the aoid of the abstract/essential method
+  // they implement. Their aoids are disjoint (internal methods are `[[Bracketed]]`), so a single
+  // index can serve both without conflating the two.
+  _byMethodAoid: { [key: string]: (ConcreteMethodBiblioEntry | InternalMethodBiblioEntry)[] };
   _keys: Set<String>;
 
   constructor(parent: EnvRec | undefined, namespace: string) {
@@ -38,8 +40,7 @@ class EnvRec {
     this._byLocation = {};
     this._byProductionName = {};
     this._byAoid = {};
-    this._byAbstractMethodAoid = {};
-    this._byInternalMethodAoid = {};
+    this._byMethodAoid = {};
     this._keys = new Set();
   }
 
@@ -54,14 +55,9 @@ class EnvRec {
         this._keys.add(item.aoid);
       }
 
-      if (item.type === 'concrete method') {
-        this._byAbstractMethodAoid[item.abstractAoid] ??= [];
-        this._byAbstractMethodAoid[item.abstractAoid].push(item);
-      }
-
-      if (item.type === 'internal method') {
-        this._byInternalMethodAoid[item.abstractAoid] ??= [];
-        this._byInternalMethodAoid[item.abstractAoid].push(item);
+      if (item.type === 'concrete method' || item.type === 'internal method') {
+        this._byMethodAoid[item.abstractAoid] ??= [];
+        this._byMethodAoid[item.abstractAoid].push(item);
       }
 
       if (item.type === 'production') {
@@ -122,14 +118,9 @@ export default class Biblio {
     return this.lookup(ns, env => env._byAoid[aoid]);
   }
 
-  byAbstractMethodAoid(aoid: string, ns?: string) {
+  byMethodAoid(aoid: string, ns?: string) {
     ns = ns || this._location;
-    return this.lookup(ns, env => env._byAbstractMethodAoid[aoid]);
-  }
-
-  byInternalMethodAoid(aoid: string, ns?: string) {
-    ns = ns || this._location;
-    return this.lookup(ns, env => env._byInternalMethodAoid[aoid]);
+    return this.lookup(ns, env => env._byMethodAoid[aoid]);
   }
 
   getOpNames(ns: string): Set<string> {

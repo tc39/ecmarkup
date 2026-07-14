@@ -52,8 +52,7 @@ import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/uti
 import type { AugmentedGrammarEle } from './Grammar';
 import { zip } from './utils';
 import { typecheck } from './typechecker';
-import ConcreteMethodDfns from './ConcreteMethodDfns';
-import InternalMethodDfns from './InternalMethodDfns';
+import MethodDefinitionsList from './MethodDefinitionsList';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -112,8 +111,7 @@ const builders: BuilderInterface[] = [
   Algorithm,
   Xref,
   Table,
-  ConcreteMethodDfns,
-  InternalMethodDfns,
+  MethodDefinitionsList,
   Dfn,
   Eqn,
   Grammar,
@@ -336,8 +334,7 @@ export default class Spec {
     namespace: string;
   }[];
   /** @internal */ _prodRefs: ProdRef[];
-  /** @internal */ _concreteMethodDfnsLists: ConcreteMethodDfns[];
-  /** @internal */ _internalMethodDfnsLists: InternalMethodDfns[];
+  /** @internal */ _methodDefinitionsLists: MethodDefinitionsList[];
   /** @internal */ _textNodes: { [s: string]: [TextNodeContext] };
   /** @internal */ _effectWorklist: Map<string, WorklistItem[]>;
   /** @internal */ _effectfulAOs: Map<string, string[]>;
@@ -384,8 +381,7 @@ export default class Spec {
     this._ntRefs = [];
     this._ntStringRefs = [];
     this._prodRefs = [];
-    this._concreteMethodDfnsLists = [];
-    this._internalMethodDfnsLists = [];
+    this._methodDefinitionsLists = [];
     this._textNodes = {};
     this._effectWorklist = new Map();
     this._effectfulAOs = new Map();
@@ -564,10 +560,8 @@ export default class Spec {
       this.log('Annotating external links...');
       this.annotateExternalLinks();
     }
-    this.log('Generating concrete method definitions lists...');
-    this._concreteMethodDfnsLists.forEach(cmd => cmd.build());
-    this.log('Generating internal method definitions lists...');
-    this._internalMethodDfnsLists.forEach(cmd => cmd.build());
+    this.log('Generating method definitions lists...');
+    this._methodDefinitionsLists.forEach(mdl => mdl.build());
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');

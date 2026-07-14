@@ -6,16 +6,18 @@ import type Clause from './Clause';
 import Xref from './Xref';
 import type { ClauseBiblioEntry } from './Biblio';
 
-export default class InternalMethodDfns extends Builder {
-  static readonly elements = ['EMU-INTERNAL-METHOD-DFNS'] as const;
+// Builds the list of definitions rendered inside an `<emu-concrete-method-dfns>` or
+// `<emu-internal-method-dfns>` element: a bulleted list of xrefs pointing at each clause which
+// defines the method named by the `for` attribute. Concrete and internal methods are indexed
+// together in the biblio (see `byMethodAoid`), so a single builder handles both elements.
+export default class MethodDefinitionsList extends Builder {
+  static readonly elements = ['EMU-CONCRETE-METHOD-DFNS', 'EMU-INTERNAL-METHOD-DFNS'] as const;
 
-  private _clauses: Clause[];
   private _for: string;
   private _parentClause: Clause;
 
   constructor(spec: Spec, node: HTMLElement, _for: string, parentClause: Clause) {
     super(spec, node);
-    this._clauses = [];
     this._for = _for;
     this._parentClause = parentClause;
   }
@@ -24,15 +26,14 @@ export default class InternalMethodDfns extends Builder {
     const _for = node.getAttribute('for')!;
     const parentClause = clauseStack[clauseStack.length - 1];
 
-    const internalMethodDfns = new InternalMethodDfns(spec, node, _for, parentClause);
-    spec._internalMethodDfnsLists.push(internalMethodDfns);
+    spec._methodDefinitionsLists.push(new MethodDefinitionsList(spec, node, _for, parentClause));
   }
 
   build() {
     const { spec, _parentClause: parentClause } = this;
     const namespace = parentClause ? parentClause.namespace : spec.namespace;
 
-    const definitions = spec.biblio.byInternalMethodAoid(this._for, namespace) ?? [];
+    const definitions = spec.biblio.byMethodAoid(this._for, namespace) ?? [];
 
     const ul = spec.doc.createElement('ul');
 
