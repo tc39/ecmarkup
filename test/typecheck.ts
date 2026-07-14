@@ -2553,7 +2553,7 @@ describe('internal method vs essential internal method agreement', () => {
         ruleId: 'internal-method-base',
         nodeType: 'h1',
         message:
-          'signature for internal method [[SomeMethod]] differs from the signature for the corresponding internal method: base signature has 1 parameters but derived signature has 2 parameters',
+          'signature for internal method [[SomeMethod]] differs from the signature for the corresponding internal method definition: base signature has 1 parameters but derived signature has 2 parameters',
       },
       {
         extraBiblios: [biblio],
@@ -2582,7 +2582,7 @@ describe('internal method vs essential internal method agreement', () => {
         ruleId: 'internal-method-base',
         nodeType: 'h1',
         message:
-          'signature for internal method [[SomeMethod]] differs from the signature for the corresponding internal method: the return type in the base signature (a normal completion containing String or an abrupt completion) is not a generalization of the return type in the derived signature (String)',
+          'signature for internal method [[SomeMethod]] differs from the signature for the corresponding internal method definition: the return type in the base signature (a normal completion containing String or an abrupt completion) is not a generalization of the return type in the derived signature (String)',
       },
       {
         extraBiblios: [biblio],
