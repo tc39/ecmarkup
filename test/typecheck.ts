@@ -1507,7 +1507,8 @@ describe('invocation kind', async () => {
       {
         ruleId: 'typecheck',
         nodeType: 'emu-alg',
-        message: '[[SomeInternalMethod]] is a method but here it is missing a record to call it on',
+        message:
+          '[[SomeInternalMethod]] is a method but here it is missing an object to call it on',
       },
       {
         extraBiblios: [biblio],

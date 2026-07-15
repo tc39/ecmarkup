@@ -73,9 +73,10 @@ const getExpressionVisitor =
           `${calleeName} is a syntax-directed operation and should not be invoked like a regular call`,
         );
       } else if (isMethodKind && !callIsMethod) {
+        const calleeKind = biblioEntry.kind === 'abstract method' ? 'a record' : 'an object';
         warn(
           callee[0].location.start.offset,
-          `${calleeName} is a method but here it is missing a record to call it on`,
+          `${calleeName} is a method but here it is missing ${calleeKind} to call it on`,
         );
       } else if (!isMethodKind && callIsMethod) {
         warn(
