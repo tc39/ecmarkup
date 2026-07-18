@@ -352,7 +352,9 @@ export async function printElement(
       'emu-table' &&
     (
       ((node.parentNode.parentNode as Element).parentNode as Element).parentNode as Element
-    ).attrs.some(a => a.name === 'type' && a.value === 'abstract methods') &&
+    ).attrs.some(
+      a => a.name === 'type' && (a.value === 'abstract methods' || a.value === 'internal methods'),
+    ) &&
     node.parentNode.childNodes.filter(n => n.nodeName !== '#text')[0] === node
   ) {
     const parseResult = parseHeader(rawContent(src, node));

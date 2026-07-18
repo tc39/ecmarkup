@@ -336,12 +336,12 @@ export default class Clause extends Builder {
         this.aoid = name;
       }
     }
-    if (type === 'concrete method') {
+    if (type === 'concrete method' || type === 'internal method') {
       this.abstractAoid = name;
 
       if (forText) {
         const match = forText.match(
-          /^\s*(?:a|an)\s+(?<recordName>[\w\- ]+)\s+(?<varName>_\w+_)\s*$/,
+          /^\s*(?:a|an)\s+(?<recordName>[\w\- ]+?)(?:\s+(?<varName>_\w+_))?(?:\s+\(.*\))?\s*$/,
         );
         if (match) {
           this.for = match.groups!.recordName;
@@ -514,10 +514,15 @@ export default class Clause extends Builder {
         spec.biblio.add(op, spec.namespace);
       }
     }
-    if (clause.type === 'concrete method' && clause.for) {
+    if ((clause.type === 'concrete method' || clause.type === 'internal method') && clause.for) {
+      const isInternal = clause.type === 'internal method';
       const abstractAoid = clause.abstractAoid!;
+      const ruleId = isInternal ? 'internal-method-base' : 'concrete-method-base';
+      // for concrete methods the base is an abstract method; for internal methods it's the
+      // essential internal method declared in the corresponding `type="internal methods"` table
+      const baseLabel = isInternal ? 'internal method definition' : 'abstract method';
       const cm: PartialBiblioEntry = {
-        type: 'concrete method',
+        type: clause.type,
         for: clause.for,
         abstractAoid,
         refId: clause.id,
@@ -529,8 +534,8 @@ export default class Clause extends Builder {
         spec.warn({
           type: 'node',
           node: clause.header!,
-          ruleId: 'concrete-method-base',
-          message: `could not find an abstract method corresponding to concrete method ${abstractAoid}`,
+          ruleId,
+          message: `could not find an ${baseLabel} corresponding to ${clause.type} ${abstractAoid}`,
         });
       } else if (base.signature && clause.signature) {
         const message = warnIfSignaturesDiffer(base.signature, clause.signature);
@@ -538,8 +543,8 @@ export default class Clause extends Builder {
           spec.warn({
             type: 'node',
             node: clause.header!,
-            ruleId: 'concrete-method-base',
-            message: `signature for concrete method ${abstractAoid} differs from the signature for the corresponding abstract method: ${message}`,
+            ruleId,
+            message: `signature for ${clause.type} ${abstractAoid} differs from the signature for the corresponding ${baseLabel}: ${message}`,
           });
         }
       }

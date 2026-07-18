@@ -52,7 +52,7 @@ import { getProductions, rhsMatches, getLocationInGrammarFile } from './lint/uti
 import type { AugmentedGrammarEle } from './Grammar';
 import { zip } from './utils';
 import { typecheck } from './typechecker';
-import ConcreteMethodDfns from './ConcreteMethodDfns';
+import MethodDefinitionsList from './MethodDefinitionsList';
 
 const DRAFT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -111,7 +111,7 @@ const builders: BuilderInterface[] = [
   Algorithm,
   Xref,
   Table,
-  ConcreteMethodDfns,
+  MethodDefinitionsList,
   Dfn,
   Eqn,
   Grammar,
@@ -334,7 +334,7 @@ export default class Spec {
     namespace: string;
   }[];
   /** @internal */ _prodRefs: ProdRef[];
-  /** @internal */ _concreteMethodDfnsLists: ConcreteMethodDfns[];
+  /** @internal */ _methodDefinitionsLists: MethodDefinitionsList[];
   /** @internal */ _textNodes: { [s: string]: [TextNodeContext] };
   /** @internal */ _effectWorklist: Map<string, WorklistItem[]>;
   /** @internal */ _effectfulAOs: Map<string, string[]>;
@@ -381,7 +381,7 @@ export default class Spec {
     this._ntRefs = [];
     this._ntStringRefs = [];
     this._prodRefs = [];
-    this._concreteMethodDfnsLists = [];
+    this._methodDefinitionsLists = [];
     this._textNodes = {};
     this._effectWorklist = new Map();
     this._effectfulAOs = new Map();
@@ -552,6 +552,7 @@ export default class Spec {
     }
 
     this.autolink();
+    this.linkInternalMethodInvocations();
 
     this.log('Propagating effect annotations...');
     this.propagateEffects();
@@ -559,8 +560,8 @@ export default class Spec {
       this.log('Annotating external links...');
       this.annotateExternalLinks();
     }
-    this.log('Generating concrete method definitions lists...');
-    this._concreteMethodDfnsLists.forEach(cmd => cmd.build());
+    this.log('Generating method definitions lists...');
+    this._methodDefinitionsLists.forEach(mdl => mdl.build());
     this.log('Linking xrefs...');
     this._xrefs.forEach(xref => xref.build());
     this.log('Linking non-terminal references...');
@@ -2057,6 +2058,72 @@ ${copyright}`;
         const { node, clause, inAlg, currentId } = nodes[j];
         autolink(node, replacer, autolinkmap, clause, currentId, inAlg);
       }
+    }
+  }
+
+  // Internal method invocations like `_obj_.[[GetPrototypeOf]]()` are rendered as field
+  // accesses (`<var class="field">`), which the text autolinker deliberately skips. Link them
+  // here instead, so that call sites point at the internal method's definition (as abstract
+  // method call sites do via the ordinary autolinker).
+  /** @internal */
+  public linkInternalMethodInvocations() {
+    this.log('Linking internal method invocations...');
+
+    const clausesById = new Map<string, Clause>();
+    const collectClauses = (clause: Clause) => {
+      if (clause.id) {
+        clausesById.set(clause.id, clause);
+      }
+      clause.subclauses.forEach(collectClauses);
+    };
+    this.subclauses.forEach(collectClauses);
+
+    for (const field of this.doc.querySelectorAll('var.field')) {
+      // only link method invocations, i.e. a field access preceded by a `.`
+      const prev = field.previousSibling;
+      if (prev == null || prev.nodeType !== 3 || !/\.\s*$/.test(prev.textContent ?? '')) {
+        continue;
+      }
+
+      const aoid = (field.textContent ?? '').trim();
+
+      // resolve the namespace from the nearest ancestor which introduces one
+      let namespace = this.namespace;
+      for (let anc = field.parentElement; anc != null; anc = anc.parentElement) {
+        if (anc.hasAttribute('namespace')) {
+          namespace = anc.getAttribute('namespace')!;
+          break;
+        }
+      }
+
+      const entry = this.biblio.byAoid(aoid, namespace);
+      if (entry == null || entry.kind !== 'internal method') {
+        continue;
+      }
+
+      // find the containing clause, so that effects propagate through the invocation
+      let clause: Clause | null = null;
+      for (let anc = field.parentElement; anc != null; anc = anc.parentElement) {
+        if (anc.nodeName === 'EMU-CLAUSE' || anc.nodeName === 'EMU-ANNEX') {
+          const id = anc.getAttribute('id');
+          clause = (id != null && clausesById.get(id)) || null;
+          break;
+        }
+      }
+
+      const xrefNode = this.doc.createElement('emu-xref');
+      xrefNode.setAttribute('aoid', aoid);
+      // mark as an invocation when actually called, mirroring the autolinker
+      const next = field.nextSibling;
+      if (next != null && next.nodeType === 3 && (next.textContent ?? '').trimStart()[0] === '(') {
+        xrefNode.setAttribute('is-invocation', '');
+      }
+      // Replace the `<var class="field">` wrapper with plain text: the `<var>` exists to support
+      // click-to-highlight of variables, but internal method names are clickable links.
+      xrefNode.textContent = aoid;
+      field.replaceWith(xrefNode);
+
+      this._xrefs.push(new Xref(this, xrefNode, clause, namespace, '', aoid));
     }
   }
 

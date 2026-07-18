@@ -872,4 +872,73 @@ describe('linting whole program', () => {
       },
     );
   });
+
+  describe('emu-table internal methods', () => {
+    it('missing table', async () => {
+      await assertLint(
+        positioned`
+          ${M}<emu-table type="internal methods" of="Object">
+            <caption>Internal Methods</caption>
+          </emu-table>
+        `,
+        {
+          ruleId: 'emu-table-missing',
+          nodeType: 'emu-table',
+          message: '<emu-table type="internal methods"> must contain a <table> element',
+        },
+      );
+    });
+
+    it('missing of', async () => {
+      await assertLint(
+        positioned`
+          ${M}<emu-table type="internal methods">
+            <table></table>
+          </emu-table>
+        `,
+        {
+          ruleId: 'emu-internal-methods-invalid',
+          nodeType: 'emu-table',
+          message: '<emu-table type="internal methods"> must have an \'of\' attribute',
+        },
+      );
+    });
+
+    it('missing description td', async () => {
+      await assertLint(
+        positioned`
+          <emu-table type="internal methods" of="Object">
+            <table>
+              ${M}<tr><td><h1>[[Foo]] ( ): ~unused~</h1></td></tr>
+            </table>
+          </emu-table>
+        `,
+        {
+          ruleId: 'emu-internal-methods-invalid',
+          nodeType: 'tr',
+          message: '<emu-table type="internal methods"> <tr>s must contain at least two <td>s',
+        },
+      );
+    });
+  });
+
+  it('internal method without corresponding essential internal method', async () => {
+    await assertLint(
+      positioned`
+        <emu-clause id="sec-test" type="internal method">
+        ${M}<h1>[[Example]] ( )</h1>
+        <dl class='header'>
+          <dt>for</dt>
+          <dd>an ordinary object _O_</dd>
+          </dl>
+        </emu-clause>
+      `,
+      {
+        ruleId: 'internal-method-base',
+        nodeType: 'h1',
+        message:
+          'could not find an internal method definition corresponding to internal method [[Example]]',
+      },
+    );
+  });
 });

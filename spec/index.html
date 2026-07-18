@@ -791,6 +791,133 @@ markEffects: true
       <p><b>for:</b> The method name.</p>
     </emu-clause>
   </emu-clause>
+
+  <emu-clause id="internal-methods">
+    <h1>Internal Methods</h1>
+    <p>Internal methods (whose names are written with double square brackets, e.g. `[[GetPrototypeOf]]`) work just like <emu-xref href="#abstract-methods">abstract methods</emu-xref>, except that they are defined in an `&lt;emu-table>` with the type “internal methods”, the implementing clauses have the type “internal method”, and their implementations are collected with `&lt;emu-internal-method-dfns>`. Internal methods are invoked as e.g. `_obj_.[[GetPrototypeOf]]()`. Internal method names must be globally unique (not just unique within a type).</p>
+
+    <p>The first two columns are assumed to be the method signature and the method description respectively.</p>
+
+    <h2>Attributes</h2>
+    <p><b>type:</b> Must be present with the value “internal methods”.</p>
+    <p><b>of:</b> Must be present; the value is the name of the type for which this table defines the methods.</p>
+    <p><b>caption:</b> Optional: If not present, will be generated based on the type name</p>
+
+    <h2>Example</h2>
+    <pre><code class="language-html">
+      &lt;emu-table type="internal methods" of="Object" id="table-internal-methods-of-objects">
+        &lt;table>
+          &lt;thead>
+            &lt;tr>
+              &lt;th>Internal Method&lt;/th>
+              &lt;th>Description&lt;/th>
+              &lt;th>Definitions&lt;/th>
+            &lt;/tr>
+          &lt;/thead>
+          &lt;tr>
+            &lt;td>
+              [[GetPrototypeOf]] (
+              ): a normal completion containing either an Object or *null*
+            &lt;/td>
+            &lt;td>It determines the object that provides inherited properties for this object.&lt;/td>
+            &lt;td>
+              It is defined in the following places:
+              &lt;emu-internal-method-dfns for="[[GetPrototypeOf]]">&lt;/emu-internal-method-dfns>
+            &lt;/td>
+          &lt;/tr>
+        &lt;/table>
+      &lt;/emu-table>
+
+      &lt;emu-clause id="internal-method-definitions">
+        &lt;h1>Internal Method Definitions&lt;/h1>
+
+        &lt;emu-clause id="sec-ordinary-getprototypeof" type="internal method">
+          &lt;h1>[[GetPrototypeOf]] (
+          ): a normal completion containing either an Object or *null*&lt;/h1>
+          &lt;dl class="header">
+            &lt;dt>for&lt;/dt>
+            &lt;dd>an ordinary object _O_&lt;/dd>
+          &lt;/dl>
+
+          &lt;emu-alg>
+            1. Return *null*.
+          &lt;/emu-alg>
+        &lt;/emu-clause>
+
+        &lt;emu-clause id="sec-proxy-getprototypeof" type="internal method">
+          &lt;h1>[[GetPrototypeOf]] (
+          ): a normal completion containing either an Object or *null*&lt;/h1>
+          &lt;dl class="header">
+            &lt;dt>for&lt;/dt>
+            &lt;dd>a Proxy exotic object _O_&lt;/dd>
+          &lt;/dl>
+
+          &lt;emu-alg>
+            1. Return *null*.
+          &lt;/emu-alg>
+        &lt;/emu-clause>
+      &lt;/emu-clause>
+    </code></pre>
+
+    <h3>Result</h3>
+    <aside class="result">
+      <emu-table type="internal methods" of="Object" id="table-internal-methods-of-objects">
+        <table>
+          <thead>
+            <tr>
+              <th>Internal Method</th>
+              <th>Description</th>
+              <th>Definitions</th>
+            </tr>
+          </thead>
+          <tr>
+            <td>[[GetPrototypeOf]] ( ): a normal completion containing either an Object or *null*</td>
+            <td>It determines the object that provides inherited properties for this object.</td>
+            <td>
+              It is defined in the following places:
+              <emu-internal-method-dfns for="[[GetPrototypeOf]]"></emu-internal-method-dfns>
+            </td>
+          </tr>
+        </table>
+      </emu-table>
+
+      <emu-clause id="internal-method-definitions">
+        <h1>Internal Method Definitions</h1>
+
+        <emu-clause id="sec-ordinary-getprototypeof" type="internal method">
+          <h1>[[GetPrototypeOf]] ( ): a normal completion containing either an Object or *null*</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>an ordinary object _O_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return *null*.
+          </emu-alg>
+        </emu-clause>
+
+        <emu-clause id="sec-proxy-getprototypeof" type="internal method">
+          <h1>[[GetPrototypeOf]] ( ): a normal completion containing either an Object or *null*</h1>
+          <dl class="header">
+            <dt>for</dt>
+            <dd>a Proxy exotic object _O_</dd>
+          </dl>
+
+          <emu-alg>
+            1. Return *null*.
+          </emu-alg>
+        </emu-clause>
+      </emu-clause>
+    </aside>
+
+    <emu-clause id="emu-internal-method-dfns">
+      <h1>emu-internal-method-dfns</h1>
+      <p>Expands to a bulleted list of the places within this specification and any imported biblios that provide definitions for this internal method. See above for usage example.</p>
+
+      <h2>Attributes</h2>
+      <p><b>for:</b> The method name, including the double square brackets.</p>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
 
 <emu-clause id="emu-example">
