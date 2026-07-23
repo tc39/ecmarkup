@@ -98,7 +98,7 @@ function toggleMultipage() {
     location = pathPrefix + (hash || activeSecHash || '');
   } else {
     let targetSec = hash ? idToSection[hash.substring(1)] : undefined;
-    location = 'multipage/' + (targetSec ? targetSec + '.html' : '') + hash;
+    location = pathPrefix + 'multipage/' + (targetSec ? targetSec + '.html' : '') + hash;
   }
 }
 
@@ -133,7 +133,7 @@ function toggleMultipage() {
       : multipagePreference === 'multi-page'
   ) {
     window.navigating = true;
-    location = 'multipage/' + (targetSec ? targetSec + '.html' : '') + location.hash;
+    location = pathPrefix + 'multipage/' + (targetSec ? targetSec + '.html' : '') + location.hash;
   }
 })();
 
