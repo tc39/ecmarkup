@@ -1751,8 +1751,16 @@ describe('type system', () => {
       "returned value (~iterate-strings~) does not look plausibly assignable to algorithm's return type (~sync~ or ~async~)",
     );
 
+    await assertTypeError(
+      'either a PrivateElement or ~empty~',
+      '~unused~',
+      'argument (~unused~) does not look plausibly assignable to parameter type (unknown-non-enum or ~empty~)',
+      "returned value (~unused~) does not look plausibly assignable to algorithm's return type (unknown-non-enum or ~empty~)",
+    );
+
     await assertNoTypeError('~sync~ or ~async~', '~sync~');
     await assertNoTypeError('~sync~ or ~async~', '~async~');
+    await assertNoTypeError('either a PrivateElement or ~empty~', '~empty~');
   });
 
   it('boolean', async () => {
