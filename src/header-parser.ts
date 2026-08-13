@@ -147,7 +147,7 @@ export function parseHeader(headerText: string): ParsedHeaderOrFailure {
         });
       }
 
-      ({ match, text } = eat(text, /^[A-Za-z0-9_]+ */i));
+      ({ match, text } = eat(text, /^\p{ID_Continue}+ */iu));
       if (!match) {
         errors.push({ message: 'expected parameter name', offset });
         return { type: 'failure', errors };
@@ -222,7 +222,7 @@ export function parseHeader(headerText: string): ParsedHeaderOrFailure {
         offset += match[0].length;
       }
 
-      ({ text, match } = eat(text, /^([A-Za-z0-9_]+)\s*/));
+      ({ text, match } = eat(text, /^(\p{ID_Continue}+)\s*/u));
       if (!match) {
         errors.push({ message: 'expected parameter name', offset });
         return { type: 'failure', errors };

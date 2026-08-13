@@ -668,12 +668,12 @@ export function parseParams(params: string): ParsedParams | null {
 
   // Patterns with ..., &hellip;, or …
   if (
-    /^ (_[A-Za-z0-9]+_, )*(\.\.\.|&hellip;|…)(_[A-Za-z0-9]+_| )(, _[A-Za-z0-9]+_)* $/.test(params)
+    /^ (_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_, )*(\.\.\.|&hellip;|…)(_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_| )(, _\p{ID_Start}(?:(?!_)\p{ID_Continue})*_)* $/u.test(params)
   ) {
     // Trailing ..._rest_ with no params after it
-    const restMatch = params.match(/^ ((?:_[A-Za-z0-9]+_, )*)\.\.\.(_[A-Za-z0-9]+_) $/);
+    const restMatch = params.match(/^ ((?:_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_, )*)\.\.\.(_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_) $/u);
     if (restMatch) {
-      const required = [...restMatch[1].matchAll(/_([A-Za-z0-9]+)_/g)].map(m => m[1]);
+      const required = [...restMatch[1].matchAll(/_(\p{ID_Start}(?:(?!_)\p{ID_Continue})*)_/gu)].map(m => m[1]);
       const rest = restMatch[2].slice(1, -1);
       return { type: 'normal', required, optional: [], rest };
     }
@@ -685,7 +685,7 @@ export function parseParams(params: string): ParsedParams | null {
   // Example ( [ _foo_ [ , _bar_ ] ] )
   // using this horrible regex and then a manual parse really is simpler than just parsing manually
   if (
-    /^ (\[ )?_[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*( \[ , _[A-Za-z0-9]+_(, _[A-Za-z0-9]+_)*)*( \])* $/.test(
+    /^ (\[ )?_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_(, _\p{ID_Start}(?:(?!_)\p{ID_Continue})*_)*( \[ , _\p{ID_Start}(?:(?!_)\p{ID_Continue})*_(, _\p{ID_Start}(?:(?!_)\p{ID_Continue})*_)*)*( \])* $/u.test(
       params,
     )
   ) {
