@@ -668,12 +668,18 @@ export function parseParams(params: string): ParsedParams | null {
 
   // Patterns with ..., &hellip;, or …
   if (
-    /^ (_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_, )*(\.\.\.|&hellip;|…)(_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_| )(, _\p{ID_Start}(?:(?!_)\p{ID_Continue})*_)* $/u.test(params)
+    /^ (_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_, )*(\.\.\.|&hellip;|…)(_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_| )(, _\p{ID_Start}(?:(?!_)\p{ID_Continue})*_)* $/u.test(
+      params,
+    )
   ) {
     // Trailing ..._rest_ with no params after it
-    const restMatch = params.match(/^ ((?:_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_, )*)\.\.\.(_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_) $/u);
+    const restMatch = params.match(
+      /^ ((?:_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_, )*)\.\.\.(_\p{ID_Start}(?:(?!_)\p{ID_Continue})*_) $/u,
+    );
     if (restMatch) {
-      const required = [...restMatch[1].matchAll(/_(\p{ID_Start}(?:(?!_)\p{ID_Continue})*)_/gu)].map(m => m[1]);
+      const required = [
+        ...restMatch[1].matchAll(/_(\p{ID_Start}(?:(?!_)\p{ID_Continue})*)_/gu),
+      ].map(m => m[1]);
       const rest = restMatch[2].slice(1, -1);
       return { type: 'normal', required, optional: [], rest };
     }

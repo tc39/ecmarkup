@@ -146,7 +146,9 @@ export function checkVariableUsage(
       const isParameter = preceding.nodeName === 'H1';
       const seen = new Set<string>();
       // `__` is for <del>_x_</del><ins>_y_</ins>, which has textContent `_x__y_`
-      for (const name of preceding.textContent.matchAll(/(?<=\b|_)_(\p{ID_Start}(?:(?!_)\p{ID_Continue})*)_(?=\b|_)/gu)) {
+      for (const name of preceding.textContent.matchAll(
+        /(?<=\b|_)_(\p{ID_Start}(?:(?!_)\p{ID_Continue})*)_(?=\b|_)/gu,
+      )) {
         // We avoid dealing with parameter re-declaration here because tracking location information is annoying. It's handled in `checkDuplicateParam` in header-parser instead.
         if (seen.has(name[1])) continue;
         seen.add(name[1]);
