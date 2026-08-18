@@ -267,7 +267,10 @@ export function parseHeader(headerText: string): ParsedHeaderOrFailure {
   if (match) {
     offset += match[0].length;
     returnOffset = offset;
-    ({ match, text } = eat(text, /^(.*?)(?=<\/(ins|del|mark)>|$)/im));
+    ({ match, text } = eat(
+      text,
+      /^((?:<ins>.*?<\/ins>|<del>.*?<\/del>|<mark>.*?<\/mark>|.)*?)(?=<\/(ins|del|mark)>|$)/im,
+    ));
     if (match) {
       returnType = match[1].trim();
       if (returnType === '') {
