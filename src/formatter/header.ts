@@ -11,7 +11,7 @@ function printTypedParam(param: Param, optional: boolean) {
 }
 
 function ensureUnderscores(param: Param) {
-  if (!/^[a-zA-Z0-9]+$/.test(param.name)) {
+  if (!/^\p{ID_Start}[\p{ID_Continue}--_]*$/v.test(param.name)) {
     return param;
   }
   return {
