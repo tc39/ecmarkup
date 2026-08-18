@@ -7,8 +7,15 @@ import type {
 } from 'ecmarkdown';
 import type { Reporter } from '../algorithm-error-reporter-type';
 import type { Seq } from '../../expr-parser';
+import type { default as Spec } from '../../Spec';
 import { walk as walkExpr } from '../../expr-parser';
-import { isAbstractClosureHeader, offsetToLineAndColumn } from '../../utils';
+import { extractStructuredHeader } from '../../Clause';
+import { parseHeaderCached } from '../../header-parser';
+import {
+  isAbstractClosureHeader,
+  offsetToLineAndColumn,
+  textContentExcludingDeleted,
+} from '../../utils';
 
 /*
 Ecmaspeak scope rules are a bit weird.
@@ -110,6 +117,7 @@ class Scope {
 }
 
 export function checkVariableUsage(
+  spec: Spec,
   algorithmSource: string,
   containingAlgorithm: Element,
   steps: OrderedListNode,
@@ -138,16 +146,25 @@ export function checkVariableUsage(
   // this is a little permissive, but it's hard to find a precise rule, and that's better than being too restrictive
   let preceding = previousOrParent(containingAlgorithm, parentClause);
   while (preceding != null) {
-    if (
+    const params = structuredHeaderParams(preceding, spec);
+    if (params != null) {
+      // duplicate params are already handled by `checkDuplicateParam` in header-parser
+      for (const param of params) {
+        scope.declare(param, null, 'parameter');
+      }
+    } else if (
       preceding.tagName !== 'EMU-ALG' &&
+      preceding.nodeName !== 'DEL' &&
       preceding.querySelector('emu-alg') == null &&
       preceding.textContent != null
     ) {
       const isParameter = preceding.nodeName === 'H1';
       const seen = new Set<string>();
-      // `__` is for <del>_x_</del><ins>_y_</ins>, which has textContent `_x__y_`
-      for (const name of preceding.textContent.matchAll(/(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g)) {
-        // We avoid dealing with parameter re-declaration here because tracking location information is annoying. It's handled in `checkDuplicateParam` in header-parser instead.
+      // `__` is for adjacent variables like <ins>_x_</ins><ins>_y_</ins>, whose text is `_x__y_`
+      for (const name of textContentExcludingDeleted(preceding).matchAll(
+        /(?<=\b|_)_([a-zA-Z0-9]+)_(?=\b|_)/g,
+      )) {
+        // as above, re-declaration of parameters is handled elsewhere
         if (seen.has(name[1])) continue;
         seen.add(name[1]);
         scope.declare(name[1], null, isParameter ? 'parameter' : undefined, !isParameter);
@@ -447,6 +464,24 @@ function walkAlgorithm(
     }
   }
   scope.strictScopes.pop();
+}
+
+function structuredHeaderParams(element: Element, spec: Spec): Iterable<string> | null {
+  if (element.nodeName !== 'H1' || extractStructuredHeader(element) == null) {
+    return null;
+  }
+  const { parseResult } = parseHeaderCached(element, spec);
+  if (parseResult.type === 'failure' || parseResult.wrappingTag === 'del') {
+    return [];
+  }
+  const seen = new Set<string>();
+  for (const param of [...parseResult.params, ...parseResult.optionalParams]) {
+    const match = param.wrappingTag === 'del' ? null : param.name.match(/^_([a-zA-Z0-9]+)_$/);
+    if (match != null) {
+      seen.add(match[1]);
+    }
+  }
+  return seen;
 }
 
 function isVariable(node: UnderscoreNode | { name: string } | null): node is UnderscoreNode {
