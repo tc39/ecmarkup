@@ -5,7 +5,7 @@ import { SPECIAL_KINDS } from '../../Clause';
 
 const ruleId = 'step-attribute';
 
-const KNOWN_ATTRIBUTES = ['id', 'fence-effects', 'declared', ...SPECIAL_KINDS];
+const KNOWN_ATTRIBUTES = ['id', 'fence-effects', 'declared', 'undeclared', ...SPECIAL_KINDS];
 
 /*
 Checks for unknown attributes on steps.

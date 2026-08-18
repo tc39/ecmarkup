@@ -177,6 +177,18 @@ describe('variables are declared and used appropriately', () => {
         },
       );
     });
+
+    it('variables can be undeclared by annotation', async () => {
+      await assertLintFree(
+        `
+          <emu-alg>
+            1. Let _x_ be 0.
+            1. [undeclared="x"] Let _x_ be 1.
+            1. Assert: _x_ = 1.
+          </emu-alg>
+        `,
+      );
+    });
   });
 
   describe('variables must be used', () => {

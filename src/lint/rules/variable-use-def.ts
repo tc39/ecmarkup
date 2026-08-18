@@ -205,17 +205,19 @@ function walkAlgorithm(
     const last = expr.items[expr.items.length - 1];
 
     // handle [declared="foo"] attributes
-    const extraDeclarations = step.attrs.find(d => d.key === 'declared');
-    if (extraDeclarations != null) {
-      for (let name of extraDeclarations.value.split(',')) {
+    const annotations = step.attrs.filter(d => d.key === 'declared' || d.key === 'undeclared');
+    for (const annotation of annotations) {
+      for (let name of annotation.value.split(',')) {
         name = name.trim();
-        const line = extraDeclarations.location.start.line;
+        const line = annotation.location.start.line;
         const column =
-          extraDeclarations.location.start.column +
-          extraDeclarations.key.length +
+          annotation.location.start.column +
+          annotation.key.length +
           2 + // '="'
-          findDeclaredAttrOffset(extraDeclarations.value, name);
-        if (scope.declared(name)) {
+          findDeclaredAttrOffset(annotation.value, name);
+        if (annotation.key === 'undeclared') {
+          scope.undeclare(name);
+        } else if (scope.declared(name)) {
           const message = `${JSON.stringify(name)} is already declared and does not need an explict annotation`;
           report({
             ruleId: 'unnecessary-declared-var',
