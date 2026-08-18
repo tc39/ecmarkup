@@ -600,7 +600,13 @@ export function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
     return:
       parsedHeader.returnType == null
         ? null
-        : parseType(parsedHeader.returnType, parsedHeader.returnOffset),
+        : parseType(
+            parsedHeader.returnType.replace(
+              /<del>.*?<\/del>|<ins>(.*?)<\/ins>|<mark>(.*?)<\/mark>/g,
+              '$1$2',
+            ),
+            parsedHeader.returnOffset,
+          ),
   };
 
   return ret;
