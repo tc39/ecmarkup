@@ -346,6 +346,18 @@ export function isAbstractClosureHeader(text: string): boolean {
   return acHeaderRe.test(text);
 }
 
+export function textContentExcludingDeleted(node: Node): string {
+  let retval = '';
+  node.childNodes.forEach(value => {
+    if (value.nodeType === 3) {
+      retval += value.nodeValue;
+    } else if (value.nodeType !== 1 || (value as Element).tagName !== 'DEL') {
+      retval += textContentExcludingDeleted(value);
+    }
+  });
+  return retval;
+}
+
 export function ownTextContent(el: Element): string {
   let text = '';
   for (const child of el.childNodes) {

@@ -1,3 +1,4 @@
+import { getHeaderSource } from './Clause';
 import type Spec from './Spec';
 import { offsetToLineAndColumn, validateEffects } from './utils';
 
@@ -40,6 +41,23 @@ export type ParsedHeaderOrFailure =
       type: 'failure';
       errors: ParseError[];
     };
+
+const headerParseCache = new WeakMap<
+  Element,
+  { source: string; parseResult: ParsedHeaderOrFailure }
+>();
+export function parseHeaderCached(
+  header: Element,
+  spec: Spec,
+): { source: string; parseResult: ParsedHeaderOrFailure } {
+  let cached = headerParseCache.get(header);
+  if (cached == null) {
+    const source = getHeaderSource(header, spec);
+    cached = { source, parseResult: parseHeader(source) };
+    headerParseCache.set(header, cached);
+  }
+  return cached;
+}
 
 export function parseHeader(headerText: string): ParsedHeaderOrFailure {
   let offset = 0;

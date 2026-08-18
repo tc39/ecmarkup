@@ -1,8 +1,8 @@
 import type Spec from './Spec';
 import type { Context } from './Context';
 
-import { getHeaderSource, parsedHeaderToSignature } from './Clause';
-import { formatHeader, parseHeader, warnAllErrors } from './header-parser';
+import { parsedHeaderToSignature } from './Clause';
+import { formatHeader, parseHeaderCached, warnAllErrors } from './header-parser';
 import type { PartialBiblioEntry, Signature } from './Biblio';
 import { ParseError } from './type-parser';
 import { offsetToLineAndColumn, traverseWhile } from './utils';
@@ -106,8 +106,7 @@ export default class Table extends Figure {
         continue;
       }
 
-      const headerSource = getHeaderSource(header, spec);
-      const parseResult = parseHeader(headerSource);
+      const { source: headerSource, parseResult } = parseHeaderCached(header, spec);
 
       if (parseResult.type === 'failure') {
         warnAllErrors(spec, header, parseResult);

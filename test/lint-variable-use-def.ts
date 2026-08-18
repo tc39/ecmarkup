@@ -747,6 +747,26 @@ describe('variables cannot be redeclared', () => {
       },
     );
   });
+
+  it('deleted parameters can be redeclared', async () => {
+    await assertLintFree(
+      `
+        <emu-clause id="example" type="abstract operation">
+          <h1>
+            Example (
+              <del>_x_: ~foo~,</del>
+              <ins>_y_: ~foo~,</ins>
+            ): ~foo~ or ~bar~
+          </h1>
+          <dl class="header"></dl>
+          <emu-alg>
+            1. <ins>Let _x_ be _y_.</ins>
+            1. Return _x_.
+          </emu-alg>
+        </emu-clause>
+      `,
+    );
+  });
 });
 
 describe('closures must not capture reassigned variables', () => {
