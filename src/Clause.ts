@@ -8,10 +8,10 @@ import { ParseError, TypeParser } from './type-parser';
 import Builder from './Builder';
 import type { ParsedHeader } from './header-parser';
 import {
-  formatPreamble,
-  parseStructuredHeaderDl,
   formatHeader,
-  parseHeader,
+  formatPreamble,
+  parseHeaderCached,
+  parseStructuredHeaderDl,
 } from './header-parser';
 import { offsetToLineAndColumn, traverseWhile, withOrdinalSuffix, zip } from './utils';
 import { dominates, serialize, typeFromExprType } from './type-logic';
@@ -244,8 +244,7 @@ export default class Clause extends Builder {
 
     const type = this.type;
 
-    const headerSource = getHeaderSource(header, this.spec);
-    const parseResult = parseHeader(headerSource);
+    const { source: headerSource, parseResult } = parseHeaderCached(header, this.spec);
     if (parseResult.type !== 'failure') {
       try {
         this.signature = parsedHeaderToSignature(parseResult);
@@ -600,7 +599,13 @@ export function parsedHeaderToSignature(parsedHeader: ParsedHeader): Signature {
     return:
       parsedHeader.returnType == null
         ? null
-        : parseType(parsedHeader.returnType, parsedHeader.returnOffset),
+        : parseType(
+            parsedHeader.returnType.replace(
+              /<del>.*?<\/del>|<ins>(.*?)<\/ins>|<mark>(.*?)<\/mark>/g,
+              '$1$2',
+            ),
+            parsedHeader.returnOffset,
+          ),
   };
 
   return ret;

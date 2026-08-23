@@ -2,6 +2,8 @@ import type { default as Spec, Warning } from '../Spec';
 
 import type { AlgorithmNode } from 'ecmarkdown';
 
+import { textContentExcludingDeleted } from '../utils';
+
 type CollectNodesReturnType =
   | {
       success: true;
@@ -164,16 +166,4 @@ export function collectNodes(
   }
 
   return { success: true, mainGrammar, headers, sdos, earlyErrors, algorithms };
-}
-
-function textContentExcludingDeleted(node: Node): string {
-  let retval = '';
-  node.childNodes.forEach(value => {
-    if (value.nodeType === 3) {
-      retval += value.nodeValue;
-    } else if (value.nodeType !== 1 || (value as Element).tagName !== 'DEL') {
-      retval += textContentExcludingDeleted(value);
-    }
-  });
-  return retval;
 }

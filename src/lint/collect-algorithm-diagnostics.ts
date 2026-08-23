@@ -120,6 +120,7 @@ export function collectAlgorithmDiagnostics(
       }
       if (allNodesParsedSuccessfully) {
         checkVariableUsage(
+          spec,
           algorithmSource,
           algorithm.element,
           tree.contents,

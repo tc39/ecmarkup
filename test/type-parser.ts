@@ -1,5 +1,5 @@
 import { describe, it } from 'node:test';
-import { assertError, positioned, lintLocationMarker as M } from './utils.ts';
+import { assertError, assertErrorFree, positioned, lintLocationMarker as M } from './utils.ts';
 import { TypeParser } from '../lib/type-parser.js';
 import assert from 'assert';
 
@@ -116,6 +116,23 @@ describe('type parsing', () => {
         },
       );
     });
+  });
+
+  it('handles ins/del', async () => {
+    await assertErrorFree(
+      `
+        <emu-clause id="example" type="abstract operation">
+        <h1>
+          ExampleAlg (): <del>an integer</del><ins>a normal completion containing an integer</ins>
+        </h1>
+        <dl class="header">
+        </dl>
+        <emu-alg>
+          1. Return NormalCompletion(0).
+        </emu-alg>
+        </emu-clause>
+      `,
+    );
   });
 
   describe('parse trees', () => {
