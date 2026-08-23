@@ -132,13 +132,8 @@ export function checkVariableUsage(
 
   let parentClause = containingAlgorithm.parentElement;
   while (parentClause != null) {
-    if (parentClause.nodeName === 'EMU-CLAUSE') {
+    if (parentClause.nodeName === 'EMU-CLAUSE' || parentClause.nodeName === 'EMU-ANNEX') {
       break;
-    }
-    if (parentClause.nodeName === 'EMU-ANNEX') {
-      // Annex B adds algorithms in a way which makes it hard to track the original
-      // TODO someday lint Annex B
-      return;
     }
     parentClause = parentClause.parentElement;
   }
