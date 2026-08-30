@@ -520,13 +520,13 @@ export default class Clause extends Builder {
       // for concrete methods the base is an abstract method; for internal methods it's the
       // essential internal method declared in the corresponding `type="internal methods"` table
       const baseLabel = isInternal ? 'internal method definition' : 'abstract method';
-      const cm: PartialBiblioEntry = {
+      const entry: PartialBiblioEntry = {
         type: clause.type,
         for: clause.for,
         abstractAoid,
         refId: clause.id,
       };
-      spec.biblio.add(cm, spec.namespace);
+      spec.biblio.add(entry, spec.namespace);
 
       const base = spec.biblio.byAoid(abstractAoid);
       if (base == null) {
