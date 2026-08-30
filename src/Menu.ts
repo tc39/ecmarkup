@@ -76,6 +76,8 @@ const INCLUDED_KEYS = new Set([
   'id',
   'refId',
   'aoid',
+  'abstractAoid',
+  'for',
   'title',
   'titleHTML',
   'number',
