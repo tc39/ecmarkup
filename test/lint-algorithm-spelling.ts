@@ -355,7 +355,8 @@ describe('algorithm spelling', () => {
         1. If _a_ is *true* or _b_ is *true*, return _a_.
         1. If _a_ is a String, return _a_.
         1. Let _z_ be a Number.
-        1. Return « _y_, _z_ ».
+        1. Let _rec_ be the Record { [[Increment]]: 0 }.
+        1. Return « _y_, _z_, _rec_ ».
       </emu-alg>
     `);
   });
