@@ -9,11 +9,11 @@ const ruleId = 'algorithm-spelling';
 // Note that these will be composed, so cannot contain backreferences
 const matchers = [
   {
-    pattern: /\b[Ii]ncrement\b/gu,
+    pattern: /\b[Ii]ncrement _/gu,
     message: 'prefer "set _x_ to _x_ + 1" over "increment"',
   },
   {
-    pattern: /\b[Dd]ecrement\b/gu,
+    pattern: /\b[Dd]ecrement _/gu,
     message: 'prefer "set _x_ to _x_ - 1" over "decrement"',
   },
   {
