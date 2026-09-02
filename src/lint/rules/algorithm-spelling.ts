@@ -13,7 +13,7 @@ const matchers = [
     message: 'prefer "set _x_ to _x_ + 1" over "increment"',
   },
   {
-    pattern: /\b[Dd]ecrement\b/gu,
+    pattern: /\b[Dd]ecrement _/gu,
     message: 'prefer "set _x_ to _x_ - 1" over "decrement"',
   },
   {
