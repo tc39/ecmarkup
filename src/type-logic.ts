@@ -4,6 +4,7 @@ import type { Expr, NonSeq } from './expr-parser';
 
 export type Type =
   | { kind: 'unknown' } // top
+  | { kind: 'unknown-non-enum' } // anything except an enum value
   | { kind: 'never' } // bottom
   | { kind: 'union'; of: NonUnion[] } // constraint: nothing in the union dominates anything else in the union
   | { kind: 'list'; of: Type }
@@ -34,6 +35,7 @@ export type Type =
 type NonUnion = Exclude<Type, { kind: 'union' }>;
 const simpleKinds = new Set<Type['kind']>([
   'unknown',
+  'unknown-non-enum',
   'never',
   'record',
   'abrupt completion',
@@ -97,12 +99,18 @@ export function dominates(a: Type, b: Type): boolean {
   if (a.kind === 'unknown' || b.kind === 'never') {
     return true;
   }
+  if (b.kind === 'unknown') {
+    return false;
+  }
   if (b.kind === 'union') {
     return b.of.every(t => dominates(a, t));
   }
   if (a.kind === 'union') {
-    // not necessarily true for arbitrary lattices, but true for ours
+    // not necessarily true for arbitrary lattices, but true for ours: our non-union types are join-prime, i.e., a union dominates such a type only if one of the members of the union dominates it
     return a.of.some(t => dominates(t, b));
+  }
+  if (a.kind === 'unknown-non-enum') {
+    return b.kind !== 'enum value';
   }
   if (
     (a.kind === 'list' && b.kind === 'list') ||
@@ -232,6 +240,9 @@ export function serialize(type: Type): string {
   switch (type.kind) {
     case 'unknown': {
       return 'unknown';
+    }
+    case 'unknown-non-enum': {
+      return 'unknown-non-enum';
     }
     case 'never': {
       return 'never';
@@ -614,7 +625,7 @@ export function typeFromExprType(type: BiblioType): Type {
       return { kind: 'enum value', value: 'unused' };
     }
   }
-  return { kind: 'unknown' };
+  return { kind: 'unknown-non-enum' };
 }
 
 export function isCompletion(
