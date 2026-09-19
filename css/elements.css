@@ -964,6 +964,18 @@ emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex {
   margin-top: 0;
 }
 
+:is(#terms-and-definitions, #sec-terms-and-definitions) emu-clause h1 {
+  font-size: 1rem;
+}
+
+:is(#terms-and-definitions, #sec-terms-and-definitions) emu-clause h1 + p {
+  margin-top: 0;
+}
+
+:is(#terms-and-definitions, #sec-terms-and-definitions) emu-clause .secnum {
+  display: block;
+}
+
 /* Figures and tables */
 figure {
   display: block;

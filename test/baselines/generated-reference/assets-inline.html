@@ -2647,6 +2647,18 @@ emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex {
   margin-top: 0;
 }
 
+:is(#terms-and-definitions, #sec-terms-and-definitions) emu-clause h1 {
+  font-size: 1rem;
+}
+
+:is(#terms-and-definitions, #sec-terms-and-definitions) emu-clause h1 + p {
+  margin-top: 0;
+}
+
+:is(#terms-and-definitions, #sec-terms-and-definitions) emu-clause .secnum {
+  display: block;
+}
+
 /* Figures and tables */
 figure {
   display: block;
@@ -3584,12 +3596,8 @@ p {
   text-wrap: pretty;
   overflow-wrap: break-word;
   hyphens: auto;
-  orphans:
-    2,
-    -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
-  widows:
-    2,
-    -prince-prefer 3;
+  orphans: 2, -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
+  widows: 2, -prince-prefer 3;
 }
 
 h1 {
@@ -4065,20 +4073,17 @@ p.ECMAaddress {
   margin: 0;
 }
 
-#sec-terms-and-definitions dfn {
-  font-style: normal;
+:is(#terms-and-definitions, #sec-terms-and-definitions) dfn {
+  font-style: inherit;
 }
 
-#sec-terms-and-definitions h1 .secnum {
-  display: block;
+:is(#terms-and-definitions, #sec-terms-and-definitions) emu-clause {
+  margin-top: 12pt;
 }
 
-#sec-terms-and-definitions > h1 > .secnum {
-  display: inline;
-}
-
-#sec-terms-and-definitions h1 + p {
-  margin-top: 0;
+:is(#terms-and-definitions emu-clause, #sec-terms-and-definitions) emu-clause h1 {
+  -prince-bookmark-level: none;
+  font-size: 10pt;
 }
 
 p.adoption-info {
