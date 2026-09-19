@@ -239,6 +239,10 @@ h1 {
   line-height: 1.4;
 }
 
+h1 .secnum {
+  margin-right: 1cm;
+}
+
 pre:has(> code) {
   margin: 0;
 }
