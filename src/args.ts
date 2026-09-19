@@ -62,7 +62,7 @@ export const options = [
   {
     name: 'no-minify',
     type: Boolean,
-    description: 'Disable minification of generated output',
+    description: 'Disable minification of generated output (implied by --printable)',
   },
   {
     name: 'error-formatter',
