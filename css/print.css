@@ -230,12 +230,8 @@ p {
   text-wrap: pretty;
   overflow-wrap: break-word;
   hyphens: auto;
-  orphans:
-    2,
-    -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
-  widows:
-    2,
-    -prince-prefer 3;
+  orphans: 2, -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
+  widows: 2, -prince-prefer 3;
 }
 
 h1 {
@@ -711,12 +707,17 @@ p.ECMAaddress {
   margin: 0;
 }
 
-[id*='terms-and-definitions'] dfn {
-  font-style: normal;
+[id$='terms-and-definitions'] dfn {
+  font-style: inherit;
 }
 
-[id*='terms-and-definitions'] emu-clause h1 {
+[id$='terms-and-definitions'] emu-clause {
+  margin-top: 12pt;
+}
+
+[id$='terms-and-definitions'] emu-clause h1 {
   -prince-bookmark-level: none;
+  font-size: 10pt;
 }
 
 p.adoption-info {
