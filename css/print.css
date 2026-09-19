@@ -230,17 +230,17 @@ p {
   text-wrap: pretty;
   overflow-wrap: break-word;
   hyphens: auto;
-  orphans:
-    2,
-    -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
-  widows:
-    2,
-    -prince-prefer 3;
+  orphans: 2, -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
+  widows: 2, -prince-prefer 3;
 }
 
 h1 {
   text-wrap: balance;
   line-height: 1.4;
+}
+
+h1 .secnum {
+  margin-right: 1cm;
 }
 
 pre:has(> code) {
@@ -278,6 +278,11 @@ emu-figure:has(> figure > img) figure,
 p:has(+ .math-display),
 emu-table thead,
 h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 figcaption,
 emu-alg > ol > li:first-child,
 emu-grammar:has(+ emu-alg),
@@ -361,39 +366,45 @@ emu-annex emu-annex {
   margin-top: 3.5ex;
 }
 
-emu-intro emu-intro emu-intro,
-emu-clause emu-clause emu-clause,
-emu-annex emu-annex emu-annex,
-emu-intro emu-intro emu-intro emu-intro,
-emu-clause emu-clause emu-clause emu-clause,
-emu-annex emu-annex emu-annex emu-annex,
-emu-intro emu-intro emu-intro emu-intro emu-intro,
-emu-clause emu-clause emu-clause emu-clause emu-clause,
-emu-annex emu-annex emu-annex emu-annex emu-annex {
-  margin-top: 3.2ex;
-}
-
 emu-intro h1,
 emu-clause h1,
 emu-annex h1 {
-  break-after: avoid;
+  margin-top: 3.2ex;
   font-size: 12pt;
   -prince-bookmark-level: 1;
   -prince-bookmark-label: content();
 }
 
-emu-clause emu-clause h1,
-emu-annex emu-annex h1 {
-  -prince-bookmark-level: 2;
-  -prince-bookmark-state: closed;
-}
-
+emu-intro emu-intro h1,
 emu-clause emu-clause h1,
 emu-annex emu-annex h1,
 emu-intro h2,
 emu-clause h2,
 emu-annex h2 {
+  -prince-bookmark-level: 2;
+  -prince-bookmark-state: closed;
   font-size: 11pt;
+}
+
+emu-intro emu-intro emu-intro h1,
+emu-clause emu-clause emu-clause h1,
+emu-annex emu-annex emu-annex h1,
+emu-intro emu-intro h2,
+emu-clause emu-clause h2,
+emu-annex emu-annex h2,
+emu-intro h3,
+emu-clause h3,
+emu-annex h3,
+emu-intro h4,
+emu-clause h4,
+emu-annex h4,
+emu-intro h5,
+emu-clause h5,
+emu-annex h5,
+emu-intro h6,
+emu-clause h6,
+emu-annex h6 {
+  font-size: 10pt;
 }
 
 emu-clause emu-clause emu-clause h1,
@@ -414,25 +425,6 @@ emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
 emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1,
 emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1 {
   -prince-bookmark-level: 6;
-}
-
-emu-clause emu-clause emu-clause h1,
-emu-annex emu-annex emu-annex h1,
-emu-clause emu-clause h2,
-emu-annex emu-annex h2,
-emu-clause emu-clause emu-clause emu-clause h1,
-emu-annex emu-annex emu-annex emu-annex h1,
-emu-clause emu-clause emu-clause h2,
-emu-annex emu-annex emu-annex h2,
-emu-clause emu-clause emu-clause emu-clause emu-clause h1,
-emu-annex emu-annex emu-annex emu-annex emu-annex h1,
-emu-clause emu-clause emu-clause emu-clause h2,
-emu-annex emu-annex emu-annex emu-annex h2,
-emu-clause emu-clause emu-clause emu-clause emu-clause emu-clause h1,
-emu-annex emu-annex emu-annex emu-annex emu-annex emu-annex h1,
-emu-clause emu-clause emu-clause emu-clause emu-clause h2,
-emu-annex emu-annex emu-annex emu-annex emu-annex h2 {
-  font-size: 10pt;
 }
 
 emu-clause ol,
