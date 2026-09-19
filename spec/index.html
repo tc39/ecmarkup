@@ -171,7 +171,7 @@ markEffects: true
 
 <emu-clause id="clauses">
   <h1>Clauses</h1>
-  <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in descendent text nodes as well. Text nodes are parsed as Ecmarkdown Fragments. Clauses always begin with an `&lt;h1>` element.</p>
+  <p>Clauses are referenced using their id and are numbered automatically based on document position. Ecmarkdown syntax can be used in descendent text nodes as well. Text nodes are parsed as Ecmarkdown Fragments. Clauses shall always begin with an `&lt;h1>` element.</p>
 
   <!-- TODO Ecma house style supports clauses without a title (therefore numbered only) as long as all clauses as that level and lower are also numbered only. -->
 
@@ -286,8 +286,10 @@ markEffects: true
 
       <h3>Result</h3>
       <aside class="result">
+
         <emu-clause id="sec-terms-and-definitions">
           <h1>Terms and definitions</h1>
+
           <emu-clause id="term-technical-definition">
             <h1>technical definition</h1>
             <p>descriptive text aligning with Ecma house style, providing text that could be swapped in for the term without impacting readability</p>
@@ -1280,6 +1282,14 @@ markEffects: true
 <emu-annex id="document-structure">
   <h1>Required structure for Ecma documents</h1>
 
-  <p>Ecmarkup supports producing a document aligned with Ecma house style. If the ecmarkup document is intended to be formally released by Ecma International, there are some structural requirements it shall follow.</p>
+  <p>Ecmarkup supports producing a document aligned with the <a href="https://ecma-international.org/policies/ecma-directives/">Ecma directives</a>. If the ecmarkup document is intended to be formally released by Ecma International, there are some structural requirements it shall follow.</p>
   <p>Each `&lt;emu-intro>`, `&lt;emu-clause>`, and `&lt;emu-annex>` element shall have a unique ID, optionally beginning with the prefix `sec-`.</p>
+  <p>After a single `&lt;emu-intro>` element, the first four top-level numbered clauses of an Ecma Standard or Technical Report are:</p>
+  <ol>
+    <li>Scope</li>
+    <li>Conformance</li>
+    <li>Normative references</li>
+    <li>Terms and definitions</li>
+  </ol>
+  <p>The Terms and Definitions clause shall format terms as described in <a href="https://www.iso.org/resources/publicly-available-resources.html?t=2GjwAG0y1pTGaWMLrFyd8JcnY2jv_ZM8-53tGT1-6f5uPDmC2DinHt5OHGv4uZf7&view=documents#section-isodocuments-top">ISO/IEC Directives, Part 2, Ninth Edition</a>. See Clause 16.5 for a more thorough explanation.</p>
 </emu-annex>
