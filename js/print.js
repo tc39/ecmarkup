@@ -28,7 +28,7 @@ PDF.author = 'Ecma International';
 PDF.subject = shortname.innerHTML + (version ? ', ' + version.innerHTML : '');
 
 /* Terms and definitions section should not have specific terms listed in the table of contents. */
-const terms = document.querySelector('#toc a[href*="terms-and-definitions"]');
+const terms = document.querySelector('#toc a[href$="terms-and-definitions"]');
 
 if (terms) {
   (terms.parentElement.querySelector('ol.toc') || document.createElement('i')).remove();

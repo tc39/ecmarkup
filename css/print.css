@@ -719,12 +719,17 @@ p.ECMAaddress {
   margin: 0;
 }
 
-[id*='terms-and-definitions'] dfn {
-  font-style: normal;
+[id$='terms-and-definitions'] dfn {
+  font-style: inherit;
 }
 
-[id*='terms-and-definitions'] emu-clause h1 {
+[id$='terms-and-definitions'] emu-clause {
+  margin-top: 12pt;
+}
+
+[id$='terms-and-definitions'] emu-clause h1 {
   -prince-bookmark-level: none;
+  font-size: 10pt;
 }
 
 p.adoption-info {

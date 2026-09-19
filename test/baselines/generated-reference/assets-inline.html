@@ -2595,15 +2595,15 @@ emu-annex {
   margin-top: 0;
 }
 
-[id*='terms-and-definitions'] emu-clause h1 {
+[id$='terms-and-definitions'] emu-clause h1 {
   font-size: 1rem;
 }
 
-[id*='terms-and-definitions'] emu-clause h1 + p {
+[id$='terms-and-definitions'] emu-clause h1 + p {
   margin-top: 0;
 }
 
-[id*='terms-and-definitions'] emu-clause .secnum {
+[id$='terms-and-definitions'] emu-clause .secnum {
   display: block;
 }
 
@@ -4033,12 +4033,17 @@ p.ECMAaddress {
   margin: 0;
 }
 
-[id*='terms-and-definitions'] dfn {
-  font-style: normal;
+[id$='terms-and-definitions'] dfn {
+  font-style: inherit;
 }
 
-[id*='terms-and-definitions'] emu-clause h1 {
+[id$='terms-and-definitions'] emu-clause {
+  margin-top: 12pt;
+}
+
+[id$='terms-and-definitions'] emu-clause h1 {
   -prince-bookmark-level: none;
+  font-size: 10pt;
 }
 
 p.adoption-info {
