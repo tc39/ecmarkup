@@ -49,6 +49,18 @@ describe('ecmarkup#cli', { timeout: 4000 }, () => {
       `Expected minified (${minified.length}) to be smaller than unminified (${unminified.length})`,
     );
   });
+
+  it('does not minify when using --printable', () => {
+    const output = execSync(
+      `${execPath} ./bin/ecmarkup.js --printable test/baselines/sources/clauses.html`,
+      { encoding: 'utf8' },
+    );
+    // minification would strip the quotes
+    assert(
+      output.includes(`<div id="spec-container">`),
+      'Expected printable output to be unminified',
+    );
+  });
 });
 
 describe('emu-format --check', { timeout: 4000 }, () => {
