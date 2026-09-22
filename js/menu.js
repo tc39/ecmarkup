@@ -1160,6 +1160,48 @@ function makeLinkToId(id) {
   return path + '#' + id;
 }
 
+// The theme is chosen by `prefers-color-scheme` media queries, which script can't override,
+// so to show the opposite of the system's scheme we swap `light` and `dark` in those queries.
+let systemPrefersDark = matchMedia('(prefers-color-scheme: dark)');
+let colorSchemeInverted = false;
+
+// a change to the system's scheme is a new preference, so go back to following it
+systemPrefersDark.addEventListener('change', () => {
+  if (colorSchemeInverted) {
+    toggleColorScheme();
+  }
+});
+
+function toggleColorScheme() {
+  colorSchemeInverted = !colorSchemeInverted;
+  let dark = systemPrefersDark.matches !== colorSchemeInverted;
+  document.documentElement.style.colorScheme = colorSchemeInverted ? (dark ? 'dark' : 'light') : '';
+  for (let sheet of document.styleSheets) {
+    let rules;
+    try {
+      rules = sheet.cssRules;
+    } catch (e) {
+      // cross-origin stylesheets can't be inspected
+      continue;
+    }
+    invertColorSchemeQueries(rules);
+  }
+}
+
+function invertColorSchemeQueries(rules) {
+  for (let rule of rules) {
+    if (rule.media?.mediaText.includes('prefers-color-scheme')) {
+      rule.media.mediaText = rule.media.mediaText.replace(
+        /(prefers-color-scheme:\s*)(light|dark)/g,
+        (_, feature, scheme) => feature + (scheme === 'dark' ? 'light' : 'dark'),
+      );
+    }
+    if (rule.cssRules) {
+      invertColorSchemeQueries(rule.cssRules);
+    }
+  }
+}
+
 function doShortcut(e) {
   if (!(e.target instanceof HTMLElement)) {
     return;
@@ -1178,6 +1220,8 @@ function doShortcut(e) {
     document.documentElement.classList.toggle('show-uc-annotations');
   } else if (e.key === 'e') {
     document.documentElement.classList.toggle('show-early-exits');
+  } else if (e.key === 'd') {
+    toggleColorScheme();
   } else if (e.key === '?') {
     document.getElementById('shortcuts-help').classList.toggle('active');
   }
@@ -1188,6 +1232,7 @@ function init() {
     return;
   }
   menu = new Menu();
+  document.getElementById('color-scheme-toggle').addEventListener('click', toggleColorScheme);
   let $container = document.getElementById('spec-container');
   $container.addEventListener(
     'mouseover',
