@@ -113,8 +113,11 @@ const build = debounce(async function build() {
     if (args['mark-effects']) {
       opts.markEffects = true;
     }
-    if (args['max-clause-depth']) {
+    if (args['max-clause-depth'] != null) {
       opts.maxClauseDepth = args['max-clause-depth'];
+    }
+    if (args['printed-toc-depth'] != null) {
+      opts.tocDepth = args['printed-toc-depth'];
     }
     if (args['no-toc'] != null) {
       opts.toc = !args['no-toc'];
