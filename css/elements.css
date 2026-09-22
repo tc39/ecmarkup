@@ -1376,11 +1376,32 @@ a.menu-pane-header-production {
   display: none;
 }
 
+#menu-search-row {
+  display: flex;
+  gap: 4px;
+  margin: 5px 0 0 0;
+}
+
+#color-scheme-toggle {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  color: var(--control-dimmed-foreground-color);
+  background-color: var(--control-input-background-color);
+  border: 1px solid var(--control-input-border-color);
+  cursor: pointer;
+}
+
+#color-scheme-toggle:hover {
+  color: var(--foreground-color);
+}
+
 #menu-search-box {
   box-sizing: border-box;
   display: block;
-  width: 100%;
-  margin: 5px 0 0 0;
+  flex-grow: 1;
+  min-width: 0;
+  margin: 0;
   font-size: 1em;
   padding: 2px;
   color: var(--foreground-color);
