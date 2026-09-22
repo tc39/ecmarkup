@@ -656,8 +656,8 @@ export default class Spec {
       this.log('Building table of contents...');
 
       if (this.opts.printable) {
-        // Ecma guidance directs three levels of clause in ToC
-        new Toc(this).build(this.opts.tocDepth ?? 3);
+        // Ecma house style is three levels of subclause in ToC
+        new Toc(this).build(this.opts.tocDepth !== undefined ? this.opts.tocDepth || Infinity : 3);
       } else {
         ({ js: tocJs, eles: commonEles } = makeMenu(this));
       }
