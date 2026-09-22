@@ -9,7 +9,7 @@ export default class Toc {
 
   /** @internal */
   build(maxDepth: number = Infinity) {
-    if (this.spec.subclauses.length === 0) {
+    if (this.spec.subclauses.length === 0 || maxDepth < 0) {
       return;
     }
 
