@@ -230,7 +230,9 @@ p {
   text-wrap: pretty;
   overflow-wrap: break-word;
   hyphens: auto;
+  /* prettier-ignore */
   orphans: 2, -prince-prefer 3; /* see https://www.princexml.com/doc/prince-for-books/#pagination-goals */
+  /* prettier-ignore */
   widows: 2, -prince-prefer 3;
 }
 
