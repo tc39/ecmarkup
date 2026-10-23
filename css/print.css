@@ -190,12 +190,41 @@
   page-break-after: always;
 }
 
+/* Styles for web users who wish to print (or "print") the document */
+#shortcuts-help,
+#menu-toggle,
+#menu-spacer,
+#menu-search,
+#menu-pins {
+  display: none;
+}
+#menu-toc {
+  display: block;
+  overflow: visible;
+}
+#menu {
+  background: none;
+  border: none;
+  display: block;
+  height: initial;
+  max-width: 100%;
+  overflow: initial;
+  position: static;
+  transition: none;
+  width: initial;
+}
+.menu-pane-header {
+  background: none;
+  font-size: initial;
+}
+
 html,
 body {
   background-color: initial;
 }
 
 body {
+  display: block;
   font-family: 'Arial Plus', Arial, Helvetica, sans-serif, 'DejaVu Math TeX Gyre', Symbola,
     monospace;
   font-size: 10pt;
