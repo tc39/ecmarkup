@@ -34,7 +34,10 @@ export default function makeMenu(spec: Spec) {
   const searchContainer = spec.doc.createElement('div');
   searchContainer.setAttribute('id', 'menu-search');
   searchContainer.innerHTML =
-    '<input type=text id=menu-search-box placeholder=Search...><div id=menu-search-results class=inactive></div>';
+    '<div id=menu-search-row><input type=text id=menu-search-box placeholder=Search...>' +
+    '<button type=button id=color-scheme-toggle title="Toggle light/dark mode (d)" aria-label="Toggle light/dark mode">' +
+    '<svg viewBox="0 0 16 16" width=16 height=16 aria-hidden=true><circle cx=8 cy=8 r=6.5 fill=none stroke=currentColor stroke-width=1.5 /><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill=currentColor /></svg>' +
+    '</button></div><div id=menu-search-results class=inactive></div>';
 
   const menuContainer = spec.doc.createElement('div');
   menuContainer.setAttribute('id', 'menu');
