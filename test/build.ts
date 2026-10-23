@@ -64,5 +64,34 @@ describe('ecmarkup#build', () => {
         'Expected unminified output to preserve whitespace and attribute quotes',
       );
     });
+
+    it('rejects minify with printable output', async () => {
+      await assert.rejects(
+        build('root.html', async () => doc, {
+          printable: true,
+          minify: true,
+          title: 'Test Doc',
+          shortname: 'Test',
+        }),
+        { message: '--minify cannot be used with --printable' },
+      );
+    });
+
+    it('does not minify printable output', async () => {
+      const printableDoc =
+        '<!doctype html><pre class=metadata>toc: false\ncopyright: false\nassets: none\ntitle: Test Doc\nshortname: Test</pre><emu-intro id=sec-intro><h1>intro</h1></emu-intro><emu-clause id=sec><h1>hi</h1></emu-clause>';
+      const spec = await build('root.html', async () => printableDoc, {
+        toc: false,
+        copyright: false,
+        assets: 'none',
+        printable: true,
+      });
+      const output = spec.generatedFiles.get(null) as string;
+      // minification would strip the quotes
+      assert(
+        output.includes(`<div id="spec-container">`),
+        'Expected printable output to be unminified',
+      );
+    });
   });
 });

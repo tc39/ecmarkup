@@ -412,6 +412,12 @@ export default class Spec {
     }
 
     if (this.opts.printable) {
+      if (this.opts.minify) {
+        throw new Error('--minify cannot be used with --printable');
+      } else {
+        // --printable implies --no-minify
+        this.opts.minify = false;
+      }
       if (this.opts.title == null) {
         throw new Error(`--printable requires a title to be set in the metadata"`);
       }
