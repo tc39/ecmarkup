@@ -1202,6 +1202,7 @@ markEffects: true
   <emu-clause id="oldids">
     <h1>Old IDs</h1>
     <p>Old IDs for any element can be stored separated by commas with optional whitespace inside an <b>oldids</b> attribute, allowing links using them to continue working as expected.</p>
+    <p>In multipage builds, an old ID on a top-level clause or annex which looks like a top-level section ID (i.e., it begins with `sec-`) also causes a redirect page to be generated at the corresponding old location. For example, if a clause with id `sec-numbers-and-math` has `oldids="sec-numbers-and-dates"`, then `multipage/numbers-and-dates.html` will redirect to `multipage/numbers-and-math.html`. The fragment is preserved: if it identifies an element which is now in a different section, the redirect goes to that section instead.</p>
   </emu-clause>
 
   <emu-clause id="ins-del">

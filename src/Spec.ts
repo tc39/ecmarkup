@@ -862,45 +862,17 @@ export default class Spec {
   }
 
   private readSectionId(ele: Element) {
-    if (ele.id == null) {
+    const result = sectionNameFromId(ele.id);
+    if (typeof result !== 'string') {
       this.warn({
         type: 'node',
         ruleId: 'top-level-section-id',
-        message: 'When using --multipage, top-level sections must have ids',
+        message: result.error,
         node: ele,
       });
       return undefined;
     }
-    if (!ele.id.startsWith('sec-')) {
-      this.warn({
-        type: 'node',
-        ruleId: 'top-level-section-id',
-        message: 'When using --multipage, top-level sections must have ids beginning with `sec-`',
-        node: ele,
-      });
-      return undefined;
-    }
-    const name = ele.id.substring(4);
-    if (!/^[A-Za-z0-9-_]+$/.test(name)) {
-      this.warn({
-        type: 'node',
-        ruleId: 'top-level-section-id',
-        message:
-          'When using --multipage, top-level sections must have ids matching /^[A-Za-z0-9-_]+$/',
-        node: ele,
-      });
-      return undefined;
-    }
-    if (name.toLowerCase() === 'index') {
-      this.warn({
-        type: 'node',
-        ruleId: 'top-level-section-id',
-        message: 'When using --multipage, top-level sections must not be named "index"',
-        node: ele,
-      });
-      return undefined;
-    }
-    return name;
+    return result;
   }
 
   private propagateEffects() {
@@ -960,6 +932,7 @@ export default class Spec {
     let stillIntro = true;
     const introEles = [];
     const sections: { name: string; eles: Element[] }[] = [];
+    const redirects: { from: string; to: string; node: Element }[] = [];
     const containedIdToSection: Map<string, string> = new Map();
     const sectionToContainedIds: Map<string, string[]> = new Map();
     const clauseTypes = ['EMU-ANNEX', 'EMU-CLAUSE'];
@@ -1001,6 +974,15 @@ export default class Spec {
         }
 
         section = { name, eles: [child] };
+
+        const oldids = child.getAttribute('oldids');
+        if (oldids) {
+          for (const oldid of oldids.split(',').map((s: string) => s.trim())) {
+            const oldName = sectionNameFromId(oldid);
+            if (typeof oldName !== 'string') continue;
+            redirects.push({ from: oldName, to: name, node: child });
+          }
+        }
       }
 
       sections.push(section);
@@ -1031,6 +1013,7 @@ export default class Spec {
       /[\\`$]/g,
       '\\$&',
     );
+    let multipageScriptSrc: string | null = null;
     if (this.assets.type !== 'none') {
       const multipageJsContents = `'use strict';
 let multipageMap = JSON.parse(\`${containedMap}\`);
@@ -1046,13 +1029,15 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       // the path will be rewritten below
       // so it should initially be relative to outfile, not outfile/multipage
       const multipageScript = this.doc.createElement('script');
-      multipageScript.src =
+      const multipageScriptPath =
         path.relative(this.opts.outfile!, multipageLocationOnDisk) +
         '?cache=' +
         sha(multipageJsContents);
+      multipageScript.src = multipageScriptPath;
       // fetch in parallel, but evaluate ASAP in case of redirect
       multipageScript.setAttribute('async', '');
       this.doc.head.insertBefore(multipageScript, this.doc.head.querySelector('script'));
+      multipageScriptSrc = path.relative('multipage', multipageScriptPath);
     }
 
     const head = this.doc.head.cloneNode(true) as HTMLHeadElement;
@@ -1131,6 +1116,35 @@ ${await utils.readFile(path.join(__dirname, '../js/multipage.js'))}
       const content = `<!doctype html>${htmlEle}\n${headClone.outerHTML}\n<body>${commonHTML}<div id='spec-container'>${clonesHTML}</div></body>`;
 
       this.generatedFiles.set(path.join(this.opts.outfile!, `multipage/${name}.html`), content);
+    }
+
+    const pageNames = new Set(sections.map(s => s.name.toLowerCase()));
+    const redirectNames = new Set<string>();
+    for (const { from, to, node } of redirects) {
+      const lower = from.toLowerCase();
+      if (pageNames.has(lower)) {
+        this.warn({
+          type: 'node',
+          ruleId: 'multipage-redirect',
+          message: `oldid "sec-${from}" conflicts with an existing multipage section; not generating a redirect`,
+          node,
+        });
+        continue;
+      }
+      if (redirectNames.has(lower)) {
+        this.warn({
+          type: 'node',
+          ruleId: 'multipage-redirect',
+          message: `oldid "sec-${from}" is used by multiple top-level sections; not generating a second redirect`,
+          node,
+        });
+        continue;
+      }
+      redirectNames.add(lower);
+      this.generatedFiles.set(
+        path.join(this.opts.outfile!, `multipage/${from}.html`),
+        multipageRedirectPage(to, multipageScriptSrc),
+      );
     }
   }
 
@@ -2328,6 +2342,73 @@ function sha(str: string) {
     .slice(0, 8)
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
+}
+
+function sectionNameFromId(id: string | null | undefined): string | { error: string } {
+  if (id == null) {
+    return { error: 'When using --multipage, top-level sections must have ids' };
+  }
+  if (!id.startsWith('sec-')) {
+    return {
+      error: 'When using --multipage, top-level sections must have ids beginning with `sec-`',
+    };
+  }
+  const name = id.substring(4);
+  if (!/^[A-Za-z0-9-_]+$/.test(name)) {
+    return {
+      error: 'When using --multipage, top-level sections must have ids matching /^[A-Za-z0-9-_]+$/',
+    };
+  }
+  if (name.toLowerCase() === 'index') {
+    return { error: 'When using --multipage, top-level sections must not be named "index"' };
+  }
+  return name;
+}
+
+function escapeAttr(str: string) {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function multipageRedirectPage(targetSection: string, multipageScriptSrc: string | null) {
+  // targetSection is known to match /^[A-Za-z0-9-_]+$/, so it is safe to interpolate directly
+  const target = `${targetSection}.html`;
+  // If multipage.js is available, use its id-to-section map so that the hash
+  // goes to whichever section now contains it (which might not be targetSection).
+  // multipage.js may also perform a redirect itself (e.g. per the user's
+  // single-page preference), in which case it sets `window.navigating`.
+  return `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Redirecting…</title>
+<link rel="canonical" href="../#sec-${targetSection}">
+${multipageScriptSrc == null ? '' : `<script src="${escapeAttr(multipageScriptSrc)}"></script>\n`}<script>
+(function () {
+  if (window.navigating) return;
+  var target = '${target}';
+  var hash = location.hash;
+  if (hash && typeof idToSection !== 'undefined') {
+    var id = hash.substring(1);
+    var section = idToSection[id];
+    if (section == null) {
+      try {
+        section = idToSection[decodeURIComponent(id)];
+      } catch (e) {}
+    }
+    if (section != null) {
+      target = section === 'index' ? './' : section + '.html';
+    }
+  }
+  location.replace(target + hash);
+})();
+</script>
+<noscript><meta http-equiv="refresh" content="0; url=${target}"></noscript>
+</head>
+<body>
+<p>This page has moved to <a href="${target}">${target}</a>.</p>
+</body>
+</html>
+`;
 }
 
 // jsdom does not handle the `.hostname` (etc) parts correctly, so we have to look at the href directly
