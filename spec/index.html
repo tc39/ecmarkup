@@ -271,7 +271,7 @@ markEffects: true
       <p>Ecmarkup produces special formatting behaviour for an `&lt;emu-clause>` with an ID of `terms-and-definitions` or `sec-terms-and-definitions`. No action is required on an editor's part to properly format that clause as long as it has contents similar to any other clause, i.e. an `&lt;h1>` element followed by one or more `&lt;p>` or `&lt;emu-clause>` elements.</p>
       <p>Each `&lt;emu-clause>` within the `&lt;emu-clause id="sec-terms-and-definitions">` clause represents a single term and its definition.</p>
       <p>Using a `&lt;dfn>` element in the clause title is optional, and will allow ecmarkup to link back to the term anywhere it is used in the rest of the document. See <emu-xref href="#definitions">definitions</emu-xref>.</p>
-      <p>If a term is sometimes represented by an acronym, that may be included in a paragraph element with a class of "acronymm" immediately following the h1 element stating the term.</p>
+      <p>If a term is sometimes represented by an acronym, that may be included in a paragraph element with a class of “acronymm” immediately following the h1 element stating the term.</p>
 
       <h2>Example</h2>
       <pre><code class="language-html">&lt;emu-clause id="sec-terms-and-definitions">
@@ -297,8 +297,9 @@ markEffects: true
   &lt;/emu-clause>
 &lt;/emu-clause></code></pre>
 
-    <h3>Result</h3>
+      <h3>Result</h3>
       <aside class="result">
+
         <emu-clause id="sec-terms-and-definitions">
           <h1>Terms and definitions</h1>
 
