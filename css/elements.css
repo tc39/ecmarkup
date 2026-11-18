@@ -1622,6 +1622,21 @@ li.menu-search-result[data-kind]::before {
   width: 500px;
 }
 
+:is(#bibliography, #sec-bibliography) ol {
+  counter-reset: bibliography;
+  padding-left: 2em;
+}
+
+:is(#bibliography, #sec-bibliography) li {
+  counter-increment: bibliography;
+  margin-bottom: 1lh;
+  margin-left: 2em;
+}
+
+:is(#bibliography, #sec-bibliography) li::marker {
+  content: '[' counter(bibliography) ']      ';
+}
+
 /* Other dynamic elements */
 :root[data-multipage-preference=''] [data-set-multipage-preference=''],
 :root[data-multipage-preference='single-page'] [data-set-multipage-preference='single-page'],
