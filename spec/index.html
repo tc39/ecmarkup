@@ -229,42 +229,44 @@ markEffects: true
           </ul>
         </li>
       </ol>
+
+      <h2>Example</h2>
+      <pre><code class="language-html">&lt;emu-clause id="example-normative-optional" type="abstract operation" normative-optional example>
+  &lt;h1>
+    ExampleOperation (
+      _S_: a String,
+      optional _length_: a non-negative integer,
+    )
+  &lt;/h1>
+  &lt;dl class="header">
+    &lt;dt>description&lt;/dt>
+    &lt;dd>
+      It returns a List of the code points of the first _length_ grapheme
+      clusters of _S_ using the host environment's current locale, or all code
+      points when _length_ is not present.
+    &lt;/dd>
+  &lt;/dl>
+  &lt;p>This clause is normative optional.&lt;/p>
+&lt;/emu-clause></code></pre>
+
+      <h3>Result</h3>
+      <aside class="result">
+
+        <emu-clause id="example-normative-optional" type="abstract operation" normative-optional example>
+          <h1>
+            ExampleOperation (
+              _S_: a String,
+              optional _length_: a non-negative integer,
+            )
+          </h1>
+          <dl class="header">
+            <dt>description</dt>
+            <dd>It returns a List of the code points of the first _length_ grapheme clusters of _S_ using the host environment's current locale, or all code points when _length_ is not present.</dd>
+          </dl>
+          <p>This clause is normative optional.</p>
+        </emu-clause>
+      </aside>
     </emu-clause>
-
-    <h2>Example</h2>
-    <pre><code class="language-html">
-      &lt;emu-clause id="example-normative-optional" type="abstract operation" normative-optional example>
-        &lt;h1>
-          ExampleOperation (
-            _S_: a String,
-            optional _length_: a non-negative integer,
-          )
-        &lt;/h1>
-        &lt;dl class="header">
-          &lt;dt>description&lt;/dt>
-          &lt;dd>It returns a List of the code points of the first _length_ grapheme clusters of _S_ using the host environment's current locale, or all code points when _length_ is not present.&lt;/dd>
-        &lt;/dl>
-        &lt;p>This clause is normative optional.&lt;/p>
-      &lt;/emu-clause>
-    </code></pre>
-
-    <h3>Result</h3>
-    <aside class="result">
-
-      <emu-clause id="example-normative-optional" type="abstract operation" normative-optional example>
-        <h1>
-          ExampleOperation (
-            _S_: a String,
-            optional _length_: a non-negative integer,
-          )
-        </h1>
-        <dl class="header">
-          <dt>description</dt>
-          <dd>It returns a List of the code points of the first _length_ grapheme clusters of _S_ using the host environment's current locale, or all code points when _length_ is not present.</dd>
-        </dl>
-        <p>This clause is normative optional.</p>
-      </emu-clause>
-    </aside>
 
     <emu-clause id="terms">
       <h1>Terms and definitions</h1>
@@ -314,6 +316,30 @@ markEffects: true
     <p><b>back-matter:</b> If present, annex is back matter (such as a colophon), which means it will not be assigned an annex letter and will appear without one in the table of contents and document. This attribute should only be used with non-normative annexes, and back matter annexes should not be followed by non-back-matter annexes.</p>
     <p><b>id:</b> Clause id. Must be unique.</p>
     <p><b>aoid:</b> Abstract operation ID. A unique name identifying this clause as an abstract operation. Algorithm steps will auto-link calls to this abstract operation to this clause. If left blank, the aoid will be set to the id of this clause.</p>
+
+    <emu-clause id="bibliography">
+      <h1>Bibliography</h1>
+
+      <p>Ecmarkup provides special formatting behaviour for an `&lt;emu-annex>` with an ID of `bibliography` or `sec-bibliography`.</p>
+
+      <p>
+        Ecma house style allows for an optional back matter annex clause (i.e. `&lt;emu-annex id="bibliography" back-matter>`) that lists non-normative references which may assist an implementor in better understanding a standard.
+        Bibliographic content should be formatted as an ordered list. List items might use a traditional citation formats like
+        <a href="https://pitt.libguides.com/citationhelp/apa7#s-lg-box-collapse-24437715">APA</a>, or they may be formatted like those appearing in the normative references clause.
+      </p>
+
+      <h2>Example</h2>
+      <pre><code class="language-html">&lt;emu-annex id="sec-bibliography" back-matter>
+  &lt;h1>Bibliography&lt;/h1>
+
+  &lt;ol>
+    &lt;!-- APA style -->
+    &lt;li>Experimental statistics, US National Bureau of Standards Handbook 91, 1963&lt;/li>
+    &lt;!-- Normative reference formatting style -->
+    &lt;li>ECMA-404, &lt;cite>&lt;a href="https://www.ecma-international.org/publications-and-standards/standards/ecma-404/">The JSON data interchange syntax&lt;/a>&lt;/cite>, 2&lt;sup>nd&lt;/sup> edition&lt;/li>
+  &lt;/ol>
+&lt;/emu-annex></code></pre>
+    </emu-clause>
   </emu-clause>
 </emu-clause>
 
@@ -1283,7 +1309,7 @@ markEffects: true
 </emu-clause>
 
 <emu-annex id="document-structure">
-  <h1>Required structure for Ecma documents</h1>
+  <h1>Requirements for Ecma documents</h1>
 
   <p>Ecmarkup supports producing a document aligned with the <a href="https://ecma-international.org/policies/ecma-directives/">Ecma directives</a>. If the ecmarkup document is intended to be formally released by Ecma International, there are some structural requirements it shall follow.</p>
   <p>Each `&lt;emu-intro>`, `&lt;emu-clause>`, and `&lt;emu-annex>` element shall have a unique ID, optionally beginning with the prefix `sec-`.</p>
