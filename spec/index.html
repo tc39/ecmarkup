@@ -269,25 +269,36 @@ markEffects: true
     <emu-clause id="terms">
       <h1>Terms and definitions</h1>
       <p>Ecmarkup produces special formatting behaviour for an `&lt;emu-clause>` with an ID of `terms-and-definitions` or `sec-terms-and-definitions`. No action is required on an editor's part to properly format that clause as long as it has contents similar to any other clause, i.e. an `&lt;h1>` element followed by one or more `&lt;p>` or `&lt;emu-clause>` elements.</p>
+      <p>Each `&lt;emu-clause>` within the `&lt;emu-clause id="sec-terms-and-definitions">` clause represents a single term and its definition.</p>
       <p>Using a `&lt;dfn>` element in the clause title is optional, and will allow ecmarkup to link back to the term anywhere it is used in the rest of the document. See <emu-xref href="#definitions">definitions</emu-xref>.</p>
+      <p>If a term is sometimes represented by an acronym, that may be included in a paragraph element with a class of "acronymm" immediately following the h1 element stating the term.</p>
 
       <h2>Example</h2>
-      <pre><code class="language-html">
-      &lt;emu-clause id="sec-terms-and-definitions">
-        &lt;h1>Terms and definitions&lt;/h1>
-        &lt;emu-clause id="term-technical-definition">
-          &lt;h1>technical definition&lt;/h1>
-          &lt;p>descriptive text aligning with Ecma house style, providing text that could be swapped in for the term without impacting readability&lt;/p>
-        &lt;/emu-clause>
-        &lt;emu-clause id="term-ecma">
-          &lt;h1>&lt;dfn>Ecma International&lt;/dfn>&lt;/h1>
-          &lt;p>international standards organization responsible for technology-related standards since 1959&lt;/p>
-        &lt;/emu-clause>
-      &lt;/emu-clause></code></pre>
+      <pre><code class="language-html">&lt;emu-clause id="sec-terms-and-definitions">
+  &lt;h1>Terms and definitions&lt;/h1>
 
-      <h3>Result</h3>
+  &lt;emu-clause id="term-technical-definition">
+    &lt;h1>technical definition&lt;/h1>
+    &lt;p>descriptive text aligning with Ecma house style, providing text that
+          could be swapped in for the term without impacting readability&lt;/p>
+  &lt;/emu-clause>
+
+  &lt;emu-clause id="term-ecma">
+    &lt;h1>&lt;dfn>Ecma International&lt;/dfn>&lt;/h1>
+    &lt;p>international standards organization responsible for
+          technology-related standards since 1959&lt;/p>
+  &lt;/emu-clause>
+
+  &lt;emu-clause id="term-sbom">
+    &lt;h1>Software bill of materials&lt;/h1>
+    &lt;p class="acronym">SBOM&lt;/p>
+    &lt;p>structured inventory of the software components of a product, with
+          their versions, identifiers and dependencies&lt;/p>
+  &lt;/emu-clause>
+&lt;/emu-clause></code></pre>
+
+    <h3>Result</h3>
       <aside class="result">
-
         <emu-clause id="sec-terms-and-definitions">
           <h1>Terms and definitions</h1>
 
@@ -299,6 +310,12 @@ markEffects: true
           <emu-clause id="term-ecma">
             <h1><dfn>Ecma International</dfn></h1>
             <p>international standards organization responsible for technology-related standards since 1959</p>
+          </emu-clause>
+
+          <emu-clause id="term-sbom">
+            <h1>Software bill of materials</h1>
+            <p class="acronym">SBOM</p>
+            <p>structured inventory of the software components of a product, with their versions, identifiers and dependencies</p>
           </emu-clause>
         </emu-clause>
       </aside>
