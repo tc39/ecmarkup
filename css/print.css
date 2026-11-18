@@ -621,10 +621,24 @@ emu-annex > h1 .secnum {
   /* ecma mandated */
   font-style: italic;
   border: 1px solid black;
-  padding: 1em;
+  counter-reset: legal;
+  padding: 0 1em;
   page: copyright;
   break-before: page;
   break-after: page;
+}
+
+.copyright-notice ol {
+  padding-left: 0.25em;
+}
+
+.copyright-notice li {
+  counter-increment: legal;
+  list-style-position: inside;
+}
+
+.copyright-notice ol li::marker {
+  content: '(' counter(legal, lower-roman) ') ';
 }
 
 .secnum {
