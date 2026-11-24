@@ -402,7 +402,7 @@ export default class Clause extends Builder {
     // The following effects are runtime only:
     //
     // user-code: Only runtime can call user code.
-    if (this.title !== null && this.title.startsWith('Static Semantics:')) {
+    if (this.title !== null && this.title.startsWith('Static semantics:')) {
       if (effectName === 'user-code') return false;
     }
     return true;

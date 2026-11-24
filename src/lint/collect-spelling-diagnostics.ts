@@ -146,6 +146,12 @@ const matchers = [
     pattern: /(÷|&divide;)/gu,
     message: 'division should be written as "/", not "÷", per ISO 80000-2',
   },
+  /* Ecma house style */
+  {
+    pattern: /this (standard|annex|clause)/gu,
+    message:
+      '"Standard", "Annex", and "Clause" shall be capitalised when self-referential (e.g. "this Standard")',
+  },
 ];
 
 export function collectSpellingDiagnostics(
