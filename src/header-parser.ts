@@ -76,7 +76,7 @@ export function parseHeader(headerText: string): ParsedHeaderOrFailure {
   }
 
   let prefix = null;
-  ({ match, text } = eat(text, /^(Static|Runtime) Semantics:\s*/i));
+  ({ match, text } = eat(text, /^(Static|Runtime) semantics:\s*/i));
   if (match) {
     prefix = match[0].trimRight();
     offset += match[0].length;

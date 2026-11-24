@@ -30,7 +30,7 @@ describe('linting whole program', () => {
           Statement[a]: \`;\`
         </emu-grammar>
         <emu-clause id="example">
-        <h1>Static Semantics: Early Errors</h1>
+        <h1>Static semantics: early Errors</h1>
           <emu-grammar>Statement[a]: \`;\`</emu-grammar>
           <ul>
             <li>
@@ -116,7 +116,7 @@ describe('linting whole program', () => {
             Foo : \`a\`
           </emu-grammar>
           <emu-clause id="example">
-            <h1>Static Semantics: Early Errors</h1>
+            <h1>Static semantics: early Errors</h1>
             ${M}<ul>
               <li>It is an Early Error sometimes.</li>
             </ul>
@@ -137,7 +137,7 @@ describe('linting whole program', () => {
             Foo : \`a\`
           </emu-grammar>
           ${M}<emu-clause id="example">
-            <h1>Static Semantics: Early Errors</h1>
+            <h1>Static semantics: early Errors</h1>
             <emu-grammar>Foo : \`a\`</emu-grammar>
             <emu-alg>
               1. Some logic.
@@ -159,7 +159,7 @@ describe('linting whole program', () => {
             Foo : \`a\`
           </emu-grammar>
           <emu-clause id="example">
-            <h1>Static Semantics: Early Errors</h1>
+            <h1>Static semantics: early Errors</h1>
             ${M}<emu-grammar>Foo : \`a\`</emu-grammar>
             <emu-grammar>Foo : \`a\`</emu-grammar>
           </emu-clause>
@@ -180,7 +180,7 @@ describe('linting whole program', () => {
             Foo : \`a\`
           </emu-grammar>
           ${M}<emu-clause id="example">
-            <h1>Static Semantics: Early Errors</h1>
+            <h1>Static semantics: early Errors</h1>
           </emu-clause>
           `,
         {
@@ -285,7 +285,7 @@ describe('linting whole program', () => {
           ruleId: 'header-format',
           nodeType: 'h1',
           message:
-            "expected operation to have a name like 'Example', 'Runtime Semantics: Foo', 'Example.prop', etc, but found \"something: \"",
+            "expected operation to have a name like 'Example', 'Runtime semantics: Foo', 'Example.prop', etc, but found \"something: \"",
         },
       );
       await assertLint(
@@ -353,10 +353,10 @@ describe('linting whole program', () => {
             <h1>Example ( )</h1>
           </emu-clause>
           <emu-clause id="i2">
-            <h1>Runtime Semantics: Example ( )</h1>
+            <h1>Runtime semantics: Example ( )</h1>
           </emu-clause>
           <emu-clause id="i3">
-            <h1>The * Operator ( \`*\` )</h1>
+            <h1>The * operator ( \`*\` )</h1>
           </emu-clause>
           <emu-clause id="i4">
             <h1>Number::example ( )</h1>
